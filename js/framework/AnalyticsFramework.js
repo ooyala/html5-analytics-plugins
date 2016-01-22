@@ -1,11 +1,16 @@
 require("../../html5-common/js/classes/message_bus.js")
-var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
-{
-  var registeredPlugins = {};
-  var mb = new OO.MessageBus();
-  var recordedMessages = [];
+require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js")
 
-  var uniquePluginId = 0;
+var OoyalaAnalyticsFramework = function()
+{
+  var _registeredPlugins = {};
+  var _mb = new OO.MessageBus();
+  var _recordedMessages = [];
+
+  var _ = OO._;
+
+  var _uniquePluginId = 0;
+  const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
 
   const EVENTS =
   {
@@ -17,10 +22,9 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
     VIDEO_RESUME_REQUESTED : 'video_resume_requested',
     VIDEO_PLAYING : 'video_playing',
     VIDEO_PAUSED : 'video_paused'
-
   };
 
-  const RequiredPluginFunctions =
+  const REQUIRED_FUNCTIONS =
   [
     "getName",
     "getVersion",
@@ -28,8 +32,6 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
     "makeActive",
     "makeInactive"
   ];
-
-  const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
 
     /**
      * Helper function to make functions private to GoogleIMA variable for consistency
@@ -62,9 +64,9 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
       try
       {
         pluginId = createPluginId(newPlugin);
-        if (!registeredPlugins[pluginId])
+        if (!_registeredPlugins[pluginId])
         {
-          registeredPlugins[pluginId] = newPlugin;
+          _registeredPlugins[pluginId] = newPlugin;
         }
 
       }
@@ -90,9 +92,9 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
   this.unregisterPlugin = function(pluginToRemove)
   {
     var removedSuccessfully = false;
-    if (pluginToRemove && registeredPlugins && registeredPlugins.hasOwnProperty(pluginToRemove))
+    if (pluginToRemove && _registeredPlugins && _registeredPlugins.hasOwnProperty(pluginToRemove))
     {
-      delete registeredPlugins[pluginToRemove];
+      delete _registeredPlugins[pluginToRemove];
       removedSuccessfully = true;
     }
 
@@ -111,7 +113,7 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
     if (plugin)
     {
       isValid = true;
-      for (reqFunc in RequiredPluginFunctions)
+      for (reqFunc in REQUIRED_FUNCTIONS)
       {
         if(!plugin.hasOwnProperty(reqFunc) || typeof plugin[reqFunc] !== 'function')
         {
@@ -130,7 +132,7 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
    */
   this.getPluginList = function()
   {
-    for ( property in registeredPlugins )
+    for ( property in _registeredPlugins )
     {
       //TODO
     }
@@ -166,7 +168,8 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
 
   this.publishMessage = function(msgName, params)
   {
-    mb.publish(msgName, params);
+    //TODO only publish messages for active plugins
+    _mb.publish(msgName, params);
   }
 
   //In case someone needs to register multiple of the same plugin, this creates unique ids for each.
@@ -179,15 +182,15 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
       var version = plugin.getVersion();
       if (name && version)
       {
-        if (uniquePluginId < MAX_PLUGINS)
+        if (_uniquePluginId < MAX_PLUGINS)
         {
-          id = name + "_" + version + "_" + uniquePluginId;
+          id = name + "_" + version + "_" + _uniquePluginId;
           //we shouldn't have any naming conflicts but just in case, throw an error
-          if (registeredPlugins[id])
+          if (_registeredPlugins[id])
           {
               throw createErrorString("Failed to create a unique name for plugin " + name + "_" + version);
           }
-          uniquePluginId++;
+          _uniquePluginId++;
         }
         else
         {
@@ -212,6 +215,6 @@ var OoyalaAnalyticsFramework = function OoyalaAnalyticsFramework()
   {
 
   }
-
-  return this;
 };
+
+module.exports = OoyalaAnalyticsFramework;
