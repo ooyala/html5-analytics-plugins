@@ -24,6 +24,7 @@ var OoyalaAnalyticsFramework = function()
     VIDEO_PAUSED : 'video_paused'
   };
 
+  //list of required functions for plugins
   const REQUIRED_FUNCTIONS =
   [
     "getName",
@@ -32,6 +33,8 @@ var OoyalaAnalyticsFramework = function()
     "makeActive",
     "makeInactive"
   ];
+
+  this.REQUIRED_FUNCTIONS = REQUIRED_FUNCTIONS;
 
     /**
      * Helper function to make functions private to GoogleIMA variable for consistency
@@ -107,24 +110,64 @@ var OoyalaAnalyticsFramework = function()
    * @return {boolean} True if plugin contains all the correct functions and
    *                        public variables.
    */
-  var validatePlugin = privateMember(function(plugin)
+  this.validatePluginFactory = function(factory)
   {
     var isValid = false;
-    if (plugin)
+    if (factory && typeof factory === 'function')
     {
       isValid = true;
-      for (reqFunc in REQUIRED_FUNCTIONS)
+      //TODO do we need to register factories or plugins?
+      var toValidate = new factory();
+      if (!toValidate)
       {
-        if(!plugin.hasOwnProperty(reqFunc) || typeof plugin[reqFunc] !== 'function')
+        isValid = false;
+        OO.log("Plugin factory return falsy value for plugin.");
+      }
+
+      if (isValid)
+      {
+        for ( var i = 0; i < REQUIRED_FUNCTIONS.length; i++)
         {
-          isValid = false;
-          break;
+          var reqFunc = REQUIRED_FUNCTIONS[i];
+          if(!toValidate.hasOwnProperty(reqFunc) || typeof toValidate[reqFunc] !== 'function')
+          {
+            isValid = false;
+            if(toValidate.getName && typeof toValidate.getName === 'function')
+            {
+              OO.log("Plugin \'" + toValidate.getName() + "\' missing function: " + reqFunc);
+            }
+            else
+            {
+              OO.log("Plugin missing missing function: " + reqFunc);
+            }
+            break;
+          }
         }
       }
 
+      //if it's still valid check whether the getName returns a non empty string
+      if (isValid)
+      {
+        var name = toValidate.getName();
+        if (!name || typeof name !== 'string')
+        {
+          OO.log("Plugin does not have \'string\' as return type of getName() or is empty string");
+          isValid = false;
+        }
+      }
+
+      if (isValid)
+      {
+        var version = toValidate.getVersion();
+        if (!version || typeof version !== 'string')
+        {
+          OO.log("Plugin does not have \'string\' as return type of getVersion() or is empty string");
+          isValid = false;
+        }
+      }
     }
     return isValid;
-  });
+  };
 
   /**
    * [function description]
