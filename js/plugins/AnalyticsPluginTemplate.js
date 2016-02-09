@@ -29,6 +29,16 @@ var AnalyticsPluginTemplate = function ()
   {
 
   }
+
+  this.processRecordedEvents = function (recordedEvents)
+  {
+
+  }
+
+  this.destroy = function ()
+  {
+    
+  }
 };
 
 module.exports = AnalyticsPluginTemplate;

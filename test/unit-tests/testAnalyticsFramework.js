@@ -41,6 +41,9 @@ describe('Analytics Framework Unit Tests', function()
   beforeEach(testSetup);
   afterEach(testCleanup);
 
+  //////////////////////////////////////////////
+  ///Plugin Validation Testing
+  //////////////////////////////////////////////
 
   describe("Test Plugin Validator", function()
   {
@@ -91,6 +94,28 @@ describe('Analytics Framework Unit Tests', function()
       },this);
     };
 
+    var createWrongNameReturnTypeFactory = function()
+    {
+      return OO._.bind(function()
+      {
+        var validFactory = createValidPluginFactory();
+        var wrongReturnFactory = new validFactory();
+        wrongReturnFactory['getName'] = function() {return 5};
+        return wrongReturnFactory;
+      });
+    };
+
+    var createWrongVersionReturnTypeFactory = function()
+    {
+      return OO._.bind(function()
+      {
+        var validFactory = createValidPluginFactory();
+        var wrongReturnFactory = new validFactory();
+        wrongReturnFactory['getVersion'] = function() {return 5};
+        return wrongReturnFactory;
+        });
+    };
+
     it('Test Undefined Factory', function()
     {
       var badPluginFactory;
@@ -125,6 +150,11 @@ describe('Analytics Framework Unit Tests', function()
       }
     });
 
+    it('Test Valid Factory', function()
+    {
+      var goodPluginFactory = createValidPluginFactory();
+      expect(framework.validatePluginFactory(goodPluginFactory)).toBe(true);
+    });
 
     it('Test Factory Returns Plugin With More Than Just Required Function', function()
     {
@@ -134,16 +164,23 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.validatePluginFactory(extraFunctionFactory2)).toBe(true);
     });
 
-    //   var badReturnValuePlugin1 = {};
-    //   var badReturnValuePlugin2 = {};
-    //
-    //   //TODO extra functions or variables are okay
-    it('Test Valid Factory', function()
+    it('Test Return Value Types For getName()', function()
     {
-      var goodPluginFactory = createValidPluginFactory();
-      expect(framework.validatePluginFactory(goodPluginFactory)).toBe(true);
+      var wrongReturnPluginFactory = createWrongNameReturnTypeFactory();
+      expect(framework.validatePluginFactory(wrongReturnPluginFactory)).toBe(false);
     });
+
+    it('Test Return Value Types For getVersion()', function()
+    {
+      var wrongReturnPluginFactory = createWrongVersionReturnTypeFactory();
+      expect(framework.validatePluginFactory(wrongReturnPluginFactory)).toBe(false);
+    });
+
   });
+
+  //////////////////////////////////////////////
+  ///Template Testing
+  //////////////////////////////////////////////
 
   it('Test Analytics Template Validity', function()
   {
@@ -153,9 +190,18 @@ describe('Analytics Framework Unit Tests', function()
     expect(framework.validatePluginFactory(templatePlugin)).toBe(true);
   });
 
-  it('Test Registering Factory', function()
+  //////////////////////////////////////////////
+  ///Template Testing
+  //////////////////////////////////////////////
+  describe('Test Registering Factory', function()
   {
 
+    it('Test No Plugins Registered', function()
+    {
+      var pluginList = framework.getPluginList();
+      expect(Array.isArray(pluginList)).toBe(true);
+      expect(pluginList.length).toBe(0);
+    });
   });
 
   finalCleanup();

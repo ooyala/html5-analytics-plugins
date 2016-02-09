@@ -5,7 +5,7 @@ var OoyalaAnalyticsFramework = function()
 {
   var _registeredPlugins = {};
   var _mb = new OO.MessageBus();
-  var _recordedMessages = [];
+  var _recordedEvents = [];
 
   var _ = OO._;
 
@@ -30,16 +30,19 @@ var OoyalaAnalyticsFramework = function()
     "getName",
     "getVersion",
     "init",
+    "destroy",
     "makeActive",
-    "makeInactive"
+    "makeInactive",
+    "processRecordedEvents"
   ];
 
   this.REQUIRED_FUNCTIONS = REQUIRED_FUNCTIONS;
+  this.EVENTS = EVENTS;
 
-    /**
-     * Helper function to make functions private to GoogleIMA variable for consistency
-     * and ease of reading.
-     */
+  /**
+   * Helper function to make functions private to GoogleIMA variable for consistency
+   * and ease of reading.
+   */
   var privateMember = _.bind(function(functionVar)
   {
     if (!_.isFunction(functionVar))
@@ -50,6 +53,33 @@ var OoyalaAnalyticsFramework = function()
     return _.bind(functionVar, this);
   }, this);
 
+  this.RecordedEvent = function (timeStampIn, eventDataIn)
+  {
+    this.timeStamp = timeStampIn;
+    this.eventData = eventDataIn;
+  }
+
+  var recordEvent = function(eventData)
+  {
+    var timeStamp = new Date().getTime();
+    var eventToRecord = new RecordedEvent(timeStamp, eventData);
+    recordedEvents.push(eventToRecord);
+  }
+
+  var clearRecordedEvents = function()
+  {
+    _recordedEvents = [];
+  }
+
+  var startRecordingEvents = function()
+  {
+
+  }
+
+  var stopRecordingEvents = function()
+  {
+
+  }
 
   this.registerPlugin = function(newPlugin)
   {
@@ -175,11 +205,12 @@ var OoyalaAnalyticsFramework = function()
    */
   this.getPluginList = function()
   {
+    var list = [];
     for ( property in _registeredPlugins )
     {
       //TODO
     }
-    return null;
+    return list;
   };
 
   /**
