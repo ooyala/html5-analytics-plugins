@@ -4,6 +4,7 @@ jest.dontMock('jquery');
 global.SRC_ROOT = '../../js/';
 global.COMMON_SRC_ROOT = '../../html5-common/js/'
 global.TEST_ROOT = '../../test/';
+global.COMMON_TEST_ROOT = '../../html5-common/test/'
 global.OO = { publicApi: {}, platform: 'MacIntel', os: {}, browser: { version:1, webkit:true }, TEST_TEST_TEST: true};
 
 

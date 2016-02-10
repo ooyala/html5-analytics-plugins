@@ -1,7 +1,9 @@
 require("../../html5-common/js/classes/message_bus.js")
 require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js")
+require("./InitAnalyticsNamespace.js");
+require("./AnalyticsConstants.js");
 
-var OoyalaAnalyticsFramework = function()
+OO.Analytics.Framework = function()
 {
   var _registeredPlugins = {};
   var _mb = new OO.MessageBus();
@@ -11,33 +13,6 @@ var OoyalaAnalyticsFramework = function()
 
   var _uniquePluginId = 0;
   const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
-
-  const EVENTS =
-  {
-    //messages for main video
-    //TODO see if we need to distinguish between video and ad messages
-    VIDEO_FIRST_PLAY_REQUESTED : 'video_first_play_requested',
-    VIDEO_PLAY_REQUESTED : 'video_play_requested',
-    VIDEO_PAUSE_REQUESTED : 'video_pause_requested',
-    VIDEO_RESUME_REQUESTED : 'video_resume_requested',
-    VIDEO_PLAYING : 'video_playing',
-    VIDEO_PAUSED : 'video_paused'
-  };
-
-  //list of required functions for plugins
-  const REQUIRED_FUNCTIONS =
-  [
-    "getName",
-    "getVersion",
-    "init",
-    "destroy",
-    "makeActive",
-    "makeInactive",
-    "processRecordedEvents"
-  ];
-
-  this.REQUIRED_FUNCTIONS = REQUIRED_FUNCTIONS;
-  this.EVENTS = EVENTS;
 
   /**
    * Helper function to make functions private to GoogleIMA variable for consistency
@@ -52,6 +27,7 @@ var OoyalaAnalyticsFramework = function()
     }
     return _.bind(functionVar, this);
   }, this);
+
 
   this.RecordedEvent = function (timeStampIn, eventDataIn)
   {
@@ -81,25 +57,33 @@ var OoyalaAnalyticsFramework = function()
 
   }
 
-  this.registerPlugin = function(newPlugin)
+  /**
+   * [function description]
+   * @param  {[type]} pluginFactory [description]
+   * @return {[type]}           [description]
+   */
+  this.registerPlugin = function(pluginFactory)
   {
-    var pluginId;
-    if (!newPlugin)
+    var pluginID;
+    if (!pluginFactory)
     {
       OO.log(createErrorString("Trying to register plugin that has falsy value."));
-      return pluginId;
+      return pluginID;
     }
 
     var errorOccured = false;
-    var isValidPlugin = validatePlugin(newPlugin);
+    var isValidPlugin = this.validatePluginFactory(pluginFactory);
+    console.log( "is valid: " + isValidPlugin);
     if (isValidPlugin)
     {
       try
       {
-        pluginId = createPluginId(newPlugin);
-        if (!_registeredPlugins[pluginId])
+        var plugin = new pluginFactory();
+        pluginID = createPluginId(plugin);
+        console.log("curr id: " + pluginID);
+        if (!_registeredPlugins[pluginID])
         {
-          _registeredPlugins[pluginId] = newPlugin;
+          _registeredPlugins[pluginID] = pluginFactory;
         }
 
       }
@@ -116,13 +100,13 @@ var OoyalaAnalyticsFramework = function()
 
     if (errorOccured)
     {
-      OO.log(createErrorString("\'" + pluginId + "\' is not valid and was not registered."));
+      OO.log(createErrorString("\'" + pluginID + "\' is not valid and was not registered."));
     }
 
-    return pluginId;
+    return pluginID;
   };
 
-  this.unregisterPlugin = function(pluginToRemove)
+  this.unregisterPlugin = function(pluginIDToRemove)
   {
     var removedSuccessfully = false;
     if (pluginToRemove && _registeredPlugins && _registeredPlugins.hasOwnProperty(pluginToRemove))
@@ -156,9 +140,9 @@ var OoyalaAnalyticsFramework = function()
 
       if (isValid)
       {
-        for ( var i = 0; i < REQUIRED_FUNCTIONS.length; i++)
+        for ( var i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
         {
-          var reqFunc = REQUIRED_FUNCTIONS[i];
+          var reqFunc = OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i];
           if(!toValidate.hasOwnProperty(reqFunc) || typeof toValidate[reqFunc] !== 'function')
           {
             isValid = false;
@@ -168,7 +152,7 @@ var OoyalaAnalyticsFramework = function()
             }
             else
             {
-              OO.log("Plugin missing missing function: " + reqFunc);
+              OO.log("Plugin missing function: " + reqFunc);
             }
             break;
           }
@@ -200,53 +184,64 @@ var OoyalaAnalyticsFramework = function()
   };
 
   /**
-   * [function description]
-   * @return {[type]} [description]
+   * Get a list of currently registered plugins.
+   * @return {array} An array of plugin IDs.
+   *
    */
   this.getPluginList = function()
   {
     var list = [];
     for ( property in _registeredPlugins )
     {
-      //TODO
+      list.push()
     }
     return list;
   };
 
   /**
    * [function description]
-   * @return {[type]} [description]
+   * @return {boolean} Returns true if plugin is currently active and interpreting messages.
    */
-  this.isPluginActive = function(pluginId)
+  this.isPluginActive = function(pluginID)
   {
     return false;
   };
 
   /**
    * [function description]
-   * @return {[type]} [description]
+   * @return {boolean} Returns true if plugin found and was able to be activated.
    */
-  this.makePluginActive = function(pluginId)
+  this.makePluginActive = function(pluginID)
   {
     return false;
   };
 
   /**
    * [function description]
-   * @return {[type]} [description]
+   * @return {boolean} Returns true if plugin found and was able to be deactivated.
    */
-  this.makePluginInactive = function(pluginId)
+  this.makePluginInactive = function(pluginID)
   {
     return false;
   };
 
+  /**
+   * [function description]
+   * @param  {[type]} msgName [description]
+   * @param  {[type]} params  [description]
+   * @return {[type]}         [description]
+   */
   this.publishMessage = function(msgName, params)
   {
     //TODO only publish messages for active plugins
     _mb.publish(msgName, params);
   }
 
-  //In case someone needs to register multiple of the same plugin, this creates unique ids for each.
+  /**
+   * In case someone needs to register multiple of the same plugin, this creates unique ids for each.
+   * @param  {[type]} plugin [description]
+   * @return {[type]}                 [description]
+   */
   var createPluginId = privateMember(function(plugin)
   {
     var id = null;
@@ -258,7 +253,7 @@ var OoyalaAnalyticsFramework = function()
       {
         if (_uniquePluginId < MAX_PLUGINS)
         {
-          id = name + "_" + version + "_" + _uniquePluginId;
+          id = _uniquePluginId + "_" + name + "_" + version;
           //we shouldn't have any naming conflicts but just in case, throw an error
           if (_registeredPlugins[id])
           {
@@ -275,20 +270,44 @@ var OoyalaAnalyticsFramework = function()
     return id;
   });
 
+ /**
+  * [function description]
+  * @param  {[type]} orgString [description]
+  * @return {[type]}           [description]
+  */
   var createErrorString = function(orgString)
   {
     return "ERROR Analytics Framework: " + orgString;
   }
 
-  this.registerForMessage = function(msg, callback, pluginName)
-  {
 
+  /**
+   * [function description]
+   * @param  {[type]}   msg      [description]
+   * @param  {Function} callback [description]
+   * @param  {[type]}   pluginID [description]
+   * @return {boolean}           True if callback was successfully unregistered for pluginID
+   */
+  this.registerForMessage = function(msg, callback, pluginID)
+  {
+    return false;
   }
 
-  this.unregisterForMessage = function(msg, callback, pluginName)
+  /**
+   * [function description]
+   * @param  {[type]}   msg      [description]
+   * @param  {Function} callback [description]
+   * @param  {[type]}   pluginID [description]
+   * @return {boolean}           True if callback was successfully unregistered for pluginID
+   */
+  this.unregisterForMessage = function(msg, callback, pluginID)
   {
+    return false;
+  }
 
+  this.getRegisteredMessageListFor = function(pluginID)
+  {
+    var list = [];
+    return list;
   }
 };
-
-module.exports = OoyalaAnalyticsFramework;

@@ -57,6 +57,11 @@
       "<rootDir>/test/"
     ],
     "testDirectoryName": "unit-tests",
-    "collectCoverage": true
+    "collectCoverage": true,
+    "collectCoverageOnlyFrom": {
+      "<rootDir>/js/framework/AnalyticsConstants.js": true,
+      "<rootDir>/js/framework/AnalyticsFramework.js": true,
+      "<rootDir>/js/framework/InitAnalyticsNamespace.js": true
+    }
   }
 }
