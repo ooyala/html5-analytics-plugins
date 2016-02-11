@@ -73,7 +73,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.validatePluginFactory(emptyObjectPluginFactory)).toBe(false);
     });
 
-    it('Test Factory Returning Null', function()
+    it('Test Factory Returning Empty Object', function()
     {
       var badEmptyPluginFactory = function() {};
       expect(framework.validatePluginFactory(badEmptyPluginFactory)).toBe(false);
@@ -142,10 +142,39 @@ describe('Analytics Framework Unit Tests', function()
       expect(pluginList.length).toBe(0);
     });
 
-    it('Test Registering Bad Plugins')
+    it('Test Registering Undefined Factory', function()
     {
+      var badPluginFactory;
+      expect(framework.registerPlugin(badPluginFactory)).toBeFalsy();
+    });
 
-    }
+    it('Test Registering Null Factory', function()
+    {
+      var nullPluginFactory = null;
+      expect(framework.registerPlugin(nullPluginFactory)).toBeFalsy();
+    });
+
+    it('Test Registering Empty Object as Factory', function()
+    {
+      var emptyObjectPluginFactory = {};
+      expect(framework.registerPlugin(emptyObjectPluginFactory)).toBeFalsy();
+    });
+
+    it('Test Registering Factory Returning Empty Object', function()
+    {
+      var badEmptyPluginFactory = function() {};
+      expect(framework.registerPlugin(badEmptyPluginFactory)).toBeFalsy();
+    });
+
+    it('Test Registering Factory With Missing Required Function', function()
+    {
+      var i;
+      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
+      {
+        var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
+        expect(framework.registerPlugin(missingFunctionFactory)).toBeFalsy();
+      }
+    });
 
     it('Test Registering Template', function()
     {

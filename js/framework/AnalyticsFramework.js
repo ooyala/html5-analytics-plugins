@@ -73,14 +73,13 @@ OO.Analytics.Framework = function()
 
     var errorOccured = false;
     var isValidPlugin = this.validatePluginFactory(pluginFactory);
-    console.log( "is valid: " + isValidPlugin);
+    var plugin;
     if (isValidPlugin)
     {
       try
       {
-        var plugin = new pluginFactory();
+        plugin = new pluginFactory();
         pluginID = createPluginId(plugin);
-        console.log("curr id: " + pluginID);
         if (!_registeredPlugins[pluginID])
         {
           _registeredPlugins[pluginID] = pluginFactory;
@@ -100,7 +99,19 @@ OO.Analytics.Framework = function()
 
     if (errorOccured)
     {
-      OO.log(createErrorString("\'" + pluginID + "\' is not valid and was not registered."));
+      if(pluginID)
+      {
+        OO.log(createErrorString("\'" + pluginID + "\' is not valid and was not registered."));
+      }
+      else if(plugin && plugin.getName && typeof plugin.getName === 'function')
+      {
+        OO.log(createErrorString("\'" + plugin.getName() + "\' is not valid and was not registered."));
+      }
+      else
+      {
+        OO.log(createErrorString("Plugin does not have getName(), therefore is not valid and was not registered."));
+      }
+
     }
 
     return pluginID;
