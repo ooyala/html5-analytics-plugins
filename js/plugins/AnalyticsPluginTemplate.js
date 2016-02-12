@@ -4,6 +4,7 @@ var AnalyticsPluginTemplate = function ()
 {
   const name = "template";
   const version = "v1";
+  var id;
 
   this.getName = function ()
   {
@@ -14,6 +15,16 @@ var AnalyticsPluginTemplate = function ()
   {
     return version;
   };
+
+  this.setPluginID = function(newID)
+  {
+    id = newID;
+  }
+
+  this.getPluginID = function()
+  {
+    return id;
+  }
 
   this.init = function (metadata)
   {
@@ -37,7 +48,7 @@ var AnalyticsPluginTemplate = function ()
 
   this.destroy = function ()
   {
-    
+
   }
 };
 

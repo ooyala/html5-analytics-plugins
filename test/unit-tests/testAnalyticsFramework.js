@@ -18,8 +18,11 @@ describe('Analytics Framework Unit Tests', function()
   jest.dontMock(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
 
+  require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
+
   var Analytics = OO.Analytics;
   var Utils = OO.Analytics.Utils;
+  var _ = OO._;
   var framework;
 
   //setup for all tests
@@ -55,28 +58,28 @@ describe('Analytics Framework Unit Tests', function()
 
   describe("Test Plugin Validator", function()
   {
-    it('Test Undefined Factory', function()
+    it('Test Undefined Plugin', function()
     {
-      var badPluginFactory;
-      expect(framework.validatePluginFactory(badPluginFactory)).toBe(false);
+      var badPlugin;
+      expect(framework.validatePlugin(badPlugin)).toBe(false);
     });
 
-    it('Test Null Factory', function()
+    it('Test Null Plugin', function()
     {
-      var nullPluginFactory = null;
-      expect(framework.validatePluginFactory(nullPluginFactory)).toBe(false);
+      var nullPlugin = null;
+      expect(framework.validatePlugin(nullPlugin)).toBe(false);
     });
 
-    it('Test Object as Factory', function()
+    it('Test Empty Plugin', function()
     {
-      var emptyObjectPluginFactory = {};
-      expect(framework.validatePluginFactory(emptyObjectPluginFactory)).toBe(false);
+      var emptyObjectPlugin = {};
+      expect(framework.validatePlugin(emptyObjectPlugin)).toBe(false);
     });
 
-    it('Test Factory Returning Empty Object', function()
+    it('Test String As Plugin', function()
     {
-      var badEmptyPluginFactory = function() {};
-      expect(framework.validatePluginFactory(badEmptyPluginFactory)).toBe(false);
+      var stringPlugin = "test";
+      expect(framework.validatePlugin(stringPlugin)).toBe(false);
     });
 
     it('Test Factory Returns Plugin With Missing Required Function', function()
@@ -85,48 +88,47 @@ describe('Analytics Framework Unit Tests', function()
       for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
       {
         var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
-        expect(framework.validatePluginFactory(missingFunctionFactory)).toBe(false);
+        var plugin = new missingFunctionFactory();
+        expect(framework.validatePlugin(plugin)).toBe(false);
       }
     });
 
     it('Test Valid Factory', function()
     {
       var goodPluginFactory = Utils.createValidPluginFactory();
-      expect(framework.validatePluginFactory(goodPluginFactory)).toBe(true);
+      var plugin = new goodPluginFactory();
+      expect(framework.validatePlugin(plugin)).toBe(true);
     });
 
     it('Test Factory Returns Plugin With More Than Just Required Function', function()
     {
       var extraFunctionFactory = Utils.createExtraFunctionFactory("something");
+      var plugin = new extraFunctionFactory();
+      expect(framework.validatePlugin(plugin)).toBe(true);
+
       var extraFunctionFactory2 = Utils.createExtraFunctionFactory("somethingMore");
-      expect(framework.validatePluginFactory(extraFunctionFactory)).toBe(true);
-      expect(framework.validatePluginFactory(extraFunctionFactory2)).toBe(true);
+      var plugin2 = new extraFunctionFactory2();
+      expect(framework.validatePlugin(plugin2)).toBe(true);
+
+      //add a second extra function to the first plugin, as a sanity check.
+      plugin["anotherExtraFunction"] = function() {};
+      expect(framework.validatePlugin(plugin)).toBe(true);
     });
 
-    it('Test Return Value Types For getName()', function()
+    it('Test Bad Return Value Types For getName()', function()
     {
       var wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
-      expect(framework.validatePluginFactory(wrongReturnPluginFactory)).toBe(false);
+      var plugin = new wrongReturnPluginFactory();
+      expect(framework.validatePlugin(plugin)).toBe(false);
     });
 
-    it('Test Return Value Types For getVersion()', function()
+    it('Test Bad Return Value Types For getVersion()', function()
     {
       var wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
-      expect(framework.validatePluginFactory(wrongReturnPluginFactory)).toBe(false);
+      var plugin = new wrongReturnPluginFactory();
+      expect(framework.validatePlugin(plugin)).toBe(false);
     });
 
-  });
-
-  //////////////////////////////////////////////
-  ///Template Testing
-  //////////////////////////////////////////////
-
-  it('Test Analytics Template Validity', function()
-  {
-    var templatePlugin = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
-    expect(templatePlugin).not.toBeNull();
-    var isValidPlugin = framework.validatePluginFactory(templatePlugin);
-    expect(framework.validatePluginFactory(templatePlugin)).toBe(true);
   });
 
   //////////////////////////////////////////////
@@ -146,45 +148,121 @@ describe('Analytics Framework Unit Tests', function()
     {
       var badPluginFactory;
       expect(framework.registerPlugin(badPluginFactory)).toBeFalsy();
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
     });
 
     it('Test Registering Null Factory', function()
     {
       var nullPluginFactory = null;
       expect(framework.registerPlugin(nullPluginFactory)).toBeFalsy();
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
     });
 
     it('Test Registering Empty Object as Factory', function()
     {
       var emptyObjectPluginFactory = {};
       expect(framework.registerPlugin(emptyObjectPluginFactory)).toBeFalsy();
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
     });
 
     it('Test Registering Factory Returning Empty Object', function()
     {
       var badEmptyPluginFactory = function() {};
       expect(framework.registerPlugin(badEmptyPluginFactory)).toBeFalsy();
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
     });
 
     it('Test Registering Factory With Missing Required Function', function()
     {
       var i;
-      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
+      for (i = 4; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
       {
         var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
         expect(framework.registerPlugin(missingFunctionFactory)).toBeFalsy();
       }
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
     });
 
-    it('Test Registering Template', function()
+    it('Test Registering Factory With Bad Return Value Types For getName()', function()
     {
-        var templatePlugin = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
-        var pluginID = framework.registerPlugin(templatePlugin);
-        expect(pluginID).not.toBeFalsy();
-        expect(pluginID).not.toBeNull();
-        var pluginList = framework.getPluginList();
-      //  expect()
+      var wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
+      expect(framework.registerPlugin(wrongReturnPluginFactory)).toBeFalsy();
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
     });
+
+    it('Test Registering Factory With Bad Return Value Types For getVersion()', function()
+    {
+      var wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
+      expect(framework.registerPlugin(wrongReturnPluginFactory)).toBeFalsy();
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+    });
+
+    it('Test Registering Good Factory', function()
+    {
+      var goodFactory = Utils.createValidPluginFactory();
+      var pluginID = framework.registerPlugin(goodFactory);
+      expect(pluginID).not.toBeFalsy();
+      expect(typeof pluginID === 'string').toBe(true);
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(1);
+    });
+
+    it('Test Registering Same Good Factory Multiple Times', function()
+    {
+      var goodFactory = Utils.createValidPluginFactory();
+      var pluginID1 = framework.registerPlugin(goodFactory);
+      var pluginID2 = framework.registerPlugin(goodFactory);
+      var pluginID3 = framework.registerPlugin(goodFactory);
+
+      expect(pluginID1).not.toBeFalsy();
+      expect(_.isString(pluginID1)).toBe(true);
+
+      expect(pluginID2).not.toBeFalsy();
+      expect(_.isString(pluginID2)).toBe(true);
+
+      expect(pluginID3).not.toBeFalsy();
+      expect(_.isString(pluginID3)).toBe(true);
+
+      expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
+      expect(_.isEqual(pluginID2, pluginID3)).not.toBe(true);
+      expect(_.isEqual(pluginID3, pluginID1)).not.toBe(true);
+
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(3);
+
+      expect(_.contains(pluginList, pluginID1)).toBe(true);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+      expect(_.contains(pluginList, pluginID3)).toBe(true);
+    });
+  });
+
+  //////////////////////////////////////////////
+  ///Template Testing
+  //////////////////////////////////////////////
+
+  it('Test Analytics Template Validity', function()
+  {
+    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    expect(templatePluginFactory).not.toBeNull();
+    var plugin = new templatePluginFactory();
+    expect(framework.validatePlugin(plugin)).toBe(true);
+  });
+
+  it('Test Registering Template', function()
+  {
+      var templatePlugin = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+      var pluginID = framework.registerPlugin(templatePlugin);
+      expect(pluginID).not.toBeFalsy();
+      expect(typeof pluginID === 'string').toBe(true);
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(1);
   });
 
   finalCleanup();

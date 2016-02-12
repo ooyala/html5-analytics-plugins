@@ -59,42 +59,57 @@ OO.Analytics.Framework = function()
 
   /**
    * [function description]
-   * @param  {[type]} pluginFactory [description]
-   * @return {[type]}           [description]
+   * @param  {[type]} pluginClass [description]
+   * @return {[type]}             [description]
    */
-  this.registerPlugin = function(pluginFactory)
+  this.registerPlugin = function(pluginClass)
   {
     var pluginID;
-    if (!pluginFactory)
+    var plugin;
+    var errorOccured = false;
+    var isValidPlugin
+
+    //sanity check
+    if (!pluginClass)
     {
-      OO.log(createErrorString("Trying to register plugin that has falsy value."));
-      return pluginID;
+      OO.log(createErrorString("Trying to register plugin class that is a falsy value."));
+      errorOccured = true;
     }
 
-    var errorOccured = false;
-    var isValidPlugin = this.validatePluginFactory(pluginFactory);
-    var plugin;
-    if (isValidPlugin)
+    if (!errorOccured)
     {
       try
       {
-        plugin = new pluginFactory();
-        pluginID = createPluginId(plugin);
-        if (!_registeredPlugins[pluginID])
-        {
-          _registeredPlugins[pluginID] = pluginFactory;
-        }
-
+        plugin = new pluginClass();
       }
       catch (error)
       {
         OO.log(error);
+        OO.log(createErrorString("Error was thrown during plugin creation."))
         errorOccured = true;
       }
     }
-    else
+
+    if (!errorOccured)
     {
-      errorOccured = true;
+      isValidPlugin = this.validatePlugin(plugin);
+      if (!isValidPlugin)
+      {
+        errorOccured = true;
+      }
+    }
+
+    if (!errorOccured)
+    {
+      pluginID = createPluginId(plugin);
+      if (!pluginID)
+      {
+        errorOccured = true;
+      }
+      else if (!_registeredPlugins[pluginID])
+      {
+        _registeredPlugins[pluginID] = {factory:pluginClass, instance:plugin};
+      }
     }
 
     if (errorOccured)
@@ -103,15 +118,17 @@ OO.Analytics.Framework = function()
       {
         OO.log(createErrorString("\'" + pluginID + "\' is not valid and was not registered."));
       }
-      else if(plugin && plugin.getName && typeof plugin.getName === 'function')
-      {
-        OO.log(createErrorString("\'" + plugin.getName() + "\' is not valid and was not registered."));
-      }
       else
       {
-        OO.log(createErrorString("Plugin does not have getName(), therefore is not valid and was not registered."));
+        if(plugin && plugin.getName && typeof plugin.getName === 'function' && typeof plugin.getName() === 'string')
+        {
+          OO.log(createErrorString("\'" + plugin.getName() + "\' is not valid and was not registered."));
+        }
+        else
+        {
+          OO.log(createErrorString("Plugin validation failed and was not registered."));
+        }
       }
-
     }
 
     return pluginID;
@@ -135,45 +152,40 @@ OO.Analytics.Framework = function()
    * @return {boolean} True if plugin contains all the correct functions and
    *                        public variables.
    */
-  this.validatePluginFactory = function(factory)
+  this.validatePlugin = function(plugin)
   {
-    var isValid = false;
-    if (factory && typeof factory === 'function')
+    var isValid = true;
+    if (!plugin)
     {
-      isValid = true;
-      //TODO do we need to register factories or plugins?
-      var toValidate = new factory();
-      if (!toValidate)
-      {
-        isValid = false;
-        OO.log("Plugin factory return falsy value for plugin.");
-      }
+      isValid = false;
+      OO.log("Plugin has falsy value and is not valid. Actual value: ", plugin);
+    }
 
-      if (isValid)
+    if (isValid)
+    {
+      //test if all required functions are in the plugin
+      for ( var i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
       {
-        for ( var i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
+        var reqFunc = OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i];
+        if(!plugin.hasOwnProperty(reqFunc) || typeof plugin[reqFunc] !== 'function')
         {
-          var reqFunc = OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i];
-          if(!toValidate.hasOwnProperty(reqFunc) || typeof toValidate[reqFunc] !== 'function')
+          isValid = false;
+          if(plugin.getName && typeof plugin.getName === 'function')
           {
-            isValid = false;
-            if(toValidate.getName && typeof toValidate.getName === 'function')
-            {
-              OO.log("Plugin \'" + toValidate.getName() + "\' missing function: " + reqFunc);
-            }
-            else
-            {
-              OO.log("Plugin missing function: " + reqFunc);
-            }
-            break;
+            OO.log("Plugin \'" + plugin.getName() + "\' missing function: " + reqFunc);
           }
+          else
+          {
+            OO.log("Plugin missing function: " + reqFunc);
+          }
+          break;
         }
       }
 
       //if it's still valid check whether the getName returns a non empty string
       if (isValid)
       {
-        var name = toValidate.getName();
+        var name = plugin.getName();
         if (!name || typeof name !== 'string')
         {
           OO.log("Plugin does not have \'string\' as return type of getName() or is empty string");
@@ -181,9 +193,10 @@ OO.Analytics.Framework = function()
         }
       }
 
+      //if it's still valid check whether the getVersion returns a non empty string
       if (isValid)
       {
-        var version = toValidate.getVersion();
+        var version = plugin.getVersion();
         if (!version || typeof version !== 'string')
         {
           OO.log("Plugin does not have \'string\' as return type of getVersion() or is empty string");
@@ -202,9 +215,9 @@ OO.Analytics.Framework = function()
   this.getPluginList = function()
   {
     var list = [];
-    for ( property in _registeredPlugins )
+    for (pluginID in _registeredPlugins)
     {
-      list.push()
+      list.push(pluginID);
     }
     return list;
   };
@@ -289,7 +302,7 @@ OO.Analytics.Framework = function()
   var createErrorString = function(orgString)
   {
     return "ERROR Analytics Framework: " + orgString;
-  }
+  };
 
 
   /**
@@ -302,7 +315,7 @@ OO.Analytics.Framework = function()
   this.registerForMessage = function(msg, callback, pluginID)
   {
     return false;
-  }
+  };
 
   /**
    * [function description]
@@ -314,11 +327,48 @@ OO.Analytics.Framework = function()
   this.unregisterForMessage = function(msg, callback, pluginID)
   {
     return false;
-  }
+  };
 
   this.getRegisteredMessageListFor = function(pluginID)
   {
     var list = [];
     return list;
+  };
+
+  // Helpers
+  // Safely trigger an ad manager function
+  var _safeFunctionCall = function(plugin, func, params) {
+    if (OO.DEBUG)
+    {
+      _debugCheckFunctionIsInRequiredList(func);
+    }
+
+    try
+    {
+      if (_.isFunction(plugin[func]))
+      {
+        return plugin[func].apply(plugin, params);
+      }
+    }
+    catch (err)
+    {
+      if (plugin && _isFunction(plugin.getName))
+      {
+        OO.log(this.createErrorString("Error occurred during call to function \'" + func + "\' on plugin \'" + plugin.getName() + "\'\n", err));
+      }
+      else
+      {
+        OO.log(this.createErrorString("Error occurred during call to function \'" + func + "\' on plugin\n", err));
+      }
+    }
+    return null;
+  };
+
+  var _debugCheckFunctionIsInRequiredList = function(func)
+  {
+    if(!_.contains(OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS, func))
+    {
+      throw createErrorString("Calling function \'" + func + "\' in framework code and it's not in the REQUIRED_PLUGIN_FUNCTIONS list.");
+    }
   }
 };

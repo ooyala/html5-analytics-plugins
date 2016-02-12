@@ -24,6 +24,8 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
   [
     "getName",
     "getVersion",
+    "setPluginID",
+    "getPluginID",
     "init",
     "destroy",
     "makeActive",
