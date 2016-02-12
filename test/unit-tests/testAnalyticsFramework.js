@@ -179,7 +179,7 @@ describe('Analytics Framework Unit Tests', function()
     it('Test Registering Factory With Missing Required Function', function()
     {
       var i;
-      for (i = 4; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
+      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
       {
         var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
         expect(framework.registerPlugin(missingFunctionFactory)).toBeFalsy();
@@ -241,6 +241,227 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.contains(pluginList, pluginID2)).toBe(true);
       expect(_.contains(pluginList, pluginID3)).toBe(true);
     });
+
+    it('Test Registering Multiple Good Factories With The Same Name', function()
+    {
+      var goodFactory1 = Utils.createValidPluginFactory();
+      var goodFactory2 = Utils.createValidPluginFactory();
+
+      var pluginID1 = framework.registerPlugin(goodFactory1);
+      var pluginID2 = framework.registerPlugin(goodFactory2);
+
+      expect(pluginID1).not.toBeFalsy();
+      expect(_.isString(pluginID1)).toBe(true);
+
+      expect(pluginID2).not.toBeFalsy();
+      expect(_.isString(pluginID2)).toBe(true);
+
+
+      expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
+
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(2);
+
+      expect(_.contains(pluginList, pluginID1)).toBe(true);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+    });
+
+    it('Test Registering Multiple Good Factories', function()
+    {
+      var goodFactory1 = Utils.createValidPluginFactory("test1");
+      var goodFactory2 = Utils.createValidPluginFactory("test2");
+
+      var pluginID1 = framework.registerPlugin(goodFactory1);
+      var pluginID2 = framework.registerPlugin(goodFactory2);
+
+      expect(pluginID1).not.toBeFalsy();
+      expect(_.isString(pluginID1)).toBe(true);
+
+      expect(pluginID2).not.toBeFalsy();
+      expect(_.isString(pluginID2)).toBe(true);
+
+
+      expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
+
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(2);
+
+      expect(_.contains(pluginList, pluginID1)).toBe(true);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+    });
+
+    it('Test Unregistering Factories', function()
+    {
+      var goodFactory1 = Utils.createValidPluginFactory("test1");
+      var goodFactory2 = Utils.createValidPluginFactory("test2");
+
+      var pluginID1 = framework.registerPlugin(goodFactory1);
+      var pluginID2 = framework.registerPlugin(goodFactory2);
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(2);
+
+      //test removing plugin1
+      expect(framework.unregisterPlugin(pluginID1)).toBe(true);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(1);
+      expect(_.contains(pluginList, pluginID1)).toBe(false);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+
+      //test removing plugin2
+      expect(framework.unregisterPlugin(pluginID2)).toBe(true);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+      expect(_.contains(pluginList, pluginID1)).toBe(false);
+      expect(_.contains(pluginList, pluginID2)).toBe(false);
+
+      //test removing plugin2 even though list is empty.
+      expect(framework.unregisterPlugin(pluginID2)).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+      expect(_.contains(pluginList, pluginID1)).toBe(false);
+      expect(_.contains(pluginList, pluginID2)).toBe(false);
+    });
+
+    it('Test Unregistering Factory Without Registering First', function()
+    {
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+
+      //test removing plugin1
+      expect(framework.unregisterPlugin("badID")).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+    });
+
+    it('Test Unregistering Factory Not using string', function()
+    {
+      var test;
+      expect(framework.unregisterPlugin(test)).toBe(false);
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+
+      test = {};
+      expect(framework.unregisterPlugin(test)).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+
+      test = {test:"testdata"};
+      expect(framework.unregisterPlugin(test)).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+
+      test = [];
+      expect(framework.unregisterPlugin(test)).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+
+      test = [1,2,3];
+      expect(framework.unregisterPlugin(test)).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+
+      test = 1;
+      expect(framework.unregisterPlugin(test)).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(0);
+    });
+
+    it('Test Reregistering An Unregistered Factory', function()
+    {
+      var goodFactory1 = Utils.createValidPluginFactory("test1");
+      var goodFactory2 = Utils.createValidPluginFactory("test2");
+      var pluginID1 = framework.registerPlugin(goodFactory1);
+      var pluginID2 = framework.registerPlugin(goodFactory2);
+
+      expect(framework.unregisterPlugin(pluginID1)).toBe(true);
+
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(1);
+      var pluginID3 = framework.registerPlugin(goodFactory1);
+      expect(_.isEqual(pluginID1, pluginID3)).not.toBe(true);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(2);
+      expect(_.contains(pluginList, pluginID1)).toBe(false);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+      expect(_.contains(pluginList, pluginID3)).toBe(true);
+    });
+
+
+    it('Test Registering and Unregistering Factories Mixed Test Cases', function()
+    {
+      var goodFactory1 = Utils.createValidPluginFactory("test1");
+      var goodFactory2 = Utils.createValidPluginFactory("test2");
+
+      var pluginID1 = framework.registerPlugin(goodFactory1);
+      var pluginID2 = framework.registerPlugin(goodFactory2);
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(2);
+
+      var badID = "badID";
+
+      expect(framework.unregisterPlugin(badID)).toBe(false);
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(2);
+      expect(_.contains(pluginList, pluginID1)).toBe(true);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+
+      badID = {};
+      expect(framework.unregisterPlugin(badID)).toBe(false);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(2);
+      expect(_.contains(pluginList, pluginID1)).toBe(true);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+
+      expect(framework.unregisterPlugin(pluginID1)).toBe(true);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(1);
+      expect(_.contains(pluginList, pluginID1)).toBe(false);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+
+      var pluginID3 = framework.registerPlugin(goodFactory1);
+      var pluginID4 = framework.registerPlugin(goodFactory1);
+      var pluginID5 = framework.registerPlugin(goodFactory1);
+
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(4);
+      expect(_.contains(pluginList, pluginID1)).toBe(false);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+      expect(_.contains(pluginList, pluginID3)).toBe(true);
+      expect(_.contains(pluginList, pluginID4)).toBe(true);
+      expect(_.contains(pluginList, pluginID5)).toBe(true);
+
+      expect(framework.unregisterPlugin(pluginID4)).toBe(true);
+      pluginList = framework.getPluginList();
+      expect(pluginList.length).toBe(3);
+      expect(_.contains(pluginList, pluginID1)).toBe(false);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+      expect(_.contains(pluginList, pluginID3)).toBe(true);
+      expect(_.contains(pluginList, pluginID4)).toBe(false);
+      expect(_.contains(pluginList, pluginID5)).toBe(true);
+    });
+
+    it('Test Registering Lots Of Plugins (should stop at some point)', function()
+    {
+      //There is an arbitrary limit here to test that we stop registering plugins after a while.
+      var upperLimit = 1000;
+      var goodFactory1 = Utils.createValidPluginFactory("test1");
+
+      var errorHit = false;
+      try
+      {
+        for(var i = 0; i < upperLimit; i++)
+        {
+          framework.registerPlugin(goodFactory1);
+        }
+      }
+      catch (e)
+      {
+        errorHit = true;
+      }
+
+      expect(errorHit).toBe(true);
+    });
+
   });
 
   //////////////////////////////////////////////

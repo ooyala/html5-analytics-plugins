@@ -137,9 +137,9 @@ OO.Analytics.Framework = function()
   this.unregisterPlugin = function(pluginIDToRemove)
   {
     var removedSuccessfully = false;
-    if (pluginToRemove && _registeredPlugins && _registeredPlugins.hasOwnProperty(pluginToRemove))
+    if (pluginIDToRemove && _registeredPlugins && _registeredPlugins.hasOwnProperty(pluginIDToRemove))
     {
-      delete _registeredPlugins[pluginToRemove];
+      delete _registeredPlugins[pluginIDToRemove];
       removedSuccessfully = true;
     }
 
@@ -371,4 +371,6 @@ OO.Analytics.Framework = function()
       throw createErrorString("Calling function \'" + func + "\' in framework code and it's not in the REQUIRED_PLUGIN_FUNCTIONS list.");
     }
   }
+
+  var _debugGetAllPlugin
 };

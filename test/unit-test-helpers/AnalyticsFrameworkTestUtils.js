@@ -8,7 +8,7 @@ if (!OO.Analytics.Utils)
 
   var Utils = OO.Analytics.Utils;
 
-  Utils.createValidPluginFactory = function()
+  Utils.createValidPluginFactory = function(name)
   {
     return function ()
     {
@@ -21,7 +21,12 @@ if (!OO.Analytics.Utils)
       //get name and version need to return a truthy string
       myPlugin.getName = function()
       {
-        return "testName";
+        if (!name)
+        {
+          return "testName";
+        }
+
+        return name;
       };
 
       myPlugin.getVersion = function()
