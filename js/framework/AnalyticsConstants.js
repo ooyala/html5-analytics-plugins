@@ -11,7 +11,9 @@ if (!OO.Analytics.EVENTS)
     VIDEO_PAUSE_REQUESTED : 'video_pause_requested',
     VIDEO_RESUME_REQUESTED : 'video_resume_requested',
     VIDEO_PLAYING : 'video_playing',
-    VIDEO_PAUSED : 'video_paused'
+    VIDEO_PAUSED : 'video_paused',
+    VIDEO_METADATA_UPDATED: "video_metadata_updated",
+    VIDEO_SOURCE_CHANGED: "VIDEO_SOURCE_CHANGED"
   };
   OO.Analytics.EVENTS = EVENTS;
 }
@@ -30,6 +32,7 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
     "destroy",
     "makeActive",
     "makeInactive",
+    "processEvent",
     "processRecordedEvents"
   ];
   OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS = REQUIRED_PLUGIN_FUNCTIONS;

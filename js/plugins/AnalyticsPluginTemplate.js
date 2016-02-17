@@ -41,6 +41,11 @@ var AnalyticsPluginTemplate = function ()
 
   }
 
+  this.processEvent = function(msgName, params)
+  {
+    
+  }
+
   this.processRecordedEvents = function (recordedEvents)
   {
 

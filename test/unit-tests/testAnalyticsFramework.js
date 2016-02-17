@@ -134,7 +134,7 @@ describe('Analytics Framework Unit Tests', function()
   //////////////////////////////////////////////
   ///Registration Testing
   //////////////////////////////////////////////
-  describe('Test Registering Factory', function()
+  describe('Test Factory Registration', function()
   {
 
     it('Test No Plugins Registered', function()
@@ -447,6 +447,7 @@ describe('Analytics Framework Unit Tests', function()
       var goodFactory1 = Utils.createValidPluginFactory("test1");
 
       var errorHit = false;
+      //make sure it doesn't throw an error.
       try
       {
         for(var i = 0; i < upperLimit; i++)
@@ -459,14 +460,28 @@ describe('Analytics Framework Unit Tests', function()
         errorHit = true;
       }
 
-      expect(errorHit).toBe(true);
+      expect(errorHit).toBe(false);
+      var pluginList = framework.getPluginList();
+      expect(pluginList.length > 0).toBe(true);
+      expect(pluginList.length < upperLimit).toBe(true);
     });
 
   });
 
+  //TODO test registering for messages and recording.
+  //Test multiple include of analytics constants.
+  // describe('Test Message Recording', function()
+  // {
+  //   it('Test No Plugins Registered', function()
+  //   {
+  //   });
+  // });
+
+
   //////////////////////////////////////////////
   ///Template Testing
   //////////////////////////////////////////////
+
 
   it('Test Analytics Template Validity', function()
   {

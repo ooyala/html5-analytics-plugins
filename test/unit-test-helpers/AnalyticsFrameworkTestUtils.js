@@ -66,7 +66,10 @@ if (!OO.Analytics.Utils)
     {
       var validFactory = Utils.createValidPluginFactory();
       var wrongReturnFactory = new validFactory();
-      wrongReturnFactory['getName'] = function() {return 5};
+      wrongReturnFactory['getName'] = function()
+      {
+        return 5
+      };
       return wrongReturnFactory;
     },this);
   };
@@ -77,8 +80,25 @@ if (!OO.Analytics.Utils)
     {
       var validFactory = Utils.createValidPluginFactory();
       var wrongReturnFactory = new validFactory();
-      wrongReturnFactory['getVersion'] = function() {return 5};
+      wrongReturnFactory['getVersion'] = function()
+      {
+        return 5
+      };
       return wrongReturnFactory;
     },this);
   };
+
+  Utils.createRecordedEventsFactory = function()
+  {
+    return OO._.bind(function()
+    {
+      var validFactory = Utils.createValidPluginFactory();
+      var eventFactory = new validFactory();
+      eventFactory.processRecordedEvents = function(events)
+      {
+        this.recordedEvents = events;
+      }
+      return eventFactory;
+    },this);
+  }
 }

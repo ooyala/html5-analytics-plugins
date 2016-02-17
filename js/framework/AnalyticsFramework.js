@@ -6,13 +6,17 @@ require("./AnalyticsConstants.js");
 OO.Analytics.Framework = function()
 {
   var _registeredPlugins = {};
-  var _mb = new OO.MessageBus();
-  var _recordedEvents = [];
-
+  var _recordedEventList = [];
+  var _recording = true;
+  var _videoMetadata;
   var _ = OO._;
 
   var _uniquePluginId = 0;
   const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
+
+  //TODO add state machine, need states init, ready, waitforpluginsToInit, video ended.
+  //init waiting for metadata
+  //ready inits
 
   /**
    * Helper function to make functions private to GoogleIMA variable for consistency
@@ -29,32 +33,38 @@ OO.Analytics.Framework = function()
   }, this);
 
 
-  this.RecordedEvent = function (timeStampIn, eventDataIn)
+  this.RecordedEvent = function (timeStamp, msgName, params)
   {
-    this.timeStamp = timeStampIn;
-    this.eventData = eventDataIn;
+    this.timeStamp = timeStamp;
+    this.msgName = msgName;
+    this.params = params;
   }
 
-  var recordEvent = function(eventData)
+  var recordEvent = privateMember(function(msgName, params)
   {
     var timeStamp = new Date().getTime();
-    var eventToRecord = new RecordedEvent(timeStamp, eventData);
+    var eventToRecord = new RecordedEvent(timeStamp, msgName, params);
     recordedEvents.push(eventToRecord);
-  }
+  });
 
-  var clearRecordedEvents = function()
+  var clearRecordedEvents = privateMember(function()
   {
     _recordedEvents = [];
-  }
+  });
 
-  var startRecordingEvents = function()
+  var startRecordingEvents = privateMember(function()
   {
+    _recording = true;
+  });
 
-  }
-
-  var stopRecordingEvents = function()
+  var stopRecordingEvents = privateMember(function()
   {
+    _recording = false;
+  });
 
+  this.getRecordedEvents = function()
+  {
+    return _.clone(_recordedEventList);
   }
 
   /**
@@ -67,7 +77,6 @@ OO.Analytics.Framework = function()
     var pluginID;
     var plugin;
     var errorOccured = false;
-    var isValidPlugin
 
     //sanity check
     if (!pluginClass)
@@ -92,8 +101,7 @@ OO.Analytics.Framework = function()
 
     if (!errorOccured)
     {
-      isValidPlugin = this.validatePlugin(plugin);
-      if (!isValidPlugin)
+      if (!this.validatePlugin(plugin))
       {
         errorOccured = true;
       }
@@ -120,9 +128,11 @@ OO.Analytics.Framework = function()
       }
       else
       {
-        if(plugin && plugin.getName && typeof plugin.getName === 'function' && typeof plugin.getName() === 'string')
+
+        var pluginName = _safeFunctionCall(plugin, "getName");
+        if (pluginName)
         {
-          OO.log(createErrorString("\'" + plugin.getName() + "\' is not valid and was not registered."));
+          OO.log(createErrorString("\'" + pluginName + "\' is not valid and was not registered."));
         }
         else
         {
@@ -134,10 +144,15 @@ OO.Analytics.Framework = function()
     return pluginID;
   };
 
+  /**
+   * [function description]
+   * @param  {[type]} pluginIDToRemove [description]
+   * @return {[type]}                  [description]
+   */
   this.unregisterPlugin = function(pluginIDToRemove)
   {
     var removedSuccessfully = false;
-    if (pluginIDToRemove && _registeredPlugins && _registeredPlugins.hasOwnProperty(pluginIDToRemove))
+    if (pluginIDToRemove && _registeredPlugins && _registeredPlugins[pluginIDToRemove])
     {
       delete _registeredPlugins[pluginIDToRemove];
       removedSuccessfully = true;
@@ -160,6 +175,12 @@ OO.Analytics.Framework = function()
       isValid = false;
       OO.log("Plugin has falsy value and is not valid. Actual value: ", plugin);
     }
+
+    /////////////////////////////////////////////////////////////////////////////////////////////
+    ///IMPORTANT: This should be the only function to break the rule of using _safeFunctionCall
+    ///           for calling plugin functions, since it's checking if the plugin is valid to
+    ///           begin with.
+    /////////////////////////////////////////////////////////////////////////////////////////////
 
     if (isValid)
     {
@@ -222,12 +243,27 @@ OO.Analytics.Framework = function()
     return list;
   };
 
+  var getPluginInstance = privateMember(function(pluginID)
+  {
+    var toReturn;
+    if (_registeredPlugins && _registeredPlugins[pluginID])
+    {
+      toReturn = _registeredPlugins[pluginID].instance;
+    }
+    return toReturn;
+  });
+
   /**
    * [function description]
    * @return {boolean} Returns true if plugin is currently active and interpreting messages.
    */
   this.isPluginActive = function(pluginID)
   {
+    var plugin = this.getPluginInstance(pluginID);
+    if (plugin)
+    {
+      return _safeFunctionCall(plugin, "isActive");
+    }
     return false;
   };
 
@@ -237,7 +273,22 @@ OO.Analytics.Framework = function()
    */
   this.makePluginActive = function(pluginID)
   {
-    return false;
+    var success = false;
+    if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
+    {
+      var plugin = _registeredPlugins[pluginID];
+      _safeFunctionCall(plugin, "makePluginActive");
+      if (_safeFunctionCall(plugin, "isActive"))
+      {
+        success = true;
+      }
+      else
+      {
+          OO.log(createErrorString("Calling 'makePluginActive' on \'" + pluginID + "\' did not make it active."));
+      }
+
+    }
+    return success;
   };
 
   /**
@@ -246,7 +297,21 @@ OO.Analytics.Framework = function()
    */
   this.makePluginInactive = function(pluginID)
   {
-    return false;
+    var success = false;
+    if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
+    {
+      var plugin = _registeredPlugins[pluginID];
+      plugin.makePluginInactive();
+      if (!_registeredPlugins.isActive())
+      {
+        success = true;
+      }
+      else
+      {
+        OO.log(createErrorString("Calling 'makePluginInactive' on \'" + pluginID + "\' did not make it inactive."));
+      }
+    }
+    return success;
   };
 
   /**
@@ -257,8 +322,34 @@ OO.Analytics.Framework = function()
    */
   this.publishMessage = function(msgName, params)
   {
-    //TODO only publish messages for active plugins
-    _mb.publish(msgName, params);
+    var msgPublished = false;
+    if (OO.Analytics.EVENTS[msgName])
+    {
+      //TODO: check if analytics framework should interpret the message.
+    }
+    else
+    {
+
+    }
+    //record the message
+    if(_recording)
+    {
+      recordEvent(msgName, params);
+    }
+
+    //propogate the message to all active plugins.
+    var pluginID;
+    for (pluginID in _registeredPlugins)
+    {
+      var plugin = _registeredPlugins[pluginID];
+      if (_safeFunctionCall(plugin, "isActive"))
+      {
+        _safeFunctionCall(plugin, "processEvent",[msgName, params]);
+      }
+    }
+    msgPublished = true;
+
+    return msgPublished;
   }
 
   /**
@@ -269,25 +360,30 @@ OO.Analytics.Framework = function()
   var createPluginId = privateMember(function(plugin)
   {
     var id = null;
+    var error;
     if (plugin)
     {
-      var name = plugin.getName();
-      var version = plugin.getVersion();
+      var name = _safeFunctionCall(plugin, "getName");
+      var version = _safeFunctionCall(plugin, "getVersion");
       if (name && version)
       {
         if (_uniquePluginId < MAX_PLUGINS)
         {
           id = _uniquePluginId + "_" + name + "_" + version;
           //we shouldn't have any naming conflicts but just in case, throw an error
-          if (_registeredPlugins[id])
+          if (!_registeredPlugins[id])
           {
-              throw createErrorString("Failed to create a unique name for plugin " + name + "_" + version);
+            _uniquePluginId++;
           }
-          _uniquePluginId++;
+          else
+          {
+            OO.log(createErrorString("Failed to create a unique name for plugin " + name + "_" + version));
+            id = null;
+          }
         }
         else
         {
-          throw createErrorString("you have tried to create more than " + MAX_PLUGINS + " unique plugin ids. There is probably an infinite loop or some other error.");
+          OO.log(createErrorString("you have tried to create more than " + MAX_PLUGINS + " unique plugin ids. There is probably an infinite loop or some other error."));
         }
       }
     }
@@ -304,40 +400,10 @@ OO.Analytics.Framework = function()
     return "ERROR Analytics Framework: " + orgString;
   };
 
-
-  /**
-   * [function description]
-   * @param  {[type]}   msg      [description]
-   * @param  {Function} callback [description]
-   * @param  {[type]}   pluginID [description]
-   * @return {boolean}           True if callback was successfully unregistered for pluginID
-   */
-  this.registerForMessage = function(msg, callback, pluginID)
-  {
-    return false;
-  };
-
-  /**
-   * [function description]
-   * @param  {[type]}   msg      [description]
-   * @param  {Function} callback [description]
-   * @param  {[type]}   pluginID [description]
-   * @return {boolean}           True if callback was successfully unregistered for pluginID
-   */
-  this.unregisterForMessage = function(msg, callback, pluginID)
-  {
-    return false;
-  };
-
-  this.getRegisteredMessageListFor = function(pluginID)
-  {
-    var list = [];
-    return list;
-  };
-
   // Helpers
   // Safely trigger an ad manager function
-  var _safeFunctionCall = function(plugin, func, params) {
+  var _safeFunctionCall = privateMember(function(plugin, func, params)
+  {
     if (OO.DEBUG)
     {
       _debugCheckFunctionIsInRequiredList(func);
@@ -352,25 +418,24 @@ OO.Analytics.Framework = function()
     }
     catch (err)
     {
-      if (plugin && _isFunction(plugin.getName))
+      if (plugin && _.isFunction(plugin.getName))
       {
-        OO.log(this.createErrorString("Error occurred during call to function \'" + func + "\' on plugin \'" + plugin.getName() + "\'\n", err));
+        OO.log(createErrorString("Error occurred during call to function \'" + func + "\' on plugin \'" + plugin.getName() + "\'\n", err));
       }
       else
       {
-        OO.log(this.createErrorString("Error occurred during call to function \'" + func + "\' on plugin\n", err));
+        OO.log(createErrorString("Error occurred during call to function \'" + func + "\' on plugin\n", err));
       }
     }
     return null;
-  };
+  });
 
-  var _debugCheckFunctionIsInRequiredList = function(func)
+  var _debugCheckFunctionIsInRequiredList = privateMember(function(func)
   {
     if(!_.contains(OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS, func))
     {
-      throw createErrorString("Calling function \'" + func + "\' in framework code and it's not in the REQUIRED_PLUGIN_FUNCTIONS list.");
+      OO.log(createErrorString("Calling function \'" + func + "\' in framework code and it's not in the REQUIRED_PLUGIN_FUNCTIONS list."));
     }
-  }
+  });
 
-  var _debugGetAllPlugin
 };
