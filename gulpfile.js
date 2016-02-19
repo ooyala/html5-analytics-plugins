@@ -73,7 +73,8 @@ var getFileNameFromPath = function(path)
 gulp.task('test', shell.task(['npm test']));
 
 // Initiate a watch
-gulp.task('watch', function() {
+gulp.task('watch', function()
+{
   gulp.watch(path.scripts, ['browserify']);
 });
 

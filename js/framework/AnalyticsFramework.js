@@ -33,7 +33,7 @@ OO.Analytics.Framework = function()
   }, this);
 
 
-  this.RecordedEvent = function (timeStamp, msgName, params)
+  this.RecordedEvent = function(timeStamp, msgName, params)
   {
     this.timeStamp = timeStamp;
     this.msgName = msgName;
@@ -43,13 +43,13 @@ OO.Analytics.Framework = function()
   var recordEvent = privateMember(function(msgName, params)
   {
     var timeStamp = new Date().getTime();
-    var eventToRecord = new RecordedEvent(timeStamp, msgName, params);
-    recordedEvents.push(eventToRecord);
+    var eventToRecord = new this.RecordedEvent(timeStamp, msgName, params);
+    _recordedEventList.push(eventToRecord);
   });
 
   var clearRecordedEvents = privateMember(function()
   {
-    _recordedEvents = [];
+    _recordedEventList = [];
   });
 
   var startRecordingEvents = privateMember(function()
@@ -325,29 +325,35 @@ OO.Analytics.Framework = function()
     var msgPublished = false;
     if (OO.Analytics.EVENTS[msgName])
     {
+      //if the params don't come in as an Array then create an empty array to pass in for everything.
+      if (!_.isArray(params))
+      {
+        params = [];
+      }
+      
       //TODO: check if analytics framework should interpret the message.
+      //record the message
+      if(_recording)
+      {
+        recordEvent(msgName, params);
+      }
+
+      //propogate the message to all active plugins.
+      var pluginID;
+      for (pluginID in _registeredPlugins)
+      {
+        var plugin = _registeredPlugins[pluginID];
+        if (_safeFunctionCall(plugin, "isActive"))
+        {
+          _safeFunctionCall(plugin, "processEvent",[msgName, params]);
+        }
+      }
+      msgPublished = true;
     }
     else
     {
-
+      OO.log(createErrorString("Message \'" + msgName + "\' being published and it's not in the list of OO.Analytics.EVENTS"));
     }
-    //record the message
-    if(_recording)
-    {
-      recordEvent(msgName, params);
-    }
-
-    //propogate the message to all active plugins.
-    var pluginID;
-    for (pluginID in _registeredPlugins)
-    {
-      var plugin = _registeredPlugins[pluginID];
-      if (_safeFunctionCall(plugin, "isActive"))
-      {
-        _safeFunctionCall(plugin, "processEvent",[msgName, params]);
-      }
-    }
-    msgPublished = true;
 
     return msgPublished;
   }
