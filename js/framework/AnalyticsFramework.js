@@ -2,9 +2,6 @@ require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js")
 require("./InitAnalyticsNamespace.js");
 require("./AnalyticsConstants.js");
 
-
-//TODO implement a queue for factories waiting to be created. Empty it once the plugin metadata is set.
-
 OO.Analytics.Framework = function()
 {
   var _registeredPlugins = {};
@@ -12,6 +9,7 @@ OO.Analytics.Framework = function()
   var _recording = true;
   var _pluginMetadata;
   var _ = OO._;
+  var _msgExistenceLookup = {};
 
   var _uniquePluginId = 0;
   const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
@@ -29,6 +27,7 @@ OO.Analytics.Framework = function()
     }
     return _.bind(functionVar, this);
   }, this);
+
 
   /**
    * [function description]
@@ -359,7 +358,7 @@ OO.Analytics.Framework = function()
       }
       else
       {
-          OO.log(createErrorString("Calling 'makePluginActive' on \'" + pluginID + "\' did not make it active."));
+        OO.log(createErrorString("Calling 'makePluginActive' on \'" + pluginID + "\' did not make it active."));
       }
 
     }
@@ -389,6 +388,15 @@ OO.Analytics.Framework = function()
     return success;
   };
 
+  //PublishMessage should only publish messages that are in OO.Analytics.EVENTS.
+  //To avoid doing an expensive string search through OO.Analyitcs.EVENTS for this checking,
+  //here we convert OO.Analytics.EVENTS into another object where we can directly look up if
+  //the message exists.
+  for(tempMsgName in OO.Analytics.EVENTS)
+  {
+     _msgExistenceLookup[OO.Analytics.EVENTS[tempMsgName]] = true;
+  }
+
   /**
    * [function description]
    * @param  {[type]} msgName [description]
@@ -398,7 +406,7 @@ OO.Analytics.Framework = function()
   this.publishMessage = function(msgName, params)
   {
     var msgPublished = false;
-    if (OO.Analytics.EVENTS[msgName])
+    if (_msgExistenceLookup[msgName])
     {
       //if the params don't come in as an Array then create an empty array to pass in for everything.
       if (!_.isArray(params))
@@ -406,7 +414,6 @@ OO.Analytics.Framework = function()
         params = [];
       }
 
-      //TODO: check if analytics framework should interpret the message.
       //record the message
       if(_recording)
       {
@@ -417,7 +424,7 @@ OO.Analytics.Framework = function()
       var pluginID;
       for (pluginID in _registeredPlugins)
       {
-        var plugin = _registeredPlugins[pluginID];
+        var plugin = _registeredPlugins[pluginID].instance;
         if (_safeFunctionCall(plugin, "isActive"))
         {
           _safeFunctionCall(plugin, "processEvent",[msgName, params]);

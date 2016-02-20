@@ -10,6 +10,7 @@ describe('Analytics Framework Unit Tests', function()
   require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
 
   var Analytics = OO.Analytics;
+  var EVENTS = OO.Analytics.EVENTS;
   var Utils = OO.Analytics.Utils;
   var _ = OO._;
   var framework;
@@ -17,6 +18,7 @@ describe('Analytics Framework Unit Tests', function()
   //setup for all tests
   var initialSetup = function()
   {
+    OO.DEBUG = {};
   };
 
   //cleanup after all tests
@@ -501,14 +503,14 @@ describe('Analytics Framework Unit Tests', function()
       var events = OO.Analytics.EVENTS;
       for(msgName in events)
       {
-        expect(framework.publishMessage(msgName)).toBe(true);
+        expect(framework.publishMessage(OO.Analytics.EVENTS[msgName])).toBe(true);
         numMsgSent++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(numMsgSent);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.msgName).toEqual(msgName);
+        expect(lastMsg.msgName).toEqual(OO.Analytics.EVENTS[msgName]);
       }
     }
 
@@ -536,14 +538,14 @@ describe('Analytics Framework Unit Tests', function()
       var msgName;
       for(msgName in OO.Analytics.EVENTS)
       {
-        expect(framework.publishMessage(msgName)).toBe(true);
+        expect(framework.publishMessage(OO.Analytics.EVENTS[msgName])).toBe(true);
         msgSentObj.count++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(msgSentObj.count);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.msgName).toEqual(msgName);
+        expect(lastMsg.msgName).toEqual(OO.Analytics.EVENTS[msgName]);
       }
     };
 
@@ -599,7 +601,6 @@ describe('Analytics Framework Unit Tests', function()
 
   describe('Test Plugin Initialization', function()
   {
-    var testFactory;
     //setup for individual tests
     var testSetup = function()
     {
@@ -729,12 +730,73 @@ describe('Analytics Framework Unit Tests', function()
 
   describe('Test Plugin Message Receiving', function()
   {
-    it("Test Plugin Recieves Messages When Active", function()
+    var testFactory;
+
+
+
+    //setup for individual tests
+    var testSetup = function()
     {
 
+    };
+
+    //cleanup for individual tests
+    var testCleanup = function()
+    {
+      //Test factories
+      if(OO.Analytics.Framework.TEST)
+      {
+        OO.Analytics.Framework.TEST = null;
+      }
+    };
+
+    beforeEach(testSetup);
+    afterEach(testCleanup);
+
+    it("Test Plugin Receives Messages When Active", function()
+    {
+      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      var pluginID = framework.registerPlugin(factory);
+      var plugin = OO.Analytics.Framework.TEST[0];
+      var msg1 = EVENTS.VIDEO_FIRST_PLAY_REQUESTED;
+      var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
+
+      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(1);
+      expect(plugin.msgReceivedList[0]).toEqual(msg1);
+
+      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(2);
+      expect(plugin.msgReceivedList[1]).toEqual(msg1);
+
+      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(3);
+      expect(plugin.msgReceivedList[2]).toEqual(msg2);
     });
 
-    it("Test Plugin Doesn't Recieve Messages When Inactive", function()
+    it("Test Plugin Doesn't Receive Messages When Inactive", function()
+    {
+      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      var pluginID = framework.registerPlugin(factory);
+      var plugin = OO.Analytics.Framework.TEST[0];
+      plugin.makeInactive();
+      var msg1 = EVENTS.VIDEO_FIRST_PLAY_REQUESTED;
+      var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
+
+      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(0);
+
+      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(0);
+
+      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(0);
+
+      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(0);
+    });
+
+    it("Test Multiple Plugins Mixed Active and Inactive", function()
     {
 
     });

@@ -119,6 +119,8 @@ if (!OO.Analytics.Utils)
     {
       var validFactory = Utils.createValidPluginFactory();
       var plugin = new validFactory();
+      plugin.msgReceivedList = [];
+      plugin.active = true;
 
       plugin.init = function(metadata)
       {
@@ -128,11 +130,22 @@ if (!OO.Analytics.Utils)
 
       plugin.processEvent = function(msgName, params)
       {
-        if (!this.msgReceivedList)
-        {
-          this.msgReceivedList = [];
-        }
         this.msgReceivedList.push(msgName);
+      }
+
+      plugin.isActive = function()
+      {
+        return this.active;
+      }
+
+      plugin.makeActive = function()
+      {
+        this.active = true;
+      }
+
+      plugin.makeInactive = function()
+      {
+        this.active = false;
       }
 
       if (!OO.Analytics.Framework.TEST)

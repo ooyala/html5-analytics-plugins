@@ -13,7 +13,7 @@ if (!OO.Analytics.EVENTS)
     VIDEO_PLAYING : 'video_playing',
     VIDEO_PAUSED : 'video_paused',
     VIDEO_METADATA_UPDATED: "video_metadata_updated",
-    VIDEO_SOURCE_CHANGED: "VIDEO_SOURCE_CHANGED"
+    VIDEO_SOURCE_CHANGED: "video_source_changed"
   };
   OO.Analytics.EVENTS = EVENTS;
 }
