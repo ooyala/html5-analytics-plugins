@@ -32,8 +32,8 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
     "destroy",
     "makeActive",
     "makeInactive",
-    "processEvent",
-    "processRecordedEvents"
+    "isActive",
+    "processEvent"
   ];
   OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS = REQUIRED_PLUGIN_FUNCTIONS;
 }

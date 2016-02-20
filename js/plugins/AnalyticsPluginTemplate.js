@@ -6,6 +6,7 @@ var AnalyticsPluginTemplate = function (framework)
   const name = "template";
   const version = "v1";
   var id;
+  var _active = true;
 
   /**
    * [getName description]
@@ -54,13 +55,18 @@ var AnalyticsPluginTemplate = function (framework)
 
   };
 
+  this.isActive = function()
+  {
+    return _active;
+  }
+
   /**
    * [makeActive description]
    * @return {[type]} [description]
    */
   this.makeActive = function ()
   {
-
+    _active = true;
   }
 
   /**
@@ -69,7 +75,7 @@ var AnalyticsPluginTemplate = function (framework)
    */
   this.makeInactive = function ()
   {
-
+    _active = false;
   }
 
   /**
@@ -79,16 +85,6 @@ var AnalyticsPluginTemplate = function (framework)
    * @return {[type]}         [description]
    */
   this.processEvent = function(msgName, params)
-  {
-
-  }
-
-  /**
-   * [processRecordedEvents description]
-   * @param  {[type]} recordedEvents [description]
-   * @return {[type]}                [description]
-   */
-  this.processRecordedEvents = function (recordedEvents)
   {
 
   }

@@ -333,7 +333,7 @@ OO.Analytics.Framework = function()
    */
   this.isPluginActive = function(pluginID)
   {
-    var plugin = this.getPluginInstance(pluginID);
+    var plugin = getPluginInstance(pluginID);
     if (plugin)
     {
       return _safeFunctionCall(plugin, "isActive");
@@ -350,15 +350,15 @@ OO.Analytics.Framework = function()
     var success = false;
     if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
     {
-      var plugin = _registeredPlugins[pluginID];
-      _safeFunctionCall(plugin, "makePluginActive");
+      var plugin = getPluginInstance(pluginID);
+      _safeFunctionCall(plugin, "makeActive");
       if (_safeFunctionCall(plugin, "isActive"))
       {
         success = true;
       }
       else
       {
-        OO.log(createErrorString("Calling 'makePluginActive' on \'" + pluginID + "\' did not make it active."));
+        OO.log(createErrorString("Calling 'makeActive' on \'" + pluginID + "\' did not make it active."));
       }
 
     }
@@ -374,15 +374,15 @@ OO.Analytics.Framework = function()
     var success = false;
     if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
     {
-      var plugin = _registeredPlugins[pluginID];
-      plugin.makePluginInactive();
-      if (!_registeredPlugins.isActive())
+      var plugin = getPluginInstance(pluginID);
+      _safeFunctionCall(plugin, "makeInactive");
+      if (!_safeFunctionCall(plugin, "isActive"))
       {
         success = true;
       }
       else
       {
-        OO.log(createErrorString("Calling 'makePluginInactive' on \'" + pluginID + "\' did not make it inactive."));
+        OO.log(createErrorString("Calling 'makeInactive' on \'" + pluginID + "\' did not make it inactive."));
       }
     }
     return success;
@@ -427,6 +427,7 @@ OO.Analytics.Framework = function()
         var plugin = _registeredPlugins[pluginID].instance;
         if (_safeFunctionCall(plugin, "isActive"))
         {
+          OO.log("sending");
           _safeFunctionCall(plugin, "processEvent",[msgName, params]);
         }
       }

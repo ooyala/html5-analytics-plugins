@@ -135,17 +135,17 @@ if (!OO.Analytics.Utils)
 
       plugin.isActive = function()
       {
-        return this.active;
+        return plugin.active;
       }
 
       plugin.makeActive = function()
       {
-        this.active = true;
+        plugin.active = true;
       }
 
       plugin.makeInactive = function()
       {
-        this.active = false;
+        plugin.active = false;
       }
 
       if (!OO.Analytics.Framework.TEST)
