@@ -1,22 +1,20 @@
-require("../../html5-common/js/classes/message_bus.js")
 require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js")
 require("./InitAnalyticsNamespace.js");
 require("./AnalyticsConstants.js");
+
+
+//TODO implement a queue for factories waiting to be created. Empty it once the plugin metadata is set.
 
 OO.Analytics.Framework = function()
 {
   var _registeredPlugins = {};
   var _recordedEventList = [];
   var _recording = true;
-  var _videoMetadata;
+  var _pluginMetadata;
   var _ = OO._;
 
   var _uniquePluginId = 0;
   const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
-
-  //TODO add state machine, need states init, ready, waitforpluginsToInit, video ended.
-  //init waiting for metadata
-  //ready inits
 
   /**
    * Helper function to make functions private to GoogleIMA variable for consistency
@@ -32,7 +30,40 @@ OO.Analytics.Framework = function()
     return _.bind(functionVar, this);
   }, this);
 
+  /**
+   * [function description]
+   * @param  {[type]} pluginMetadata [description]
+   * @return {[type]}                [description]
+   */
+  this.setPluginMetadata = function(pluginMetadata)
+  {
+    var success = false;
+    if (!_pluginMetadata)
+    {
+      if (_.isObject(pluginMetadata))
+      {
+        _pluginMetadata = pluginMetadata
+        success = true;
+      }
+      else
+      {
+        OO.log(createErrorString("Calling setPluginMetadata without valid metadata object. Defaulting to no metadata"));
+      }
+    }
+    else
+    {
+      OO.log(createErrorString("Trying to run setPluginMetadata more than once. Ignoring new data."));
+    }
+    return success;
+  }
 
+  /**
+   * [function description]
+   * @param  {[type]} timeStamp [description]
+   * @param  {[type]} msgName   [description]
+   * @param  {[type]} params    [description]
+   * @return {[type]}           [description]
+   */
   this.RecordedEvent = function(timeStamp, msgName, params)
   {
     this.timeStamp = timeStamp;
@@ -40,6 +71,11 @@ OO.Analytics.Framework = function()
     this.params = params;
   }
 
+  /**
+   * [privateMember description]
+   * @param  {[type]} function(msgName, params        [description]
+   * @return {[type]}                   [description]
+   */
   var recordEvent = privateMember(function(msgName, params)
   {
     var timeStamp = new Date().getTime();
@@ -47,21 +83,40 @@ OO.Analytics.Framework = function()
     _recordedEventList.push(eventToRecord);
   });
 
+  /**
+   * [privateMember description]
+   * @param  {[type]} function( [description]
+   * @return {[type]}           [description]
+   */
   var clearRecordedEvents = privateMember(function()
   {
     _recordedEventList = [];
   });
 
+  /**
+   * [privateMember description]
+   * @param  {[type]} function( [description]
+   * @return {[type]}           [description]
+   */
   var startRecordingEvents = privateMember(function()
   {
     _recording = true;
   });
 
+  /**
+   * [privateMember description]
+   * @param  {[type]} function( [description]
+   * @return {[type]}           [description]
+   */
   var stopRecordingEvents = privateMember(function()
   {
     _recording = false;
   });
 
+  /**
+   * [function description]
+   * @return {[type]} [description]
+   */
   this.getRecordedEvents = function()
   {
     return _.clone(_recordedEventList);
@@ -105,6 +160,20 @@ OO.Analytics.Framework = function()
       {
         errorOccured = true;
       }
+      else
+      {
+        var pluginName = _safeFunctionCall(plugin, "getName");
+        var metadataForThisPlugin;
+        if (_pluginMetadata)
+        {
+          metadataForThisPlugin = _pluginMetadata[pluginName];
+        }
+        else
+        {
+          OO.log(createErrorString("Trying to register \'" + pluginName + "\' without having run setPluginMetadata. This plugin will have no params."));
+        }
+        _safeFunctionCall(plugin, "init", [metadataForThisPlugin]);
+      }
     }
 
     if (!errorOccured)
@@ -117,6 +186,7 @@ OO.Analytics.Framework = function()
       else if (!_registeredPlugins[pluginID])
       {
         _registeredPlugins[pluginID] = {factory:pluginClass, instance:plugin};
+        plugin.setPluginID(pluginID);
       }
     }
 
@@ -243,6 +313,11 @@ OO.Analytics.Framework = function()
     return list;
   };
 
+  /**
+   * [privateMember description]
+   * @param  {[type]} function(pluginID [description]
+   * @return {[type]}                   [description]
+   */
   var getPluginInstance = privateMember(function(pluginID)
   {
     var toReturn;
@@ -330,7 +405,7 @@ OO.Analytics.Framework = function()
       {
         params = [];
       }
-      
+
       //TODO: check if analytics framework should interpret the message.
       //record the message
       if(_recording)
@@ -436,6 +511,11 @@ OO.Analytics.Framework = function()
     return null;
   });
 
+  /**
+   * [privateMember description]
+   * @param  {[type]} function(func [description]
+   * @return {[type]}               [description]
+   */
   var _debugCheckFunctionIsInRequiredList = privateMember(function(func)
   {
     if(!_.contains(OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS, func))

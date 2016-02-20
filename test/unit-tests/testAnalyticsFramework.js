@@ -599,7 +599,145 @@ describe('Analytics Framework Unit Tests', function()
 
   describe('Test Plugin Initialization', function()
   {
-    //TODO
+    var testFactory;
+    //setup for individual tests
+    var testSetup = function()
+    {
+
+    };
+
+    //cleanup for individual tests
+    var testCleanup = function()
+    {
+      //Test factories
+      if(OO.Analytics.Framework.TEST)
+      {
+        OO.Analytics.Framework.TEST = null;
+      }
+    };
+
+    beforeEach(testSetup);
+    afterEach(testCleanup);
+
+    var testSinglePluginWithMetadata = function(metadata, isGoodMetadata)
+    {
+      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      expect(framework.setPluginMetadata(metadata)).toBe(isGoodMetadata);
+      var pluginID = framework.registerPlugin(factory);
+
+      expect(OO.Analytics.Framework.TEST.length).toEqual(1);
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.getPluginID()).toEqual(pluginID);
+    };
+
+    it("Test Plugin Init with Undefined Metadata", function()
+    {
+      var metadata;
+      testSinglePluginWithMetadata(metadata, false);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeUndefined();
+    });
+
+    it("Test Plugin Init with Null Metadata", function()
+    {
+      var metadata = null;
+      testSinglePluginWithMetadata(metadata, false);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeUndefined();
+    });
+
+    it("Test Plugin Init with Empty String Metadata", function()
+    {
+      var metadata = "";
+      testSinglePluginWithMetadata(metadata, false);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeUndefined();
+    });
+
+    it("Test Plugin Init with String Metadata", function()
+    {
+      var metadata = "badMetadata";
+      testSinglePluginWithMetadata(metadata, false);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeUndefined();
+    });
+
+    it("Test Plugin Init with Empty Metadata", function()
+    {
+      var metadata = {};
+      testSinglePluginWithMetadata(metadata, true);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeUndefined();
+    });
+
+    it("Test Plugin Init with Array As Metadata", function()
+    {
+      var metadata = [];
+      testSinglePluginWithMetadata(metadata, true);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeUndefined();
+    });
+
+    it("Test Plugin Init with Metadata For Other Plugins", function()
+    {
+      var metadata = {};
+      metadata.otherPlugin = {test1:1, test2:2};
+      testSinglePluginWithMetadata(metadata, true);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeUndefined();
+    });
+
+    it("Test Setting Framework Metadata Just For This Plugin", function()
+    {
+      var metadata = {};
+      metadata.testName = {test1:1, test2:2};
+      testSinglePluginWithMetadata(metadata, true);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeDefined();
+      expect(plugin.metadata).toEqual(metadata.testName);
+    });
+
+    it("Test Setting Framework Metadata With Data For Multiple Plugins", function()
+    {
+      var metadata = {};
+      metadata.testName = {test1:1, test2:2};
+      metadata.otherTest = {test3:3, test4:4};
+      testSinglePluginWithMetadata(metadata, true);
+
+      var plugin = OO.Analytics.Framework.TEST[0];
+      expect(plugin.initWasCalled).toBe(true);
+      expect(plugin.metadata).toBeDefined();
+      expect(plugin.metadata).toEqual(metadata.testName);
+    });
+  });
+
+  describe('Test Plugin Message Receiving', function()
+  {
+    it("Test Plugin Recieves Messages When Active", function()
+    {
+
+    });
+
+    it("Test Plugin Doesn't Recieve Messages When Inactive", function()
+    {
+
+    });
   });
 
   finalCleanup();

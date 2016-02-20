@@ -13,6 +13,7 @@ if (!OO.Analytics.Utils)
     return function ()
     {
       var myPlugin = {};
+      var pluginID;
       for (i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
       {
         myPlugin[OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]] = function() {};
@@ -32,6 +33,16 @@ if (!OO.Analytics.Utils)
       myPlugin.getVersion = function()
       {
         return "testVersion";
+      };
+
+      myPlugin.setPluginID = function(id)
+      {
+        pluginID = id;
+      };
+
+      myPlugin.getPluginID = function()
+      {
+        return pluginID;
       };
 
       return myPlugin;
@@ -82,7 +93,7 @@ if (!OO.Analytics.Utils)
       var wrongReturnFactory = new validFactory();
       wrongReturnFactory['getVersion'] = function()
       {
-        return 5
+        return 5;
       };
       return wrongReturnFactory;
     },this);
@@ -99,6 +110,37 @@ if (!OO.Analytics.Utils)
         this.recordedEvents = events;
       }
       return eventFactory;
+    },this);
+  }
+
+  Utils.createFactoryWithGlobalAccessToPluginInstance = function()
+  {
+    return OO._.bind(function()
+    {
+      var validFactory = Utils.createValidPluginFactory();
+      var plugin = new validFactory();
+
+      plugin.init = function(metadata)
+      {
+        this.initWasCalled = true;
+        this.metadata = metadata;
+      }
+
+      plugin.processEvent = function(msgName, params)
+      {
+        if (!this.msgReceivedList)
+        {
+          this.msgReceivedList = [];
+        }
+        this.msgReceivedList.push(msgName);
+      }
+
+      if (!OO.Analytics.Framework.TEST)
+      {
+        OO.Analytics.Framework.TEST = [];
+      }
+      OO.Analytics.Framework.TEST.push(plugin);
+      return plugin;
     },this);
   }
 }
