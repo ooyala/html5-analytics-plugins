@@ -100,8 +100,3 @@ var AnalyticsPluginTemplate = function (framework)
 };
 
 module.exports = AnalyticsPluginTemplate;
-
-if (OO && OO.AnalyticsPluginTemplate && typeof (OO.AnalyticsFramework.registerPlugin) === 'function' )
-{
-  OO.AnalyticsFramework.registerPlugin(AnalyticsPluginTemplate);
-}

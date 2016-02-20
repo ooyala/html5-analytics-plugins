@@ -427,7 +427,6 @@ OO.Analytics.Framework = function()
         var plugin = _registeredPlugins[pluginID].instance;
         if (_safeFunctionCall(plugin, "isActive"))
         {
-          OO.log("sending");
           _safeFunctionCall(plugin, "processEvent",[msgName, params]);
         }
       }

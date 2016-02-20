@@ -58,6 +58,18 @@ describe('Analytics Framework Template Unit Tests', function()
       expect(pluginList.length).toBe(1);
   });
 
+  it('Test Analytics Template Validity', function()
+  {
+    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    var pluginID = framework.registerPlugin(templatePluginFactory);
+    expect(pluginID).toBeDefined();
+    var pluginList = framework.getPluginList();
+    expect(_.contains(pluginList, pluginID));
+    expect(framework.makePluginInactive(pluginID)).toBe(true);
+    expect(framework.makePluginActive(pluginID)).toBe(true);
+  });
+
+
   finalCleanup();
 
 });
