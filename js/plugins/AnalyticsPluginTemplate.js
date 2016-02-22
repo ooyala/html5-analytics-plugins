@@ -1,5 +1,9 @@
-//This file is the shell of a plugin for the analytics framework
-
+/**
+ * [AnalyticsPluginTemplate description]
+ * @class AnalyticsPluginTemplate
+ * @classdesc Example class of a plugin that works with the Ooyala Analytics Framework.
+ * @param {object} framework The Analytics Framework instance.
+ */
 var AnalyticsPluginTemplate = function (framework)
 {
   var _framework = framework;
@@ -9,8 +13,10 @@ var AnalyticsPluginTemplate = function (framework)
   var _active = true;
 
   /**
-   * [getName description]
-   * @return {[type]} [description]
+   * [Required Function] Return the name of the plugin.
+   * @public
+   * @method AnalyticsPluginTemplate#getName
+   * @return {string} The name of the plugin.
    */
   this.getName = function ()
   {
@@ -18,8 +24,10 @@ var AnalyticsPluginTemplate = function (framework)
   };
 
   /**
-   * [getVersion description]
-   * @return {[type]} [description]
+   * [Required Function] Return the version string of the plugin.
+   * @public
+   * @method AnalyticsPluginTemplate#getVersion
+   * @return {string} The version of the plugin.
    */
   this.getVersion = function ()
   {
@@ -27,9 +35,11 @@ var AnalyticsPluginTemplate = function (framework)
   };
 
   /**
-   * [function description]
-   * @param  {[type]} newID [description]
-   * @return {[type]}       [description]
+   * [Required Function] Set the plugin id given by the Analytics Framework when
+   * this plugin is registered.
+   * @public
+   * @method AnalyticsPluginTemplate#setPluginID
+   * @param  {string} newID The plugin id.
    */
   this.setPluginID = function(newID)
   {
@@ -37,8 +47,10 @@ var AnalyticsPluginTemplate = function (framework)
   }
 
   /**
-   * [function description]
-   * @return {[type]} [description]
+   * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
+   * @public
+   * @method AnalyticsPluginTemplate#setPluginID
+   * @return  {string} The pluginID assigned to this instance from the Analytics Framework.
    */
   this.getPluginID = function()
   {
@@ -46,52 +58,63 @@ var AnalyticsPluginTemplate = function (framework)
   }
 
   /**
-   * [init description]
-   * @param  {[type]} metadata [description]
-   * @return {[type]}          [description]
+   * [Required Function] Initialize the plugin with the given metadata.
+   * @public
+   * @method AnalyticsPluginTemplate#init
+   * @param  {object} metadata The metadata for this plugin.
    */
   this.init = function (metadata)
   {
 
   };
 
+  /**
+  * [Required Function] Return if plugin is currently active or not.
+  * @public
+  * @method AnalyticsPluginTemplate#isActive
+  * @return {boolean} Return true if plugin is active and can receive events.
+  */
   this.isActive = function()
   {
     return _active;
   }
 
   /**
-   * [makeActive description]
-   * @return {[type]} [description]
-   */
+  * [Required Function] Make this plugin active and able to receive events.
+  * @public
+  * @method AnalyticsPluginTemplate#makeActive
+  */
   this.makeActive = function ()
   {
     _active = true;
   }
 
   /**
-   * [makeInactive description]
-   * @return {[type]} [description]
-   */
+  * [Required Function] Make this plugin inactive to stop receiving events.
+  * @public
+  * @method AnalyticsPluginTemplate#makeInactive
+  */
   this.makeInactive = function ()
   {
     _active = false;
   }
 
   /**
-   * [function description]
-   * @param  {[type]} msgName [description]
-   * @param  {[type]} params  [description]
-   * @return {[type]}         [description]
+   * [Required Function] Process an event from the Analytics Framework, with the given parameters.
+   * @public
+   * @method AnalyticsPluginTemplate#processEvent
+   * @param  {string} eventName Name of the event.
+   * @param  {Array} params     Array of parameters sent with the sent.
    */
-  this.processEvent = function(msgName, params)
+  this.processEvent = function(eventName, params)
   {
 
   }
 
   /**
-   * [destroy description]
-   * @return {[type]} [description]
+   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
+   * @public
+   * @method AnalyticsPluginTemplate#destroy
    */
   this.destroy = function ()
   {

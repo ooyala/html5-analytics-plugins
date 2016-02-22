@@ -475,13 +475,13 @@ describe('Analytics Framework Unit Tests', function()
       var errorOccured = false;
       try
       {
-        expect(framework.publishMessage(test)).toBe(false);
-        expect(framework.publishMessage({})).toBe(false);
-        expect(framework.publishMessage([])).toBe(false);
-        expect(framework.publishMessage("")).toBe(false);
-        expect(framework.publishMessage(null)).toBe(false);
-        expect(framework.publishMessage(5)).toBe(false);
-        expect(framework.publishMessage("unitTestBadMessage")).toBe(false);
+        expect(framework.publishEvent(test)).toBe(false);
+        expect(framework.publishEvent({})).toBe(false);
+        expect(framework.publishEvent([])).toBe(false);
+        expect(framework.publishEvent("")).toBe(false);
+        expect(framework.publishEvent(null)).toBe(false);
+        expect(framework.publishEvent(5)).toBe(false);
+        expect(framework.publishEvent("unitTestBadMessage")).toBe(false);
       }
       catch(e)
       {
@@ -503,14 +503,14 @@ describe('Analytics Framework Unit Tests', function()
       var events = OO.Analytics.EVENTS;
       for(msgName in events)
       {
-        expect(framework.publishMessage(OO.Analytics.EVENTS[msgName])).toBe(true);
+        expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
         numMsgSent++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(numMsgSent);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.msgName).toEqual(OO.Analytics.EVENTS[msgName]);
+        expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
       }
     }
 
@@ -538,14 +538,14 @@ describe('Analytics Framework Unit Tests', function()
       var msgName;
       for(msgName in OO.Analytics.EVENTS)
       {
-        expect(framework.publishMessage(OO.Analytics.EVENTS[msgName])).toBe(true);
+        expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
         msgSentObj.count++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(msgSentObj.count);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.msgName).toEqual(OO.Analytics.EVENTS[msgName]);
+        expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
       }
     };
 
@@ -761,15 +761,15 @@ describe('Analytics Framework Unit Tests', function()
       var msg1 = EVENTS.VIDEO_FIRST_PLAY_REQUESTED;
       var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
-      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(framework.publishEvent(msg1)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(1);
       expect(plugin.msgReceivedList[0]).toEqual(msg1);
 
-      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(framework.publishEvent(msg1)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(2);
       expect(plugin.msgReceivedList[1]).toEqual(msg1);
 
-      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(3);
       expect(plugin.msgReceivedList[2]).toEqual(msg2);
     });
@@ -779,27 +779,24 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       var pluginID = framework.registerPlugin(factory);
       var plugin = OO.Analytics.Framework.TEST[0];
-      OO.log(pluginID);
-      OO.log(plugin.getPluginID());
-      OO.log(OO.Analytics.Framework.TEST.length);
       var msg1 = EVENTS.VIDEO_FIRST_PLAY_REQUESTED;
       var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       expect(framework.makePluginInactive(pluginID)).toBe(true);
-      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(framework.publishEvent(msg1)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(0);
 
-      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(framework.publishEvent(msg1)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(0);
 
-      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(0);
 
-      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(0);
     });
 
-    it.only("Test Multiple Plugins Mixed Active and Inactive", function()
+    it("Test Multiple Plugins Mixed Active and Inactive", function()
     {
       var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       var pluginID1 = framework.registerPlugin(factory);
@@ -811,14 +808,14 @@ describe('Analytics Framework Unit Tests', function()
       var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       //send first message successfully
-      expect(framework.publishMessage(msg1)).toBe(true);
+      expect(framework.publishEvent(msg1)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(1);
       expect(plugin1.msgReceivedList[0]).toEqual(msg1);
       expect(plugin2.msgReceivedList.length).toEqual(1);
       expect(plugin2.msgReceivedList[0]).toEqual(msg1);
 
       //send second message successfully
-      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(2);
       expect(plugin1.msgReceivedList[1]).toEqual(msg2);
       expect(plugin2.msgReceivedList.length).toEqual(2);
@@ -826,7 +823,7 @@ describe('Analytics Framework Unit Tests', function()
 
       //disable plugin1 and send message successfully
       framework.makePluginInactive(pluginID1);
-      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(2);
       expect(plugin1.msgReceivedList[1]).toEqual(msg2);
       expect(plugin2.msgReceivedList.length).toEqual(3);
@@ -834,7 +831,7 @@ describe('Analytics Framework Unit Tests', function()
 
       //reenable plugin1 and send message again.
       framework.makePluginActive(pluginID1);
-      expect(framework.publishMessage(msg2)).toBe(true);
+      expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(3);
       expect(plugin1.msgReceivedList[2]).toEqual(msg2);
       expect(plugin2.msgReceivedList.length).toEqual(4);

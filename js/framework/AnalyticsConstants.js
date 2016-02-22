@@ -1,5 +1,10 @@
 require("./InitAnalyticsNamespace.js");
 
+/**
+ * If Analytics.EVENTS or Analytics.REQUIRED_PLUGIN_FUNCTIONS do not already
+ * exist, create them.
+ */
+
 if (!OO.Analytics.EVENTS)
 {
   const EVENTS =
