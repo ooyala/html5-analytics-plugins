@@ -647,11 +647,6 @@ OO.Analytics.Framework = function()
     }
   });
 
-  if (!OO.Analytics.FrameworkInstanceList)
-  {
-    OO.Analytics.FrameworkInstanceList = [];
-  }
-
   var frameworkRegistrationObject = function(framework)
   {
     this.registerPluginFactory = function(pluginFactory)

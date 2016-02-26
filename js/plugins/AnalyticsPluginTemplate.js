@@ -1,5 +1,6 @@
+require("../framework/InitAnalyticsNamespace.js");
+
 /**
- * [AnalyticsPluginTemplate description]
  * @class AnalyticsPluginTemplate
  * @classdesc Example class of a plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance.
@@ -133,8 +134,6 @@ var AnalyticsPluginTemplate = function (framework)
   }
 };
 
-module.exports = AnalyticsPluginTemplate;
-
 ////////////////////////////////////////////////////////////////////////////////
 ///*****If you would like the plugin to auto register (most common case)
 ///     then the following code will do that for you.  The plugin needs to
@@ -147,22 +146,15 @@ module.exports = AnalyticsPluginTemplate;
 ////////////////////////////////////////////////////////////////////////////////
 
 //Add plugin to the factory list.
-if (!OO.Analytics.PluginFactoryList)
-{
-  OO.Analytics.PluginFactoryList = [];
-}
-
 OO.Analytics.PluginFactoryList.push(AnalyticsPluginTemplate);
 
 //Register this plugin with any existing frameworks.
-if (!OO.Analytics.FrameworkInstanceList)
-{
-  OO.Analytics.FrameworkInstanceList = [];
-}
-else
+if (OO.Analytics.FrameworkInstanceList && OO.Analytics.FrameworkInstanceList.length)
 {
   for(var i = 0; i < OO.Analytics.FrameworkInstanceList.length; i++)
   {
     OO.Analytics.FrameworkInstanceList[i].registerPluginFactory(AnalyticsPluginTemplate);
   }
 }
+
+module.exports = AnalyticsPluginTemplate;

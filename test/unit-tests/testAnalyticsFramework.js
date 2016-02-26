@@ -26,8 +26,8 @@ describe('Analytics Framework Unit Tests', function()
   //cleanup for individual tests
   var testCleanup = function()
   {
-    OO.Analytics.PluginFactoryList = null;
-    OO.Analytics.FrameworkInstanceList = null;
+    OO.Analytics.PluginFactoryList = [];
+    OO.Analytics.FrameworkInstanceList = [];
     //return log back to normal
     OO.log = console.log;
   };

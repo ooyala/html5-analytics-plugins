@@ -4,3 +4,13 @@ if (!OO.Analytics)
 {
   OO.Analytics = {};
 }
+
+if (!OO.Analytics.FrameworkInstanceList)
+{
+  OO.Analytics.FrameworkInstanceList = [];
+}
+
+if (!OO.Analytics.PluginFactoryList)
+{
+  OO.Analytics.PluginFactoryList = [];
+}
