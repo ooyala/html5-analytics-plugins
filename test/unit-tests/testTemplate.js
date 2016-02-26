@@ -58,6 +58,9 @@ describe('Analytics Framework Template Unit Tests', function()
       expect(pluginID2 && _.isString(pluginID2)).toBe(true);
       expect(framework.isPluginActive(pluginID2)).toBe(true);
       expect(pluginID).not.toEqual(pluginID2);
+
+      expect(framework.unregisterPlugin(pluginID)).toBe(true);
+      expect(_.contains(framework.getPluginList(), pluginID)).toBe(false);
   });
 
   it('Test Analytics Template Validity', function()

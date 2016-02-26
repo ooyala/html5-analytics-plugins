@@ -14,7 +14,7 @@ describe('Analytics Framework Unit Tests', function()
   var Utils = OO.Analytics.Utils;
   var _ = OO._;
   var framework;
-
+  OO.DEBUG = true;
   //setup for individual tests
   var testSetup = function()
   {

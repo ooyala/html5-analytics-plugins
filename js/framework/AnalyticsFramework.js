@@ -254,8 +254,10 @@ OO.Analytics.Framework = function()
   this.unregisterPlugin = function(pluginIDToRemove)
   {
     var removedSuccessfully = false;
+
     if (pluginIDToRemove && _registeredPlugins && _registeredPlugins[pluginIDToRemove])
     {
+      safeFunctionCall(getPluginInstance(pluginIDToRemove), "destroy");
       delete _registeredPlugins[pluginIDToRemove];
       removedSuccessfully = true;
     }

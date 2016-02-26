@@ -129,7 +129,6 @@ var AnalyticsPluginTemplate = function (framework)
    */
   this.destroy = function ()
   {
-
     _framework = null;
   }
 };
