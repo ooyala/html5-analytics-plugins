@@ -15,31 +15,23 @@ describe('Analytics Framework Unit Tests', function()
   var _ = OO._;
   var framework;
 
-  //setup for all tests
-  var initialSetup = function()
-  {
-    OO.DEBUG = {};
-  };
-
-  //cleanup after all tests
-  var finalCleanup = function()
-  {
-
-  };
-
   //setup for individual tests
   var testSetup = function()
   {
+    //mute the logging becuase there will be lots of error messages
+    OO.log = function(){};
     framework = new Analytics.Framework();
   };
 
   //cleanup for individual tests
   var testCleanup = function()
   {
-
+    OO.Analytics.PluginFactoryList = null;
+    OO.Analytics.FrameworkInstanceList = null;
+    //return log back to normal
+    OO.log = console.log;
   };
 
-  initialSetup();
   beforeEach(testSetup);
   afterEach(testCleanup);
 
@@ -731,9 +723,6 @@ describe('Analytics Framework Unit Tests', function()
   describe('Test Plugin Message Receiving', function()
   {
     var testFactory;
-
-
-
     //setup for individual tests
     var testSetup = function()
     {
@@ -838,8 +827,58 @@ describe('Analytics Framework Unit Tests', function()
       expect(plugin2.msgReceivedList[3]).toEqual(msg2);
 
     });
+
+    it("Test Framework Handles Plugin That Throws Error On getName", function()
+    {
+      var factory = Utils.createFactoryThatThrowsErrorOnGetName();
+      var errorOccured = false;
+      var pluginID;
+      try
+      {
+        pluginID = framework.registerPlugin(factory);
+      }
+      catch(e)
+      {
+        OO.log(e);
+        errorOccured = true;
+      }
+      expect(errorOccured).toBe(false);
+      expect(pluginID).toBeFalsy();
+      expect(framework.getPluginList().length).toEqual(0);
+
+
+    });
+
+    it("Test Framework Handles Plugin That Throws Error On processEvent", function()
+    {
+      var factory = Utils.createFactoryThatThrowsErrorOnProcessEvent();
+      var errorOccured = false;
+      var pluginID;
+      try
+      {
+        pluginID = framework.registerPlugin(factory);
+      }
+      catch(e)
+      {
+        OO.log(e);
+        errorOccured = true;
+      }
+      expect(errorOccured).toBe(false);
+      expect(pluginID).toBeTruthy();
+      expect(framework.getPluginList().length).toEqual(1);
+
+      errorOccured = false;
+      try
+      {
+        expect(framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED)).toBe(true);
+      }
+      catch(e)
+      {
+        errorOccured = true;
+      }
+
+      expect(errorOccured).toBe(false);
+      expect(framework.getRecordedEvents().length).toEqual(1);
+    });
   });
-
-  finalCleanup();
-
 });

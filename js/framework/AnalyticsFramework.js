@@ -71,7 +71,15 @@ OO.Analytics.Framework = function()
     {
       if (_.isObject(pluginMetadata))
       {
+        //set the metadata and then set it on any plugin that is already registered
         _pluginMetadata = pluginMetadata
+        var pluginList = this.getPluginList();
+        for (var i = 0; i < pluginList.length; i++)
+        {
+            var plugin = getPluginInstance(pluginList[i]);
+            passMetadataToPlugin(plugin);
+        }
+
         success = true;
       }
       else
@@ -189,17 +197,12 @@ OO.Analytics.Framework = function()
       }
       else
       {
-        var pluginName = safeFunctionCall(plugin, "getName");
-        var metadataForThisPlugin;
+        //initialize the plugin. If we have metadata then give it to the plugin. Otherwise it will be sent in Analytics.Framework.setPluginMetadata;
+        safeFunctionCall(plugin, "init");
         if (_pluginMetadata)
         {
-          metadataForThisPlugin = _pluginMetadata[pluginName];
+          passMetadataToPlugin(plugin);
         }
-        else
-        {
-          OO.log(createErrorString("Trying to register \'" + pluginName + "\' without having run setPluginMetadata. This plugin will have no params."));
-        }
-        safeFunctionCall(plugin, "init", [metadataForThisPlugin]);
       }
     }
 
@@ -225,7 +228,6 @@ OO.Analytics.Framework = function()
       }
       else
       {
-
         var pluginName = safeFunctionCall(plugin, "getName");
         if (pluginName)
         {
@@ -307,21 +309,38 @@ OO.Analytics.Framework = function()
       //if it's still valid check whether the getName returns a non empty string
       if (isValid)
       {
-        var name = plugin.getName();
-        if (!name || typeof name !== 'string')
+        try
         {
-          OO.log("Plugin does not have \'string\' as return type of getName() or is empty string");
+          var name = plugin.getName();
+          if (!name || !_.isString(name))
+          {
+            OO.log(createErrorString("Plugin does not have \'string\' as return type of getName() or is empty string"));
+            isValid = false;
+          }
+        }
+        catch (e)
+        {
+          OO.log(createErrorString("Plugin throws error on call to getName"));
           isValid = false;
         }
+
       }
 
       //if it's still valid check whether the getVersion returns a non empty string
       if (isValid)
       {
-        var version = plugin.getVersion();
-        if (!version || typeof version !== 'string')
+        try
         {
-          OO.log("Plugin does not have \'string\' as return type of getVersion() or is empty string");
+          var version = plugin.getVersion();
+          if (!version || !_.isString(version))
+          {
+            OO.log(createErrorString("Plugin does not have \'string\' as return type of getVersion() or is empty string"));
+            isValid = false;
+          }
+        }
+        catch(e)
+        {
+          OO.log(createErrorString("Plugin throws error on call to getVersion"));
           isValid = false;
         }
       }
@@ -529,6 +548,28 @@ OO.Analytics.Framework = function()
     return id;
   });
 
+  /**
+   * Helper function to give a plugin it's correct set of metadata.
+   * @private
+   * @method OO.Analytics.Framework#passMetadataToPlugin
+   * @param  {object} plugin The plugin instance to give the metadata to
+   */
+  var passMetadataToPlugin = privateMember(function(plugin)
+  {
+    if (_pluginMetadata)
+    {
+      var pluginName = safeFunctionCall(plugin, "getName");
+      if (!pluginName)
+      {
+        OO.log(createErrorString("Trying to pass in metadata to plugin that does not have valid name"));
+        return;
+      }
+
+      var metadataForThisPlugin = _pluginMetadata[pluginName];
+      safeFunctionCall(plugin, "setMetadata", [metadataForThisPlugin]);
+    }
+  });
+
  /**
   * Helper function to create consistent error messages.
   * @private
@@ -573,15 +614,19 @@ OO.Analytics.Framework = function()
     }
     catch (err)
     {
-      if (plugin && _.isFunction(plugin.getName))
+      try
       {
-        OO.log(createErrorString("Error occurred during call to function \'" + funcName + "\' on plugin \'" + plugin.getName() + "\'\n", err));
+        if (plugin && _.isFunction(plugin.getName))
+        {
+          OO.log(createErrorString("Error occurred during call to function \'" + funcName + "\' on plugin \'" + plugin.getName() + "\'\n", err));
+        }
       }
-      else
+      catch(e)
       {
         OO.log(createErrorString("Error occurred during call to function \'" + funcName + "\' on plugin\n", err));
       }
     }
+
     return null;
   });
 
@@ -600,4 +645,28 @@ OO.Analytics.Framework = function()
     }
   });
 
+  if (!OO.Analytics.FrameworkInstanceList)
+  {
+    OO.Analytics.FrameworkInstanceList = [];
+  }
+
+  var frameworkRegistrationObject = function(framework)
+  {
+    this.registerPluginFactory = function(pluginFactory)
+    {
+      framework.registerPlugin(pluginFactory);
+    }
+  }
+  //push this instance into the global list of framework instances.
+  var frameworkRegistrationObject = new frameworkRegistrationObject(this);
+  OO.Analytics.FrameworkInstanceList.push(frameworkRegistrationObject);
+
+  //check to see if any plugin factories already existed and register them to this plugin.
+  if (_.isArray(OO.Analytics.PluginFactoryList) && OO.Analytics.PluginFactoryList.length > 0)
+  {
+    for (var i = 0; i < OO.Analytics.PluginFactoryList.length; i++)
+    {
+      this.registerPlugin(OO.Analytics.PluginFactoryList[i]);
+    }
+  }
 };

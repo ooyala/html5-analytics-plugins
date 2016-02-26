@@ -111,7 +111,7 @@ if (!OO.Analytics.Utils)
       }
       return eventFactory;
     },this);
-  }
+  };
 
   Utils.createFactoryWithGlobalAccessToPluginInstance = function()
   {
@@ -122,9 +122,13 @@ if (!OO.Analytics.Utils)
       plugin.msgReceivedList = [];
       plugin.active = true;
 
-      plugin.init = function(metadata)
+      plugin.init = function()
       {
         this.initWasCalled = true;
+      }
+
+      plugin.setMetadata = function(metadata)
+      {
         this.metadata = metadata;
       }
 
@@ -155,5 +159,33 @@ if (!OO.Analytics.Utils)
       OO.Analytics.Framework.TEST.push(plugin);
       return plugin;
     },this);
-  }
+  };
+
+  Utils.createFactoryThatThrowsErrorOnGetName = function()
+  {
+    return OO._.bind(function()
+    {
+      var validFactory = Utils.createValidPluginFactory();
+      var badPlugin = new validFactory();
+      badPlugin.getName = function()
+      {
+        throw "Error";
+      };
+      return badPlugin;
+    },this);
+  };
+
+  Utils.createFactoryThatThrowsErrorOnProcessEvent = function()
+  {
+    return OO._.bind(function()
+    {
+      var validFactory = Utils.createValidPluginFactory();
+      var badPlugin = new validFactory();
+      badPlugin.processEvent = function()
+      {
+        throw "Error";
+      };
+      return badPlugin;
+    },this);
+  };
 }
