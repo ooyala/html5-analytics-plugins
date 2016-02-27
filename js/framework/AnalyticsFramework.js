@@ -73,7 +73,7 @@ OO.Analytics.Framework = function()
       {
         //set the metadata and then set it on any plugin that is already registered
         _pluginMetadata = pluginMetadata
-        var pluginList = this.getPluginList();
+        var pluginList = this.getPluginIDList();
         for (var i = 0; i < pluginList.length; i++)
         {
             var plugin = getPluginInstance(pluginList[i]);
@@ -141,11 +141,11 @@ OO.Analytics.Framework = function()
   });
 
   /**
-   * Returns an array of the currently stored recordedEvents in chronological
+   * Returns a shallow copy array of the currently stored recordedEvents in chronological
    * order.
    * @public
    * @method OO.Analytics.Framework#getRecordedEvents
-   * @return {Array} List of recordedEvents in chronological order.
+   * @return {Array} Shallow copy of recordedEvents in chronological order.
    */
   this.getRecordedEvents = function()
   {
@@ -216,7 +216,7 @@ OO.Analytics.Framework = function()
       else if (!_registeredPlugins[pluginID])
       {
         _registeredPlugins[pluginID] = {factory:pluginFactory, instance:plugin};
-        plugin.setPluginID(pluginID);
+        safeFunctionCall(plugin, "setPluginID", [pluginID]);
       }
     }
 
@@ -278,7 +278,7 @@ OO.Analytics.Framework = function()
     if (!plugin)
     {
       isValid = false;
-      OO.log("Plugin has falsy value and is not valid. Actual value: ", plugin);
+      OO.log(createErrorString("Plugin has falsy value and is not valid. Actual value: "), plugin);
     }
 
     /////////////////////////////////////////////////////////////////////////////////////////////
@@ -298,11 +298,18 @@ OO.Analytics.Framework = function()
           isValid = false;
           if(plugin.getName && typeof plugin.getName === 'function')
           {
-            OO.log("Plugin \'" + plugin.getName() + "\' missing function: " + reqFunc);
+            try
+            {
+              OO.log(createErrorString("Plugin \'" + plugin.getName() + "\' missing function: " + reqFunc));
+            }
+            catch(e)
+            {
+              OO.log(createErrorString("Plugin missing function: " + reqFunc));
+            }
           }
           else
           {
-            OO.log("Plugin missing function: " + reqFunc);
+            OO.log(createErrorString("Plugin missing function: " + reqFunc));
           }
           break;
         }
@@ -353,10 +360,10 @@ OO.Analytics.Framework = function()
   /**
    * Get a list of plugin ids for the currently registered plugins.
    * @public
-   * @method OO.Analytics.Framework#getPluginList
+   * @method OO.Analytics.Framework#getPluginIDList
    * @return {Array} An array of plugin IDs.
    */
-  this.getPluginList = function()
+  this.getPluginIDList = function()
   {
     var list = [];
     for (pluginID in _registeredPlugins)
@@ -521,27 +528,30 @@ OO.Analytics.Framework = function()
   {
     var id = null;
     var error;
+    //Plugin ID's are create using sequential numbers. Nothing fancy but this
+    //way the framework can keep track of how many have been registered. There is
+    //a chance that someone could have an infinite loop where plugins get registered
+    //unregistered all the time, so this will output some error messages to help
+    //debug that.
     if (plugin)
     {
       var name = safeFunctionCall(plugin, "getName");
       var version = safeFunctionCall(plugin, "getVersion");
       if (name && version)
       {
-        if (_uniquePluginId < MAX_PLUGINS)
+        id = _uniquePluginId + "_" + name + "_" + version;
+        //we shouldn't have any naming conflicts but just in case, throw an error
+        if (!_registeredPlugins[id])
         {
-          id = _uniquePluginId + "_" + name + "_" + version;
-          //we shouldn't have any naming conflicts but just in case, throw an error
-          if (!_registeredPlugins[id])
-          {
-            _uniquePluginId++;
-          }
-          else
-          {
-            OO.log(createErrorString("Failed to create a unique name for plugin " + name + "_" + version));
-            id = null;
-          }
+          _uniquePluginId++;
         }
         else
+        {
+          OO.log(createErrorString("Failed to create a unique name for plugin " + name + "_" + version));
+          id = null;
+        }
+
+        if (_uniquePluginId > MAX_PLUGINS)
         {
           OO.log(createErrorString("you have tried to create more than " + MAX_PLUGINS + " unique plugin ids. There is probably an infinite loop or some other error."));
         }
@@ -647,15 +657,25 @@ OO.Analytics.Framework = function()
     }
   });
 
-  var frameworkRegistrationObject = function(framework)
+  /**
+   * @class
+   * @classdesc This class wraps a framework object to only expose
+   * registerPluginFactory.  It will be used to let plugins register to frameworks
+   * at the global scope.
+   * @private
+   * @param  {object} framework Analytics framework instance.
+   */
+  var FrameworkRegistrationObject = function(framework)
   {
     this.registerPluginFactory = function(pluginFactory)
     {
       framework.registerPlugin(pluginFactory);
     }
   }
+
+
   //push this instance into the global list of framework instances.
-  var frameworkRegistrationObject = new frameworkRegistrationObject(this);
+  var frameworkRegistrationObject = new FrameworkRegistrationObject(this);
   OO.Analytics.FrameworkInstanceList.push(frameworkRegistrationObject);
 
   //check to see if any plugin factories already existed and register them to this plugin.

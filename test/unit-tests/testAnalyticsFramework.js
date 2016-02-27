@@ -122,7 +122,7 @@ describe('Analytics Framework Unit Tests', function()
 
     it('Test No Plugins Registered', function()
     {
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(Array.isArray(pluginList)).toBe(true);
       expect(pluginList.length).toEqual(0);
     });
@@ -131,7 +131,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var badPluginFactory;
       expect(framework.registerPlugin(badPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -139,7 +139,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var nullPluginFactory = null;
       expect(framework.registerPlugin(nullPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -147,7 +147,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var emptyObjectPluginFactory = {};
       expect(framework.registerPlugin(emptyObjectPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -155,7 +155,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var badEmptyPluginFactory = function() {};
       expect(framework.registerPlugin(badEmptyPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -167,7 +167,7 @@ describe('Analytics Framework Unit Tests', function()
         var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
         expect(framework.registerPlugin(missingFunctionFactory)).toBeFalsy();
       }
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -175,7 +175,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
       expect(framework.registerPlugin(wrongReturnPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -183,7 +183,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
       expect(framework.registerPlugin(wrongReturnPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -193,7 +193,7 @@ describe('Analytics Framework Unit Tests', function()
       var pluginID = framework.registerPlugin(goodFactory);
       expect(pluginID).not.toBeFalsy();
       expect(typeof pluginID === 'string').toBe(true);
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
     });
 
@@ -217,7 +217,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.isEqual(pluginID2, pluginID3)).not.toBe(true);
       expect(_.isEqual(pluginID3, pluginID1)).not.toBe(true);
 
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(3);
 
       expect(_.contains(pluginList, pluginID1)).toBe(true);
@@ -242,7 +242,7 @@ describe('Analytics Framework Unit Tests', function()
 
       expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
 
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
       expect(_.contains(pluginList, pluginID1)).toBe(true);
@@ -266,7 +266,7 @@ describe('Analytics Framework Unit Tests', function()
 
       expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
 
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
       expect(_.contains(pluginList, pluginID1)).toBe(true);
@@ -280,26 +280,26 @@ describe('Analytics Framework Unit Tests', function()
 
       var pluginID1 = framework.registerPlugin(goodFactory1);
       var pluginID2 = framework.registerPlugin(goodFactory2);
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
       //test removing plugin1
       expect(framework.unregisterPlugin(pluginID1)).toBe(true);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
 
       //test removing plugin2
       expect(framework.unregisterPlugin(pluginID2)).toBe(true);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(false);
 
       //test removing plugin2 even though list is empty.
       expect(framework.unregisterPlugin(pluginID2)).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(false);
@@ -307,12 +307,12 @@ describe('Analytics Framework Unit Tests', function()
 
     it('Test Unregistering Factory Without Registering First', function()
     {
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
       //test removing plugin1
       expect(framework.unregisterPlugin("badID")).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -320,32 +320,32 @@ describe('Analytics Framework Unit Tests', function()
     {
       var test;
       expect(framework.unregisterPlugin(test)).toBe(false);
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
       test = {};
       expect(framework.unregisterPlugin(test)).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
       test = {test:"testdata"};
       expect(framework.unregisterPlugin(test)).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
       test = [];
       expect(framework.unregisterPlugin(test)).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
       test = [1,2,3];
       expect(framework.unregisterPlugin(test)).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
       test = 1;
       expect(framework.unregisterPlugin(test)).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
@@ -358,11 +358,11 @@ describe('Analytics Framework Unit Tests', function()
 
       expect(framework.unregisterPlugin(pluginID1)).toBe(true);
 
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
       var pluginID3 = framework.registerPlugin(goodFactory1);
       expect(_.isEqual(pluginID1, pluginID3)).not.toBe(true);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
@@ -377,26 +377,26 @@ describe('Analytics Framework Unit Tests', function()
 
       var pluginID1 = framework.registerPlugin(goodFactory1);
       var pluginID2 = framework.registerPlugin(goodFactory2);
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
       var badID = "badID";
 
       expect(framework.unregisterPlugin(badID)).toBe(false);
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
       expect(_.contains(pluginList, pluginID1)).toBe(true);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
 
       badID = {};
       expect(framework.unregisterPlugin(badID)).toBe(false);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
       expect(_.contains(pluginList, pluginID1)).toBe(true);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
 
       expect(framework.unregisterPlugin(pluginID1)).toBe(true);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
@@ -405,7 +405,7 @@ describe('Analytics Framework Unit Tests', function()
       var pluginID4 = framework.registerPlugin(goodFactory1);
       var pluginID5 = framework.registerPlugin(goodFactory1);
 
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(4);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
@@ -414,7 +414,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.contains(pluginList, pluginID5)).toBe(true);
 
       expect(framework.unregisterPlugin(pluginID4)).toBe(true);
-      pluginList = framework.getPluginList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(3);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
@@ -423,9 +423,9 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.contains(pluginList, pluginID5)).toBe(true);
     });
 
-    it('Test Registering Lots Of Plugins (should stop at some point)', function()
+    it('Test Registering Lots Of Plugins', function()
     {
-      //There is an arbitrary limit here to test that we stop registering plugins after a while.
+      //Test that the framework will not crash when registering lots of plugins.
       var upperLimit = 1000;
       var goodFactory1 = Utils.createValidPluginFactory("test1");
 
@@ -444,9 +444,8 @@ describe('Analytics Framework Unit Tests', function()
       }
 
       expect(errorHit).toBe(false);
-      var pluginList = framework.getPluginList();
-      expect(pluginList.length).toBeGreaterThan(0);
-      expect(pluginList.length).toBeLessThan(upperLimit);
+      var pluginList = framework.getPluginIDList();
+      expect(pluginList.length).toEqual(1000);
     });
 
   });
@@ -572,19 +571,19 @@ describe('Analytics Framework Unit Tests', function()
 
       it('Test Sending Invalid Messages', function()
       {
-        expect(framework.getPluginList().length).toEqual(1);
+        expect(framework.getPluginIDList().length).toEqual(1);
         testBadMessages(framework);
       });
 
       it('Test Sending Valid Messages', function()
       {
-        expect(framework.getPluginList().length).toEqual(1);
+        expect(framework.getPluginIDList().length).toEqual(1);
         testGoodMessages(framework);
       });
 
       it('Test Sending Valid Messages With Bad Params', function()
       {
-        expect(framework.getPluginList().length).toEqual(1);
+        expect(framework.getPluginIDList().length).toEqual(1);
         testGoodMessagesBadParams(framework);
       });
     });
@@ -844,9 +843,7 @@ describe('Analytics Framework Unit Tests', function()
       }
       expect(errorOccured).toBe(false);
       expect(pluginID).toBeFalsy();
-      expect(framework.getPluginList().length).toEqual(0);
-
-
+      expect(framework.getPluginIDList().length).toEqual(0);
     });
 
     it("Test Framework Handles Plugin That Throws Error On processEvent", function()
@@ -865,7 +862,7 @@ describe('Analytics Framework Unit Tests', function()
       }
       expect(errorOccured).toBe(false);
       expect(pluginID).toBeTruthy();
-      expect(framework.getPluginList().length).toEqual(1);
+      expect(framework.getPluginIDList().length).toEqual(1);
 
       errorOccured = false;
       try

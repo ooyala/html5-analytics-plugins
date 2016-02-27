@@ -44,7 +44,7 @@ describe('Analytics Framework Template Unit Tests', function()
   it('Test Auto Registering Template', function()
   {
       var templatePlugin = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
-      var pluginList = framework.getPluginList();
+      var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toBe(1);
 
       var pluginID = pluginList[0];
@@ -60,7 +60,7 @@ describe('Analytics Framework Template Unit Tests', function()
       expect(pluginID).not.toEqual(pluginID2);
 
       expect(framework.unregisterPlugin(pluginID)).toBe(true);
-      expect(_.contains(framework.getPluginList(), pluginID)).toBe(false);
+      expect(_.contains(framework.getPluginIDList(), pluginID)).toBe(false);
   });
 
   it('Test Analytics Template Validity', function()
@@ -68,7 +68,7 @@ describe('Analytics Framework Template Unit Tests', function()
     var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
     var pluginID = framework.registerPlugin(templatePluginFactory);
     expect(pluginID).toBeDefined();
-    var pluginList = framework.getPluginList();
+    var pluginList = framework.getPluginIDList();
     expect(_.contains(pluginList, pluginID));
     expect(framework.makePluginInactive(pluginID)).toBe(true);
     expect(framework.makePluginActive(pluginID)).toBe(true);
@@ -84,15 +84,15 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(OO.Analytics.PluginFactoryList).toBeDefined();
     expect(_.contains(OO.Analytics.PluginFactoryList, templatePluginFactory)).toBe(true);
 
-    var pluginList1 = framework.getPluginList();
-    var pluginList2 = framework2.getPluginList();
+    var pluginList1 = framework.getPluginIDList();
+    var pluginList2 = framework2.getPluginIDList();
     expect(pluginList1.length).toEqual(1);
     expect(pluginList2.length).toEqual(1);
 
     var framework3 = new Analytics.Framework();
-    pluginList1 = framework.getPluginList();
-    pluginList2 = framework2.getPluginList();
-    var pluginList3 = framework3.getPluginList();
+    pluginList1 = framework.getPluginIDList();
+    pluginList2 = framework2.getPluginIDList();
+    var pluginList3 = framework3.getPluginIDList();
     expect(pluginList1.length).toEqual(1);
     expect(pluginList2.length).toEqual(1);
     expect(pluginList3.length).toEqual(1);
