@@ -39,9 +39,6 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
     "init",
     "setMetadata",
     "destroy",
-    "makeActive",
-    "makeInactive",
-    "isActive",
     "processEvent"
   ];
   OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS = REQUIRED_PLUGIN_FUNCTIONS;

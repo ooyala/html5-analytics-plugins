@@ -81,37 +81,6 @@ var AnalyticsPluginTemplate = function (framework)
   };
 
   /**
-  * [Required Function] Return if plugin is currently active or not.
-  * @public
-  * @method AnalyticsPluginTemplate#isActive
-  * @return {boolean} Return true if plugin is active and can receive events.
-  */
-  this.isActive = function()
-  {
-    return _active;
-  }
-
-  /**
-  * [Required Function] Make this plugin active and able to receive events.
-  * @public
-  * @method AnalyticsPluginTemplate#makeActive
-  */
-  this.makeActive = function ()
-  {
-    _active = true;
-  }
-
-  /**
-  * [Required Function] Make this plugin inactive to stop receiving events.
-  * @public
-  * @method AnalyticsPluginTemplate#makeInactive
-  */
-  this.makeInactive = function ()
-  {
-    _active = false;
-  }
-
-  /**
    * [Required Function] Process an event from the Analytics Framework, with the given parameters.
    * @public
    * @method AnalyticsPluginTemplate#processEvent

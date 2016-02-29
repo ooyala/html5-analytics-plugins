@@ -215,7 +215,7 @@ OO.Analytics.Framework = function()
       }
       else if (!_registeredPlugins[pluginID])
       {
-        _registeredPlugins[pluginID] = {factory:pluginFactory, instance:plugin};
+        _registeredPlugins[pluginID] = {factory:pluginFactory, instance:plugin, active:true};
         safeFunctionCall(plugin, "setPluginID", [pluginID]);
       }
     }
@@ -257,7 +257,8 @@ OO.Analytics.Framework = function()
 
     if (pluginIDToRemove && _registeredPlugins && _registeredPlugins[pluginIDToRemove])
     {
-      safeFunctionCall(getPluginInstance(pluginIDToRemove), "destroy");
+      var plugin = getPluginInstance(pluginIDToRemove);
+      safeFunctionCall(plugin, "destroy");
       delete _registeredPlugins[pluginIDToRemove];
       removedSuccessfully = true;
     }
@@ -400,10 +401,9 @@ OO.Analytics.Framework = function()
    */
   this.isPluginActive = function(pluginID)
   {
-    var plugin = getPluginInstance(pluginID);
-    if (plugin)
+    if (_registeredPlugins[pluginID] && _.isBoolean(_registeredPlugins[pluginID].active))
     {
-      return safeFunctionCall(plugin, "isActive");
+      return _registeredPlugins[pluginID].active;
     }
     return false;
   };
@@ -420,17 +420,8 @@ OO.Analytics.Framework = function()
     var success = false;
     if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
     {
-      var plugin = getPluginInstance(pluginID);
-      safeFunctionCall(plugin, "makeActive");
-      if (safeFunctionCall(plugin, "isActive"))
-      {
-        success = true;
-      }
-      else
-      {
-        OO.log(createErrorString("Calling 'makeActive' on \'" + pluginID + "\' did not make it active."));
-      }
-
+      _registeredPlugins[pluginID].active = true;
+      success = true;
     }
     return success;
   };
@@ -447,16 +438,8 @@ OO.Analytics.Framework = function()
     var success = false;
     if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
     {
-      var plugin = getPluginInstance(pluginID);
-      safeFunctionCall(plugin, "makeInactive");
-      if (!safeFunctionCall(plugin, "isActive"))
-      {
-        success = true;
-      }
-      else
-      {
-        OO.log(createErrorString("Calling 'makeInactive' on \'" + pluginID + "\' did not make it inactive."));
-      }
+      _registeredPlugins[pluginID].active = false;
+      success = true;
     }
     return success;
   };
@@ -499,9 +482,9 @@ OO.Analytics.Framework = function()
       var pluginID;
       for (pluginID in _registeredPlugins)
       {
-        var plugin = _registeredPlugins[pluginID].instance;
-        if (safeFunctionCall(plugin, "isActive"))
+        if (this.isPluginActive(pluginID))
         {
+          var plugin = getPluginInstance(pluginID);
           safeFunctionCall(plugin, "processEvent",[eventName, params]);
         }
       }
