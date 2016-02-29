@@ -103,27 +103,8 @@ var AnalyticsPluginTemplate = function (framework)
   }
 };
 
-////////////////////////////////////////////////////////////////////////////////
-///*****If you would like the plugin to auto register (most common case)
-///     then the following code will do that for you.  The plugin needs to
-///     add itself to the list of factories, in case more framework instances
-///     are created later (ex. creating players on the fly within a webpage).
-///     And the plugin must register itself with any existing frameworks.
-///
-///     If you only want this plugin to add itself to certain framework instances,
-///     this code will not cover that.
-////////////////////////////////////////////////////////////////////////////////
-
-//Add plugin to the factory list.
-OO.Analytics.PluginFactoryList.push(AnalyticsPluginTemplate);
-
-//Register this plugin with any existing frameworks.
-if (OO.Analytics.FrameworkInstanceList && OO.Analytics.FrameworkInstanceList.length)
-{
-  for(var i = 0; i < OO.Analytics.FrameworkInstanceList.length; i++)
-  {
-    OO.Analytics.FrameworkInstanceList[i].registerPluginFactory(AnalyticsPluginTemplate);
-  }
-}
+//Add the template to the global list of factories for all new instances of the framework
+//and register the template with all current instance of the framework.
+OO.Analytics.RegisterPluginFactory(AnalyticsPluginTemplate);
 
 module.exports = AnalyticsPluginTemplate;

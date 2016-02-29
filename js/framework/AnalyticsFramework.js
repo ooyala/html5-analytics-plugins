@@ -640,33 +640,6 @@ OO.Analytics.Framework = function()
     }
   });
 
-  /**
-   * @class
-   * @classdesc This class wraps a framework object to only expose
-   * registerPluginFactory.  It will be used to let plugins register to frameworks
-   * at the global scope.
-   * @private
-   * @param  {object} framework Analytics framework instance.
-   */
-  var FrameworkRegistrationObject = function(framework)
-  {
-    this.registerPluginFactory = function(pluginFactory)
-    {
-      framework.registerPlugin(pluginFactory);
-    }
-  }
-
-
-  //push this instance into the global list of framework instances.
-  var frameworkRegistrationObject = new FrameworkRegistrationObject(this);
-  OO.Analytics.FrameworkInstanceList.push(frameworkRegistrationObject);
-
-  //check to see if any plugin factories already existed and register them to this plugin.
-  if (_.isArray(OO.Analytics.PluginFactoryList) && OO.Analytics.PluginFactoryList.length > 0)
-  {
-    for (var i = 0; i < OO.Analytics.PluginFactoryList.length; i++)
-    {
-      this.registerPlugin(OO.Analytics.PluginFactoryList[i]);
-    }
-  }
+  //Register this instance so it will register all the plugin factories currently loaded.
+  OO.Analytics.RegisterFrameworkInstance(this);
 };
