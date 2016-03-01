@@ -182,4 +182,27 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
+
+  it('Test all functions', function()
+  {
+    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    var plugin = new templatePluginFactory(framework);
+    var errorOccured = false;
+    try
+    {
+      for (var key in plugin)
+      {
+        if(OO._.isFunction(plugin[key]))
+        {
+          plugin[key].apply(plugin);
+        }
+      }
+    }
+    catch(e)
+    {
+      errorOccured = true;
+    }
+
+    expect(errorOccured).toBe(false);
+  });
 });
