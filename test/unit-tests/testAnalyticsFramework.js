@@ -35,9 +35,42 @@ describe('Analytics Framework Unit Tests', function()
   beforeEach(testSetup);
   afterEach(testCleanup);
 
-  //////////////////////////////////////////////
-  ///Plugin Validation Testing
-  //////////////////////////////////////////////
+  describe('Test Factory Registration and Unregistration', function()
+  {
+    it('Test Unregistering Bad Framework', function()
+    {
+      var errorOccured = false;
+      try
+      {
+        OO.Analytics.UnregisterFrameworkInstance(undefined);
+        expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+        OO.Analytics.UnregisterFrameworkInstance(null);
+        expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+        OO.Analytics.UnregisterFrameworkInstance("");
+        expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+        OO.Analytics.UnregisterFrameworkInstance({});
+        expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+        OO.Analytics.UnregisterFrameworkInstance([]);
+        expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+      }
+      catch(e)
+      {
+        errorOccured = true;
+      }
+
+      expect(errorOccured).toBe(false);
+    });
+
+    it('Test Unregistering Valid Framework', function()
+    {
+      var framework2 = new Analytics.Framework();
+      expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
+      OO.Analytics.UnregisterFrameworkInstance(framework);
+      expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+      OO.Analytics.UnregisterFrameworkInstance(framework2);
+      expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
+    });
+  });
 
   describe("Test Plugin Validator", function()
   {
@@ -877,5 +910,45 @@ describe('Analytics Framework Unit Tests', function()
       expect(errorOccured).toBe(false);
       expect(framework.getRecordedEvents().length).toEqual(1);
     });
+  });
+
+
+
+  it('Test Framework Destroy', function()
+  {
+    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    var pluginList = framework.getPluginIDList();
+    expect(pluginList.length).toEqual(1);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
+    framework.destroy();
+
+    pluginList = framework.getPluginIDList();
+    expect(pluginList.length).toEqual(0);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
+  });
+
+  it('Test Framework Destroy With Multi Frameworks', function()
+  {
+    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    var framework2 = new OO.Analytics.Framework();
+    var pluginList = framework.getPluginIDList();
+    var pluginList2 = framework2.getPluginIDList();
+
+    expect(pluginList.length).toEqual(1);
+    expect(pluginList2.length).toEqual(1);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
+
+    framework.destroy();
+
+    pluginList = framework.getPluginIDList();
+    pluginList2 = framework2.getPluginIDList();
+
+    expect(pluginList.length).toEqual(0);
+    expect(pluginList2.length).toEqual(1);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
 });

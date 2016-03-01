@@ -90,10 +90,13 @@ if (!OO.Analytics.UnregisterFrameworkInstance)
 {
   OO.Analytics.UnregisterFrameworkInstance = function(framework)
   {
-    var regObj = framework.frameworkRegistrationObject;
-    if (regObj)
+    if (framework)
     {
-      OO.Analytics.FrameworkInstanceList = OO._.without(OO.Analytics.FrameworkInstanceList, regObj);
+      var regObj = framework.frameworkRegistrationObject;
+      if (regObj)
+      {
+        OO.Analytics.FrameworkInstanceList = OO._.without(OO.Analytics.FrameworkInstanceList, regObj);
+      }
     }
   }
 }
