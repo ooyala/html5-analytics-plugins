@@ -95,6 +95,25 @@ OO.Analytics.Framework = function()
   }
 
   /**
+   * Destructor/cleanup for OO.Analytics.Framework
+   * @public
+   * @method OO.Analytics.Framework#destroy
+   */
+  this.destroy = privateMember(function()
+  {
+    OO.Analytics.UnregisterFrameworkInstance(this);
+    for (var pluginID in _registeredPlugins)
+    {
+      this.unregisterPlugin(pluginID);
+    }
+    _ = null;
+    _registeredPlugins = null;
+    _recordedEventList = null;
+    _pluginMetadata = null;
+    _eventExistenceLookup = null;
+  });
+
+  /**
    * Adds event and params to list of recorded events.  Plugins can later grab
    * this info in case events are published before the plugin is ready to process
    * them.
@@ -149,7 +168,12 @@ OO.Analytics.Framework = function()
    */
   this.getRecordedEvents = function()
   {
-    return _.clone(_recordedEventList);
+    if (_recordedEventList)
+    {
+      return _.clone(_recordedEventList);
+    }
+
+    return [];
   }
 
   /**
@@ -367,9 +391,12 @@ OO.Analytics.Framework = function()
   this.getPluginIDList = function()
   {
     var list = [];
-    for (pluginID in _registeredPlugins)
+    if (_registeredPlugins)
     {
-      list.push(pluginID);
+      for (var pluginID in _registeredPlugins)
+      {
+        list.push(pluginID);
+      }
     }
     return list;
   };
@@ -488,6 +515,7 @@ OO.Analytics.Framework = function()
           safeFunctionCall(plugin, "processEvent",[eventName, params]);
         }
       }
+
       eventPublished = true;
     }
     else

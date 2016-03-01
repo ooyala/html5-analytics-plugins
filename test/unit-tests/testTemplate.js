@@ -143,6 +143,43 @@ describe('Analytics Framework Template Unit Tests', function()
     framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PAUSED, [metadata]);
     expect(eventProcessed).toEqual(OO.Analytics.EVENTS.VIDEO_PAUSED);
     expect(paramsReceived).toEqual([metadata]);
+  });
 
+  it('Test Framework Destroy With Template', function()
+  {
+    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    var pluginList = framework.getPluginIDList();
+    expect(pluginList.length).toEqual(1);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
+    framework.destroy();
+
+    pluginList = framework.getPluginIDList();
+    expect(pluginList.length).toEqual(0);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
+  });
+
+  it('Test Framework Destroy With Template And Multi Frameworks', function()
+  {
+    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    var framework2 = new OO.Analytics.Framework();
+    var pluginList = framework.getPluginIDList();
+    var pluginList2 = framework2.getPluginIDList();
+
+    expect(pluginList.length).toEqual(1);
+    expect(pluginList2.length).toEqual(1);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
+
+    framework.destroy();
+
+    pluginList = framework.getPluginIDList();
+    pluginList2 = framework2.getPluginIDList();
+
+    expect(pluginList.length).toEqual(0);
+    expect(pluginList2.length).toEqual(1);
+    expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
+    expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
 });

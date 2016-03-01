@@ -60,7 +60,6 @@ if (!OO.Analytics.FrameworkRegistrationObject)
   }
 }
 
-
 /**
  * Registers a framework instance in a global list of frameworks and then
  * register any plugin factory that are in the global plugin factory list.
@@ -73,6 +72,7 @@ if (!OO.Analytics.RegisterFrameworkInstance)
   OO.Analytics.RegisterFrameworkInstance = function(framework)
   {
     var frameworkRegistrationObject = new OO.Analytics.FrameworkRegistrationObject(framework);
+    framework.frameworkRegistrationObject = frameworkRegistrationObject;
     OO.Analytics.FrameworkInstanceList.push(frameworkRegistrationObject);
 
     //check to see if any plugin factories already existed and register them to this plugin.
@@ -82,6 +82,18 @@ if (!OO.Analytics.RegisterFrameworkInstance)
       {
         framework.registerPlugin(OO.Analytics.PluginFactoryList[i]);
       }
+    }
+  }
+}
+
+if (!OO.Analytics.UnregisterFrameworkInstance)
+{
+  OO.Analytics.UnregisterFrameworkInstance = function(framework)
+  {
+    var regObj = framework.frameworkRegistrationObject;
+    if (regObj)
+    {
+      OO.Analytics.FrameworkInstanceList = OO._.without(OO.Analytics.FrameworkInstanceList, regObj);
     }
   }
 }
