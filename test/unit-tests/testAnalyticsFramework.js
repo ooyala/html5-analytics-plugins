@@ -862,7 +862,7 @@ describe('Analytics Framework Unit Tests', function()
 
     it("Test Framework Handles Plugin That Throws Error On getName", function()
     {
-      var factory = Utils.createFactoryThatThrowsErrorOnGetName();
+      var factory = Utils.createFactoryThatThrowsErrorOn("getName");
       var errorOccured = false;
       var pluginID;
       try
@@ -879,9 +879,9 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.getPluginIDList().length).toEqual(0);
     });
 
-    it("Test Framework Handles Plugin That Throws Error On processEvent", function()
+    it("Test Framework Handles Plugin That Throws Error On getVersion", function()
     {
-      var factory = Utils.createFactoryThatThrowsErrorOnProcessEvent();
+      var factory = Utils.createFactoryThatThrowsErrorOn("getVersion");
       var errorOccured = false;
       var pluginID;
       try
@@ -894,25 +894,111 @@ describe('Analytics Framework Unit Tests', function()
         errorOccured = true;
       }
       expect(errorOccured).toBe(false);
-      expect(pluginID).toBeTruthy();
-      expect(framework.getPluginIDList().length).toEqual(1);
+      expect(pluginID).toBeFalsy();
+      expect(framework.getPluginIDList().length).toEqual(0);
+    });
 
-      errorOccured = false;
+    it("Test Framework Handles Plugin That Throws Error On init", function()
+    {
+      var factory = Utils.createFactoryThatThrowsErrorOn("init");
+      var errorOccured = false;
+      var pluginID;
       try
       {
+        pluginID = framework.registerPlugin(factory);
+      }
+      catch(e)
+      {
+        OO.log(e);
+        errorOccured = true;
+      }
+      expect(errorOccured).toBe(false);
+    });
+
+    it("Test Framework Handles Plugin That Throws Error On setMetadata", function()
+    {
+      var factory = Utils.createFactoryThatThrowsErrorOn("setMetadata");
+      var errorOccured = false;
+      var pluginID;
+      try
+      {
+        pluginID = framework.registerPlugin(factory);
+        expect(framework.setPluginMetadata({}));
+      }
+      catch(e)
+      {
+        OO.log(e);
+        errorOccured = true;
+      }
+      expect(errorOccured).toBe(false);
+    });
+
+    it("Test Framework Handles Plugin That Throws Error On setPluginID", function()
+    {
+      var factory = Utils.createFactoryThatThrowsErrorOn("setPluginID");
+      var errorOccured = false;
+      var pluginID;
+      try
+      {
+        pluginID = framework.registerPlugin(factory);
+      }
+      catch(e)
+      {
+        OO.log(e);
+        errorOccured = true;
+      }
+      //plugin should still be registered even if the function failed.
+      expect(errorOccured).toBe(false);
+      expect(framework.getPluginIDList().length).toEqual(1);
+    });
+
+
+    it("Test Framework Handles Plugin That Throws Error On processEvent", function()
+    {
+      var factory = Utils.createFactoryThatThrowsErrorOn("processEvent");
+      var otherFactory  = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      var errorOccured = false;
+      var pluginID1 = framework.registerPlugin(factory);
+      expect(framework.getPluginIDList().length).toEqual(1);
+      var pluginID2 = framework.registerPlugin(otherFactory);
+      expect(framework.getPluginIDList().length).toEqual(2);
+      try
+      {
+        expect(framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED)).toBe(true);
         expect(framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED)).toBe(true);
       }
       catch(e)
       {
+        if (e)
+        {
+          OO.log(e);
+        }
         errorOccured = true;
       }
-
+      expect(framework.getRecordedEvents().length).toEqual(2);
+      expect(OO.Analytics.Framework.TEST[0].msgReceivedList.length).toEqual(2);
       expect(errorOccured).toBe(false);
-      expect(framework.getRecordedEvents().length).toEqual(1);
+    });
+
+    it("Test Framework Handles Plugin That Throws Error On destroy", function()
+    {
+      var factory = Utils.createFactoryThatThrowsErrorOn("destroy");
+      var errorOccured = false;
+      var pluginID;
+      try
+      {
+        pluginID = framework.registerPlugin(factory);
+        framework.unregisterPlugin(pluginID);
+      }
+      catch(e)
+      {
+        OO.log(e);
+        errorOccured = true;
+      }
+      expect(errorOccured).toBe(false);
+      expect(framework.getPluginIDList().length).toEqual(0);
     });
   });
-
-
 
   it('Test Framework Destroy', function()
   {

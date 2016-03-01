@@ -498,13 +498,11 @@ OO.Analytics.Framework = function()
       {
         params = [];
       }
-
       //record the message
       if(_recording)
       {
         recordEvent(eventName, params);
       }
-
       //propogate the message to all active plugins.
       var pluginID;
       for (pluginID in _registeredPlugins)
@@ -515,14 +513,12 @@ OO.Analytics.Framework = function()
           safeFunctionCall(plugin, "processEvent",[eventName, params]);
         }
       }
-
       eventPublished = true;
     }
     else
     {
       OO.log(createErrorString("Event \'" + eventName + "\' being published and it's not in the list of OO.Analytics.EVENTS"));
     }
-
     return eventPublished;
   }
 

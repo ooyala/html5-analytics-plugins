@@ -18,7 +18,7 @@ describe('Analytics Framework Template Unit Tests', function()
   {
     framework = new Analytics.Framework();
     //mute the logging becuase there will be lots of error messages
-  //  OO.log = function(){};
+    OO.log = function(){};
   };
 
   //cleanup for individual tests

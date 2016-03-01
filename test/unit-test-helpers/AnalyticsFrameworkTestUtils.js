@@ -137,21 +137,6 @@ if (!OO.Analytics.Utils)
         this.msgReceivedList.push(msgName);
       }
 
-      plugin.isActive = function()
-      {
-        return plugin.active;
-      }
-
-      plugin.makeActive = function()
-      {
-        plugin.active = true;
-      }
-
-      plugin.makeInactive = function()
-      {
-        plugin.active = false;
-      }
-
       if (!OO.Analytics.Framework.TEST)
       {
         OO.Analytics.Framework.TEST = [];
@@ -161,27 +146,13 @@ if (!OO.Analytics.Utils)
     },this);
   };
 
-  Utils.createFactoryThatThrowsErrorOnGetName = function()
+  Utils.createFactoryThatThrowsErrorOn = function(funcName)
   {
     return OO._.bind(function()
     {
       var validFactory = Utils.createValidPluginFactory();
       var badPlugin = new validFactory();
-      badPlugin.getName = function()
-      {
-        throw "Error";
-      };
-      return badPlugin;
-    },this);
-  };
-
-  Utils.createFactoryThatThrowsErrorOnProcessEvent = function()
-  {
-    return OO._.bind(function()
-    {
-      var validFactory = Utils.createValidPluginFactory();
-      var badPlugin = new validFactory();
-      badPlugin.processEvent = function()
+      badPlugin[funcName] = function()
       {
         throw "Error";
       };
