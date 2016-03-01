@@ -36,6 +36,7 @@ OO.Analytics.Framework = function()
   var _eventExistenceLookup = {};
   var _uniquePluginId = 0;
   const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
+  const MAX_EVENTS_RECORDED = 500;
 
   /**
    * Helper function for readability mainly. Binds private functions to 'this' instance
@@ -124,9 +125,16 @@ OO.Analytics.Framework = function()
    */
   var recordEvent = privateMember(function(eventName, params)
   {
-    var timeStamp = new Date().getTime();
-    var eventToRecord = new OO.Analytics.RecordedEvent(timeStamp, eventName, params);
-    _recordedEventList.push(eventToRecord);
+    if (_recording && _recordedEventList.length < MAX_EVENTS_RECORDED)
+    {
+      var timeStamp = new Date().getTime();
+      var eventToRecord = new OO.Analytics.RecordedEvent(timeStamp, eventName, params);
+      _recordedEventList.push(eventToRecord);
+    }
+    else
+    {
+      stopRecordingEvents();
+    }
   });
 
   /**

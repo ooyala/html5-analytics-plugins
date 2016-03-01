@@ -66,7 +66,13 @@ var AnalyticsPluginTemplate = function (framework)
    */
   this.init = function()
   {
-
+    var missedEvents;
+    //if you need to process missed events, here is an example
+    if (framework)
+    {
+      missedEvents = framework.getRecordedEvents();
+    }
+    //use recorded events.
   };
 
   /**

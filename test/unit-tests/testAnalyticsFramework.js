@@ -621,6 +621,16 @@ describe('Analytics Framework Unit Tests', function()
       });
     });
 
+    it('Test Max Messages Recorded', function()
+    {
+      for(var i = 0; i < 550; i++)
+      {
+        framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED);
+      }
+
+      var recordedEvents = framework.getRecordedEvents();
+      expect(recordedEvents.length).toBeLessThan(550);
+    });
   });
 
   describe('Test Plugin Initialization', function()
