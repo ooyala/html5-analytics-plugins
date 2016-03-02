@@ -22,7 +22,12 @@ if (!OO.Analytics.EVENTS)
     VIDEO_SOURCE_CHANGED:           'video_source_changed',
     VIDEO_STREAM_METADATA_UPDATED:  'video_stream_metadata_updated',
     VIDEO_CONTENT_METADATA_UPDATED: 'video_content_metadata_updated',
-    DESTROY:                        'destroy'
+    VIDEO_SEEK_STARTED:             'video_seek_requested',
+    VIDEO_SEEK_ENDED:               'video_seek_completed',
+    DESTROY:                        'destroy',
+
+    AD_BREAK_STARTED:               'ad_break_started',
+    AD_BREAK_ENDED:                 'ad_break_ended'
   };
   OO.Analytics.EVENTS = EVENTS;
 }
