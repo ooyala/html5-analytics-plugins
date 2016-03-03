@@ -487,6 +487,7 @@ OO.Analytics.Framework = function()
   {
      _eventExistenceLookup[OO.Analytics.EVENTS[tempEventName]] = true;
   }
+  tempEventName = undefined; //cleanup memory leak (thanks to unit tests!)
 
   /**
    * Publish an event to all registered and active plugins.
