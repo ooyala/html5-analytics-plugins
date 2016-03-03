@@ -83,7 +83,7 @@ var AnalyticsPluginTemplate = function (framework)
    */
   this.setMetadata = function(metadata)
   {
-      OO.log( "Analytics Template: PluginID \'" + id + "\' recieved this metadata:", metadata);
+      OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
   };
 
   /**
@@ -95,7 +95,7 @@ var AnalyticsPluginTemplate = function (framework)
    */
   this.processEvent = function(eventName, params)
   {
-    OO.log( "Analytics Template: PluginID \'" + id + "\' recieved this event:", eventName);
+    OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
   }
 
   /**
