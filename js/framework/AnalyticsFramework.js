@@ -483,7 +483,7 @@ OO.Analytics.Framework = function()
   //To avoid doing an expensive string search through OO.Analyitcs.EVENTS for this checking,
   //here we convert OO.Analytics.EVENTS into another object where we can directly look up if
   //the message exists.
-  for(tempEventName in OO.Analytics.EVENTS)
+  for(var tempEventName in OO.Analytics.EVENTS)
   {
      _eventExistenceLookup[OO.Analytics.EVENTS[tempEventName]] = true;
   }
