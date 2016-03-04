@@ -68,30 +68,31 @@ OO.Analytics.Framework = function()
   this.setPluginMetadata = function(pluginMetadata)
   {
     var success = false;
-    if (!_pluginMetadata)
-    {
-      if (_.isObject(pluginMetadata))
-      {
-        //set the metadata and then set it on any plugin that is already registered
-        _pluginMetadata = pluginMetadata
-        var pluginList = this.getPluginIDList();
-        for (var i = 0; i < pluginList.length; i++)
-        {
-            var plugin = getPluginInstance(pluginList[i]);
-            passMetadataToPlugin(plugin);
-        }
-
-        success = true;
-      }
-      else
-      {
-        OO.log(createErrorString("Calling setPluginMetadata without valid metadata object. Defaulting to no metadata"));
-      }
-    }
-    else
+    //just a warning if we are setting the metadata multiple times. This may be valid
+    //if so, this can be removed.
+    if (_pluginMetadata)
     {
       OO.log(createErrorString("Trying to run setPluginMetadata more than once. Ignoring new data."));
     }
+
+    if (_.isObject(pluginMetadata))
+    {
+      //set the metadata and then set it on any plugin that is already registered
+      _pluginMetadata = pluginMetadata
+      var pluginList = this.getPluginIDList();
+      for (var i = 0; i < pluginList.length; i++)
+      {
+          var plugin = getPluginInstance(pluginList[i]);
+          passMetadataToPlugin(plugin);
+      }
+
+      success = true;
+    }
+    else
+    {
+      OO.log(createErrorString("Calling setPluginMetadata without valid metadata object. Defaulting to no metadata"));
+    }
+
     return success;
   }
 
@@ -436,7 +437,10 @@ OO.Analytics.Framework = function()
    */
   this.isPluginActive = function(pluginID)
   {
-    if (_registeredPlugins[pluginID] && _.isBoolean(_registeredPlugins[pluginID].active))
+    if (pluginID &&
+        _registeredPlugins &&
+        _registeredPlugins[pluginID] &&
+        _.isBoolean(_registeredPlugins[pluginID].active))
     {
       return _registeredPlugins[pluginID].active;
     }
@@ -569,7 +573,7 @@ OO.Analytics.Framework = function()
 
         if (_uniquePluginId > MAX_PLUGINS)
         {
-          OO.log(createErrorString("you have tried to create more than " + MAX_PLUGINS + " unique plugin ids. There is probably an infinite loop or some other error."));
+          OO.log(createErrorString("You have tried to create more than " + MAX_PLUGINS + " unique plugin ids. There is probably an infinite loop or some other error."));
         }
       }
     }

@@ -16,15 +16,15 @@ if (!OO.Analytics.PluginFactoryList)
   OO.Analytics.PluginFactoryList = [];
 }
 
-/**
- * Registers a plugin factory in a global list of factories and then
- * registers the factory with any existing framework instances.
- * @public
- * @method OO.Analytics.Framework#RegisterPluginFactory
- * @param  {object} factory The factory creation function.
- */
 if (!OO.Analytics.RegisterPluginFactory)
 {
+  /**
+   * Registers a plugin factory in a global list of factories and then
+   * registers the factory with any existing framework instances.
+   * @public
+   * @method OO.Analytics.Framework#RegisterPluginFactory
+   * @param  {object} factory The factory creation function.
+   */
   OO.Analytics.RegisterPluginFactory = function(factory)
   {
     //Add plugin to the factory list.
@@ -41,16 +41,17 @@ if (!OO.Analytics.RegisterPluginFactory)
   }
 }
 
-/**
- * @class FrameworkRegistrationObject
- * @classdesc This class wraps a framework object to only expose
- * registerPluginFactory.  It will be used to let plugins register to frameworks
- * at the global scope.
- * @public
- * @param  {object} framework Analytics framework instance.
- */
+
 if (!OO.Analytics.FrameworkRegistrationObject)
 {
+  /**
+   * @class FrameworkRegistrationObject
+   * @classdesc This class wraps a framework object to only expose
+   * registerPluginFactory.  It will be used to let plugins register to frameworks
+   * at the global scope.
+   * @public
+   * @param  {object} framework Analytics framework instance.
+   */
   OO.Analytics.FrameworkRegistrationObject = function(framework)
   {
     this.registerPluginFactory = function(pluginFactory)
@@ -60,15 +61,16 @@ if (!OO.Analytics.FrameworkRegistrationObject)
   }
 }
 
-/**
- * Registers a framework instance in a global list of frameworks and then
- * register any plugin factory that are in the global plugin factory list.
- * @public
- * @method OO.Analytics.Framework#RegisterFrameworkInstance
- * @param  {object} framework Instance of the framework to register
- */
+
 if (!OO.Analytics.RegisterFrameworkInstance)
 {
+  /**
+   * Registers a framework instance in a global list of frameworks and then
+   * register any plugin factory that are in the global plugin factory list.
+   * @public
+   * @method OO.Analytics.Framework#RegisterFrameworkInstance
+   * @param  {object} framework Instance of the framework to register
+   */
   OO.Analytics.RegisterFrameworkInstance = function(framework)
   {
     var frameworkRegistrationObject = new OO.Analytics.FrameworkRegistrationObject(framework);
@@ -88,6 +90,14 @@ if (!OO.Analytics.RegisterFrameworkInstance)
 
 if (!OO.Analytics.UnregisterFrameworkInstance)
 {
+  /**
+   * Remove a framework instance from the global list of instance. You must have
+   * a reference to the FrameworkRegistrationObject from that framework to remove it.
+   * This is meant for framework instances to remove themselves from the list only.
+   * @public
+   * @method OO.Analytics.Framework#UnregisterFrameworkInstance
+   * @param  {object} framework Instance of the FrameworkRegistrationObject created when framework instance was registered.
+   */
   OO.Analytics.UnregisterFrameworkInstance = function(framework)
   {
     if (framework)
