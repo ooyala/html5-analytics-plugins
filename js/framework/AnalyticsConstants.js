@@ -20,11 +20,18 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_FIRST_PLAY_REQUESTED
+     * @event Analytics.EVENTS#INITIAL_PLAYBACK_REQUESTED
      * @description This message is sent the first time the user tries to play the video.
      * In the case of autoplay, it will be sent immediately after the player is ready to play.
      */
-    VIDEO_FIRST_PLAY_REQUESTED:     'video_first_play_requested',
+    INITIAL_PLAYBACK_REQUESTED:     'initial_playback_requested',
+
+    /**
+     * @public
+     * @event Analytics.EVENTS#PLAYBACK_COMPLETED
+     * @description This message is sent when video and ad playback has completed.
+     */
+    PLAYBACK_COMPLETED:             'playback_completed',
 
     /**
      * @public
@@ -56,14 +63,6 @@ if (!OO.Analytics.EVENTS)
      * @description This message is sent when video playback has paused.
      */
     VIDEO_PAUSED:                   'video_paused',
-
-    /**
-     * @public
-     * @event Analytics.EVENTS#VIDEO_ENDED
-     * @description This message is sent when video playback has completed. This
-     * includes finishing playback of all ads.
-     */
-    VIDEO_ENDED:                    'video_ended',
 
     /**
      * @public
