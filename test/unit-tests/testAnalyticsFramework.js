@@ -1164,7 +1164,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadata);
     });
 
-    it('Test VideoSeekStartedData', function()
+    it('Test VideoSeekRequestedData', function()
     {
       var metadata =
       {
@@ -1175,7 +1175,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadata);
     });
 
-    it('Test VideoSeekEndedData', function()
+    it('Test VideoSeekCompletedData', function()
     {
       var metadata =
       {
