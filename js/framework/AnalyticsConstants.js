@@ -216,15 +216,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @property  {string} contentType Information on the type of content being watched.
    * @property  {string} hostedAtURL The url the video is being hosted from.
    */
-  EVENT_DATA.VideoContentMetadata = function(metadata)
+  EVENT_DATA.VideoContentMetadata = function(title, description, duration, closedCaptions, contentType, hostedAtURL)
   {
     var checkContentData = OO._.bind(checkDataType, this, "VideoContentMetadata");
-    this.title          = checkContentData(metadata.title, "title", "string");
-    this.description    = checkContentData(metadata.description, "description", "string");
-    this.duration       = checkContentData(metadata.duration, "duration", "number");
-    this.closedCaptions = checkContentData(metadata.closedCaptions, "closedCaptions", "object");
-    this.contentType   = checkContentData(metadata.content_type, "content_type", "string");
-    this.hostedAtURL    = checkContentData(metadata.hostedAtURL, "hostedAtURL", "string")
+    this.title          = checkContentData(title, "title", "string");
+    this.description    = checkContentData(description, "description", "string");
+    this.duration       = checkContentData(duration, "duration", "number");
+    this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", "object");
+    this.contentType    = checkContentData(contentType, "contentType", "string");
+    this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", "string")
   }
 
   /**
@@ -240,11 +240,11 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoDownloadingMetadata = function(currentTime, totalStreamDuration, streamBufferedUntilTime, seekableRangeStart, seekableRangeEnd)
   {
     var checkDownloadData = OO._.bind(checkDataType, this, "VideoDownloadingMetadata");
-    this.currentTime = checkDownloadData(currentTime, "currentTime", "number");
-    this.totalStreamDuration = checkDownloadData(totalStreamDuration, "totalStreamDuration", "number");
+    this.currentTime             = checkDownloadData(currentTime, "currentTime", "number");
+    this.totalStreamDuration     = checkDownloadData(totalStreamDuration, "totalStreamDuration", "number");
     this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, "streamBufferedUntilTime", "number");
-    this.seekableRangeStart = checkDownloadData(seekableRangeStart, "seekableRangeStart", "number");
-    this.seekableRangeEnd = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", "number");
+    this.seekableRangeStart      = checkDownloadData(seekableRangeStart, "seekableRangeStart", "number");
+    this.seekableRangeEnd        = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", "number");
   }
 
   /**
@@ -318,8 +318,8 @@ if (!OO.Analytics.EVENT_DATA)
         // in the case number comes in as a string, try parsing it.
         if (!OO._.isNumber(toRet))
         {
-          toRet = parseInt(toRet);
-          if (!OO._.isNumber(toRet))
+          toRet = parseFloat(toRet);
+          if (isNaN(toRet))
           {
             error = true;
           }
@@ -329,7 +329,7 @@ if (!OO.Analytics.EVENT_DATA)
 
     if (error)
     {
-      OO.log("ERROR Analytics.EVENT_DATA." + className + "being created with invalid " + varName + ". Should be type \'" + expectedType + "\'");
+      OO.log("ERROR Analytics.EVENT_DATA." + className + " being created with invalid " + varName + ". Should be type \'" + expectedType + "\'");
       return undefined;
     }
 

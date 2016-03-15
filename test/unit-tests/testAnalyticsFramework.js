@@ -1047,4 +1047,143 @@ describe('Analytics Framework Unit Tests', function()
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
+
+  describe('Test Creation Of Message Data Objects', function()
+  {
+
+    it('Test VideoSourceData', function()
+    {
+      var metadata =
+      {
+        embedCode: "test1",
+        metadata: {foo:"test2"}
+      };
+
+      var embedCode = "embedCodeTest";
+      var data = new OO.Analytics.EVENT_DATA.VideoSourceData(embedCode, metadata);
+      expect(data).toEqual({embedCode:embedCode,metadata:metadata});
+
+      data = new OO.Analytics.EVENT_DATA.VideoSourceData(2,"test");
+      expect(data).not.toEqual({embedCode:2,metadata:"test"});
+      expect(data.embedCode).toEqual(undefined);
+      expect(data.metadata).toEqual(undefined);
+    });
+
+    it('Test VideoContentMetadata', function()
+    {
+      var metadata =
+      {
+        title:"titleTest",
+        description:"descTest",
+        duration:2.3,
+        closedCaptions: {foo:"test"},
+        contentType: "contentTest",
+        hostedAtURL: "urlTest"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(metadata.title,
+                                                                  metadata.description,
+                                                                  metadata.duration,
+                                                                  metadata.closedCaptions,
+                                                                  metadata.contentType,
+                                                                  metadata.hostedAtURL);
+      expect(data).toEqual(metadata);
+
+      //check and see if numbers get parsed correctly.
+      var temp = OO._.clone(metadata);
+      temp.duration = "2.3";
+      data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
+                                                              temp.description,
+                                                              temp.duration,
+                                                              temp.closedCaptions,
+                                                              temp.contentType,
+                                                              temp.hostedAtURL);
+      expect(data).toEqual(metadata);
+
+      temp.duration = "2";
+      data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
+                                                              temp.description,
+                                                              temp.duration,
+                                                              temp.closedCaptions,
+                                                              temp.contentType,
+                                                              temp.hostedAtURL);
+      expect(data.duration).toEqual(2);
+
+      temp.duration = "asdf";
+      data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
+                                                              temp.description,
+                                                              temp.duration,
+                                                              temp.closedCaptions,
+                                                              temp.contentType,
+                                                              temp.hostedAtURL);
+      expect(data.duration).toBeUndefined();
+    });
+
+    it('Test VideoDownloadingMetadata', function()
+    {
+      var metadata =
+      {
+        currentTime:1,
+        totalStreamDuration:2,
+        streamBufferedUntilTime:2.3,
+        seekableRangeStart: 4.4,
+        seekableRangeEnd: 5.5
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoDownloadingMetadata(1, 2, 2.3, "4.4", "5.5");
+      expect(data).toEqual(metadata);
+
+      data = new OO.Analytics.EVENT_DATA.VideoDownloadingMetadata();
+      expect(data).not.toEqual(metadata);
+      expect(data.currentTime).toBeUndefined();
+      expect(data.totalStreamDuration).toBeUndefined();
+      expect(data.streamBufferedUntilTime).toBeUndefined();
+      expect(data.seekableRangeStart).toBeUndefined();
+      expect(data.seekableRangeEnd).toBeUndefined();
+    });
+
+    it('Test VideoBufferingStartedData', function()
+    {
+      var metadata =
+      {
+        streamUrl:"testUrl.com"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoBufferingStartedData(metadata.streamUrl);
+      expect(data).toEqual(metadata);
+    });
+
+    it('Test VideoBufferingEndedData', function()
+    {
+      var metadata =
+      {
+        streamUrl:"testUrl.com"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoBufferingEndedData(metadata.streamUrl);
+      expect(data).toEqual(metadata);
+    });
+
+    it('Test VideoSeekStartedData', function()
+    {
+      var metadata =
+      {
+        seekingToTime:5.05
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoSeekStartedData(metadata.seekingToTime);
+      expect(data).toEqual(metadata);
+    });
+
+    it('Test VideoSeekEndedData', function()
+    {
+      var metadata =
+      {
+        timeSeekedTo:5109293.9949
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoSeekEndedData(metadata.timeSeekedTo);
+      expect(data).toEqual(metadata);
+    });
+  });
 });
