@@ -161,7 +161,7 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
-     * to start playing ads.
+     * to start playing linear ads.
      */
     AD_BREAK_STARTED:               'ad_break_started',
 
@@ -176,7 +176,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event Analytics.EVENTS#DESTROY
-     * @description This message is sent when the player its plugins are destroying.
+     * @description This message is sent when the player and its plugins are destroying.
      */
     DESTROY:                        'destroy'
   };
