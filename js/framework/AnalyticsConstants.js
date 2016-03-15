@@ -112,7 +112,7 @@ if (!OO.Analytics.EVENTS)
      * @event Analytics.EVENTS#VIDEO_SEEK_REQUESTED
      * @description This message is sent when a video seek is requested.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoSeekStartedData.
+     * OO.Analytics.EVENT_DATA.VideoSeekRequestedData.
      */
     VIDEO_SEEK_REQUESTED:             'video_seek_requested',
 
@@ -121,7 +121,7 @@ if (!OO.Analytics.EVENTS)
      * @event Analytics.EVENTS#VIDEO_SEEK_COMPLETED
      * @description This message is sent when a video seek has completed.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoSeekEndedData.
+     * OO.Analytics.EVENT_DATA.VideoSeekCompletedData.
      */
     VIDEO_SEEK_COMPLETED:               'video_seek_completed',
 
@@ -273,26 +273,26 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoSeekStartedData
+   * @class Analytics.EVENT_DATA#VideoSeekRequestedData
    * @classdesc Contains information about seeking to a particular time in the stream.
    * @property {number} seekingToTime The time requested to be seeked to
    */
-  EVENT_DATA.VideoSeekStartedData = function(seekingToTime)
+  EVENT_DATA.VideoSeekRequestedData = function(seekingToTime)
   {
-    var checkSeekStartedData = OO._.bind(checkDataType, this, "VideoSeekStartedData");
+    var checkSeekStartedData = OO._.bind(checkDataType, this, "VideoSeekRequestedData");
     this.seekingToTime = checkSeekStartedData(seekingToTime, "seekingToTime", "number");
   }
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoSeekEndedData
+   * @class Analytics.EVENT_DATA#VideoSeekCompletedData
    * @classdesc Contains information about the result of seeking to a particular
    * time in the stream.
    * @property {number} timeSeekedTo The time that was actually seeked to
    */
-  EVENT_DATA.VideoSeekEndedData = function(timeSeekedTo)
+  EVENT_DATA.VideoSeekCompletedData = function(timeSeekedTo)
   {
-    var checkSeekEndedData = OO._.bind(checkDataType, this, "VideoSeekEndedData");
+    var checkSeekEndedData = OO._.bind(checkDataType, this, "VideoSeekCompletedData");
     this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", "number");
   }
 

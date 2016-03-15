@@ -1171,7 +1171,7 @@ describe('Analytics Framework Unit Tests', function()
         seekingToTime:5.05
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoSeekStartedData(metadata.seekingToTime);
+      var data = new OO.Analytics.EVENT_DATA.VideoSeekRequestedData(metadata.seekingToTime);
       expect(data).toEqual(metadata);
     });
 
@@ -1182,7 +1182,7 @@ describe('Analytics Framework Unit Tests', function()
         timeSeekedTo:5109293.9949
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoSeekEndedData(metadata.timeSeekedTo);
+      var data = new OO.Analytics.EVENT_DATA.VideoSeekCompletedData(metadata.timeSeekedTo);
       expect(data).toEqual(metadata);
     });
   });
