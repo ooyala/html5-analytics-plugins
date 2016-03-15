@@ -14,7 +14,7 @@ if (!OO.Analytics.EVENTS)
      * @event Analytics.EVENTS#VIDEO_PLAYER_CREATED
      * @description This message is sent when the player is first created.
      * @param {Array} paramArray Array of length 1, containing the original parameters
-     * passed into the player.
+     * passed into the player
      */
     VIDEO_PLAYER_CREATED:           'video_player_created',
 
@@ -92,7 +92,7 @@ if (!OO.Analytics.EVENTS)
      * downloaded.  In contains information about the stream and metadata
      * for any plugins that should be loaded.
      * @param {Array} paramArray Array of length 1, contains an object holding all
-     * the metadata for each plugin that should be loaded.
+     * the metadata for each plugin that should be loaded
      */
     VIDEO_STREAM_METADATA_UPDATED:  'video_stream_metadata_updated',
 
@@ -103,7 +103,7 @@ if (!OO.Analytics.EVENTS)
      * downloaded. This will contain information about the video content. For
      * example, title and description.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoContentMetadata.
+     * OO.Analytics.EVENT_DATA.VideoContentMetadata
      */
     VIDEO_CONTENT_METADATA_UPDATED: 'video_content_metadata_updated',
 
@@ -112,7 +112,7 @@ if (!OO.Analytics.EVENTS)
      * @event Analytics.EVENTS#VIDEO_SEEK_REQUESTED
      * @description This message is sent when a video seek is requested.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoSeekRequestedData.
+     * OO.Analytics.EVENT_DATA.VideoSeekRequestedData
      */
     VIDEO_SEEK_REQUESTED:             'video_seek_requested',
 
@@ -121,7 +121,7 @@ if (!OO.Analytics.EVENTS)
      * @event Analytics.EVENTS#VIDEO_SEEK_COMPLETED
      * @description This message is sent when a video seek has completed.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoSeekCompletedData.
+     * OO.Analytics.EVENT_DATA.VideoSeekCompletedData
      */
     VIDEO_SEEK_COMPLETED:               'video_seek_completed',
 
@@ -132,7 +132,7 @@ if (!OO.Analytics.EVENTS)
      * If the stream has to stop because of a buffer underrun, that is considered
      * a buffering event.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoDownloadingMetadata.
+     * OO.Analytics.EVENT_DATA.VideoDownloadingMetadata
      */
     VIDEO_STREAM_DOWNLOADING:       'video_stream_downloading',
 
@@ -143,7 +143,7 @@ if (!OO.Analytics.EVENTS)
      * to load more data. It is also send when the stream is buffering before
      * initial playback is started.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoBufferingStartedData.
+     * OO.Analytics.EVENT_DATA.VideoBufferingStartedData
      */
     VIDEO_BUFFERING_STARTED:        'video_buffering_started',
 
@@ -153,7 +153,7 @@ if (!OO.Analytics.EVENTS)
      * @description This message is sent when a video stream has buffered and
      * is ready to resume playback.
      * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.VideoBufferingEndedData.
+     * OO.Analytics.EVENT_DATA.VideoBufferingEndedData
      */
     VIDEO_BUFFERING_ENDED:          'video_buffering_ended',
 
@@ -195,7 +195,7 @@ if (!OO.Analytics.EVENT_DATA)
    * pass along to other plugins (Ex. It could contain ad tag data or analytics
    * account information).
    * @property  {string} embedCode This is the video stream's unique id
-   * @property  {object} metadata   An object containing metadata about the video stream and player id to be used.
+   * @property  {object} metadata   An object containing metadata about the video stream and player id to be used
    */
   EVENT_DATA.VideoSourceData = function(embedCode, metadata)
   {
@@ -224,7 +224,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.duration       = checkContentData(duration, "duration", "number");
     this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", "object");
     this.contentType    = checkContentData(contentType, "contentType", "string");
-    this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", "string")
+    this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", "string");
   }
 
   /**
@@ -233,9 +233,9 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the stream that is being downloaded.
    * @property {number} currentTime The current time of the player
    * @property {number} totalStreamDuration The duration of the video stream
-   * @property {number} streamBufferedUntilTime The stream is buffered until this timestamp.
-   * @property {number} seekableRangeStart The earliest time the user can seek to.
-   * @property {number} seekableRangeEnd The latest time the user can seek to.
+   * @property {number} streamBufferedUntilTime The stream is buffered until this timestamp
+   * @property {number} seekableRangeStart The earliest time the user can seek to
+   * @property {number} seekableRangeEnd The latest time the user can seek to
    */
   EVENT_DATA.VideoDownloadingMetadata = function(currentTime, totalStreamDuration, streamBufferedUntilTime, seekableRangeStart, seekableRangeEnd)
   {
@@ -251,7 +251,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#VideoBufferingStartedData
    * @classdesc Contains information about the stream that has started buffering.
-   * @property {string} streamUrl The url of the stream that is buffering.
+   * @property {string} streamUrl The url of the stream that is buffering
    */
   EVENT_DATA.VideoBufferingStartedData = function(streamUrl)
   {
