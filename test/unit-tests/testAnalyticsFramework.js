@@ -789,7 +789,7 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       var pluginID = framework.registerPlugin(factory);
       var plugin = OO.Analytics.Framework.TEST[0];
-      var msg1 = EVENTS.VIDEO_FIRST_PLAY_REQUESTED;
+      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
       var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       expect(framework.publishEvent(msg1)).toBe(true);
@@ -810,7 +810,7 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       var pluginID = framework.registerPlugin(factory);
       var plugin = OO.Analytics.Framework.TEST[0];
-      var msg1 = EVENTS.VIDEO_FIRST_PLAY_REQUESTED;
+      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
       var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       expect(framework.makePluginInactive(pluginID)).toBe(true);
@@ -835,7 +835,7 @@ describe('Analytics Framework Unit Tests', function()
       var plugin1 = OO.Analytics.Framework.TEST[0];
       var plugin2 = OO.Analytics.Framework.TEST[1];
 
-      var msg1 = EVENTS.VIDEO_FIRST_PLAY_REQUESTED;
+      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
       var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       //send first message successfully
