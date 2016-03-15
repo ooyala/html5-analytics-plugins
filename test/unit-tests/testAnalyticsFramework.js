@@ -18,7 +18,7 @@ describe('Analytics Framework Unit Tests', function()
   //setup for individual tests
   var testSetup = function()
   {
-    //mute the logging becuase there will be lots of error messages
+    //mute the logging because there will be lots of error messages that are appearing for valid reasons.
     OO.log = function(){};
     framework = new Analytics.Framework();
   };

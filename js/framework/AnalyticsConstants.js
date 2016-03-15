@@ -11,9 +11,8 @@ if (!OO.Analytics.EVENTS)
   {
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_PLAYER_CREATED
-     * @description This message is sent when the player is first created but
-     * may not be ready to play video yet.
+     * @event Analytics.EVENTS#VIDEO_PLAYER_CREATED
+     * @description This message is sent when the player is first created.
      * @param {Array} paramArray Array of length 1, containing the original parameters
      * passed into the player.
      */
@@ -21,7 +20,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_FIRST_PLAY_REQUESTED
+     * @event Analytics.EVENTS#VIDEO_FIRST_PLAY_REQUESTED
      * @description This message is sent the first time the user tries to play the video.
      * In the case of autoplay, it will be sent immediately after the player is ready to play.
      */
@@ -29,7 +28,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_PLAY_REQUESTED
+     * @event Analytics.EVENTS#VIDEO_PLAY_REQUESTED
      * @description This message is sent every time there is a request to try and
      * initiate video playback (except the first time. See VIDEO_FIRST_PLAY_REQUESTED).
      * This only the request, not when video playback has actually started.
@@ -38,7 +37,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_PAUSE_REQUESTED
+     * @event Analytics.EVENTS#VIDEO_PAUSE_REQUESTED
      * @description This message is sent every time there is a request to try and
      * pause the video. This only the request, not when video playback has actually
      * paused.
@@ -47,20 +46,20 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_PLAYING
+     * @event Analytics.EVENTS#VIDEO_PLAYING
      * @description This message is sent when video playback has started or resumed.
      */
     VIDEO_PLAYING:                  'video_playing',
 
     /**
-     * @event Analytics#EVENTS#VIDEO_PAUSED
+     * @event Analytics.EVENTS#VIDEO_PAUSED
      * @description This message is sent when video playback has paused.
      */
     VIDEO_PAUSED:                   'video_paused',
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_ENDED
+     * @event Analytics.EVENTS#VIDEO_ENDED
      * @description This message is sent when video playback has completed. This
      * includes finishing playback of all ads.
      */
@@ -68,7 +67,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_REPLAY_REQUESTED
+     * @event Analytics.EVENTS#VIDEO_REPLAY_REQUESTED
      * @description This message is sent after VIDEO_ENDED, when the player is
      * requested to start video playback from the beginning of the video. This
      * is only the request, not when the video actually start playing again.
@@ -77,7 +76,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_SOURCE_CHANGED
+     * @event Analytics.EVENTS#VIDEO_SOURCE_CHANGED
      * @description This message when the player has received a new video source
      * to load.  This will happen when the first video initially starts to load,
      * when switching video sources during playback and also when switching to a
@@ -88,7 +87,7 @@ if (!OO.Analytics.EVENTS)
     VIDEO_SOURCE_CHANGED:           'video_source_changed',
 
     /**
-     * @event Analytics#EVENTS#VIDEO_STREAM_METADATA_UPDATED
+     * @event Analytics.EVENTS#VIDEO_STREAM_METADATA_UPDATED
      * @description This message is sent when video stream metadata has been
      * downloaded.  In contains information about the stream and metadata
      * for any plugins that should be loaded.
@@ -99,7 +98,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_CONTENT_METADATA_UPDATED
+     * @event Analytics.EVENTS#VIDEO_CONTENT_METADATA_UPDATED
      * @description This message is sent when the video content data has been
      * downloaded. This will contain information about the video content. For
      * example, title and description.
@@ -110,28 +109,28 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_SEEK_STARTED
+     * @event Analytics.EVENTS#VIDEO_SEEK_REQUESTED
      * @description This message is sent when a video seek is requested.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoSeekStartedData.
      */
-    VIDEO_SEEK_STARTED:             'video_seek_started',
+    VIDEO_SEEK_REQUESTED:             'video_seek_requested',
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_SEEK_ENDED
+     * @event Analytics.EVENTS#VIDEO_SEEK_COMPLETED
      * @description This message is sent when a video seek has completed.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoSeekEndedData.
      */
-    VIDEO_SEEK_ENDED:               'video_seek_ended',
+    VIDEO_SEEK_COMPLETED:               'video_seek_completed',
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_STREAM_DOWNLOADING
-     * @description This message is sent when a video stream is downloading data
-     * but still playing video. If the stream has to stop and load data, that is
-     * considered a buffering event.
+     * @event Analytics.EVENTS#VIDEO_STREAM_DOWNLOADING
+     * @description This message is sent when a video stream is downloading data.
+     * If the stream has to stop because of a buffer underrun, that is considered
+     * a buffering event.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoDownloadingMetadata.
      */
@@ -139,9 +138,10 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_BUFFERING_STARTED
+     * @event Analytics.EVENTS#VIDEO_BUFFERING_STARTED
      * @description This message is sent when a video stream has to pause playback
-     * to load more data.
+     * to load more data. It is also send when the stream is buffering before
+     * initial playback is started.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoBufferingStartedData.
      */
@@ -149,8 +149,8 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#VIDEO_BUFFERING_ENDED
-     * @description This message is sent when a video stream has buffering and
+     * @event Analytics.EVENTS#VIDEO_BUFFERING_ENDED
+     * @description This message is sent when a video stream has buffered and
      * is ready to resume playback.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoBufferingEndedData.
@@ -159,7 +159,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#AD_BREAK_STARTED
+     * @event Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing ads.
      */
@@ -167,7 +167,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#AD_BREAK_ENDED
+     * @event Analytics.EVENTS#AD_BREAK_ENDED
      * @description This message is sent when the player has finished playing ads
      * and is ready to playback the main video.
      */
@@ -175,8 +175,8 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics#EVENTS#DESTROY
-     * @description This message is sent when the player it's plugins are destroying.
+     * @event Analytics.EVENTS#DESTROY
+     * @description This message is sent when the player its plugins are destroying.
      */
     DESTROY:                        'destroy'
   };
@@ -189,13 +189,13 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class VideoSourceData
+   * @class Analytics.EVENT_DATA#VideoSourceData
    * @classdesc Contains the data passed along with VIDEO_SOURCE_CHANGED. This
    * includes the embed code (video id) and any metadata this video stream needs
    * pass along to other plugins (Ex. It could contain ad tag data or analytics
    * account information).
-   * @property  {string} embedCode This is the video stream's unique id.
-   * @property  {object} metadata   An object containing metadata for
+   * @property  {string} embedCode This is the video stream's unique id
+   * @property  {object} metadata   An object containing metadata about the video stream and player id to be used.
    */
   EVENT_DATA.VideoSourceData = function(embedCode, metadata)
   {
@@ -206,15 +206,15 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class VideoContentMetadata
+   * @class Analytics.EVENT_DATA#VideoContentMetadata
    * @classdesc Contains information about the content of the video stream,
    * such as title and description.
    * @property  {string} title Title of the video
    * @property  {string} description Video description
-   * @property  {number} duration Duration of the video in milliseconds.
-   * @property  {object} closedCaptions Object containing information about the close captions available.
-   * @property  {string} contentType Information on the type of content being watched.
-   * @property  {string} hostedAtURL The url the video is being hosted from.
+   * @property  {number} duration Duration of the video in milliseconds
+   * @property  {object} closedCaptions Object containing information about the closed captions available
+   * @property  {string} contentType A string indicating the type of content in the stream. (ex. "video")
+   * @property  {string} hostedAtURL The url the video is being hosted from
    */
   EVENT_DATA.VideoContentMetadata = function(title, description, duration, closedCaptions, contentType, hostedAtURL)
   {
@@ -229,7 +229,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class VideoDownloadingMetadata
+   * @class Analytics.EVENT_DATA#VideoDownloadingMetadata
    * @classdesc Contains information about the stream that is being downloaded.
    * @property {number} currentTime The current time of the player
    * @property {number} totalStreamDuration The duration of the video stream
@@ -249,7 +249,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class VideoBufferingStartedData
+   * @class Analytics.EVENT_DATA#VideoBufferingStartedData
    * @classdesc Contains information about the stream that has started buffering.
    * @property {string} streamUrl The url of the stream that is buffering.
    */
@@ -261,7 +261,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class VideoBufferingEndedData
+   * @class Analytics.EVENT_DATA#VideoBufferingEndedData
    * @classdesc Contains information about the stream that finished buffering.
    * @property {string} streamUrl The url of the stream that finished buffering
    */
@@ -273,7 +273,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class VideoSeekStartedData
+   * @class Analytics.EVENT_DATA#VideoSeekStartedData
    * @classdesc Contains information about seeking to a particular time in the stream.
    * @property {number} seekingToTime The time requested to be seeked to
    */
@@ -285,7 +285,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class VideoSeekEndedData
+   * @class Analytics.EVENT_DATA#VideoSeekEndedData
    * @classdesc Contains information about the result of seeking to a particular
    * time in the stream.
    * @property {number} timeSeekedTo The time that was actually seeked to
@@ -329,7 +329,7 @@ if (!OO.Analytics.EVENT_DATA)
 
     if (error)
     {
-      OO.log("ERROR Analytics.EVENT_DATA." + className + " being created with invalid " + varName + ". Should be type \'" + expectedType + "\'");
+      OO.log("ERROR Analytics.EVENT_DATA." + className + " being created with invalid " + varName + ". Should be type \'" + expectedType + "\' but was \'" + typeof(data) + "\'.");
       return undefined;
     }
 
