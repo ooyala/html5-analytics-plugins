@@ -5,13 +5,19 @@ require("./InitAnalyticsNamespace.js");
  * exist, create them.
  */
 
+/**
+ * @public
+ * @description These are the events associated with the Analytics Framework.
+ * @namespace OO.Analytics.EVENTS
+ */
+
 if (!OO.Analytics.EVENTS)
 {
   const EVENTS =
   {
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_PLAYER_CREATED
+     * @event OO.Analytics.EVENTS#VIDEO_PLAYER_CREATED
      * @description This message is sent when the player is first created.
      * @param {Array} paramArray Array of length 1, containing the original parameters
      * passed into the player
@@ -20,7 +26,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#INITIAL_PLAYBACK_REQUESTED
+     * @event OO.Analytics.EVENTS#INITIAL_PLAYBACK_REQUESTED
      * @description This message is sent the first time the user tries to play the video.
      * In the case of autoplay, it will be sent immediately after the player is ready to play.
      */
@@ -28,14 +34,14 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#PLAYBACK_COMPLETED
+     * @event OO.Analytics.EVENTS#PLAYBACK_COMPLETED
      * @description This message is sent when video and ad playback has completed.
      */
     PLAYBACK_COMPLETED:             'playback_completed',
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_PLAY_REQUESTED
+     * @event OO.Analytics.EVENTS#VIDEO_PLAY_REQUESTED
      * @description This message is sent every time there is a request to try and
      * initiate video playback (except the first time. See VIDEO_FIRST_PLAY_REQUESTED).
      * This only the request, not when video playback has actually started.
@@ -44,7 +50,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_PAUSE_REQUESTED
+     * @event OO.Analytics.EVENTS#VIDEO_PAUSE_REQUESTED
      * @description This message is sent every time there is a request to try and
      * pause the video. This only the request, not when video playback has actually
      * paused.
@@ -53,20 +59,20 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_PLAYING
+     * @event OO.Analytics.EVENTS#VIDEO_PLAYING
      * @description This message is sent when video playback has started or resumed.
      */
     VIDEO_PLAYING:                  'video_playing',
 
     /**
-     * @event Analytics.EVENTS#VIDEO_PAUSED
+     * @event OO.Analytics.EVENTS#VIDEO_PAUSED
      * @description This message is sent when video playback has paused.
      */
     VIDEO_PAUSED:                   'video_paused',
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_REPLAY_REQUESTED
+     * @event OO.Analytics.EVENTS#VIDEO_REPLAY_REQUESTED
      * @description This message is sent after VIDEO_ENDED, when the player is
      * requested to start video playback from the beginning of the video. This
      * is only the request, not when the video actually start playing again.
@@ -75,7 +81,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_SOURCE_CHANGED
+     * @event OO.Analytics.EVENTS#VIDEO_SOURCE_CHANGED
      * @description This message when the player has received a new video source
      * to load.  This will happen when the first video initially starts to load,
      * when switching video sources during playback and also when switching to a
@@ -86,7 +92,7 @@ if (!OO.Analytics.EVENTS)
     VIDEO_SOURCE_CHANGED:           'video_source_changed',
 
     /**
-     * @event Analytics.EVENTS#VIDEO_STREAM_METADATA_UPDATED
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_METADATA_UPDATED
      * @description This message is sent when video stream metadata has been
      * downloaded.  In contains information about the stream and metadata
      * for any plugins that should be loaded.
@@ -97,7 +103,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_CONTENT_METADATA_UPDATED
+     * @event OO.Analytics.EVENTS#VIDEO_CONTENT_METADATA_UPDATED
      * @description This message is sent when the video content data has been
      * downloaded. This will contain information about the video content. For
      * example, title and description.
@@ -108,7 +114,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_SEEK_REQUESTED
+     * @event OO.Analytics.EVENTS#VIDEO_SEEK_REQUESTED
      * @description This message is sent when a video seek is requested.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoSeekRequestedData
@@ -117,7 +123,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_SEEK_COMPLETED
+     * @event OO.Analytics.EVENTS#VIDEO_SEEK_COMPLETED
      * @description This message is sent when a video seek has completed.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoSeekCompletedData
@@ -126,7 +132,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_STREAM_DOWNLOADING
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_DOWNLOADING
      * @description This message is sent when a video stream is downloading data.
      * If the stream has to stop because of a buffer underrun, that is considered
      * a buffering event.
@@ -137,7 +143,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_BUFFERING_STARTED
+     * @event OO.Analytics.EVENTS#VIDEO_BUFFERING_STARTED
      * @description This message is sent when a video stream has to pause playback
      * to load more data. It is also send when the stream is buffering before
      * initial playback is started.
@@ -148,7 +154,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#VIDEO_BUFFERING_ENDED
+     * @event OO.Analytics.EVENTS#VIDEO_BUFFERING_ENDED
      * @description This message is sent when a video stream has buffered and
      * is ready to resume playback.
      * @param {Array} paramArray Array of length 1, contains an instance of
@@ -158,7 +164,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#AD_BREAK_STARTED
+     * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
      */
@@ -166,7 +172,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#AD_BREAK_ENDED
+     * @event OO.Analytics.EVENTS#AD_BREAK_ENDED
      * @description This message is sent when the player has finished playing ads
      * and is ready to playback the main video.
      */
@@ -174,7 +180,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event Analytics.EVENTS#DESTROY
+     * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */
     DESTROY:                        'destroy'
@@ -343,9 +349,9 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
 {
   /**
    * @public
-   * @constant OO#Analytics#REQUIRED_PLUGIN_FUNCTIONS
+   * @constant
    * @type string[]
-   * @description This is a list of the required function name for a plugin to
+   * @description This is a list of the required functions for a plugin to
    * be considered valid by the Analytics Framework.
    * <ul>
    *    <li>getName() - returns a non empty string containing the name of the plugin</li>
@@ -353,9 +359,9 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
    *    <li>setPluginID(id) - a function for setting the plugin id on an instance of the plugin</li>
    *    <li>getPluginID() - returns the plugin id assigned by setPluginID()</li>
    *    <li>init() - a function for initializing the plugin</li>
-   *    <li>setMetadata(metadata) - a function for passing metadata specific to this plugin.</li>
+   *    <li>setMetadata(metadata) - a function for passing metadata specific to this plugin</li>
    *    <li>destroy() - destructor function for cleanup</li>
-   *    <li>processEvent(eventName, paramArray) - a function to receive events that are publish through the framework.</li>
+   *    <li>processEvent(eventName, paramArray) - a function to receive events that are publish through the framework</li>
    * </ul>
    */
   const REQUIRED_PLUGIN_FUNCTIONS =

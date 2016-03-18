@@ -3,6 +3,7 @@ require("./InitAnalyticsNamespace.js");
 require("./AnalyticsConstants.js");
 
  /**
+  * @public
  * @class OO.Analytics.RecordedEvent
  * @classdesc Store the information for a published event, including the time
  * was sent.
@@ -18,8 +19,9 @@ OO.Analytics.RecordedEvent = function(timeStamp, eventName, params)
 }
 
 /**
+ * @public
  * @class OO.Analytics.Framework
- * @classdesc The Analytics Framework goal is to abstract capturing all the events
+ * @classdesc The Analytics Framework's goal is to abstract capturing all the events
  * in code for the purpose of analytics reporting (from any source). When a plugin
  * is registered with the framework, it will be validated, registered and automatically
  * receive all messages that are published to the framework.  The list of events that are
@@ -281,7 +283,7 @@ OO.Analytics.Framework = function()
    * the framework.
    * @public
    * @method OO.Analytics.Framework#unregisterPlugin
-   * @param  {string}  pluginIDToRemove Plugin id to be removed.
+   * @param  {string}  pluginIDToRemove Plugin id to be removed
    * @return {boolean}                  Return true if plugin was found and removed.
    */
   this.unregisterPlugin = function(pluginIDToRemove)
@@ -451,7 +453,7 @@ OO.Analytics.Framework = function()
    * Set a plugin to be active and receive messages.
    * @public
    * @method OO.Analytics.Framework#makePluginActive
-   * @param {string}   pluginID Plugin id to set to active.
+   * @param {string}   pluginID Plugin id to set to active
    * @return {boolean}          Returns true if plugin found and was able to be activated.
    */
   this.makePluginActive = function(pluginID)

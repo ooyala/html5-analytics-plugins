@@ -23,7 +23,7 @@ if (!OO.Analytics.RegisterPluginFactory)
    * registers the factory with any existing framework instances.
    * @public
    * @method OO.Analytics.Framework#RegisterPluginFactory
-   * @param  {object} factory The factory creation function.
+   * @param  {object} factory The factory creation function
    */
   OO.Analytics.RegisterPluginFactory = function(factory)
   {
@@ -50,7 +50,7 @@ if (!OO.Analytics.FrameworkRegistrationObject)
    * registerPluginFactory.  It will be used to let plugins register to frameworks
    * at the global scope.
    * @public
-   * @param  {object} framework Analytics framework instance.
+   * @param  {object} framework Analytics framework instance
    */
   OO.Analytics.FrameworkRegistrationObject = function(framework)
   {
@@ -96,7 +96,7 @@ if (!OO.Analytics.UnregisterFrameworkInstance)
    * This is meant for framework instances to remove themselves from the list only.
    * @public
    * @method OO.Analytics.Framework#UnregisterFrameworkInstance
-   * @param  {object} framework Instance of the FrameworkRegistrationObject created when framework instance was registered.
+   * @param  {object} framework Instance of the FrameworkRegistrationObject created when framework instance was registered
    */
   OO.Analytics.UnregisterFrameworkInstance = function(framework)
   {
