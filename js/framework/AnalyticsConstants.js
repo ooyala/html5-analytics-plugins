@@ -82,7 +82,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_SOURCE_CHANGED
-     * @description This message when the player has received a new video source
+     * @description This message is sent when the player has received a new video source
      * to load.  This will happen when the first video initially starts to load,
      * when switching video sources during playback and also when switching to a
      * new video after VIDEO_ENDED.  This will not be received on VIDEO_REPLAY_REQUESTED.
