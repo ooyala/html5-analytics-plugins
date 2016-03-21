@@ -65,7 +65,7 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#setPluginMetadata
    * @param  {object}  pluginMetadata Object containing metadata for all plugins
-   * @return {boolean}                Return true if metadata is valid and has not been set before
+   * @return {boolean}                Return true if metadata is valid and has not been set before.
    */
   this.setPluginMetadata = function(pluginMetadata)
   {
@@ -99,7 +99,7 @@ OO.Analytics.Framework = function()
   }
 
   /**
-   * Destructor/cleanup for OO.Analytics.Framework
+   * Destructor/cleanup for OO.Analytics.Framework.
    * @public
    * @method OO.Analytics.Framework#destroy
    */
@@ -191,11 +191,11 @@ OO.Analytics.Framework = function()
    * Register plugin as a factory. It will be validated and an instance of it will
    * be maintained internally.  The plugin will then be able to receive events
    * from the framework. Multiple of the same plugin factory can be registered.
-   * Each one will have it's own unique plugin id.
+   * Each one will have its own unique plugin id.
    * @public
    * @method OO.Analytics.Framework#registerPlugin
    * @param  {function} pluginFactory Plugin factory function
-   * @return {string}                 Returns a unique plugin id for this plugin factory
+   * @return {string}                 Returns a unique plugin id for this plugin factory.
    */
   this.registerPlugin = function(pluginFactory)
   {
@@ -431,7 +431,7 @@ OO.Analytics.Framework = function()
   });
 
   /**
-   * Return whether a plugin is active and able to receive events.
+   * Return whether or not a plugin is active and able to receive events.
    * @public
    * @method OO.Analytics.Framework#isPluginActive
    * @param {string}  pluginID Plugin id to check

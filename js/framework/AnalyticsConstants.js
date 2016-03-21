@@ -44,7 +44,7 @@ if (!OO.Analytics.EVENTS)
      * @event OO.Analytics.EVENTS#VIDEO_PLAY_REQUESTED
      * @description This message is sent every time there is a request to try and
      * initiate video playback (except the first time. See VIDEO_FIRST_PLAY_REQUESTED).
-     * This only the request, not when video playback has actually started.
+     * This is only the request, not when video playback has actually started.
      */
     VIDEO_PLAY_REQUESTED:           'video_play_requested',
 
@@ -52,7 +52,7 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_PAUSE_REQUESTED
      * @description This message is sent every time there is a request to try and
-     * pause the video. This only the request, not when video playback has actually
+     * pause the video. This is only the request, not when video playback has actually
      * paused.
      */
     VIDEO_PAUSE_REQUESTED:          'video_pause_requested',
@@ -145,7 +145,7 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_BUFFERING_STARTED
      * @description This message is sent when a video stream has to pause playback
-     * to load more data. It is also send when the stream is buffering before
+     * to load more data. It is also sent when the stream is buffering before
      * initial playback is started.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoBufferingStartedData
@@ -197,7 +197,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#VideoSourceData
    * @classdesc Contains the data passed along with VIDEO_SOURCE_CHANGED. This
    * includes the embed code (video id) and any metadata this video stream needs
-   * pass along to other plugins (Ex. It could contain ad tag data or analytics
+   * pass along to other plugins (for example, it could contain ad tag data or analytics
    * account information).
    * @property  {string} embedCode This is the video stream's unique id
    * @property  {object} metadata   An object containing metadata about the video stream and player id to be used
@@ -218,7 +218,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property  {string} description Video description
    * @property  {number} duration Duration of the video in milliseconds
    * @property  {object} closedCaptions Object containing information about the closed captions available
-   * @property  {string} contentType A string indicating the type of content in the stream. (ex. "video")
+   * @property  {string} contentType A string indicating the type of content in the stream (ex. "video").
    * @property  {string} hostedAtURL The url the video is being hosted from
    */
   EVENT_DATA.VideoContentMetadata = function(title, description, duration, closedCaptions, contentType, hostedAtURL)
@@ -354,14 +354,14 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
    * @description This is a list of the required functions for a plugin to
    * be considered valid by the Analytics Framework.
    * <ul>
-   *    <li>getName() - returns a non empty string containing the name of the plugin</li>
-   *    <li>getVersion() - returns a non empty string contain the version of the plugin</li>
-   *    <li>setPluginID(id) - a function for setting the plugin id on an instance of the plugin</li>
-   *    <li>getPluginID() - returns the plugin id assigned by setPluginID()</li>
-   *    <li>init() - a function for initializing the plugin</li>
-   *    <li>setMetadata(metadata) - a function for passing metadata specific to this plugin</li>
-   *    <li>destroy() - destructor function for cleanup</li>
-   *    <li>processEvent(eventName, paramArray) - a function to receive events that are publish through the framework</li>
+   *    <li>getName() - Returns a non-empty string containing the name of the plugin.</li>
+   *    <li>getVersion() - Returns a non-empty string containing the version of the plugin.</li>
+   *    <li>setPluginID(id) - A function for setting the plugin id on an instance of the plugin.</li>
+   *    <li>getPluginID() - Returns the plugin id assigned by setPluginID().</li>
+   *    <li>init() - A function for initializing the plugin.</li>
+   *    <li>setMetadata(metadata) - A function for passing metadata specific to this plugin.</li>
+   *    <li>destroy() - Destructor function for cleanup.</li>
+   *    <li>processEvent(eventName, paramArray) - A function to receive events that are published through the framework.</li>
    * </ul>
    */
   const REQUIRED_PLUGIN_FUNCTIONS =

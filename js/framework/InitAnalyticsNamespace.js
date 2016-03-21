@@ -48,7 +48,7 @@ if (!OO.Analytics.FrameworkRegistrationObject)
    * @class FrameworkRegistrationObject
    * @classdesc This class wraps a framework object to only expose
    * registerPluginFactory.  It will be used to let plugins register to frameworks
-   * at the global scope.
+   * at the global scope. Please note that this class is not important to analytics plugins. You only need to use this class if you're creating your own version of the Analytics Framework.
    * @public
    * @param  {object} framework Analytics framework instance
    */
