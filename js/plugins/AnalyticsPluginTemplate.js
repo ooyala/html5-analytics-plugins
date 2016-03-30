@@ -2,8 +2,8 @@ require("../framework/InitAnalyticsNamespace.js");
 
 /**
  * @class AnalyticsPluginTemplate
- * @classdesc Example class of a plugin that works with the Ooyala Analytics Framework.
- * @param {object} framework The Analytics Framework instance.
+ * @classdesc This is an example class of a plugin that works with the Ooyala Analytics Framework.
+ * @param {object} framework The Analytics Framework instance
  */
 var AnalyticsPluginTemplate = function (framework)
 {
@@ -40,7 +40,7 @@ var AnalyticsPluginTemplate = function (framework)
    * this plugin is registered.
    * @public
    * @method AnalyticsPluginTemplate#setPluginID
-   * @param  {string} newID The plugin id.
+   * @param  {string} newID The plugin id
    */
   this.setPluginID = function(newID)
   {
@@ -62,7 +62,6 @@ var AnalyticsPluginTemplate = function (framework)
    * [Required Function] Initialize the plugin with the given metadata.
    * @public
    * @method AnalyticsPluginTemplate#init
-   * @param  {object} metadata The metadata for this plugin.
    */
   this.init = function()
   {
@@ -79,7 +78,7 @@ var AnalyticsPluginTemplate = function (framework)
    * [Required Function] Set the metadata for this plugin.
    * @public
    * @method AnalyticsPluginTemplate#setMetadata
-   * @param  {object} metadata The metadata for this plugin.
+   * @param  {object} metadata The metadata for this plugin
    */
   this.setMetadata = function(metadata)
   {
@@ -90,8 +89,8 @@ var AnalyticsPluginTemplate = function (framework)
    * [Required Function] Process an event from the Analytics Framework, with the given parameters.
    * @public
    * @method AnalyticsPluginTemplate#processEvent
-   * @param  {string} eventName Name of the event.
-   * @param  {Array} params     Array of parameters sent with the sent.
+   * @param  {string} eventName Name of the event
+   * @param  {Array} params     Array of parameters sent with the event
    */
   this.processEvent = function(eventName, params)
   {

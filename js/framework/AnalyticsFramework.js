@@ -3,6 +3,7 @@ require("./InitAnalyticsNamespace.js");
 require("./AnalyticsConstants.js");
 
  /**
+  * @public
  * @class OO.Analytics.RecordedEvent
  * @classdesc Store the information for a published event, including the time
  * was sent.
@@ -18,8 +19,9 @@ OO.Analytics.RecordedEvent = function(timeStamp, eventName, params)
 }
 
 /**
+ * @public
  * @class OO.Analytics.Framework
- * @classdesc The Analytics Framework goal is to abstract capturing all the events
+ * @classdesc The Analytics Framework's goal is to abstract capturing all the events
  * in code for the purpose of analytics reporting (from any source). When a plugin
  * is registered with the framework, it will be validated, registered and automatically
  * receive all messages that are published to the framework.  The list of events that are
@@ -63,7 +65,7 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#setPluginMetadata
    * @param  {object}  pluginMetadata Object containing metadata for all plugins
-   * @return {boolean}                Return true if metadata is valid and has not been set before
+   * @return {boolean}                Return true if metadata is valid and has not been set before.
    */
   this.setPluginMetadata = function(pluginMetadata)
   {
@@ -97,7 +99,7 @@ OO.Analytics.Framework = function()
   }
 
   /**
-   * Destructor/cleanup for OO.Analytics.Framework
+   * Destructor/cleanup for OO.Analytics.Framework.
    * @public
    * @method OO.Analytics.Framework#destroy
    */
@@ -189,11 +191,11 @@ OO.Analytics.Framework = function()
    * Register plugin as a factory. It will be validated and an instance of it will
    * be maintained internally.  The plugin will then be able to receive events
    * from the framework. Multiple of the same plugin factory can be registered.
-   * Each one will have it's own unique plugin id.
+   * Each one will have its own unique plugin id.
    * @public
    * @method OO.Analytics.Framework#registerPlugin
    * @param  {function} pluginFactory Plugin factory function
-   * @return {string}                 Returns a unique plugin id for this plugin factory
+   * @return {string}                 Returns a unique plugin id for this plugin factory.
    */
   this.registerPlugin = function(pluginFactory)
   {
@@ -281,7 +283,7 @@ OO.Analytics.Framework = function()
    * the framework.
    * @public
    * @method OO.Analytics.Framework#unregisterPlugin
-   * @param  {string}  pluginIDToRemove Plugin id to be removed.
+   * @param  {string}  pluginIDToRemove Plugin id to be removed
    * @return {boolean}                  Return true if plugin was found and removed.
    */
   this.unregisterPlugin = function(pluginIDToRemove)
@@ -429,7 +431,7 @@ OO.Analytics.Framework = function()
   });
 
   /**
-   * Return whether a plugin is active and able to receive events.
+   * Return whether or not a plugin is active and able to receive events.
    * @public
    * @method OO.Analytics.Framework#isPluginActive
    * @param {string}  pluginID Plugin id to check
@@ -451,7 +453,7 @@ OO.Analytics.Framework = function()
    * Set a plugin to be active and receive messages.
    * @public
    * @method OO.Analytics.Framework#makePluginActive
-   * @param {string}   pluginID Plugin id to set to active.
+   * @param {string}   pluginID Plugin id to set to active
    * @return {boolean}          Returns true if plugin found and was able to be activated.
    */
   this.makePluginActive = function(pluginID)
