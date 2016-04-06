@@ -1,4 +1,4 @@
-# html5-ad-plugins
+# html5-analytics-plugins
 Open-source HTML5 analytics framework and plugins that can be used with the Ooyala core HTML5 player.
 
 ## Repo setup step
@@ -11,7 +11,7 @@ Open-source HTML5 analytics framework and plugins that can be used with the Ooya
 - npm install
 - npm update
 
-## Building the ad managers
+## Building the analytics managers
 gulp build
 or
 gulp (it defaults to build)
