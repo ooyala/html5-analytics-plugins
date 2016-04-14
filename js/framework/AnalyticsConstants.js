@@ -180,6 +180,69 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_POD_STARTED
+     * @description This message is sent when an ad pod starts.
+     */
+    AD_POD_STARTED:                 'ad_pod_started',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_POD_ENDED
+     * @description This message is sent when an ad pod ends.
+     */
+    AD_POD_ENDED:                   'ad_pod_ended',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_STARTED
+     * @description This message is sent when an ad has started playback.
+     */
+    AD_STARTED:                     'ad_started',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_ENDED
+     * @description This message is sent when an ad has ended playback.
+     */
+    AD_ENDED:                       'ad_ended',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_SKIPPED
+     * @description This message is sent when an ad is skipped.
+     */
+    AD_SKIPPED:                     'ad_skipped',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
+     * @description This message is sent when the player enters and exits fullscreen.
+     */
+    FULLSCREEN_CHANGED:             'fullscreen_changed',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_CLICKTHROUGH
+     * @description This message is sent when the player opens a new page with the ad's clickthrough URL.
+     */
+    AD_CLICKTHROUGH:                'ad_clickthrough',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_ERROR
+     * @description This message is sent when there is an error during ad playback.
+     */
+    AD_ERROR:                       'ad_error',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_ERROR
+     * @description This message is sent when the player is successfully playing the ad.
+     */
+    AD_IMPRESSION:                  'ad_impression',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */
