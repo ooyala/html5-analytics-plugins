@@ -165,7 +165,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_STREAM_POSITION_CHANGED
-     * @description This message is sent when the video stream position changes.
+     * @description This message is sent, periodically, when the video stream position changes.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData
      */
