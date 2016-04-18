@@ -215,15 +215,37 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_POSITION_CHANGED
+     * @description This message is sent when the video stream position changes.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData
+     */
+    VIDEO_STREAM_POSITION_CHANGED:  'video_stream_position_changed',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
      * @description This message is sent when the player enters and exits fullscreen.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.FullscreenChangedData
      */
     FULLSCREEN_CHANGED:             'fullscreen_changed',
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VOLUME_CHANGED
+     * @description This message is sent when the player volume has changed.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VolumeChangedData
+     */
+    VOLUME_CHANGED:                 'volume_changed',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_CLICKTHROUGH
      * @description This message is sent when the player opens a new page with the ad's clickthrough URL.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdClickThroughData
      */
     AD_CLICKTHROUGH:                'ad_clickthrough',
 
@@ -231,12 +253,14 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#AD_ERROR
      * @description This message is sent when there is an error during ad playback.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdErrorData
      */
     AD_ERROR:                       'ad_error',
 
     /**
      * @public
-     * @event OO.Analytics.EVENTS#AD_ERROR
+     * @event OO.Analytics.EVENTS#AD_IMPRESSION
      * @description This message is sent when the player is successfully playing the ad.
      */
     AD_IMPRESSION:                  'ad_impression',
@@ -362,6 +386,60 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkSeekEndedData = OO._.bind(checkDataType, this, "VideoSeekCompletedData");
     this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", "number");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoStreamPositionChangedData
+   * @classdesc Contains information about the value of the current volume.
+   * @property {number} volume  The volume changed to
+   */
+  EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration)
+  {
+    var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
+    this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", "number");
+    this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", "number");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#FullscreenChangedData
+   * @classdesc Contains information about whether the player is entering or exiting fullscreen.
+   * @property {boolean} shouldEnterFullscreen
+   */
+  EVENT_DATA.FullscreenChangedData = function(shouldEnterFullscreen)
+  {
+    var checkFullscreenChangedData = OO._.bind(checkDataType, this, "FullscreenChangedData");
+    this.shouldEnterFullscreen = checkFullscreenChangedData(shouldEnterFullscreen, "shouldEnterFullscreen", "boolean");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VolumeChangedData
+   * @classdesc Contains information about the value of the current volume.
+   * @property {number} volume  The volume changed to
+   */
+  EVENT_DATA.VolumeChangedData = function(currentVolume) {
+    var checkVolumeChangedData = OO._.bind(checkDataType, this, "VolumeChangedData");
+    this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", "number");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdClickThroughData
+   * @classdesc Contains information about the URL of the clickthrough event.
+   * @property {string} url The url
+   */
+  EVENT_DATA.AdClickThroughData = function(clickThroughURL)
+  {
+    var checkAdClickThroughData = OO._.bind(checkDataType, this, "AdClickThroughData");
+    this.clickThroughURL = checkAdClickThroughData(clickThroughURL, "clickThroughURL", "string");
+  }
+
+  EVENT_DATA.AdErrorData = function(error)
+  {
+    var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
+    this.error = checkAdErrorData(error, "error", ["string", "object"]);
   }
 
   var checkDataType = function(className, data, varName, expectedType)
