@@ -164,6 +164,15 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_POSITION_CHANGED
+     * @description This message is sent when the video stream position changes.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData
+     */
+    VIDEO_STREAM_POSITION_CHANGED:  'video_stream_position_changed',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
@@ -299,6 +308,19 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkSeekEndedData = OO._.bind(checkDataType, this, "VideoSeekCompletedData");
     this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", "number");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoStreamPositionChangedData
+   * @classdesc Contains information about the value of the current volume.
+   * @property {number} volume  The volume changed to
+   */
+  EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration)
+  {
+    var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
+    this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", "number");
+    this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", "number");
   }
 
   var checkDataType = function(className, data, varName, expectedType)
