@@ -313,8 +313,9 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoStreamPositionChangedData
-   * @classdesc Contains information about the value of the current volume.
-   * @property {number} volume  The volume changed to
+   * @classdesc Contains information about the current stream position and the length of the stream.
+   * @property {number} streamPosition The current stream position
+   * @property {number} totalStreamDuration The total length/duration of the stream
    */
   EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration)
   {
