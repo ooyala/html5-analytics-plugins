@@ -1185,5 +1185,18 @@ describe('Analytics Framework Unit Tests', function()
       var data = new OO.Analytics.EVENT_DATA.VideoSeekCompletedData(metadata.timeSeekedTo);
       expect(data).toEqual(metadata);
     });
+
+    it('Test VideoStreamPositionChangedData', function()
+    {
+      var metadata =
+      {
+        streamPosition:500,
+        totalStreamDuration:1000,
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData(metadata.streamPosition,
+                                                                            metadata.totalStreamDuration);
+      expect(data).toEqual(metadata);
+    });
   });
 });
