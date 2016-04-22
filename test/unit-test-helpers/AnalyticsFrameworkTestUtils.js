@@ -159,4 +159,19 @@ if (!OO.Analytics.Utils)
       return badPlugin;
     },this);
   };
+
+  Utils.createFactoryToTestConstructorParams = function()
+  {
+    return OO._.bind(function(framework)
+    {
+      var validFactory = Utils.createValidPluginFactory();
+      var validPlugin = new validFactory();
+      if (!OO.Analytics.Framework.TEST)
+      {
+        OO.Analytics.Framework.TEST = {};
+        OO.Analytics.Framework.TEST.frameworkParam = framework;
+      }
+      return validPlugin;
+    },this);
+  };
 }

@@ -28,6 +28,7 @@ describe('Analytics Framework Unit Tests', function()
   {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];
+    OO.Analytics.Framework.TEST = undefined;
     //return log back to normal
     OO.log = console.log;
   };
@@ -228,6 +229,14 @@ describe('Analytics Framework Unit Tests', function()
       expect(typeof pluginID === 'string').toBe(true);
       var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
+    });
+
+    it('Test Factory Receives Framework Instance as param', function()
+    {
+      var goodFactory = Utils.createFactoryToTestConstructorParams();
+      var pluginID = framework.registerPlugin(goodFactory);
+      expect(OO.Analytics.Framework.TEST.frameworkParam).not.toBeNull();
+      expect(OO.Analytics.Framework.TEST.frameworkParam.getRecordedEvents()).toEqual([]);
     });
 
     it('Test Registering Same Good Factory Multiple Times', function()
