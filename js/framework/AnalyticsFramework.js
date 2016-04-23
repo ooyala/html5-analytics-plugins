@@ -535,7 +535,7 @@ OO.Analytics.Framework = function()
       OO.log(createErrorString("Event \'" + eventName + "\' being published and it's not in the list of OO.Analytics.EVENTS"));
     }
     return eventPublished;
-  }
+  };
 
   /**
    * Create a unique id for a given plugin/factory. In case someone needs to register
