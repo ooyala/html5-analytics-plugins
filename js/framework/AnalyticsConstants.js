@@ -251,13 +251,6 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event OO.Analytics.EVENTS#AD_IMPRESSION
-     * @description This message is sent when the player is successfully playing the ad.
-     */
-    AD_IMPRESSION:                  'ad_impression',
-
-    /**
-     * @public
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */
