@@ -233,24 +233,6 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event OO.Analytics.EVENTS#AD_CLICKTHROUGH
-     * @description This message is sent when the player opens a new page with the ad's clickthrough URL.
-     * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.AdClickThroughData
-     */
-    AD_CLICKTHROUGH:                'ad_clickthrough',
-
-    /**
-     * @public
-     * @event OO.Analytics.EVENTS#AD_ERROR
-     * @description This message is sent when there is an error during ad playback.
-     * @param {Array} paramArray Array of length 1, contains an instance of
-     * OO.Analytics.EVENT_DATA.AdErrorData
-     */
-    AD_ERROR:                       'ad_error',
-
-    /**
-     * @public
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */
@@ -393,24 +375,6 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VolumeChangedData = function(currentVolume) {
     var checkVolumeChangedData = OO._.bind(checkDataType, this, "VolumeChangedData");
     this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", "number");
-  }
-
-  /**
-   * @public
-   * @class Analytics.EVENT_DATA#AdClickThroughData
-   * @classdesc Contains information about the URL of the clickthrough event.
-   * @property {string} url The url
-   */
-  EVENT_DATA.AdClickThroughData = function(clickThroughURL)
-  {
-    var checkAdClickThroughData = OO._.bind(checkDataType, this, "AdClickThroughData");
-    this.clickThroughURL = checkAdClickThroughData(clickThroughURL, "clickThroughURL", "string");
-  }
-
-  EVENT_DATA.AdErrorData = function(error)
-  {
-    var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
-    this.error = checkAdErrorData(error, "error", ["string", "object"]);
   }
 
   var checkDataType = function(className, data, varName, expectedType)
