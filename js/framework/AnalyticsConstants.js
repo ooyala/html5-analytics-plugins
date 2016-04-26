@@ -372,7 +372,8 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the value of the current volume.
    * @property {number} volume  The volume changed to
    */
-  EVENT_DATA.VolumeChangedData = function(currentVolume) {
+  EVENT_DATA.VolumeChangedData = function(currentVolume)
+  {
     var checkVolumeChangedData = OO._.bind(checkDataType, this, "VolumeChangedData");
     this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", "number");
   }
