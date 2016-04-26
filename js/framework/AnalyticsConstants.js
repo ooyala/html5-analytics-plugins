@@ -194,13 +194,6 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event OO.Analytics.EVENTS#AD_ENDED
-     * @description This message is sent when an ad has ended playback.
-     */
-    AD_ENDED:                       'ad_ended',
-
-    /**
-     * @public
      * @event OO.Analytics.EVENTS#AD_SKIPPED
      * @description This message is sent when an ad is skipped.
      */
