@@ -1186,6 +1186,67 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadata);
     });
 
+    it('Test AdPodStartedData', function()
+    {
+      var metadataIn =
+      {
+        numberOfAds:3
+      };
+
+      var metadataOut =
+      {
+        numberOfAds:3
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = "3";
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = 0;
+      metadataOut.numberOfAds = 0;
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = "2";
+      metadataOut.numberOfAds = 2;
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = "asdf";
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data.numberOfAds).toEqual(undefined);
+
+      metadataIn.numberOfAds = true;
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data.numberOfAds).toEqual(undefined);
+    });
+
+    it('Test AdPodEndedData', function()
+    {
+      var metadata =
+      {
+        adId:"adId"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data).toEqual(metadata);
+
+      metadata = 1;
+      data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data.adId).toEqual(undefined);
+
+      metadata = false;
+      data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data.adId).toEqual(undefined);
+
+      metadata = {};
+      data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data.adId).toEqual(undefined);
+    });
+
     it('Test FullscreenChangedData', function()
     {
       var metadata =

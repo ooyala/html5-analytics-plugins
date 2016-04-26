@@ -342,6 +342,30 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
+   * @class Analytics.EVENT_DATA#AdPodStartedData
+   * @classdesc Contain information about how many ads are in the ad pod.
+   * @property {number} numberOfAds
+   */
+  EVENT_DATA.AdPodStartedData = function(numberOfAds)
+  {
+    var checkAdPodStartedData = OO._.bind(checkDataType, this, "AdPodStartedData");
+    this.numberOfAds = checkAdPodStartedData(numberOfAds, "numberOfAds", "number");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdPodEndedData
+   * @classdesc Contain information about the adId of the ad pod.
+   * @property {string} adId
+   */
+  EVENT_DATA.AdPodEndedData = function(adId)
+  {
+    var checkAdPodEndedData = OO._.bind(checkDataType, this, "AdPodEndedData");
+    this.adId = checkAdPodEndedData(adId, "adId", "string");
+  }
+
+  /**
+   * @public
    * @class Analytics.EVENT_DATA#FullscreenChangedData
    * @classdesc Contains information about whether the player is entering or exiting fullscreen.
    * @property {boolean} shouldEnterFullscreen
