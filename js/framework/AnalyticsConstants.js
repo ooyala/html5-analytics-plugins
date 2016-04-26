@@ -194,13 +194,6 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event OO.Analytics.EVENTS#AD_STARTED
-     * @description This message is sent when an ad has started playback.
-     */
-    AD_STARTED:                     'ad_started',
-
-    /**
-     * @public
      * @event OO.Analytics.EVENTS#AD_ENDED
      * @description This message is sent when an ad has ended playback.
      */
