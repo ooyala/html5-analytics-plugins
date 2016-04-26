@@ -17,8 +17,9 @@ var OmnitureAnalyticsPlugin = function (framework)
   //TODO: Remove this when integrating with Omniture SDK
   var vpPlugin = new FakeVideoPlugin(playerDelegate);
 
-  var currentPlayhead = -1;
+  var currentPlayhead = 0;
   var videoPlaying = false;
+  var inAdBreak = false;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -117,6 +118,8 @@ var OmnitureAnalyticsPlugin = function (framework)
         trackPause();
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
+        resetPlaybackState();
+        playerDelegate.onReplay();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         break;
@@ -145,19 +148,28 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params[0] && params[0].streamPosition)
         {
-          currentPlayhead = params[0].streamPosition;
-          playerDelegate.updatePlayhead(currentPlayhead);
+          if (inAdBreak)
+          {
+
+          }
+          else
+          {
+            currentPlayhead = params[0].streamPosition;
+            playerDelegate.onPlayheadChange(currentPlayhead);
+          }
         }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
-        playerDelegate.playAdBreak();
+        inAdBreak = true;
+        playerDelegate.onAdBreak();
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
+        inAdBreak = false;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
         if (params[0])
         {
-          playerDelegate.playAd(params[0]);
+          playerDelegate.onAdPlayback(params[0]);
         }
         trackAdStart();
         break;
@@ -169,6 +181,13 @@ var OmnitureAnalyticsPlugin = function (framework)
     }
   };
 
+  var resetPlaybackState = function ()
+  {
+    videoPlaying = false;
+    currentPlayhead = 0;
+    inAdBreak = false;
+  };
+
   /**
    * [Required Function] Clean up this plugin so the garbage collector can clear it out.
    * @public
@@ -177,8 +196,7 @@ var OmnitureAnalyticsPlugin = function (framework)
   this.destroy = function ()
   {
     _framework = null;
-    videoPlaying = false;
-    currentPlayhead = -1
+    resetPlaybackState();
   };
 
   //Main Content
@@ -248,7 +266,7 @@ var OoyalaPlayerDelegate = function()
   var length = -1;
   var streamType = null;
   var playerName = "Ooyala";
-  var streamPlayhead = -1;
+  var streamPlayhead = 0;
 
   //ad
   var adId = null;
@@ -262,23 +280,32 @@ var OoyalaPlayerDelegate = function()
     length = metadata.duration;
   };
 
-  this.updatePlayhead = function(playhead)
+  this.onPlayheadChange = function(playhead)
   {
     streamPlayhead = playhead;
   };
 
-  this.playAdBreak = function()
+  this.onAdBreak = function()
   {
     adBreakPosition = 1;
   };
 
-  this.playAd = function(metadata)
+  this.onAdPlayback = function(metadata)
   {
     adId = metadata.adId;
     adLength = metadata.adDuration;
     adPosition = metadata.adPodPosition;
     //TODO: Maybe add ad name (optional)
     //adName = metadata.name;
+  };
+
+  this.onReplay = function()
+  {
+    streamPlayhead = 0;
+    adId = null;
+    adLength = -1;
+    adPosition = 1;
+    adName = null;
   };
 
   //Omniture required functions below
