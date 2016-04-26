@@ -15,9 +15,10 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var playerDelegate = new OoyalaPlayerDelegate();
   //TODO: Remove this when integrating with Omniture SDK
-  var vpPlugin = new FakeVideoPlugin();
+  var vpPlugin = new FakeVideoPlugin(playerDelegate);
 
   var currentPlayhead = -1;
+  var videoPlaying = false;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -81,7 +82,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    */
   this.setMetadata = function(metadata)
   {
-    OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
+    OO.log( "Omniture: PluginID \'" + id + "\' received this metadata:", metadata);
   };
 
   /**
@@ -93,7 +94,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    */
   this.processEvent = function(eventName, params)
   {
-    OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
+    OO.log( "Omniture: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
@@ -111,6 +112,8 @@ var OmnitureAnalyticsPlugin = function (framework)
         trackPlay();
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
+        //TODO: According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
+        //we should not be tracking pauses when switching from main content to an ad
         trackPause();
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
@@ -147,9 +150,18 @@ var OmnitureAnalyticsPlugin = function (framework)
         }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
-        trackAdStart();
+        playerDelegate.playAdBreak();
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
+        break;
+      case OO.Analytics.EVENTS.AD_STARTED:
+        if (params[0])
+        {
+          playerDelegate.playAd(params[0]);
+        }
+        trackAdStart();
+        break;
+      case OO.Analytics.EVENTS.AD_ENDED:
         trackAdEnd();
         break;
       case OO.Analytics.EVENTS.DESTROY:
@@ -165,13 +177,16 @@ var OmnitureAnalyticsPlugin = function (framework)
   this.destroy = function ()
   {
     _framework = null;
+    videoPlaying = false;
+    currentPlayhead = -1
   };
 
   //Main Content
   var trackPlay = function()
   {
-    if (currentPlayhead === 0)
+    if (!videoPlaying)
     {
+      videoPlaying = true;
       vpPlugin.trackVideoLoad();
       vpPlugin.trackPlay();
     }
@@ -198,6 +213,7 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var trackComplete = function()
   {
+    videoPlaying = false;
     vpPlugin.trackComplete();
     vpPlugin.trackVideoUnload();
   };
@@ -226,12 +242,19 @@ var OmnitureAnalyticsPlugin = function (framework)
 
 var OoyalaPlayerDelegate = function()
 {
+  //video
   var id = null;
   var name = null;
   var length = -1;
   var streamType = null;
   var playerName = "Ooyala";
   var streamPlayhead = -1;
+
+  //ad
+  var adId = null;
+  var adLength = -1;
+  var adPosition = 1;
+  var adName = null;
 
   this.initialize = function(metadata)
   {
@@ -242,6 +265,20 @@ var OoyalaPlayerDelegate = function()
   this.updatePlayhead = function(playhead)
   {
     streamPlayhead = playhead;
+  };
+
+  this.playAdBreak = function()
+  {
+    adBreakPosition = 1;
+  };
+
+  this.playAd = function(metadata)
+  {
+    adId = metadata.adId;
+    adLength = metadata.adDuration;
+    adPosition = metadata.adPodPosition;
+    //TODO: Maybe add ad name (optional)
+    //adName = metadata.name;
   };
 
   //Omniture required functions below
@@ -262,12 +299,24 @@ var OoyalaPlayerDelegate = function()
 
   this.getAdBreakInfo = function()
   {
-    return null;
+    //TODO: Is there an Omniture AdBreak object?
+    var adBreakInfo = {};
+    adBreakInfo.playerName = playerName;
+    adBreakInfo.position = adBreakPosition;
+    adBreakInfo.startTime = streamPlayhead;
+    return adBreakInfo;
   };
 
   this.getAdInfo = function()
   {
-    return null;
+    //TODO: Is there an Omniture AdInfo object?
+    var adInfo = {};
+    adInfo.id = adId;
+    adInfo.length = adLength;
+    adInfo.position = adPosition;
+    //TODO: Maybe add ad name (optional)
+    //adInfo.name = adName;
+    return adInfo;
   };
 
   this.getChapterInfo = function()
@@ -282,56 +331,65 @@ var OoyalaPlayerDelegate = function()
 };
 
 //TODO: Remove this when integrating with Omniture SDK, can be used for unit testing
-var FakeVideoPlugin = function()
+var FakeVideoPlugin = function(playerDelegate)
 {
+  var delegate = playerDelegate;
+
   this.trackVideoLoad = function()
   {
-    OO.log("OMNITURE: Track Video Load");
+    var videoInfo = delegate.getVideoInfo();
+    OO.log("Omniture Video Plugin: Track Video Load of video: " + videoInfo.name + " with id: " + videoInfo.id +
+      " with duration: " + videoInfo.length + " at playhead: " + videoInfo.playhead + " with player: " + videoInfo.playerName);
   };
+
   this.trackVideoUnload = function()
   {
-    OO.log("OMNITURE: Track Video Unload");
+    OO.log("Omniture Video Plugin: Track Video Unload at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackSessionStart = function()
   {
-    OO.log("OMNITURE: Track Session Start");
+    OO.log("Omniture Video Plugin: Track Session Start at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackPlay = function()
   {
-    OO.log("OMNITURE: Track Play");
+    OO.log("Omniture Video Plugin: Track Play at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackPause = function()
   {
-    OO.log("OMNITURE: Track Pause");
+    OO.log("Omniture Video Plugin: Track Pause at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackComplete = function()
   {
-    OO.log("OMNITURE: Track Complete");
+    OO.log("Omniture Video Plugin: Track Complete at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackSeekStart = function()
   {
-    OO.log("OMNITURE: Track Seek Start");
+    OO.log("Omniture Video Plugin: Track Seek Start at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackSeekComplete = function()
   {
-    OO.log("OMNITURE: Track Seek Complete");
+    OO.log("Omniture Video Plugin: Track Seek Complete at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackBufferStart = function()
   {
-    OO.log("OMNITURE: Track Buffer Start");
+    OO.log("Omniture Video Plugin: Track Buffer Start at playhead: " + delegate.getVideoInfo().playhead);
   };
   this.trackBufferComplete = function()
   {
-    OO.log("OMNITURE: Track Buffer Complete");
+    OO.log("Omniture Video Plugin: Track Buffer Complete at playhead: " + delegate.getVideoInfo().playhead);
   };
 
   this.trackAdStart = function()
   {
-    OO.log("OMNITURE: Track Ad Start");
+    var adBreakInfo = delegate.getAdBreakInfo();
+    var adInfo = delegate.getAdInfo();
+    OO.log("Omniture Video Plugin: Track Ad Start at playhead: " + adBreakInfo.startTime + " with ad: " + adInfo.id +
+      " with duration: " + adInfo.length + " and pod position: " + adInfo.position);
   };
   this.trackAdComplete = function()
   {
-    OO.log("OMNITURE: Track Ad Complete");
+    var adBreakInfo = delegate.getAdBreakInfo();
+    OO.log("Omniture Video Plugin: Track Ad Complete at playhead: " + adBreakInfo.startTime);
   };
 
   this.trackChapterStart = function(){};
