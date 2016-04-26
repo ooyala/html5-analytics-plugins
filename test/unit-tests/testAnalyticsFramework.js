@@ -1185,5 +1185,71 @@ describe('Analytics Framework Unit Tests', function()
       var data = new OO.Analytics.EVENT_DATA.VideoSeekCompletedData(metadata.timeSeekedTo);
       expect(data).toEqual(metadata);
     });
+
+    it('Test FullscreenChangedData', function()
+    {
+      var metadata =
+      {
+        shouldEnterFullscreen:true
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      expect(data).toEqual(metadata);
+
+      metadata.shouldEnterFullscreen = false;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      expect(data).toEqual(metadata);
+
+      metadata.shouldEnterFullscreen = "true";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      expect(data.shouldenterFullscreen).toEqual(undefined);
+
+      metadata.shouldEnterFullscreen = "false";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      expect(data.shouldenterFullscreen).toEqual(undefined);
+
+      metadata.shouldEnterFullscreen = null;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      expect(data.shouldenterFullscreen).toEqual(undefined);
+
+      metadata.shouldEnterFullscreen = 1;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      expect(data.shouldenterFullscreen).toEqual(undefined);
+    });
+
+    it('Test VolumeChangedData', function()
+    {
+      var metadataIn =
+      {
+        currentVolume:100
+      };
+
+      var metadataOut =
+      {
+        currentVolume:100
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = 0;
+      metadataOut.currentVolume = 0;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = "100";
+      metadataOut.currentVolume = 100;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = "0";
+      metadataOut.currentVolume = 0;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = true;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data.currentVolume).toEqual(undefined);
+    });
   });
 });
