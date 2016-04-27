@@ -111,17 +111,18 @@ var OmnitureAnalyticsPlugin = function (framework)
     OO.log( "Omniture: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
-      case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
-        break;
+      //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
+      //  break;
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
+        trackSessionStart();
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackComplete();
         break;
-      case OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED:
-        break;
-      case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
-        break;
+      //case OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED:
+      //  break;
+      //case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
+      //  break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         trackPlay();
         break;
@@ -140,8 +141,8 @@ var OmnitureAnalyticsPlugin = function (framework)
           playerDelegate.onEmbedCodeChanged(params[0].embedCode);
         }
         break;
-      case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
-        break;
+      //case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
+      //  break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
@@ -154,8 +155,8 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
         trackSeekEnd();
         break;
-      case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
-        break;
+      //case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
+      //  break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
         trackBufferStart();
         break;
@@ -165,11 +166,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
         {
-          if (inAdBreak)
-          {
-
-          }
-          else
+          if (!inAdBreak)
           {
             currentPlayhead = params[0].streamPosition;
             playerDelegate.onPlayheadChanged(currentPlayhead);
@@ -193,7 +190,9 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_ENDED:
         trackAdEnd();
         break;
-      case OO.Analytics.EVENTS.DESTROY:
+      //case OO.Analytics.EVENTS.DESTROY:
+      //  break;
+      default:
         break;
     }
   };
@@ -217,6 +216,11 @@ var OmnitureAnalyticsPlugin = function (framework)
   };
 
   //Main Content
+  var trackSessionStart = function(e)
+  {
+    vpPlugin.trackSessionStart();
+  };
+
   var trackPlay = function()
   {
     if (!videoPlaying)
@@ -377,15 +381,15 @@ var OoyalaPlayerDelegate = function()
     return adInfo;
   };
 
-  this.getChapterInfo = function()
-  {
-    return null;
-  };
-
-  this.getQoSInfo = function()
-  {
-    return null;
-  };
+  //this.getChapterInfo = function()
+  //{
+  //  return null;
+  //};
+  //
+  //this.getQoSInfo = function()
+  //{
+  //  return null;
+  //};
 };
 
 //TODO: Remove this when integrating with Omniture SDK, can be used for unit testing
@@ -450,13 +454,13 @@ var FakeVideoPlugin = function(playerDelegate)
     OO.log("Omniture Video Plugin: Track Ad Complete at playhead: " + adBreakInfo.startTime);
   };
 
-  this.trackChapterStart = function(){};
-  this.trackChapterComplete = function(){};
-
-  this.trackBitrateChange = function(){};
-
-  this.trackVideoPlayerError = function(){};
-  this.trackApplicationError = function(){};
+  //this.trackChapterStart = function(){};
+  //this.trackChapterComplete = function(){};
+  //
+  //this.trackBitrateChange = function(){};
+  //
+  //this.trackVideoPlayerError = function(){};
+  //this.trackApplicationError = function(){};
 };
 
 //Add the template to the global list of factories for all new instances of the framework
