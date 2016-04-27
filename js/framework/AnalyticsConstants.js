@@ -351,6 +351,20 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
+   * @class Analytics.EVENT_DATA#VideoStreamPositionChangedData
+   * @classdesc Contains information about the current stream position and the length of the stream.
+   * @property {number} streamPosition The current stream position
+   * @property {number} totalStreamDuration The total length/duration of the stream
+   */
+  EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration)
+  {
+    var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
+    this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", "number");
+    this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", "number");
+  }
+
+  /**
+   * @public
    * @class Analytics.EVENT_DATA#AdPodStartedData
    * @classdesc Contain information about how many ads are in the ad pod.
    * @property {number} numberOfAds
