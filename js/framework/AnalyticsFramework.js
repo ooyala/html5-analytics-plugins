@@ -214,7 +214,7 @@ OO.Analytics.Framework = function()
     {
       try
       {
-        plugin = new pluginFactory();
+        plugin = new pluginFactory(this);
       }
       catch (error)
       {

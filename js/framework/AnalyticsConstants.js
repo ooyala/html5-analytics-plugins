@@ -164,6 +164,15 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_POSITION_CHANGED
+     * @description This message is sent, periodically, when the video stream position changes.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData
+     */
+    VIDEO_STREAM_POSITION_CHANGED:  'video_stream_position_changed',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
