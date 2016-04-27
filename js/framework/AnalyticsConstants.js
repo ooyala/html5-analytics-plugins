@@ -191,6 +191,8 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#AD_POD_STARTED
      * @description This message is sent when an ad pod starts.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdPodStartedData
      */
     AD_POD_STARTED:                 'ad_pod_started',
 
@@ -198,6 +200,8 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#AD_POD_ENDED
      * @description This message is sent when an ad pod ends.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdPodEndedData
      */
     AD_POD_ENDED:                   'ad_pod_ended',
 
@@ -367,7 +371,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#AdPodStartedData
    * @classdesc Contain information about how many ads are in the ad pod.
-   * @property {number} numberOfAds
+   * @property {number} numberOfAds The number of ads in the pod
    */
   EVENT_DATA.AdPodStartedData = function(numberOfAds)
   {
@@ -379,7 +383,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#AdPodEndedData
    * @classdesc Contain information about the adId of the ad pod.
-   * @property {string} adId
+   * @property {string} adId The id of the ad pod
    */
   EVENT_DATA.AdPodEndedData = function(adId)
   {
@@ -391,19 +395,20 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#FullscreenChangedData
    * @classdesc Contains information about whether the player is entering or exiting fullscreen.
-   * @property {boolean} shouldEnterFullscreen
+   * @property {boolean} changingToFullscreen
    */
-  EVENT_DATA.FullscreenChangedData = function(shouldEnterFullscreen)
+  EVENT_DATA.FullscreenChangedData = function(changingToFullscreen)
   {
     var checkFullscreenChangedData = OO._.bind(checkDataType, this, "FullscreenChangedData");
-    this.shouldEnterFullscreen = checkFullscreenChangedData(shouldEnterFullscreen, "shouldEnterFullscreen", "boolean");
+    this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, "changingToFullscreen", "boolean");
   }
 
   /**
    * @public
    * @class Analytics.EVENT_DATA#VolumeChangedData
    * @classdesc Contains information about the value of the current volume.
-   * @property {number} volume  The volume changed to
+   * @property {number} volume  The current volume after the change; the volume is a value from 0 - 1, with 0
+   * representing a muted state and 1 representing the maximum volume.
    */
   EVENT_DATA.VolumeChangedData = function(currentVolume)
   {

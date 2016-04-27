@@ -1292,31 +1292,31 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        shouldEnterFullscreen:true
+        changingToFullscreen:true
       };
 
-      var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
       expect(data).toEqual(metadata);
 
-      metadata.shouldEnterFullscreen = false;
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
+      metadata.changingToFullscreen = false;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
       expect(data).toEqual(metadata);
 
-      metadata.shouldEnterFullscreen = "true";
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
-      expect(data.shouldenterFullscreen).toEqual(undefined);
+      metadata.changingToFullscreen = "true";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
 
-      metadata.shouldEnterFullscreen = "false";
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
-      expect(data.shouldenterFullscreen).toEqual(undefined);
+      metadata.changingToFullscreen = "false";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
 
-      metadata.shouldEnterFullscreen = null;
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
-      expect(data.shouldenterFullscreen).toEqual(undefined);
+      metadata.changingToFullscreen = null;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
 
-      metadata.shouldEnterFullscreen = 1;
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.shouldEnterFullscreen);
-      expect(data.shouldenterFullscreen).toEqual(undefined);
+      metadata.changingToFullscreen = 1;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
     });
 
     it('Test VolumeChangedData', function()
