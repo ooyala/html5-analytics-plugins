@@ -16,7 +16,7 @@ OO.Analytics.RecordedEvent = function(timeStamp, eventName, params)
   this.timeStamp = timeStamp;
   this.eventName = eventName;
   this.params = params;
-}
+};
 
 /**
  * @public
@@ -185,7 +185,7 @@ OO.Analytics.Framework = function()
     }
 
     return [];
-  }
+  };
 
   /**
    * Register plugin as a factory. It will be validated and an instance of it will

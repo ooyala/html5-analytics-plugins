@@ -16,6 +16,8 @@ var OmnitureAnalyticsPlugin = function (framework)
   var playerDelegate = new OoyalaPlayerDelegate();
   //TODO: Remove this when integrating with Omniture SDK
   var vpPlugin = new FakeVideoPlugin(playerDelegate);
+  //TODO: Find out how to expose the vpPlugin for unit tests
+  this.omnitureVideoPlayerPlugin = vpPlugin;
 
   var currentPlayhead = 0;
   var videoPlaying = false;
@@ -73,6 +75,17 @@ var OmnitureAnalyticsPlugin = function (framework)
    */
   this.init = function()
   {
+    var missedEvents;
+    //if you need to process missed events, here is an example
+    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    {
+      missedEvents = _framework.getRecordedEvents();
+      _.each(missedEvents, _.bind(function (recordedEvent)
+        {
+          //recordedEvent.timeStamp;
+          this.processEvent(recordedEvent.eventName, recordedEvent.params);
+        }, this));
+    }
   };
 
   /**
@@ -122,13 +135,17 @@ var OmnitureAnalyticsPlugin = function (framework)
         playerDelegate.onReplay();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
+        if (params && params[0] && params[0].embedCode)
+        {
+          playerDelegate.onEmbedCodeChanged(params[0].embedCode);
+        }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
-        if (params[0])
+        if (params && params[0])
         {
-          playerDelegate.initialize(params[0]);
+          playerDelegate.initializeContent(params[0]);
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
@@ -146,7 +163,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         trackBufferEnd();
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
-        if (params[0] && params[0].streamPosition)
+        if (params && params[0] && params[0].streamPosition)
         {
           if (inAdBreak)
           {
@@ -155,7 +172,7 @@ var OmnitureAnalyticsPlugin = function (framework)
           else
           {
             currentPlayhead = params[0].streamPosition;
-            playerDelegate.onPlayheadChange(currentPlayhead);
+            playerDelegate.onPlayheadChanged(currentPlayhead);
           }
         }
         break;
@@ -167,7 +184,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         inAdBreak = false;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
-        if (params[0])
+        if (params && params[0])
         {
           playerDelegate.onAdPlayback(params[0]);
         }
@@ -256,6 +273,13 @@ var OmnitureAnalyticsPlugin = function (framework)
   {
     vpPlugin.trackAdComplete();
   };
+
+  //TODO: Find out how to expose the player delegate for unit tests
+  //convenience functions for unit testing
+  this.getPlayerDelegate = function()
+  {
+    return playerDelegate;
+  };
 };
 
 var OoyalaPlayerDelegate = function()
@@ -265,7 +289,7 @@ var OoyalaPlayerDelegate = function()
   var name = null;
   var length = -1;
   var streamType = null;
-  var playerName = "Ooyala";
+  var playerName = "Ooyala V4";
   var streamPlayhead = 0;
 
   //ad
@@ -274,13 +298,18 @@ var OoyalaPlayerDelegate = function()
   var adPosition = 1;
   var adName = null;
 
-  this.initialize = function(metadata)
+  this.initializeContent = function(metadata)
   {
     name = metadata.title;
     length = metadata.duration;
   };
+  
+  this.onEmbedCodeChanged = function(embedCode)
+  {
+    id = embedCode;
+  };
 
-  this.onPlayheadChange = function(playhead)
+  this.onPlayheadChanged = function(playhead)
   {
     streamPlayhead = playhead;
   };
@@ -313,11 +342,12 @@ var OoyalaPlayerDelegate = function()
   {
     //TODO: Use Omniture VideoInfo object once we can integrate with their SDK
     var videoInfo = {};
-    //TODO: Provide Metadata Title for both name and id?
-    videoInfo.id = name;
+    videoInfo.id = id;
     videoInfo.name = name;
     videoInfo.length = length;
-    //TODO: StreamType
+    //TODO: StreamType and update unit test
+    //The type of the video asset, one of the following: AssetType.ASSET_TYPE_LIVE,
+    //AssetType.ASSET_TYPE_LINEAR, AssetType.ASSET_TYPE_VOD
     //videoInfo.streamType = AssetType.ASSET_TYPE_VOD;
     videoInfo.playerName = playerName;
     videoInfo.playhead = streamPlayhead;
@@ -329,6 +359,7 @@ var OoyalaPlayerDelegate = function()
     //TODO: Is there an Omniture AdBreak object?
     var adBreakInfo = {};
     adBreakInfo.playerName = playerName;
+    //TODO: Ad break position?
     adBreakInfo.position = adBreakPosition;
     adBreakInfo.startTime = streamPlayhead;
     return adBreakInfo;
