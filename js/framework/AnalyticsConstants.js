@@ -444,6 +444,17 @@ if (!OO.Analytics.EVENT_DATA)
             error = true;
           }
         }
+        break;
+      case "boolean":
+        if (!OO._.isBoolean(toRet))
+        {
+          // consider string values "true" and "false" to be valid
+          if (toRet !== "true" || toRet !== "false")
+          {
+            error = true;
+          }
+        }
+        break;
       break;
     }
 

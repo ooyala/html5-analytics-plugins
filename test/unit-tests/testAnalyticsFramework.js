@@ -1310,6 +1310,14 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
       expect(data.changingToFullscreen).toEqual(undefined);
 
+      metadata.changingToFullscreen = "banana";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+
+      metadata.changingToFullscreen = "";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+
       metadata.changingToFullscreen = null;
       data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
       expect(data.changingToFullscreen).toEqual(undefined);
