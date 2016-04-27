@@ -8,8 +8,8 @@ require("../framework/InitAnalyticsNamespace.js");
 var AnalyticsPluginTemplate = function (framework)
 {
   var _framework = framework;
-  var name = "template";
-  var version = "v1";
+  const name = "template";
+  const version = "v1";
   var id;
   var _active = true;
 
@@ -67,9 +67,9 @@ var AnalyticsPluginTemplate = function (framework)
   {
     var missedEvents;
     //if you need to process missed events, here is an example
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    if (framework)
     {
-      missedEvents = _framework.getRecordedEvents();
+      missedEvents = framework.getRecordedEvents();
     }
     //use recorded events.
   };
