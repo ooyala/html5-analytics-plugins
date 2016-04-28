@@ -395,7 +395,9 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#FullscreenChangedData
    * @classdesc Contains information about whether the player is entering or exiting fullscreen.
-   * @property {boolean} changingToFullscreen
+   * @property {boolean} changingToFullscreen Whether or not the player is entering fullscreen.
+   * true represents that the player is entering fullscreen. false represents that the player is
+   * exiting fullscreen.
    */
   EVENT_DATA.FullscreenChangedData = function(changingToFullscreen)
   {
