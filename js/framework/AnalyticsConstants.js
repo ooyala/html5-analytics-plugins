@@ -196,6 +196,22 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_STARTED
+     * @description This message is sent when the player starts an ad playback.
+     * @param {Array} paramArray Array of length 3, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdStartedData
+     */
+    AD_STARTED:               'ad_started',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_ENDED
+     * @description This message is sent when the player stops an ad playback.
+     */
+    AD_ENDED:                 'ad_ended',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */

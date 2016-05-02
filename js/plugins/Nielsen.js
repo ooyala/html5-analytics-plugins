@@ -89,7 +89,7 @@ var NielsenAnalyticsPlugin = function (framework)
     //  }, this));
     //}
 
-    nSdkInstance = NOLCMB.getInstance();
+    nSdkInstance = window.NOLCMB.getInstance();
 
     if (window._nolggGlobalParams)
     {
@@ -165,6 +165,7 @@ var NielsenAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
+          var metadata = params[0];
           contentDuration = metadata.duration;
           contentMetadata = {
             "type": "content",
@@ -234,9 +235,6 @@ var NielsenAnalyticsPlugin = function (framework)
         lastPlayheadUpdate = 0;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
-        if (params && params[0])
-        {
-        }
         trackAdStart(params[0]);
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
