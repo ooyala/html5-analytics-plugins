@@ -236,10 +236,37 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_STARTED
+     * @description This message is sent when an ad has started.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdStartedData
+     */
+    AD_STARTED:                     'ad_started',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_ENDED
+     * @description This message is sent when an ad has ended.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdEndedData
+     */
+    AD_ENDED:                       'ad_ended',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_SKIPPED
      * @description This message is sent when an ad is skipped.
      */
     AD_SKIPPED:                     'ad_skipped',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_ERROR
+     * @description This message is sent when there is an error during ad playback.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdErrorData
+     */
+    AD_ERROR:                       'ad_error',
 
     /**
      * @public
@@ -448,6 +475,46 @@ if (!OO.Analytics.EVENT_DATA)
     var checkAdPodEndedData = OO._.bind(checkDataType, this, "AdPodEndedData");
     this.adId = checkAdPodEndedData(adId, "adId", "string");
   };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdStartedData
+   * @classdesc Contains information about the type of ad that has started and its ad data.
+   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
+   * @property {object} adMetadata The metadata associated with the ad
+   */
+  EVENT_DATA.AdStartedData = function(adType, adMetadata)
+  {
+    var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
+    this.adType = checkAdStartedData(adType, "adType", "string");
+    this.adMetadata = checkAdStartedData(adMetadata, "adMetadata", "object");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdEndedData
+   * @classdesc Contains information about the type of ad that has ended and its ad data.
+   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
+   * @property {object} adMetadata The metadata associated with the ad
+   */
+  EVENT_DATA.AdEndedData = function(adType, adMetadata)
+  {
+    var checkAdEndedData = OO._.bind(checkDataType, this, "AdEndedData");
+    this.adType = checkAdEndedData(adType, "adType", "string");
+    this.adMetadata = checkAdEndedData(adMetadata, "adMetadata", "object");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdErrorData
+   * @classdesc Contains information about the ad error.
+   * @property {object|string} The error object or string
+   */
+  EVENT_DATA.AdErrorData = function(error)
+  {
+    var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
+    this.error = checkAdErrorData(error, "error", ["string", "object"]);
+  }
 
   /**
    * @public
