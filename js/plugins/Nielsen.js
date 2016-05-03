@@ -19,6 +19,7 @@ var NielsenAnalyticsPlugin = function (framework)
   var currentAdPlayhead = 0;
   var videoPlaying = false;
   var inAdBreak = false;
+  var adStarted = false;
   var embedCode = null;
   var lastPlayheadUpdate = 0;
   var contentMetadata = {};
@@ -89,8 +90,6 @@ var NielsenAnalyticsPlugin = function (framework)
     //  }, this));
     //}
 
-    nSdkInstance = window.NOLCMB.getInstance();
-
     if (window._nolggGlobalParams)
     {
       OO.log( "Nielsen: nolggGlobalParams already exists");
@@ -102,6 +101,8 @@ var NielsenAnalyticsPlugin = function (framework)
       apn: "Ooyala V4",
       nol_sdkDebug: "console"
     };
+
+    nSdkInstance = window.NOLCMB.getInstance(window._nolggGlobalParams.apid);
 
     nSdkInstance.ggInitialize(window._nolggGlobalParams);
   };
@@ -167,24 +168,39 @@ var NielsenAnalyticsPlugin = function (framework)
         {
           var metadata = params[0];
           contentDuration = metadata.duration;
+          //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
           contentMetadata = {
             "type": "content",
             //TODO: Check to see if we can put asset name
             "assetName": metadata.title,
             "length": contentDuration,
             "title": metadata.title,
-            //"program": "myProgram",
-            //"censuscategory": "myCensusCategory",
-            "assetid": embedCode
-            //"channelName": "myChannel",
-            //"adModel": "0",
-            //"segB": "segmentB",
-            //"segC": "segmentC",
-            //"isfullepisode":"Y",
+            //TODO: Program Name
+            "program": "myProgram",
+            "assetid": embedCode,
+            "segB": "segmentB",
+            "segC": "segmentC",
+            //TODO: is full ep
+            "isfullepisode":"N",
             //"crossId1": "Reference11",
             //"crossId2": "Reference22",
-            //"airdate": "20161013 20:00:00"
+            "airdate": "20160501 16:48:00",
+            "adloadtype":1
+
+            //"type": "content",
+            //"length": "3600",
+            //"title": "myTitle",
+            //"program": "myProgram",
+            //"assetid": "myAssetId",
+            //"segB": "segmentB",
+            //"segC": "segmentC",
+            //"isfullepisode": "Y",
+            //"crossId1": "Reference11",
+            //"crossId2": "Reference22",
+            //"airdate": "20161013 20:00:00",
+            //"adloadtype": "2"
           };
+          OO.log("Nielsen Tracking: loadMetadata from metadata updated with playhead " + currentPlayhead);
           nSdkInstance.ggPM("loadMetadata", contentMetadata);
         }
         break;
@@ -205,7 +221,7 @@ var NielsenAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
         {
-          if (inAdBreak)
+          if (inAdBreak && adStarted)
           {
             currentAdPlayhead = params[0].streamPosition;
           }
@@ -218,6 +234,7 @@ var NielsenAnalyticsPlugin = function (framework)
           var currentTime = new Date().getTime();
           if (currentTime >= lastPlayheadUpdate + 1000)
           {
+            //TODO: receiving video_stream_position_changed immediately after ad_break_started
             lastPlayheadUpdate = currentTime;
             trackPlayhead();
           }
@@ -227,6 +244,7 @@ var NielsenAnalyticsPlugin = function (framework)
         inAdBreak = true;
         //We want to report the first playhead after this event
         lastPlayheadUpdate = 0;
+        OO.log("Nielsen Tracking: stop from ad break with playhead " + currentPlayhead);
         nSdkInstance.ggPM("stop", currentPlayhead);
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
@@ -235,10 +253,13 @@ var NielsenAnalyticsPlugin = function (framework)
         lastPlayheadUpdate = 0;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
+        adStarted = true;
         trackAdStart(params[0]);
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
+        adStarted = false;
         trackAdEnd();
+        currentAdPlayhead = 0;
         break;
       //case OO.Analytics.EVENTS.DESTROY:
       //  break;
@@ -273,6 +294,7 @@ var NielsenAnalyticsPlugin = function (framework)
 
   var trackPlay = function()
   {
+    OO.log("Nielsen Tracking: loadMetadata from content play with playhead " + currentPlayhead);
     nSdkInstance.ggPM("loadMetadata", contentMetadata);
   };
 
@@ -290,6 +312,7 @@ var NielsenAnalyticsPlugin = function (framework)
 
   var trackComplete = function()
   {
+    OO.log("Nielsen Tracking: end with playhead " + currentPlayhead);
     nSdkInstance.ggPM("end", currentPlayhead);
   };
 
@@ -305,11 +328,13 @@ var NielsenAnalyticsPlugin = function (framework)
   {
     if (inAdBreak)
     {
+      OO.log("Nielsen Tracking: setPlayheadPosition with ad playhead " + currentAdPlayhead);
       nSdkInstance.ggPM("setPlayheadPosition", currentAdPlayhead);
     }
     else
     {
       //TODO: Handle live streams
+      OO.log("Nielsen Tracking: setPlayheadPosition with playhead " + currentPlayhead);
       nSdkInstance.ggPM("setPlayheadPosition", currentPlayhead);
     }
   };
@@ -331,6 +356,7 @@ var NielsenAnalyticsPlugin = function (framework)
       type = "midroll";
     }
 
+    OO.log("Nielsen Tracking: loadMetadata for ad with type: " + type + " with ad playhead " + currentAdPlayhead);
     nSdkInstance.ggPM("loadMetadata", {
       "type": type,
       "length": metadata.adDuration,
@@ -343,6 +369,7 @@ var NielsenAnalyticsPlugin = function (framework)
 
   var trackAdEnd = function()
   {
+    OO.log("Nielsen Tracking: stop with ad playhead " + currentAdPlayhead);
     nSdkInstance.ggPM("stop", currentAdPlayhead);
   };
 };
