@@ -140,6 +140,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         {
           playerDelegate.onEmbedCodeChanged(params[0].embedCode);
         }
+        resetPlaybackState();
         break;
       //case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
       //  break;
