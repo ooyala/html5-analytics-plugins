@@ -13,7 +13,7 @@ require("./InitAnalyticsNamespace.js");
 
 if (!OO.Analytics.EVENTS)
 {
-  const EVENTS =
+  var EVENTS =
   {
     /**
      * @public
@@ -242,7 +242,7 @@ if (!OO.Analytics.EVENTS)
 
 if (!OO.Analytics.EVENT_DATA)
 {
-  const EVENT_DATA = {};
+  var EVENT_DATA = {};
 
   /**
    * @public
@@ -492,7 +492,7 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
    *    <li>processEvent(eventName, paramArray) - A function to receive events that are published through the framework.</li>
    * </ul>
    */
-  const REQUIRED_PLUGIN_FUNCTIONS =
+  var REQUIRED_PLUGIN_FUNCTIONS =
   [
     "getName",
     "getVersion",
