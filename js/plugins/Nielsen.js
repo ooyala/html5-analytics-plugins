@@ -24,6 +24,8 @@ var NielsenAnalyticsPlugin = function (framework)
   var lastPlayheadUpdate = 0;
   var contentMetadata = {};
 
+  //TODO: ID3 tags
+
   var nSdkInstance = null;
 
   /**
@@ -160,6 +162,7 @@ var NielsenAnalyticsPlugin = function (framework)
         {
           embedCode = params[0].embedCode;
         }
+        resetPlaybackState();
         break;
       //case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
       //  break;
@@ -270,10 +273,13 @@ var NielsenAnalyticsPlugin = function (framework)
 
   var resetPlaybackState = function ()
   {
-    videoPlaying = false;
+    contentDuration = -1;
     currentPlayhead = 0;
+    currentAdPlayhead = 0;
+    videoPlaying = false;
     inAdBreak = false;
-    //TODO: Reset all vars
+    adStarted = false;
+    lastPlayheadUpdate = 0;
   };
 
   /**
