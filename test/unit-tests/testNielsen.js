@@ -15,7 +15,11 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   var playerName = "Ooyala V4";
 
+  var GGPM_STOP_EVENT = "stop";
   var GGPM_END_EVENT = "end";
+  var GGPM_LOAD_METADATA_EVENT = "loadMetadata";
+  var GGPM_SET_PLAYHEAD_POSITION_EVENT = "setPlayheadPosition";
+  var GGPM_METADATA_TYPE_CONTENT = "content";
 
   //setup for individual tests
   var testSetup = function()
@@ -226,6 +230,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
   });
 
   //new
+  //Unit Tests created from guidelines for testing at:
+  //https://engineeringforum.nielsen.com/sdk/developers/bsdk-testing-app-implement.php
   it('Nielsen plugin can initialize Nielsen SDK on init', function()
   {
     var initializeCalled = 0;
@@ -246,10 +252,319 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(initializeCalled).toBe(1);
   });
 
+  it('Nielsen plugin can track loadMetadata event upon receiving metadata', function()
+  {
+    var loadMetadataCalled = 0;
+    var metadata = null;
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            if (event === GGPM_LOAD_METADATA_EVENT)
+            {
+              loadMetadataCalled++;
+              metadata = param;
+            }
+          }
+        }
+      }
+    };
+    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    var plugin = new nielsenPluginFactory(framework);
+    //TODO: Calling init again because the require is calling init as well
+    plugin.init();
+    Utils.simulatePlayerLoad(plugin, {
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60
+    });
+    expect(loadMetadataCalled).toBe(1);
+    expect(metadata.title).toBe("testTitle");
+    expect(metadata.assetName).toBe("testTitle");
+    expect(metadata.length).toBe(60);
+  });
+
+  it('Nielsen plugin can track loadMetadata event upon playing a preroll ad', function()
+  {
+    var loadMetadataForContentCalled = 0;
+    var contentMetadata = null;
+    var loadMetadataForAdCalled = 0;
+    var adMetadata = null;
+    var stopCalled = 0;
+    var stopTime = -1;
+    var setPlayheadPositionCalled = 0;
+    var playhead = -1;
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            switch(event)
+            {
+              case GGPM_STOP_EVENT:
+                stopCalled++;
+                stopTime = param;
+                break;
+              case GGPM_LOAD_METADATA_EVENT:
+                if (param)
+                {
+                  if (param.type === GGPM_METADATA_TYPE_CONTENT)
+                  {
+                    loadMetadataForContentCalled++;
+                    contentMetadata = param;
+                  }
+                  else
+                  {
+                    loadMetadataForAdCalled++;
+                    adMetadata = param;
+                  }
+                }
+                break;
+              case GGPM_SET_PLAYHEAD_POSITION_EVENT:
+                setPlayheadPositionCalled++;
+                playhead = param;
+                break;
+            }
+          }
+        }
+      }
+    };
+    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    var plugin = new nielsenPluginFactory(framework);
+    //TODO: Calling init again because the require is calling init as well
+    plugin.init();
+    //received metadata
+    Utils.simulatePlayerLoad(plugin, {
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60
+    });
+
+    expect(loadMetadataForContentCalled).toBe(1);
+    loadMetadataForContentCalled = 0;
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+
+    //play preroll
+    Utils.simulateAdBreakStarted(plugin);
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(0);
+
+    Utils.simulateAdPlayback(plugin, {
+      adId: "testPrerollId",
+      adDuration: 15
+    });
+    expect(loadMetadataForAdCalled).toBe(1);
+    expect(adMetadata.type).toBe("preroll");
+    expect(adMetadata.length).toBe(15);
+    expect(adMetadata.assetid).toBe("testPrerollId");
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 5, 15]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(3);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(15);
+
+    //preroll ends
+    Utils.simulateAdComplete(plugin);
+
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(15);
+
+    Utils.simulateAdBreakEnded(plugin);
+
+    //content resumes
+    Utils.simulateContentPlayback(plugin);
+
+    expect(loadMetadataForContentCalled).toBe(1);
+    loadMetadataForContentCalled = 0;
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+  });
+
+  it('Nielsen plugin can track stop and loadMetadata events upon playing a midroll ad', function()
+  {
+    var loadMetadataForContentCalled = 0;
+    var contentMetadata = null;
+    var loadMetadataForAdCalled = 0;
+    var adMetadata = null;
+    var stopCalled = 0;
+    var stopTime = -1;
+    var setPlayheadPositionCalled = 0;
+    var playhead = -1;
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            switch(event)
+            {
+              case GGPM_STOP_EVENT:
+                stopCalled++;
+                stopTime = param;
+                break;
+              case GGPM_LOAD_METADATA_EVENT:
+                if (param)
+                {
+                  if (param.type === GGPM_METADATA_TYPE_CONTENT)
+                  {
+                    loadMetadataForContentCalled++;
+                    contentMetadata = param;
+                  }
+                  else
+                  {
+                    loadMetadataForAdCalled++;
+                    adMetadata = param;
+                  }
+                }
+                break;
+              case GGPM_SET_PLAYHEAD_POSITION_EVENT:
+                setPlayheadPositionCalled++;
+                playhead = param;
+                break;
+            }
+          }
+        }
+      }
+    };
+    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    var plugin = new nielsenPluginFactory(framework);
+    //TODO: Calling init again because the require is calling init as well
+    plugin.init();
+    //received metadata
+    Utils.simulatePlayerLoad(plugin, {
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60
+    });
+    expect(loadMetadataForContentCalled).toBe(1);
+    loadMetadataForContentCalled = 0;
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+
+    //play content
+    Utils.simulateContentPlayback(plugin);
+
+    //we do not publish another loadMetadata here as there was no preroll
+    expect(loadMetadataForContentCalled).toBe(0);
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 2, 3, 4, 5, 7.5, 10]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(7);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(10);
+
+    //play midroll
+    Utils.simulateAdBreakStarted(plugin);
+
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(10);
+
+    Utils.simulateAdPlayback(plugin, {
+      adId: "testMidrollId",
+      adDuration: 5
+    });
+
+    expect(loadMetadataForAdCalled).toBe(1);
+    expect(adMetadata.type).toBe("midroll");
+    expect(adMetadata.length).toBe(5);
+    expect(adMetadata.assetid).toBe("testMidrollId");
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 5]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(2);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(5);
+
+    //midroll ends
+    Utils.simulateAdComplete(plugin);
+
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(5);
+
+    Utils.simulateAdBreakEnded(plugin);
+
+    //content resumes
+    Utils.simulateContentPlayback(plugin);
+
+    expect(loadMetadataForContentCalled).toBe(1);
+    loadMetadataForContentCalled = 0;
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+  });
+
+  it('Nielsen plugin can track setPlayheadPosition event', function()
+  {
+    var setPlayheadPositionCalled = 0;
+    var playhead = -1;
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            if (event === GGPM_SET_PLAYHEAD_POSITION_EVENT)
+            {
+              setPlayheadPositionCalled++;
+              playhead = param;
+            }
+          }
+        }
+      }
+    };
+    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    var plugin = new nielsenPluginFactory(framework);
+    //TODO: Calling init again because the require is calling init as well
+    plugin.init();
+    //received metadata
+    Utils.simulatePlayerLoad(plugin, {
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60
+    });
+    //play content
+    Utils.simulateContentPlayback(plugin);
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1]
+    });
+    expect(setPlayheadPositionCalled).toBe(1);
+    expect(playhead).toBe(1);
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1.5]
+    });
+    //playheads are sent in 1 second intervals, so we do not want to
+    //send another playhead here (1.5s - 1s < the one second interval)
+    expect(setPlayheadPositionCalled).toBe(1);
+    expect(playhead).toBe(1);
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [2, 3, 4, 5, 7.5, 10]
+    });
+    expect(setPlayheadPositionCalled).toBe(7);
+    expect(playhead).toBe(10);
+  });
+
   it('Nielsen plugin can track end event', function()
   {
     var endCalled = 0;
-    var endTime = 0;
+    var endTime = -1;
     window.NOLCMB = {
       getInstance : function(){
         return {
@@ -269,12 +584,294 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     var plugin = new nielsenPluginFactory(framework);
     //TODO: Calling init again because the require is calling init as well
     plugin.init();
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
+    Utils.simulateContentComplete(plugin, {
       streamPosition : 60
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.CONTENT_COMPLETED);
+    });
     expect(endCalled).toBe(1);
     expect(endTime).toBe(60);
+  });
+
+  it('Nielsen plugin can track end and loadMetadata events upon playing a postroll ad', function()
+  {
+    var loadMetadataCalled = 0;
+    var adMetadata = null;
+    var endCalled = 0;
+    var endTime = -1;
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            switch(event)
+            {
+              case GGPM_END_EVENT:
+                endCalled++;
+                endTime = param;
+                break;
+              case GGPM_LOAD_METADATA_EVENT:
+                if (param && param.type !== GGPM_METADATA_TYPE_CONTENT)
+                {
+                  loadMetadataCalled++;
+                  adMetadata = param;
+                }
+                break;
+            }
+          }
+        }
+      }
+    };
+    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    var plugin = new nielsenPluginFactory(framework);
+    //TODO: Calling init again because the require is calling init as well
+    plugin.init();
+    //received metadata
+    Utils.simulatePlayerLoad(plugin, {
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60
+    });
+    //play content
+    Utils.simulateContentPlayback(plugin);
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 2, 3, 4, 5, 7.5, 10]
+    });
+    //content ends
+    Utils.simulateContentComplete(plugin, {
+      streamPosition : 60
+    });
+
+    expect(endCalled).toBe(1);
+    expect(endTime).toBe(60);
+
+    //play postroll
+    Utils.simulateAdBreakStarted(plugin);
+    Utils.simulateAdPlayback(plugin, {
+      adId: "testPostrollId",
+      adDuration: 20
+    });
+    expect(loadMetadataCalled).toBe(1);
+    expect(adMetadata.type).toBe("postroll");
+    expect(adMetadata.length).toBe(20);
+    expect(adMetadata.assetid).toBe("testPostrollId");
+  });
+
+  it('Nielsen Video Plugin can track all events in a typical playback', function()
+  {
+    var loadMetadataForAdCalled = 0;
+    var adMetadata = null;
+    
+    var loadMetadataForContentCalled = 0;
+    var contentMetadata = null;
+
+    var setPlayheadPositionCalled = 0;
+    var playhead = -1;
+    
+    var endCalled = 0;
+    var endTime = -1;
+
+    var stopCalled = 0;
+    var stopTime = -1;
+
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            switch(event)
+            {
+              case GGPM_STOP_EVENT:
+                stopCalled++;
+                stopTime = param;
+                break;
+              case GGPM_END_EVENT:
+                endCalled++;
+                endTime = param;
+                break;
+              case GGPM_LOAD_METADATA_EVENT:
+                if (param)
+                {
+                  if (param.type === GGPM_METADATA_TYPE_CONTENT)
+                  {
+                    loadMetadataForContentCalled++;
+                    contentMetadata = param;
+                  }
+                  else
+                  {
+                    loadMetadataForAdCalled++;
+                    adMetadata = param;
+                  }
+                }
+                break;
+              case GGPM_SET_PLAYHEAD_POSITION_EVENT:
+                  setPlayheadPositionCalled++;
+                  playhead = param;
+                break;
+            }
+          }
+        }
+      }
+    };
+    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    var plugin = new nielsenPluginFactory(framework);
+    //TODO: Calling init again because the require is calling init as well
+    plugin.init();
+    //received metadata
+    Utils.simulatePlayerLoad(plugin, {
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60
+    });
+
+    expect(loadMetadataForContentCalled).toBe(1);
+    loadMetadataForContentCalled = 0;
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+
+    //play preroll
+    Utils.simulateAdBreakStarted(plugin);
+    Utils.simulateAdPlayback(plugin, {
+      adId: "testPrerollId",
+      adDuration: 15
+    });
+
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(0);
+
+    expect(loadMetadataForAdCalled).toBe(1);
+    loadMetadataForAdCalled = 0;
+    expect(adMetadata.type).toBe("preroll");
+    expect(adMetadata.length).toBe(15);
+    expect(adMetadata.assetid).toBe("testPrerollId");
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 5, 10, 15]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(4);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(15);
+
+    //preroll ends
+    Utils.simulateAdComplete(plugin);
+
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(15);
+
+    Utils.simulateAdBreakEnded(plugin);
+
+    //play content
+    Utils.simulateContentPlayback(plugin);
+
+    expect(loadMetadataForContentCalled).toBe(1);
+    loadMetadataForContentCalled = 0;
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 2, 3, 4, 5, 7.5, 10]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(7);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(10);
+
+    //play midroll
+    Utils.simulateAdBreakStarted(plugin);
+    Utils.simulateAdPlayback(plugin, {
+      adId: "testMidrollId",
+      adDuration: 5
+    });
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(10);
+
+    expect(loadMetadataForAdCalled).toBe(1);
+    loadMetadataForAdCalled = 0;
+    expect(adMetadata.type).toBe("midroll");
+    expect(adMetadata.length).toBe(5);
+    expect(adMetadata.assetid).toBe("testMidrollId");
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 5]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(2);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(5);
+
+    //midroll ends
+    Utils.simulateAdComplete(plugin);
+
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(5);
+
+    Utils.simulateAdBreakEnded(plugin);
+
+    //content resumes
+    Utils.simulateContentPlayback(plugin);
+
+    expect(loadMetadataForContentCalled).toBe(1);
+    loadMetadataForContentCalled = 0;
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [11, 15, 30, 45]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(4);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(45);
+
+    //content ends
+    Utils.simulateContentComplete(plugin, {
+      streamPosition : 60
+    });
+
+    expect(setPlayheadPositionCalled).toBe(1);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(60);
+
+    expect(endCalled).toBe(1);
+    expect(endTime).toBe(60);
+
+    setPlayheadPositionCalled = 0;
+
+    //play postroll
+    Utils.simulateAdBreakStarted(plugin);
+    Utils.simulateAdPlayback(plugin, {
+      adId: "testPostrollId",
+      adDuration: 20
+    });
+    expect(loadMetadataForAdCalled).toBe(1);
+    expect(adMetadata.type).toBe("postroll");
+    expect(adMetadata.length).toBe(20);
+    expect(adMetadata.assetid).toBe("testPostrollId");
+
+    Utils.simulateVideoProgress(plugin, {
+      playheads : [1, 5, 10, 15, 20]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(5);
+    setPlayheadPositionCalled = 0;
+    expect(playhead).toBe(20);
+
+    //postroll ends
+    Utils.simulateAdComplete(plugin);
+
+    expect(stopCalled).toBe(1);
+    stopCalled = 0;
+    expect(stopTime).toBe(20);
+
+    Utils.simulateAdBreakEnded(plugin);
   });
 
   //it('Delegate can provide valid Video Info', function()

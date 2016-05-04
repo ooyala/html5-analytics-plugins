@@ -21,9 +21,10 @@ var NielsenAnalyticsPlugin = function (framework)
   var inAdBreak = false;
   var adStarted = false;
   var embedCode = null;
-  var lastPlayheadUpdate = 0;
+  var lastPlayheadUpdate = -1;
   var contentMetadata = {};
-
+  var contentComplete = false;
+  var loadContentMetadataAfterAd = false;
   //TODO: ID3 tags
 
   var nSdkInstance = null;
@@ -91,22 +92,24 @@ var NielsenAnalyticsPlugin = function (framework)
     //    this.processEvent(recordedEvent.eventName, recordedEvent.params);
     //  }, this));
     //}
+    //
+    //if (window._nolggGlobalParams)
+    //{
+    //  OO.log( "Nielsen: nolggGlobalParams already exists");
+    //}
+    //
+    //window._nolggGlobalParams =
 
-    if (window._nolggGlobalParams)
-    {
-      OO.log( "Nielsen: nolggGlobalParams already exists");
-    }
+    var apid = "TD70BC1B3-07E8-474F-98E5-AE79DD3D774E";
 
-    window._nolggGlobalParams = {
-      apid: "TD70BC1B3-07E8-474F-98E5-AE79DD3D774E",
+    nSdkInstance = window.NOLCMB.getInstance(apid);
+
+    nSdkInstance.ggInitialize({
+      apid: apid,
       sfcode: "dcr-cert",
       apn: "Ooyala V4",
       nol_sdkDebug: "console"
-    };
-
-    nSdkInstance = window.NOLCMB.getInstance(window._nolggGlobalParams.apid);
-
-    nSdkInstance.ggInitialize(window._nolggGlobalParams);
+    });
   };
 
   /**
@@ -134,10 +137,11 @@ var NielsenAnalyticsPlugin = function (framework)
     {
       //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
       //  break;
-      case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        trackSessionStart();
-        break;
+      //case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
+      //  trackSessionStart();
+      //  break;
       case OO.Analytics.EVENTS.CONTENT_COMPLETED:
+        contentComplete = true;
         trackComplete();
         break;
       //case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
@@ -149,11 +153,9 @@ var NielsenAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         trackPlay();
         break;
-      case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        //TODO: According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
-        //we should not be tracking pauses when switching from main content to an ad
-        trackPause();
-        break;
+      //case OO.Analytics.EVENTS.VIDEO_PAUSED:
+      //  trackPause();
+      //  break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
         break;
@@ -207,38 +209,43 @@ var NielsenAnalyticsPlugin = function (framework)
           nSdkInstance.ggPM("loadMetadata", contentMetadata);
         }
         break;
-      case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
-        trackSeekStart();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-        trackSeekEnd();
-        break;
+      //case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
+      //  trackSeekStart();
+      //  break;
+      //case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
+      //  trackSeekEnd();
+      //  break;
       //case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
       //  break;
-      case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
-        trackBufferStart();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-        trackBufferEnd();
-        break;
+      //case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
+      //  trackBufferStart();
+      //  break;
+      //case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
+      //  trackBufferEnd();
+      //  break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
         {
-          if (inAdBreak && adStarted)
+          var playhead = -1;
+          if (inAdBreak)
           {
-            currentAdPlayhead = params[0].streamPosition;
+            if (adStarted)
+            {
+              currentAdPlayhead = params[0].streamPosition;
+              playhead = currentAdPlayhead;
+            }
           }
           else
           {
             currentPlayhead = params[0].streamPosition;
+            playhead = currentPlayhead;
           }
           //Playhead updates should occur every 1 second according to docs at:
-          //https://engineeringforum.nielsen.com/sdk/developers/product-dcr-implementation-av-bsdk.php
-          var currentTime = new Date().getTime();
-          if (currentTime >= lastPlayheadUpdate + 1000)
+          //https://engineeringforum.nielsen.com/sdk/developers/product-dcr-implementation-av-bsdk.php;
+          if (playhead >= 0 && playhead >= lastPlayheadUpdate + 1)
           {
             //TODO: receiving video_stream_position_changed immediately after ad_break_started
-            lastPlayheadUpdate = currentTime;
+            lastPlayheadUpdate = playhead;
             trackPlayhead();
           }
         }
@@ -246,14 +253,18 @@ var NielsenAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
         inAdBreak = true;
         //We want to report the first playhead after this event
-        lastPlayheadUpdate = 0;
+        lastPlayheadUpdate = -1;
         OO.log("Nielsen Tracking: stop from ad break with playhead " + currentPlayhead);
-        nSdkInstance.ggPM("stop", currentPlayhead);
+        if (!contentComplete)
+        {
+          nSdkInstance.ggPM("stop", currentPlayhead);
+        }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
         inAdBreak = false;
         //We want to report the first playhead after this event
-        lastPlayheadUpdate = 0;
+        lastPlayheadUpdate = -1;
+        loadContentMetadataAfterAd = true;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
         adStarted = true;
@@ -263,6 +274,8 @@ var NielsenAnalyticsPlugin = function (framework)
         adStarted = false;
         trackAdEnd();
         currentAdPlayhead = 0;
+        //We want to report the first playhead after this event
+        lastPlayheadUpdate = -1;
         break;
       //case OO.Analytics.EVENTS.DESTROY:
       //  break;
@@ -279,7 +292,7 @@ var NielsenAnalyticsPlugin = function (framework)
     videoPlaying = false;
     inAdBreak = false;
     adStarted = false;
-    lastPlayheadUpdate = 0;
+    lastPlayheadUpdate = -1;
   };
 
   /**
@@ -294,27 +307,31 @@ var NielsenAnalyticsPlugin = function (framework)
   };
 
   //Main Content
-  var trackSessionStart = function()
-  {
-  };
+  //var trackSessionStart = function()
+  //{
+  //};
 
   var trackPlay = function()
   {
-    OO.log("Nielsen Tracking: loadMetadata from content play with playhead " + currentPlayhead);
-    nSdkInstance.ggPM("loadMetadata", contentMetadata);
+    if (loadContentMetadataAfterAd)
+    {
+      loadContentMetadataAfterAd = false;
+      OO.log("Nielsen Tracking: loadMetadata from content play with playhead " + currentPlayhead);
+      nSdkInstance.ggPM("loadMetadata", contentMetadata);
+    }
   };
 
-  var trackPause = function()
-  {
-  };
-
-  var trackSeekStart = function()
-  {
-  };
-
-  var trackSeekEnd = function()
-  {
-  };
+  //var trackPause = function()
+  //{
+  //};
+  //
+  //var trackSeekStart = function()
+  //{
+  //};
+  //
+  //var trackSeekEnd = function()
+  //{
+  //};
 
   var trackComplete = function()
   {
@@ -322,13 +339,13 @@ var NielsenAnalyticsPlugin = function (framework)
     nSdkInstance.ggPM("end", currentPlayhead);
   };
 
-  var trackBufferStart = function()
-  {
-  };
-
-  var trackBufferEnd = function()
-  {
-  };
+  //var trackBufferStart = function()
+  //{
+  //};
+  //
+  //var trackBufferEnd = function()
+  //{
+  //};
 
   var trackPlayhead = function()
   {
