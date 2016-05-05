@@ -3,6 +3,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   jest.autoMockOff();
   //this file is the file that defines TEST_ROOT and SRC_ROOT
   require("../unit-test-helpers/test_env.js");
+  require("../unit-test-helpers/mock_adobe.js");
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
 //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
@@ -14,6 +15,8 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   var framework;
 
   var playerName = "Ooyala V4";
+
+  
 
   //setup for individual tests
   var testSetup = function()
@@ -35,11 +38,19 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   beforeEach(testSetup);
   afterEach(testCleanup);
 
+  //helpers
+  var createPlugin = function(factory)
+  {
+    var plugin = new factory(framework);
+    plugin.init();
+    return plugin;
+  };
+
   it('Test Omniture Plugin Validity', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
     expect(omniturePluginFactory).not.toBeNull();
-    var plugin = new omniturePluginFactory();
+    var plugin = new omniturePluginFactory(omniturePluginFactory);
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
@@ -114,7 +125,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //
   it('Test Setting Metadata and Processing An Event', function()
   {
-    var metadataRecieved;
+    var metadataReceived;
     var eventProcessed;
     var paramsReceived;
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
@@ -188,7 +199,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Test all functions', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var errorOccured = false;
     try
     {
@@ -212,14 +223,12 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Delegate can provide valid Video Info', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
-      embedCode : "abcde"
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
+    var plugin = createPlugin(omniturePluginFactory);
+    Utils.simulatePlayerLoad(plugin, {
+      embedCode : "abcde",
       title : "testTitle",
       duration : 20
-    }]);
+    });
     plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
       streamPosition : 10
     }]);
@@ -235,7 +244,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Delegate can provide valid Ad Break Info', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
       streamPosition : 10
     }]);
@@ -250,7 +259,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Delegate can provide valid Ad Info', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
       adId : "zyxw",
       adDuration : 15,
@@ -266,7 +275,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackSessionStart', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSessionStart = function()
     {
@@ -279,7 +288,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackPlay', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackPlay = function()
     {
@@ -292,20 +301,20 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackVideoLoad', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED);
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin does not trackVideoLoad if we are resuming playback from a pause', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var videoLoadCalled = 0;
     var playCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function()
@@ -316,6 +325,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     {
       playCalled++;
     };
+    plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED);
     plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
     plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
     plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
@@ -326,7 +336,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackPause', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackPause = function()
     {
@@ -339,7 +349,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackSeekStart', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekStart = function()
     {
@@ -352,7 +362,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackSeekStart', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekStart = function()
     {
@@ -365,7 +375,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackSeekComplete', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function()
     {
@@ -384,7 +394,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackComplete', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackComplete = function()
     {
@@ -397,7 +407,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackVideoUnload', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function()
     {
@@ -410,7 +420,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackBufferStart', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackBufferStart = function()
     {
@@ -423,7 +433,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackBufferComplete', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackBufferComplete = function()
     {
@@ -436,7 +446,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackAdStart', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdStart = function()
     {
@@ -453,7 +463,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can trackAdComplete', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdComplete = function()
     {
@@ -466,7 +476,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can track all events in a typical playback', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var delegate = plugin.getPlayerDelegate();
 
     var adStartCalled = 0;
@@ -701,7 +711,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   it('Omniture Video Plugin can track all events in a typical playback without mocks', function()
   {
     var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(omniturePluginFactory);
     var delegate = plugin.getPlayerDelegate();
 
     var videoInfo, adBreakInfo, adInfo;

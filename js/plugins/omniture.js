@@ -22,8 +22,6 @@ var OmnitureAnalyticsPlugin = function (framework)
   var playerDelegate = new OoyalaPlayerDelegate();
   //TODO: Remove this when integrating with Omniture SDK
   var vpPlugin = null;//new FakeVideoPlugin(playerDelegate);
-  //TODO: Find out how to expose the vpPlugin for unit tests
-  this.omnitureVideoPlayerPlugin = vpPlugin;
 
   var currentPlayhead = 0;
   var videoPlaying = false;
@@ -108,6 +106,8 @@ var OmnitureAnalyticsPlugin = function (framework)
 
     // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
     vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
+    //TODO: Find out how to expose the vpPlugin for unit tests
+    this.omnitureVideoPlayerPlugin = vpPlugin;
     var playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
     playerPluginConfig.debugLogging = true; // set this to false for production apps.
     vpPlugin.configure(playerPluginConfig);
@@ -446,75 +446,75 @@ var OoyalaPlayerDelegate = function()
 };
 
 //TODO: Remove this when integrating with Omniture SDK, can be used for unit testing
-var FakeVideoPlugin = function(playerDelegate)
-{
-  var delegate = playerDelegate;
-
-  this.trackVideoLoad = function()
-  {
-    var videoInfo = delegate.getVideoInfo();
-    OO.log("Omniture Video Plugin: Track Video Load of video: " + videoInfo.name + " with id: " + videoInfo.id +
-      " with duration: " + videoInfo.length + " at playhead: " + videoInfo.playhead + " with player: " + videoInfo.playerName);
-  };
-
-  this.trackVideoUnload = function()
-  {
-    OO.log("Omniture Video Plugin: Track Video Unload at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackSessionStart = function()
-  {
-    OO.log("Omniture Video Plugin: Track Session Start at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackPlay = function()
-  {
-    OO.log("Omniture Video Plugin: Track Play at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackPause = function()
-  {
-    OO.log("Omniture Video Plugin: Track Pause at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackComplete = function()
-  {
-    OO.log("Omniture Video Plugin: Track Complete at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackSeekStart = function()
-  {
-    OO.log("Omniture Video Plugin: Track Seek Start at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackSeekComplete = function()
-  {
-    OO.log("Omniture Video Plugin: Track Seek Complete at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackBufferStart = function()
-  {
-    OO.log("Omniture Video Plugin: Track Buffer Start at playhead: " + delegate.getVideoInfo().playhead);
-  };
-  this.trackBufferComplete = function()
-  {
-    OO.log("Omniture Video Plugin: Track Buffer Complete at playhead: " + delegate.getVideoInfo().playhead);
-  };
-
-  this.trackAdStart = function()
-  {
-    var adBreakInfo = delegate.getAdBreakInfo();
-    var adInfo = delegate.getAdInfo();
-    OO.log("Omniture Video Plugin: Track Ad Start at playhead: " + adBreakInfo.startTime + " with ad: " + adInfo.id +
-      " with duration: " + adInfo.length + " and pod position: " + adInfo.position);
-  };
-  this.trackAdComplete = function()
-  {
-    var adBreakInfo = delegate.getAdBreakInfo();
-    OO.log("Omniture Video Plugin: Track Ad Complete at playhead: " + adBreakInfo.startTime);
-  };
-
-  //this.trackChapterStart = function(){};
-  //this.trackChapterComplete = function(){};
-  //
-  //this.trackBitrateChange = function(){};
-  //
-  //this.trackVideoPlayerError = function(){};
-  //this.trackApplicationError = function(){};
-};
+// var FakeVideoPlugin = function(playerDelegate)
+// {
+//   var delegate = playerDelegate;
+//
+//   this.trackVideoLoad = function()
+//   {
+//     var videoInfo = delegate.getVideoInfo();
+//     OO.log("Omniture Video Plugin: Track Video Load of video: " + videoInfo.name + " with id: " + videoInfo.id +
+//       " with duration: " + videoInfo.length + " at playhead: " + videoInfo.playhead + " with player: " + videoInfo.playerName);
+//   };
+//
+//   this.trackVideoUnload = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Video Unload at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackSessionStart = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Session Start at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackPlay = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Play at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackPause = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Pause at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackComplete = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Complete at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackSeekStart = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Seek Start at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackSeekComplete = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Seek Complete at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackBufferStart = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Buffer Start at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//   this.trackBufferComplete = function()
+//   {
+//     OO.log("Omniture Video Plugin: Track Buffer Complete at playhead: " + delegate.getVideoInfo().playhead);
+//   };
+//
+//   this.trackAdStart = function()
+//   {
+//     var adBreakInfo = delegate.getAdBreakInfo();
+//     var adInfo = delegate.getAdInfo();
+//     OO.log("Omniture Video Plugin: Track Ad Start at playhead: " + adBreakInfo.startTime + " with ad: " + adInfo.id +
+//       " with duration: " + adInfo.length + " and pod position: " + adInfo.position);
+//   };
+//   this.trackAdComplete = function()
+//   {
+//     var adBreakInfo = delegate.getAdBreakInfo();
+//     OO.log("Omniture Video Plugin: Track Ad Complete at playhead: " + adBreakInfo.startTime);
+//   };
+//
+//   //this.trackChapterStart = function(){};
+//   //this.trackChapterComplete = function(){};
+//   //
+//   //this.trackBitrateChange = function(){};
+//   //
+//   //this.trackVideoPlayerError = function(){};
+//   //this.trackApplicationError = function(){};
+// };
 
 //Add the template to the global list of factories for all new instances of the framework
 //and register the template with all current instance of the framework.

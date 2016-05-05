@@ -174,4 +174,89 @@ if (!OO.Analytics.Utils)
       return validPlugin;
     },this);
   };
+
+  Utils.simulatePlayerLoad = function(plugin, metadata)
+  {
+    //TODO: Validate metadata
+    if (plugin && metadata)
+    {
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
+        embedCode: metadata.embedCode
+      }]);
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
+        title: metadata.title,
+        duration: metadata.duration
+      }]);
+    }
+  };
+
+  Utils.simulateContentPlayback = function(plugin)
+  {
+    if (plugin)
+    {
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    }
+  };
+
+  Utils.simulateVideoProgress = function(plugin, metadata)
+  {
+    //TODO: Validate metadata
+    if (plugin && metadata)
+    {
+      var playheads = metadata.playheads;
+      _.each(playheads, function(playhead) {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
+          streamPosition : playhead
+        }]);
+      });
+    }
+  };
+
+  Utils.simulateContentComplete = function(plugin, metadata)
+  {
+    //TODO: Validate metadata
+    if (plugin && metadata)
+    {
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
+        streamPosition : metadata.streamPosition
+      }]);
+      plugin.processEvent(OO.Analytics.EVENTS.CONTENT_COMPLETED);
+    }
+  };
+
+  Utils.simulateAdBreakStarted = function(plugin)
+  {
+    if (plugin)
+    {
+      plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    }
+  };
+
+  Utils.simulateAdPlayback = function(plugin, metadata)
+  {
+    //TODO: Validate metadata
+    if (plugin && metadata)
+    {
+      plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+        adId: metadata.adId,
+        adDuration: metadata.adDuration
+      }]);
+    }
+  };
+
+  Utils.simulateAdComplete = function(plugin)
+  {
+    if (plugin)
+    {
+      plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
+    }
+  };
+
+  Utils.simulateAdBreakEnded = function(plugin)
+  {
+    if (plugin)
+    {
+      plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+    }
+  };
 }
