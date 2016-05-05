@@ -135,7 +135,7 @@ if (!OO.Analytics.Utils)
       plugin.processEvent = function(msgName, params)
       {
         this.msgReceivedList.push(msgName);
-      }
+      };
 
       if (!OO.Analytics.Framework.TEST)
       {
@@ -175,88 +175,104 @@ if (!OO.Analytics.Utils)
     },this);
   };
 
-  Utils.simulatePlayerLoad = function(plugin, metadata)
+  Utils.createPlaybackSimulator = function(plugin)
   {
-    //TODO: Validate metadata
-    if (plugin && metadata)
-    {
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
-        embedCode: metadata.embedCode
-      }]);
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
-        title: metadata.title,
-        duration: metadata.duration
-      }]);
-    }
-  };
-
-  Utils.simulateContentPlayback = function(plugin)
-  {
-    if (plugin)
-    {
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
-    }
-  };
-
-  Utils.simulateVideoProgress = function(plugin, metadata)
-  {
-    //TODO: Validate metadata
-    if (plugin && metadata)
-    {
-      var playheads = metadata.playheads;
-      _.each(playheads, function(playhead) {
-        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-          streamPosition : playhead
-        }]);
-      });
-    }
-  };
-
-  Utils.simulateContentComplete = function(plugin, metadata)
-  {
-    //TODO: Validate metadata
-    if (plugin && metadata)
-    {
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-        streamPosition : metadata.streamPosition
-      }]);
-      plugin.processEvent(OO.Analytics.EVENTS.CONTENT_COMPLETED);
-    }
-  };
-
-  Utils.simulateAdBreakStarted = function(plugin)
-  {
-    if (plugin)
-    {
-      plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
-    }
-  };
-
-  Utils.simulateAdPlayback = function(plugin, metadata)
-  {
-    //TODO: Validate metadata
-    if (plugin && metadata)
-    {
-      plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
-        adId: metadata.adId,
-        adDuration: metadata.adDuration
-      }]);
-    }
-  };
-
-  Utils.simulateAdComplete = function(plugin)
-  {
-    if (plugin)
-    {
-      plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
-    }
-  };
-
-  Utils.simulateAdBreakEnded = function(plugin)
-  {
-    if (plugin)
-    {
-      plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
-    }
+    return {
+      simulatePlayerLoad : function(metadata)
+      {
+        //TODO: Validate metadata
+        if (metadata)
+        {
+          plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
+            embedCode: metadata.embedCode
+          }]);
+          plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
+            title: metadata.title,
+            duration: metadata.duration
+          }]);
+        }
+      },
+      simulatePlayerStart : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED);
+      },
+      simulateContentPlayback : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+      },
+      simulateVideoPause : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
+      },
+      simulateVideoBufferingStarted : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED);
+      },
+      simulateVideoBufferingEnded : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED);
+      },
+      simulateVideoProgress : function(metadata)
+      {
+        //TODO: Validate metadata
+        if (metadata)
+        {
+          var playheads = metadata.playheads;
+          _.each(playheads, function(playhead) {
+            plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
+              streamPosition : playhead
+            }]);
+          });
+        }
+      },
+      simulateVideoSeek : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED);
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED);
+      },
+      simulateContentComplete : function(metadata)
+      {
+        //TODO: Validate metadata
+        if (metadata)
+        {
+          plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
+            streamPosition : metadata.streamPosition
+          }]);
+          plugin.processEvent(OO.Analytics.EVENTS.CONTENT_COMPLETED);
+        }
+      },
+      simulatePlaybackComplete : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_COMPLETED);
+      },
+      simulateAdBreakStarted : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+      },
+      simulateAdPlayback : function(metadata)
+      {
+        //TODO: Validate metadata
+        if (metadata)
+        {
+          plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+            adId: metadata.adId,
+            adDuration: metadata.adDuration,
+            adPodPosition: metadata.adPodPosition
+          }]);
+        }
+      },
+      simulateAdComplete : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
+      },
+      simulateAdBreakEnded : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+      },
+      simulateReplay : function()
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED);
+      }
+    };
   };
 }
