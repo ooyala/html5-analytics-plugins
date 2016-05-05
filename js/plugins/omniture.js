@@ -1,4 +1,10 @@
 require("../framework/InitAnalyticsNamespace.js");
+// require("./omniture/AppMeasurement.js");
+// require("./omniture/VideoHeartbeat.min.js");
+// require("./omniture/VisitorAPI.js");
+require("./omniture/sample.adobe.analytics.plugin.delegate");
+require("./omniture/sample.adobe.heartbeat.plugin.delegate");
+require("./omniture/sample.heartbeat.delegate");
 
 /**
  * @class OmnitureAnalyticsPlugin
@@ -15,7 +21,7 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var playerDelegate = new OoyalaPlayerDelegate();
   //TODO: Remove this when integrating with Omniture SDK
-  var vpPlugin = new FakeVideoPlugin(playerDelegate);
+  var vpPlugin = null;//new FakeVideoPlugin(playerDelegate);
   //TODO: Find out how to expose the vpPlugin for unit tests
   this.omnitureVideoPlayerPlugin = vpPlugin;
 
@@ -86,6 +92,50 @@ var OmnitureAnalyticsPlugin = function (framework)
           this.processEvent(recordedEvent.eventName, recordedEvent.params);
         }, this));
     }
+
+    // Set-up the Visitor and AppMeasurement instances.
+    var visitor = new Visitor("2A5D3BC75244638C0A490D4D@AdobeOrg");
+    visitor.trackingServer = "ovppartners.sc.omtrdc.net";
+
+    // Set-up the AppMeasurement component.
+    var appMeasurement = new AppMeasurement();
+    appMeasurement.visitor = visitor;
+    appMeasurement.trackingServer = "ovppartners.sc.omtrdc.net";
+    appMeasurement.account = "ovppooyala";
+    appMeasurement.pageName = "Test Page Name";
+    appMeasurement.charSet = "UTF-8";
+    appMeasurement.visitorID = "test-vid";
+
+    // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
+    vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
+    var playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
+    playerPluginConfig.debugLogging = true; // set this to false for production apps.
+    vpPlugin.configure(playerPluginConfig);
+
+    // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
+    this._aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new SampleAdobeAnalyticsPluginDelegate());
+    var aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
+    aaPluginConfig.channel = "Test Heartbeat Channel"; //optional
+    aaPluginConfig.debugLogging = true; // set this to false for production apps.
+    this._aaPlugin.configure(aaPluginConfig);
+
+    // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
+    var ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new SampleAdobeHeartbeatPluginDelegate());
+    var ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
+      "ovppartners.hb.omtrdc.net",
+      "ooyalatester");
+    ahPluginConfig.ovp = "Ooyala";
+    ahPluginConfig.sdk = "4.3.3";
+    ahPluginConfig.debugLogging = true; // set this to false for production apps.
+    ahPlugin.configure(ahPluginConfig);
+
+    var plugins = [vpPlugin, this._aaPlugin, ahPlugin];
+
+    // Setup and configure the Heartbeat lib.
+    this._heartbeat = new ADB.va.Heartbeat(new SampleHeartbeatDelegate(), plugins);
+    var configData = new ADB.va.HeartbeatConfig();
+    configData.debugLogging = true; // set this to false for production apps.
+    this._heartbeat.configure(configData);
   };
 
   /**
@@ -114,7 +164,9 @@ var OmnitureAnalyticsPlugin = function (framework)
       //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
       //  break;
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
+        vpPlugin.trackVideoLoad();
         trackSessionStart();
+        // trackPlay();
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackComplete();
@@ -227,7 +279,7 @@ var OmnitureAnalyticsPlugin = function (framework)
     if (!videoPlaying)
     {
       videoPlaying = true;
-      vpPlugin.trackVideoLoad();
+      // vpPlugin.trackVideoLoad();
       vpPlugin.trackPlay();
     }
     else
@@ -353,7 +405,7 @@ var OoyalaPlayerDelegate = function()
     //TODO: StreamType and update unit test
     //The type of the video asset, one of the following: AssetType.ASSET_TYPE_LIVE,
     //AssetType.ASSET_TYPE_LINEAR, AssetType.ASSET_TYPE_VOD
-    //videoInfo.streamType = AssetType.ASSET_TYPE_VOD;
+    videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
     videoInfo.playerName = playerName;
     videoInfo.playhead = streamPlayhead;
     return videoInfo;
@@ -382,15 +434,15 @@ var OoyalaPlayerDelegate = function()
     return adInfo;
   };
 
-  //this.getChapterInfo = function()
-  //{
-  //  return null;
-  //};
-  //
-  //this.getQoSInfo = function()
-  //{
-  //  return null;
-  //};
+  this.getChapterInfo = function()
+  {
+   return null;
+  };
+
+  this.getQoSInfo = function()
+  {
+   return null;
+  };
 };
 
 //TODO: Remove this when integrating with Omniture SDK, can be used for unit testing
