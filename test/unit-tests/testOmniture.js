@@ -43,6 +43,27 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   {
     var plugin = new factory(framework);
     plugin.init();
+    plugin.setMetadata(
+      {
+        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+        "reportSuiteId":"ovppooyala",
+        "pageName":"Test Page Name",
+        "visitorId":"test-vid",
+        "debug":true,
+        "channel":"Test Heartbeat Channel",//optional
+        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "publisherId":"ooyalatester",
+        "props":{
+          "prop1":"espn",
+          "prop25":"football"
+        },
+        "eVars":{
+          "eVar9":"en"
+        }
+      }
+    );
     return plugin;
   };
 
@@ -146,13 +167,13 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     framework.registerPlugin(newFactoryWithFunctionTracing);
     var metadata =
     {
-      "Omniture":
+      "omniture":
       {
         "data": "mydata"
       }
     };
     framework.setPluginMetadata(metadata);
-    expect(metadataReceived).toEqual(metadata["Omniture"]);
+    expect(metadataReceived).toEqual(metadata["omniture"]);
     framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PAUSED, [metadata]);
     expect(eventProcessed).toEqual(OO.Analytics.EVENTS.VIDEO_PAUSED);
     expect(paramsReceived).toEqual([metadata]);
@@ -228,7 +249,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode : "abcde",
       title : "testTitle",
-      duration : 20
+      duration : 20000
     });
     simulator.simulateVideoProgress({
       playheads: [10]
@@ -446,6 +467,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     {
       called++;
     };
+    simulator.simulateContentPlayback();
     simulator.simulateVideoBufferingStarted();
     expect(called).toBe(1);
   });
@@ -581,7 +603,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode : "abcde",
       title : "testTitle",
-      duration : 20
+      duration : 20000
     });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.name).toBe("testTitle");
@@ -616,7 +638,8 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
     //main content
     simulator.simulateVideoBufferingStarted();
-    expect(bufferStartCalled).toBe(1);
+    //we do not want to report buffering until we report content start
+    expect(bufferStartCalled).toBe(0);
 
     simulator.simulateVideoBufferingEnded();
     expect(bufferCompleteCalled).toBe(1);
@@ -624,6 +647,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateContentPlayback();
     expect(videoLoadCalled).toBe(1);
     expect(playCalled).toBe(1);
+    expect(bufferStartCalled).toBe(1);
 
     simulator.simulateVideoPause();
     expect(pauseCalled).toBe(1);
@@ -649,7 +673,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(2);
     expect(adBreakInfo.startTime).toBe(10);
 
     simulator.simulateAdPlayback({
@@ -697,7 +721,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(3);
     expect(adBreakInfo.startTime).toBe(60);
 
     simulator.simulateAdPlayback({
@@ -743,7 +767,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode : "abcde",
       title : "testTitle",
-      duration : 20
+      duration : 20000
     });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.name).toBe("testTitle");
@@ -799,7 +823,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(2);
     expect(adBreakInfo.startTime).toBe(10);
 
     simulator.simulateAdPlayback({
@@ -841,7 +865,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(3);
     expect(adBreakInfo.startTime).toBe(60);
 
     simulator.simulateAdPlayback({

@@ -14,7 +14,7 @@ require("./omniture/sample.heartbeat.delegate");
 var OmnitureAnalyticsPlugin = function (framework)
 {
   var _framework = framework;
-  var name = "Omniture";
+  var name = "omniture";
   var version = "v1";
   var id;
   var _active = true;
@@ -26,6 +26,8 @@ var OmnitureAnalyticsPlugin = function (framework)
   var currentPlayhead = 0;
   var videoPlaying = false;
   var inAdBreak = false;
+
+  var queueBufferStart = false;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -90,52 +92,6 @@ var OmnitureAnalyticsPlugin = function (framework)
           this.processEvent(recordedEvent.eventName, recordedEvent.params);
         }, this));
     }
-
-    // Set-up the Visitor and AppMeasurement instances.
-    var visitor = new Visitor("2A5D3BC75244638C0A490D4D@AdobeOrg");
-    visitor.trackingServer = "ovppartners.sc.omtrdc.net";
-
-    // Set-up the AppMeasurement component.
-    var appMeasurement = new AppMeasurement();
-    appMeasurement.visitor = visitor;
-    appMeasurement.trackingServer = "ovppartners.sc.omtrdc.net";
-    appMeasurement.account = "ovppooyala";
-    appMeasurement.pageName = "Test Page Name";
-    appMeasurement.charSet = "UTF-8";
-    appMeasurement.visitorID = "test-vid";
-
-    // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
-    vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
-    //TODO: Find out how to expose the vpPlugin for unit tests
-    this.omnitureVideoPlayerPlugin = vpPlugin;
-    var playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
-    playerPluginConfig.debugLogging = true; // set this to false for production apps.
-    vpPlugin.configure(playerPluginConfig);
-
-    // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
-    this._aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new SampleAdobeAnalyticsPluginDelegate());
-    var aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
-    aaPluginConfig.channel = "Test Heartbeat Channel"; //optional
-    aaPluginConfig.debugLogging = true; // set this to false for production apps.
-    this._aaPlugin.configure(aaPluginConfig);
-
-    // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
-    var ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new SampleAdobeHeartbeatPluginDelegate());
-    var ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
-      "ovppartners.hb.omtrdc.net",
-      "ooyalatester");
-    ahPluginConfig.ovp = "Ooyala";
-    ahPluginConfig.sdk = "4.3.3";
-    ahPluginConfig.debugLogging = true; // set this to false for production apps.
-    ahPlugin.configure(ahPluginConfig);
-
-    var plugins = [vpPlugin, this._aaPlugin, ahPlugin];
-
-    // Setup and configure the Heartbeat lib.
-    this._heartbeat = new ADB.va.Heartbeat(new SampleHeartbeatDelegate(), plugins);
-    var configData = new ADB.va.HeartbeatConfig();
-    configData.debugLogging = true; // set this to false for production apps.
-    this._heartbeat.configure(configData);
   };
 
   /**
@@ -147,6 +103,79 @@ var OmnitureAnalyticsPlugin = function (framework)
   this.setMetadata = function(metadata)
   {
     OO.log( "Omniture: PluginID \'" + id + "\' received this metadata:", metadata);
+    // Set-up the Visitor and AppMeasurement instances.
+    //TODO: Validate metadata
+    if (metadata)
+    {
+      var visitor = new Visitor(metadata.marketingCloudOrgId);
+      visitor.trackingServer = metadata.visitorTrackingServer;
+
+      // Set-up the AppMeasurement component.
+      var appMeasurement = new AppMeasurement();
+      appMeasurement.visitor = visitor;
+      appMeasurement.trackingServer = metadata.appMeasurementTrackingServer;
+      appMeasurement.account = metadata.reportSuiteId;
+      appMeasurement.pageName = metadata.pageName;
+      appMeasurement.charSet = "UTF-8";
+      appMeasurement.visitorID = metadata.visitorId;
+
+      //test
+      //add in props
+      if (!_.isEmpty(metadata.props))
+      {
+        for (var propKey in metadata.props)
+        {
+          var value = metadata.props[propKey];
+          //TODO: Validate keys (are of form prop#)
+          appMeasurement[propKey] = value;
+        }
+      }
+
+      //add in eVars
+      if (!_.isEmpty(metadata.eVars))
+      {
+        for (var eVarKey in metadata.eVars)
+        {
+          var value = metadata.eVars[eVarKey];
+          //TODO: Validate keys (are of form eVar#)
+          appMeasurement[eVarKey] = value;
+        }
+      }
+
+      // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
+      vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
+      //TODO: Find out how to expose the vpPlugin for unit tests
+      this.omnitureVideoPlayerPlugin = vpPlugin;
+      var playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
+      playerPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      vpPlugin.configure(playerPluginConfig);
+
+      // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
+      this._aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new SampleAdobeAnalyticsPluginDelegate());
+      var aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
+      aaPluginConfig.channel = metadata.channel; //optional
+      aaPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      this._aaPlugin.configure(aaPluginConfig);
+
+      // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
+      var ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new SampleAdobeHeartbeatPluginDelegate());
+      var ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
+        metadata.heartbeatTrackingServer,
+        metadata.publisherId);
+      ahPluginConfig.ovp = "Ooyala";
+      //TODO: Get Player version
+      ahPluginConfig.sdk = "4.3.3";
+      ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      ahPlugin.configure(ahPluginConfig);
+
+      var plugins = [vpPlugin, this._aaPlugin, ahPlugin];
+
+      // Setup and configure the Heartbeat lib.
+      this._heartbeat = new ADB.va.Heartbeat(new SampleHeartbeatDelegate(), plugins);
+      var configData = new ADB.va.HeartbeatConfig();
+      configData.debugLogging = metadata.debug; // set this to false for production apps.
+      this._heartbeat.configure(configData);
+    }
   };
 
   /**
@@ -164,7 +193,8 @@ var OmnitureAnalyticsPlugin = function (framework)
       //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
       //  break;
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        vpPlugin.trackVideoLoad();
+        // trackSessionStart();
+        trackVideoLoad();
         trackSessionStart();
         // trackPlay();
         break;
@@ -211,10 +241,24 @@ var OmnitureAnalyticsPlugin = function (framework)
       //case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
       //  break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
-        trackBufferStart();
+        //TODO: Buffer before play start
+        if (!inAdBreak)
+        {
+          if (videoPlaying)
+          {
+            trackBufferStart();
+          }
+          else
+          {
+            queueBufferStart = true;
+          }
+        }
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-        trackBufferEnd();
+        if (!inAdBreak)
+        {
+          trackBufferEnd();
+        }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
@@ -239,6 +283,10 @@ var OmnitureAnalyticsPlugin = function (framework)
           playerDelegate.onAdPlayback(params[0]);
         }
         trackAdStart();
+        // if(!videoPlaying)
+        // {
+        //   trackPlay();
+        // }
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
         trackAdEnd();
@@ -255,6 +303,7 @@ var OmnitureAnalyticsPlugin = function (framework)
     videoPlaying = false;
     currentPlayhead = 0;
     inAdBreak = false;
+    playerDelegate.onReplay();
   };
 
   /**
@@ -269,6 +318,11 @@ var OmnitureAnalyticsPlugin = function (framework)
   };
 
   //Main Content
+  var trackVideoLoad = function(e)
+  {
+    vpPlugin.trackVideoLoad();
+  };
+
   var trackSessionStart = function(e)
   {
     vpPlugin.trackSessionStart();
@@ -281,6 +335,12 @@ var OmnitureAnalyticsPlugin = function (framework)
       videoPlaying = true;
       // vpPlugin.trackVideoLoad();
       vpPlugin.trackPlay();
+
+      if(queueBufferStart)
+      {
+        queueBufferStart = false;
+        trackBufferStart();
+      }
     }
     else
     {
@@ -355,10 +415,12 @@ var OoyalaPlayerDelegate = function()
   var adPosition = 1;
   var adName = null;
 
+  var adBreakPosition = 0;
+
   this.initializeContent = function(metadata)
   {
     name = metadata.title;
-    length = metadata.duration;
+    length = Math.round(metadata.duration/1000);
   };
   
   this.onEmbedCodeChanged = function(embedCode)
@@ -373,7 +435,7 @@ var OoyalaPlayerDelegate = function()
 
   this.onAdBreak = function()
   {
-    adBreakPosition = 1;
+    adBreakPosition++;
   };
 
   this.onAdPlayback = function(metadata)
@@ -382,7 +444,7 @@ var OoyalaPlayerDelegate = function()
     adLength = metadata.adDuration;
     adPosition = metadata.adPodPosition;
     //TODO: Maybe add ad name (optional)
-    //adName = metadata.name;
+    adName = metadata.adId;
   };
 
   this.onReplay = function()
@@ -392,6 +454,7 @@ var OoyalaPlayerDelegate = function()
     adLength = -1;
     adPosition = 1;
     adName = null;
+    adBreakPosition = 0;
   };
 
   //Omniture required functions below
@@ -430,17 +493,19 @@ var OoyalaPlayerDelegate = function()
     adInfo.length = adLength;
     adInfo.position = adPosition;
     //TODO: Maybe add ad name (optional)
-    //adInfo.name = adName;
+    adInfo.name = adName;
     return adInfo;
   };
 
   this.getChapterInfo = function()
   {
+    //TODO: Chapter info if/when available
    return null;
   };
 
   this.getQoSInfo = function()
   {
+    //TODO: QOS info if/when available
    return null;
   };
 };
