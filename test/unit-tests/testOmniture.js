@@ -626,6 +626,9 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
       adDuration : 15,
       adPodPosition : 1
     });
+    //the preroll adds another trackPlay call
+    expect(playCalled).toBe(1);
+
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("preroll");
     expect(adInfo.length).toBe(15);
@@ -646,7 +649,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
     simulator.simulateContentPlayback();
     expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(1);
+    expect(playCalled).toBe(2);
     expect(bufferStartCalled).toBe(1);
 
     simulator.simulateVideoPause();
@@ -654,7 +657,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
     simulator.simulateContentPlayback();
     expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(2);
+    expect(playCalled).toBe(3);
 
     simulator.simulateVideoSeek();
     expect(seekStartCalled).toBe(1);
@@ -708,7 +711,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     //main content resumes
     simulator.simulateContentPlayback();
     expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(3);
+    expect(playCalled).toBe(4);
 
     //TODO: Should completed message go before postroll?
     //postroll

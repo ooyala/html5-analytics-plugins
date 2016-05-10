@@ -80,6 +80,7 @@ ADB = {
     Heartbeat: function()
     {
       this.configure = function(){};
+      this.destroy = function(){};
     },
     HeartbeatConfig: function(){},
     HeartbeatDelegate: function(){}

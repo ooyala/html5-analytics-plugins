@@ -202,6 +202,7 @@ if (!OO.Analytics.Utils)
       },
       simulateVideoPause : function()
       {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED);
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
       },
       simulateVideoBufferingStarted : function()

@@ -22,11 +22,15 @@ var OmnitureAnalyticsPlugin = function (framework)
   var playerDelegate = new OoyalaPlayerDelegate();
   //TODO: Remove this when integrating with Omniture SDK
   var vpPlugin = null;//new FakeVideoPlugin(playerDelegate);
+  var aaPlugin = null;
+  var heartbeat = null;
 
   var currentPlayhead = 0;
-  var videoPlaying = false;
+  var mainContentStarted = false;
   var inAdBreak = false;
 
+  var trackedPlayForPreroll = false;
+  var pauseRequested = false;
   var queueBufferStart = false;
 
   /**
@@ -119,7 +123,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       appMeasurement.charSet = "UTF-8";
       appMeasurement.visitorID = metadata.visitorId;
 
-      //test
+      //TODO: Get props and evar from backdoor/backlot settings as well
       //add in props
       if (!_.isEmpty(metadata.props))
       {
@@ -151,11 +155,11 @@ var OmnitureAnalyticsPlugin = function (framework)
       vpPlugin.configure(playerPluginConfig);
 
       // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
-      this._aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new SampleAdobeAnalyticsPluginDelegate());
+      aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new SampleAdobeAnalyticsPluginDelegate());
       var aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
       aaPluginConfig.channel = metadata.channel; //optional
       aaPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
-      this._aaPlugin.configure(aaPluginConfig);
+      aaPlugin.configure(aaPluginConfig);
 
       // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
       var ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new SampleAdobeHeartbeatPluginDelegate());
@@ -168,13 +172,13 @@ var OmnitureAnalyticsPlugin = function (framework)
       ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
       ahPlugin.configure(ahPluginConfig);
 
-      var plugins = [vpPlugin, this._aaPlugin, ahPlugin];
+      var plugins = [vpPlugin, aaPlugin, ahPlugin];
 
       // Setup and configure the Heartbeat lib.
-      this._heartbeat = new ADB.va.Heartbeat(new SampleHeartbeatDelegate(), plugins);
+      heartbeat = new ADB.va.Heartbeat(new SampleHeartbeatDelegate(), plugins);
       var configData = new ADB.va.HeartbeatConfig();
       configData.debugLogging = metadata.debug; // set this to false for production apps.
-      this._heartbeat.configure(configData);
+      heartbeat.configure(configData);
     }
   };
 
@@ -193,25 +197,28 @@ var OmnitureAnalyticsPlugin = function (framework)
       //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
       //  break;
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        // trackSessionStart();
         trackVideoLoad();
         trackSessionStart();
-        // trackPlay();
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackComplete();
         break;
       //case OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED:
       //  break;
-      //case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
-      //  break;
+      case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
+        pauseRequested = true;
+       break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         trackPlay();
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        //TODO: According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
+        //According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
         //we should not be tracking pauses when switching from main content to an ad
-        trackPause();
+        if (pauseRequested)
+        {
+          pauseRequested = false;
+          trackPause();
+        }
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
@@ -244,7 +251,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         //TODO: Buffer before play start
         if (!inAdBreak)
         {
-          if (videoPlaying)
+          if (mainContentStarted)
           {
             trackBufferStart();
           }
@@ -283,16 +290,20 @@ var OmnitureAnalyticsPlugin = function (framework)
           playerDelegate.onAdPlayback(params[0]);
         }
         trackAdStart();
-        // if(!videoPlaying)
-        // {
-        //   trackPlay();
-        // }
+        if(!mainContentStarted && !trackedPlayForPreroll)
+        {
+          trackedPlayForPreroll = true;
+          //We need a special track play here for ads if main content has not started.
+          //Don't call the trackPlay() function of this plugin because that one
+          //is for the main content
+          vpPlugin.trackPlay();
+        }
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
         trackAdEnd();
         break;
-      //case OO.Analytics.EVENTS.DESTROY:
-      //  break;
+      // case OO.Analytics.EVENTS.DESTROY:
+      //   break;
       default:
         break;
     }
@@ -300,7 +311,9 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var resetPlaybackState = function ()
   {
-    videoPlaying = false;
+    mainContentStarted = false;
+    trackedPlayForPreroll = false;
+    pauseRequested = false;
     currentPlayhead = 0;
     inAdBreak = false;
     playerDelegate.onReplay();
@@ -314,6 +327,11 @@ var OmnitureAnalyticsPlugin = function (framework)
   this.destroy = function ()
   {
     _framework = null;
+    if (heartbeat)
+    {
+      heartbeat.destroy();
+      heartbeat = null;
+    }
     resetPlaybackState();
   };
 
@@ -330,10 +348,9 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var trackPlay = function()
   {
-    if (!videoPlaying)
+    if (!mainContentStarted)
     {
-      videoPlaying = true;
-      // vpPlugin.trackVideoLoad();
+      mainContentStarted = true;
       vpPlugin.trackPlay();
 
       if(queueBufferStart)
@@ -365,7 +382,7 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var trackComplete = function()
   {
-    videoPlaying = false;
+    mainContentStarted = false;
     vpPlugin.trackComplete();
     vpPlugin.trackVideoUnload();
   };
