@@ -385,20 +385,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     {
       called++;
     };
-    simulator.simulateVideoSeek();
-    expect(called).toBe(1);
-  });
-
-  it('Omniture Video Plugin can trackSeekStart', function()
-  {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = createPlugin(omniturePluginFactory);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSeekStart = function()
-    {
-      called++;
-    };
+    simulator.simulateContentPlayback();
     simulator.simulateVideoSeek();
     expect(called).toBe(1);
   });
@@ -413,6 +400,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     {
       called++;
     };
+    simulator.simulateContentPlayback();
     simulator.simulateVideoSeek();
     simulator.simulateVideoProgress({
       playheads: [10]
@@ -482,6 +470,8 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     {
       called++;
     };
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoBufferingStarted();
     simulator.simulateVideoBufferingEnded();
     expect(called).toBe(1);
   });
@@ -597,6 +587,24 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
       videoUnloadCalled++;
     };
 
+    var clearCounts = function()
+    {
+      videoUnloadCalled = 0;
+      completeCalled = 0;
+      seekCompleteCalled = 0;
+      seekStartCalled = 0;
+      pauseCalled = 0;
+      playCalled = 0;
+      bufferCompleteCalled = 0;
+      bufferStartCalled = 0;
+      sessionStartCalled = 0;
+      videoLoadCalled = 0;
+      adCompleteCalled = 0;
+      adStartCalled = 0;
+    };
+
+    simulator.addPreSimulateCallback(clearCounts);
+
     var videoInfo, adBreakInfo, adInfo;
 
     //initialization
@@ -612,6 +620,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
     //user clicks play
     simulator.simulatePlayerStart();
+    expect(videoLoadCalled).toBe(1);
     expect(sessionStartCalled).toBe(1);
 
     //preroll
@@ -644,20 +653,18 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     //we do not want to report buffering until we report content start
     expect(bufferStartCalled).toBe(0);
 
+    simulator.simulateContentPlayback();
+    expect(playCalled).toBe(1);
+    expect(bufferStartCalled).toBe(1);
+
     simulator.simulateVideoBufferingEnded();
     expect(bufferCompleteCalled).toBe(1);
-
-    simulator.simulateContentPlayback();
-    expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(2);
-    expect(bufferStartCalled).toBe(1);
 
     simulator.simulateVideoPause();
     expect(pauseCalled).toBe(1);
 
     simulator.simulateContentPlayback();
-    expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(3);
+    expect(playCalled).toBe(1);
 
     simulator.simulateVideoSeek();
     expect(seekStartCalled).toBe(1);
@@ -688,10 +695,10 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.id).toBe("midroll");
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
-    expect(adStartCalled).toBe(2);
+    expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete();
-    expect(adCompleteCalled).toBe(2);
+    expect(adCompleteCalled).toBe(1);
 
     simulator.simulateAdPlayback({
       adId : "midroll2",
@@ -702,16 +709,15 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.id).toBe("midroll2");
     expect(adInfo.length).toBe(5);
     expect(adInfo.position).toBe(2);
-    expect(adStartCalled).toBe(3);
+    expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete();
-    expect(adCompleteCalled).toBe(3);
+    expect(adCompleteCalled).toBe(1);
     simulator.simulateAdBreakEnded();
 
     //main content resumes
     simulator.simulateContentPlayback();
-    expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(4);
+    expect(playCalled).toBe(1);
 
     //TODO: Should completed message go before postroll?
     //postroll
@@ -736,10 +742,10 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.id).toBe("postroll");
     expect(adInfo.length).toBe(30);
     expect(adInfo.position).toBe(1);
-    expect(adStartCalled).toBe(4);
+    expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete();
-    expect(adCompleteCalled).toBe(4);
+    expect(adCompleteCalled).toBe(1);
     simulator.simulateAdBreakEnded();
 
     //main video ends
@@ -754,6 +760,9 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateReplay();
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(0);
+
+    expect(videoLoadCalled).toBe(1);
+    expect(sessionStartCalled).toBe(1);
   });
 
   //TODO: This only tests for function coverage of the Fake Video Plugin

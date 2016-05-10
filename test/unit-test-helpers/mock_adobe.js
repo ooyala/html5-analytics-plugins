@@ -58,6 +58,26 @@ ADB = {
         },
         AssetType: {
           
+        },
+        VideoInfo: function()
+        {
+
+        },
+        AdBreakInfo: function()
+        {
+
+        },
+        AdInfo: function()
+        {
+
+        },
+        ChapterInfo: function()
+        {
+
+        },
+        QoSInfo: function()
+        {
+
         }
       },
       aa: {

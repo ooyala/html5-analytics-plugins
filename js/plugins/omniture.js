@@ -20,18 +20,18 @@ var OmnitureAnalyticsPlugin = function (framework)
   var _active = true;
 
   var playerDelegate = new OoyalaPlayerDelegate();
-  //TODO: Remove this when integrating with Omniture SDK
-  var vpPlugin = null;//new FakeVideoPlugin(playerDelegate);
+  var vpPlugin = null;
   var aaPlugin = null;
   var heartbeat = null;
 
   var currentPlayhead = 0;
   var mainContentStarted = false;
   var inAdBreak = false;
-
   var trackedPlayForPreroll = false;
   var pauseRequested = false;
   var queueBufferStart = false;
+  var seekStarted = false;
+  var bufferStarted = false;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -109,7 +109,7 @@ var OmnitureAnalyticsPlugin = function (framework)
     OO.log( "Omniture: PluginID \'" + id + "\' received this metadata:", metadata);
     // Set-up the Visitor and AppMeasurement instances.
     //TODO: Validate metadata
-    if (metadata)
+    if (validateOmnitureMetadata(metadata))
     {
       var visitor = new Visitor(metadata.marketingCloudOrgId);
       visitor.trackingServer = metadata.visitorTrackingServer;
@@ -127,23 +127,21 @@ var OmnitureAnalyticsPlugin = function (framework)
       //add in props
       if (!_.isEmpty(metadata.props))
       {
-        for (var propKey in metadata.props)
+        _.each(metadata.props, function(key)
         {
-          var value = metadata.props[propKey];
           //TODO: Validate keys (are of form prop#)
-          appMeasurement[propKey] = value;
-        }
+          appMeasurement[key] = metadata.props[key];
+        });
       }
 
       //add in eVars
       if (!_.isEmpty(metadata.eVars))
       {
-        for (var eVarKey in metadata.eVars)
+        _.each(metadata.eVars, function(key)
         {
-          var value = metadata.eVars[eVarKey];
           //TODO: Validate keys (are of form eVar#)
-          appMeasurement[eVarKey] = value;
-        }
+          appMeasurement[key] = metadata.eVars[key];
+        });
       }
 
       // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
@@ -183,6 +181,57 @@ var OmnitureAnalyticsPlugin = function (framework)
   };
 
   /**
+   * Omniture metadata needs to include the following:
+   * marketingCloudOrgId, visitorTrackingServer, appMeasurementTrackingServer,
+   * reportSuiteId, pageName, visitorId, channel, heartbeatTrackingServer, and
+   * publisherId
+   *
+   * It can optionally have:
+   * debug, props, eVars
+   * @private
+   * @method OmnitureAnalyticsPlugin#validateOmnitureMetadata
+   * @param  {object} metadata The Omniture metadata to validate
+   * @return true if valid, false otherwise
+   */
+  var validateOmnitureMetadata = function(metadata)
+  {
+    var valid = true;
+    var requiredKeys = ["marketingCloudOrgId", "visitorTrackingServer", "appMeasurementTrackingServer",
+      "reportSuiteId", "pageName", "visitorId", "channel", "heartbeatTrackingServer", "publisherId"];
+
+    var missingKeys = [];
+
+    if (metadata)
+    {
+      _.each(requiredKeys, function(key)
+      {
+        if (!_.has(metadata, key))
+        {
+          missingKeys.push(key);
+          valid = false;
+        }
+      });
+    }
+    else
+    {
+      OO.log("Error: Missing Omniture Metadata!");
+      missingKeys = requiredKeys;
+      valid = false;
+    }
+
+
+    if(!_.isEmpty(missingKeys))
+    {
+      _.each(missingKeys, function(key)
+      {
+        OO.log("Error: Missing Omniture Metadata Key: " + key);
+      });
+    }
+
+    return valid;
+  };
+
+  /**
    * [Required Function] Process an event from the Analytics Framework, with the given parameters.
    * @public
    * @method OmnitureAnalyticsPlugin#processEvent
@@ -197,8 +246,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
       //  break;
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        trackVideoLoad();
-        trackSessionStart();
+        onContentStart();
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackComplete();
@@ -222,7 +270,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
-        playerDelegate.onReplay();
+        onContentStart();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         if (params && params[0] && params[0].embedCode)
@@ -240,15 +288,23 @@ var OmnitureAnalyticsPlugin = function (framework)
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
-        trackSeekStart();
+        //Note that we get a seek requested upon replay before main content playback starts
+        if (mainContentStarted && !inAdBreak)
+        {
+          trackSeekStart();
+        }
         break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-        trackSeekEnd();
+        //Only send seek completed if we sent a seek requested
+        if (mainContentStarted && !inAdBreak && seekStarted)
+        {
+          trackSeekEnd();
+        }
         break;
       //case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
       //  break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
-        //TODO: Buffer before play start
+        //TODO: Ask about Buffer before play start
         if (!inAdBreak)
         {
           if (mainContentStarted)
@@ -262,7 +318,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-        if (!inAdBreak)
+        if (!inAdBreak && bufferStarted)
         {
           trackBufferEnd();
         }
@@ -311,12 +367,15 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var resetPlaybackState = function ()
   {
+    currentPlayhead = 0;
     mainContentStarted = false;
+    inAdBreak = false;
     trackedPlayForPreroll = false;
     pauseRequested = false;
-    currentPlayhead = 0;
-    inAdBreak = false;
-    playerDelegate.onReplay();
+    queueBufferStart = false;
+    seekStarted = false;
+    bufferStarted = false;
+    playerDelegate.resetState();
   };
 
   /**
@@ -333,6 +392,12 @@ var OmnitureAnalyticsPlugin = function (framework)
       heartbeat = null;
     }
     resetPlaybackState();
+  };
+
+  var onContentStart = function()
+  {
+    trackVideoLoad();
+    trackSessionStart();
   };
 
   //Main Content
@@ -372,11 +437,13 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var trackSeekStart = function(e)
   {
+    seekStarted = true;
     vpPlugin.trackSeekStart();
   };
 
   var trackSeekEnd = function(e)
   {
+    seekStarted = false;
     vpPlugin.trackSeekComplete();
   };
 
@@ -389,11 +456,13 @@ var OmnitureAnalyticsPlugin = function (framework)
 
   var trackBufferStart = function(e)
   {
+    bufferStarted = true;
     vpPlugin.trackBufferStart();
   };
 
   var trackBufferEnd = function(e)
   {
+    bufferStarted = false;
     vpPlugin.trackBufferComplete();
   };
 
@@ -464,7 +533,7 @@ var OoyalaPlayerDelegate = function()
     adName = metadata.adId;
   };
 
-  this.onReplay = function()
+  this.resetState = function()
   {
     streamPlayhead = 0;
     adId = null;
@@ -477,8 +546,7 @@ var OoyalaPlayerDelegate = function()
   //Omniture required functions below
   this.getVideoInfo = function()
   {
-    //TODO: Use Omniture VideoInfo object once we can integrate with their SDK
-    var videoInfo = {};
+    var videoInfo = new ADB.va.plugins.videoplayer.VideoInfo();
     videoInfo.id = id;
     videoInfo.name = name;
     videoInfo.length = length;
@@ -493,10 +561,9 @@ var OoyalaPlayerDelegate = function()
 
   this.getAdBreakInfo = function()
   {
-    //TODO: Is there an Omniture AdBreak object?
-    var adBreakInfo = {};
+    var adBreakInfo = new ADB.va.plugins.videoplayer.AdBreakInfo();
     adBreakInfo.playerName = playerName;
-    //TODO: Ad break position?
+    //TODO: Ad break position? How to ensure accuracy if an ad break is skipped via seeking
     adBreakInfo.position = adBreakPosition;
     adBreakInfo.startTime = streamPlayhead;
     return adBreakInfo;
@@ -504,8 +571,7 @@ var OoyalaPlayerDelegate = function()
 
   this.getAdInfo = function()
   {
-    //TODO: Is there an Omniture AdInfo object?
-    var adInfo = {};
+    var adInfo = new ADB.va.plugins.videoplayer.AdInfo();
     adInfo.id = adId;
     adInfo.length = adLength;
     adInfo.position = adPosition;
@@ -526,77 +592,6 @@ var OoyalaPlayerDelegate = function()
    return null;
   };
 };
-
-//TODO: Remove this when integrating with Omniture SDK, can be used for unit testing
-// var FakeVideoPlugin = function(playerDelegate)
-// {
-//   var delegate = playerDelegate;
-//
-//   this.trackVideoLoad = function()
-//   {
-//     var videoInfo = delegate.getVideoInfo();
-//     OO.log("Omniture Video Plugin: Track Video Load of video: " + videoInfo.name + " with id: " + videoInfo.id +
-//       " with duration: " + videoInfo.length + " at playhead: " + videoInfo.playhead + " with player: " + videoInfo.playerName);
-//   };
-//
-//   this.trackVideoUnload = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Video Unload at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackSessionStart = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Session Start at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackPlay = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Play at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackPause = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Pause at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackComplete = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Complete at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackSeekStart = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Seek Start at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackSeekComplete = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Seek Complete at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackBufferStart = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Buffer Start at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//   this.trackBufferComplete = function()
-//   {
-//     OO.log("Omniture Video Plugin: Track Buffer Complete at playhead: " + delegate.getVideoInfo().playhead);
-//   };
-//
-//   this.trackAdStart = function()
-//   {
-//     var adBreakInfo = delegate.getAdBreakInfo();
-//     var adInfo = delegate.getAdInfo();
-//     OO.log("Omniture Video Plugin: Track Ad Start at playhead: " + adBreakInfo.startTime + " with ad: " + adInfo.id +
-//       " with duration: " + adInfo.length + " and pod position: " + adInfo.position);
-//   };
-//   this.trackAdComplete = function()
-//   {
-//     var adBreakInfo = delegate.getAdBreakInfo();
-//     OO.log("Omniture Video Plugin: Track Ad Complete at playhead: " + adBreakInfo.startTime);
-//   };
-//
-//   //this.trackChapterStart = function(){};
-//   //this.trackChapterComplete = function(){};
-//   //
-//   //this.trackBitrateChange = function(){};
-//   //
-//   //this.trackVideoPlayerError = function(){};
-//   //this.trackApplicationError = function(){};
-// };
 
 //Add the template to the global list of factories for all new instances of the framework
 //and register the template with all current instance of the framework.
