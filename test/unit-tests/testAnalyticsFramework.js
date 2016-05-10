@@ -1290,41 +1290,52 @@ describe('Analytics Framework Unit Tests', function()
 
     it('Test FullscreenChangedData', function()
     {
-      var metadata =
+      var metadataIn =
+      {
+        changingToFullscreen:true
+      };
+      var metadataOut =
       {
         changingToFullscreen:true
       };
 
-      var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data).toEqual(metadata);
+      var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataIn);
 
-      metadata.changingToFullscreen = false;
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data).toEqual(metadata);
+      metadataIn.changingToFullscreen = false;
+      metadataOut.changingToFullscreen = false;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataOut);
 
-      metadata.changingToFullscreen = "true";
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data.changingToFullscreen).toEqual(undefined);
+      metadataIn.changingToFullscreen = "true";
+      metadataOut.changingToFullscreen = true;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataOut);
 
-      metadata.changingToFullscreen = "false";
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data.changingToFullscreen).toEqual(undefined);
+      metadataIn.changingToFullscreen = "false";
+      metadataOut.changingToFullscreen = false;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataOut);
 
-      metadata.changingToFullscreen = "banana";
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data.changingToFullscreen).toEqual(undefined);
+      metadataIn.changingToFullscreen = "banana";
+      metadataOut.changingToFullscreen = undefined;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataOut);
 
-      metadata.changingToFullscreen = "";
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data.changingToFullscreen).toEqual(undefined);
+      metadataIn.changingToFullscreen = "";
+      metadataOut.changingToFullscreen = undefined;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataOut);
 
-      metadata.changingToFullscreen = null;
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data.changingToFullscreen).toEqual(undefined);
+      metadataIn.changingToFullscreen = null;
+      metadataOut.changingToFullscreen = undefined;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataOut);
 
-      metadata.changingToFullscreen = 1;
-      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
-      expect(data.changingToFullscreen).toEqual(undefined);
+      metadataIn.changingToFullscreen = 1;
+      metadataOut.changingToFullscreen = undefined;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      expect(data).toEqual(metadataOut);
     });
 
     it('Test VolumeChangedData', function()
@@ -1358,8 +1369,9 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
 
       metadataIn.currentVolume = true;
+      metadataOut.currentVolume = undefined;
       data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
-      expect(data.currentVolume).toEqual(undefined);
+      expect(data).toEqual(metadataOut);
     });
 
     it('Test AdStartedData', function()

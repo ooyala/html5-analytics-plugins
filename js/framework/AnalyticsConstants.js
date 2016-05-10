@@ -326,9 +326,9 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoSourceData = function(embedCode, metadata)
   {
     var checkSourceData = OO._.bind(checkDataType, this, "VideoSourceData");
-    this.embedCode = checkSourceData(embedCode, "embedCode", "string");
-    this.metadata  = checkSourceData(metadata, "metadata", "object");
-  };
+    this.embedCode = checkSourceData(embedCode, "embedCode", ["string"]);
+    this.metadata  = checkSourceData(metadata, "metadata", ["object"]);
+  }
 
   /**
    * @public
@@ -345,13 +345,13 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoContentMetadata = function(title, description, duration, closedCaptions, contentType, hostedAtURL)
   {
     var checkContentData = OO._.bind(checkDataType, this, "VideoContentMetadata");
-    this.title          = checkContentData(title, "title", "string");
-    this.description    = checkContentData(description, "description", "string");
-    this.duration       = checkContentData(duration, "duration", "number");
-    this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", "object");
-    this.contentType    = checkContentData(contentType, "contentType", "string");
-    this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", "string");
-  };
+    this.title          = checkContentData(title, "title", ["string"]);
+    this.description    = checkContentData(description, "description", ["string"]);
+    this.duration       = checkContentData(duration, "duration", ["number"]);
+    this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", ["object"]);
+    this.contentType    = checkContentData(contentType, "contentType", ["string"]);
+    this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", ["string"]);
+  }
 
   /**
    * @public
@@ -366,12 +366,12 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoDownloadingMetadata = function(currentTime, totalStreamDuration, streamBufferedUntilTime, seekableRangeStart, seekableRangeEnd)
   {
     var checkDownloadData = OO._.bind(checkDataType, this, "VideoDownloadingMetadata");
-    this.currentTime             = checkDownloadData(currentTime, "currentTime", "number");
-    this.totalStreamDuration     = checkDownloadData(totalStreamDuration, "totalStreamDuration", "number");
-    this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, "streamBufferedUntilTime", "number");
-    this.seekableRangeStart      = checkDownloadData(seekableRangeStart, "seekableRangeStart", "number");
-    this.seekableRangeEnd        = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", "number");
-  };
+    this.currentTime             = checkDownloadData(currentTime, "currentTime", ["number"]);
+    this.totalStreamDuration     = checkDownloadData(totalStreamDuration, "totalStreamDuration", ["number"]);
+    this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, "streamBufferedUntilTime", ["number"]);
+    this.seekableRangeStart      = checkDownloadData(seekableRangeStart, "seekableRangeStart", ["number"]);
+    this.seekableRangeEnd        = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", ["number"]);
+  }
 
   /**
    * @public
@@ -382,8 +382,8 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoBufferingStartedData = function(streamUrl)
   {
     var checkBufferingStartedData = OO._.bind(checkDataType, this, "VideoBufferingStartedData");
-    this.streamUrl = checkBufferingStartedData(streamUrl, "streamUrl", "string");
-  };
+    this.streamUrl = checkBufferingStartedData(streamUrl, "streamUrl", ["string"]);
+  }
 
   /**
    * @public
@@ -394,8 +394,8 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoBufferingEndedData = function(streamUrl)
   {
     var checkBufferingEndedData = OO._.bind(checkDataType, this, "VideoBufferingEndedData");
-    this.streamUrl = checkBufferingEndedData(streamUrl, "streamUrl", "string");
-  };
+    this.streamUrl = checkBufferingEndedData(streamUrl, "streamUrl", ["string"]);
+  }
 
   /**
    * @public
@@ -406,8 +406,8 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoSeekRequestedData = function(seekingToTime)
   {
     var checkSeekStartedData = OO._.bind(checkDataType, this, "VideoSeekRequestedData");
-    this.seekingToTime = checkSeekStartedData(seekingToTime, "seekingToTime", "number");
-  };
+    this.seekingToTime = checkSeekStartedData(seekingToTime, "seekingToTime", ["number"]);
+  }
 
   /**
    * @public
@@ -419,8 +419,8 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoSeekCompletedData = function(timeSeekedTo)
   {
     var checkSeekEndedData = OO._.bind(checkDataType, this, "VideoSeekCompletedData");
-    this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", "number");
-  };
+    this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", ["number"]);
+  }
 
   EVENT_DATA.AdStartedData = function(adId, adDuration, adPodPosition)
   {
@@ -440,17 +440,9 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration)
   {
     var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
-    this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", "number");
-    this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", "number");
-  };
-
-  EVENT_DATA.AdStartedData = function(adId, adDuration, adPodPosition)
-  {
-    var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
-    this.adId = checkAdStartedData(adId, "adId", "string");
-    this.adDuration = checkAdStartedData(adDuration, "adDuration", "number");
-    this.adPodPosition = checkAdStartedData(adPodPosition, "adPodPosition", "number");
-  };
+    this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", ["number"]);
+    this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", ["number"]);
+  }
 
   /**
    * @public
@@ -461,8 +453,8 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.AdPodStartedData = function(numberOfAds)
   {
     var checkAdPodStartedData = OO._.bind(checkDataType, this, "AdPodStartedData");
-    this.numberOfAds = checkAdPodStartedData(numberOfAds, "numberOfAds", "number");
-  };
+    this.numberOfAds = checkAdPodStartedData(numberOfAds, "numberOfAds", ["number"]);
+  }
 
   /**
    * @public
@@ -473,8 +465,8 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.AdPodEndedData = function(adId)
   {
     var checkAdPodEndedData = OO._.bind(checkDataType, this, "AdPodEndedData");
-    this.adId = checkAdPodEndedData(adId, "adId", "string");
-  };
+    this.adId = checkAdPodEndedData(adId, "adId", ["string"]);
+  }
 
   /**
    * @public
@@ -487,7 +479,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
     this.adType = checkAdStartedData(adType, "adType", "string");
-    this.adMetadata = checkAdStartedData(adMetadata, "adMetadata", "object");
+    this.adMetadata = checkAdStartedData(adMetadata, "adMetadata", ["object"]);
   }
 
   /**
@@ -501,7 +493,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdEndedData = OO._.bind(checkDataType, this, "AdEndedData");
     this.adType = checkAdEndedData(adType, "adType", "string");
-    this.adMetadata = checkAdEndedData(adMetadata, "adMetadata", "object");
+    this.adMetadata = checkAdEndedData(adMetadata, "adMetadata", ["object"]);
   }
 
   /**
@@ -527,8 +519,8 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.FullscreenChangedData = function(changingToFullscreen)
   {
     var checkFullscreenChangedData = OO._.bind(checkDataType, this, "FullscreenChangedData");
-    this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, "changingToFullscreen", "boolean");
-  };
+    this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, "changingToFullscreen", ["boolean"]);
+  }
 
   /**
    * @public
@@ -540,54 +532,76 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VolumeChangedData = function(currentVolume)
   {
     var checkVolumeChangedData = OO._.bind(checkDataType, this, "VolumeChangedData");
-    this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", "number");
-  };
+    this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", ["number"]);
+  }
 
-  var checkDataType = function(className, data, varName, expectedType)
+  var checkDataType = function(className, data, varName, expectedTypes)
   {
-    var error = false;
+    var error = true;
     var toRet = data;
-    switch(expectedType)
+    for (var i = 0; i < expectedTypes.length; i++)
     {
-      case "string":
-        if (!toRet ||!OO._.isString(toRet))
+      var expectedType = expectedTypes[i];
+      if (expectedType === "string")
+      {
+        if (toRet && OO._.isString(toRet))
         {
-            error = true;
+          error = false;
+          break;
         }
-        break;
-      case "object":
-        if (!toRet || !OO._.isObject(toRet))
+      }
+      else if (expectedType === "object")
+      {
+        if (toRet && OO._.isObject(toRet))
         {
-            error = true;
+          error = false;
+          break;
         }
-      break;
-      case "number":
+      }
+      else if (expectedType === "number")
+      {
         // in the case number comes in as a string, try parsing it.
-        if (!OO._.isNumber(toRet))
+        var toRetFloat = parseFloat(toRet);
+        if (OO._.isNumber(toRet))
         {
-          toRet = parseFloat(toRet);
-          if (isNaN(toRet))
-          {
-            error = true;
-          }
+          error = false;
+          break;
         }
-        break;
-      case "boolean":
-        if (!OO._.isBoolean(toRet))
+        else if (!isNaN(toRetFloat))
         {
-          // consider string values "true" and "false" to be valid
-          if (toRet !== "true" || toRet !== "false")
-          {
-            error = true;
-          }
+          toRet = toRetFloat;
+          error = false;
+          break;
         }
-        break;
-      break;
+      }
+      else if (expectedType === "boolean")
+      {
+        if (OO._.isBoolean(toRet))
+        {
+          error = false;
+        }
+        else if (toRet === "true")
+        {
+          toRet = true;
+          error = false;
+          break;
+        }
+        else if (toRet === "false")
+        {
+          toRet = false;
+          error = false;
+          break;
+        }
+      }
     }
 
     if (error)
     {
-      OO.log("ERROR Analytics.EVENT_DATA." + className + " being created with invalid " + varName + ". Should be type \'" + expectedType + "\' but was \'" + typeof(data) + "\'.");
+      OO.log
+      (
+        "ERROR Analytics.EVENT_DATA." + className + " being created with invalid " + varName +
+        ". Should be one of these types [" + expectedTypes + "] but was [" + typeof(data) + "]."
+      );
       return undefined;
     }
 
