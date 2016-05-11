@@ -15,10 +15,11 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   var playerName = "Ooyala V4";
 
-  var GGPM_STOP_EVENT = "stop";
-  var GGPM_END_EVENT = "end";
-  var GGPM_LOAD_METADATA_EVENT = "loadMetadata";
-  var GGPM_SET_PLAYHEAD_POSITION_EVENT = "setPlayheadPosition";
+  var GGPM_STOP_EVENT = 7;//"stop";
+  var GGPM_END_EVENT = 57;//"end";
+  var GGPM_INITIAL_LOAD_METADATA_EVENT = 3;
+  var GGPM_LOAD_METADATA_EVENT = 15;//"loadMetadata";
+  var GGPM_SET_PLAYHEAD_POSITION_EVENT = 49;//"setPlayheadPosition";
   var GGPM_METADATA_TYPE_CONTENT = "content";
 
   //setup for individual tests
@@ -270,7 +271,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
           ggInitialize: function() {
           },
           ggPM: function(event, param) {
-            if (event === GGPM_LOAD_METADATA_EVENT)
+            if (event === GGPM_INITIAL_LOAD_METADATA_EVENT)
             {
               loadMetadataCalled++;
               metadata = param;
@@ -284,7 +285,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
-      duration: 60
+      duration: 60000
     });
     expect(loadMetadataCalled).toBe(1);
     expect(metadata.title).toBe("testTitle");
@@ -294,6 +295,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   it('Nielsen plugin can track loadMetadata event upon playing a preroll ad', function()
   {
+    var initialLoadMetadataCalled = 0;
     var loadMetadataForContentCalled = 0;
     var contentMetadata = null;
     var loadMetadataForAdCalled = 0;
@@ -313,6 +315,10 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
               case GGPM_STOP_EVENT:
                 stopCalled++;
                 stopTime = param;
+                break;
+              case GGPM_INITIAL_LOAD_METADATA_EVENT:
+                initialLoadMetadataCalled++;
+                contentMetadata = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param)
@@ -342,6 +348,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
     var clearCounts = function()
     {
+      initialLoadMetadataCalled = 0;
       loadMetadataForContentCalled = 0;
       loadMetadataForAdCalled = 0;
       stopCalled = 0;
@@ -353,18 +360,17 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
-      duration: 60
+      duration: 60000
     });
 
-    expect(loadMetadataForContentCalled).toBe(1);
+    expect(initialLoadMetadataCalled).toBe(1);
     expect(contentMetadata.title).toBe("testTitle");
     expect(contentMetadata.assetName).toBe("testTitle");
     expect(contentMetadata.length).toBe(60);
 
     //play preroll
     simulator.simulateAdBreakStarted();
-    expect(stopCalled).toBe(1);
-    expect(stopTime).toBe(0);
+    expect(stopCalled).toBe(0);
 
     simulator.simulateAdPlayback({
       adId: "testPrerollId",
@@ -401,6 +407,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   it('Nielsen plugin can track stop and loadMetadata events upon playing a midroll ad', function()
   {
+    var initialLoadMetadataCalled = 0;
     var loadMetadataForContentCalled = 0;
     var contentMetadata = null;
     var loadMetadataForAdCalled = 0;
@@ -420,6 +427,10 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
               case GGPM_STOP_EVENT:
                 stopCalled++;
                 stopTime = param;
+                break;
+              case GGPM_INITIAL_LOAD_METADATA_EVENT:
+                initialLoadMetadataCalled++;
+                contentMetadata = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param)
@@ -449,6 +460,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
     var clearCounts = function()
     {
+      initialLoadMetadataCalled = 0;
       loadMetadataForContentCalled = 0;
       loadMetadataForAdCalled = 0;
       stopCalled = 0;
@@ -460,9 +472,9 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
-      duration: 60
+      duration: 60000
     });
-    expect(loadMetadataForContentCalled).toBe(1);
+    expect(initialLoadMetadataCalled).toBe(1);
     expect(contentMetadata.title).toBe("testTitle");
     expect(contentMetadata.assetName).toBe("testTitle");
     expect(contentMetadata.length).toBe(60);
@@ -554,7 +566,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
-      duration: 60
+      duration: 60000
     });
     //play content
     simulator.simulateContentPlayback(plugin);
@@ -659,7 +671,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
-      duration: 60
+      duration: 60000
     });
     //play content
     simulator.simulateContentPlayback(plugin);
@@ -688,6 +700,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   it('Nielsen Video Plugin can track all events in a typical playback', function()
   {
+    var initialLoadMetadataCalled = 0;
+
     var loadMetadataForAdCalled = 0;
     var adMetadata = null;
     
@@ -719,6 +733,10 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
                 endCalled++;
                 endTime = param;
                 break;
+              case GGPM_INITIAL_LOAD_METADATA_EVENT:
+                initialLoadMetadataCalled++;
+                contentMetadata = param;
+                break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param)
                 {
@@ -747,6 +765,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
     var clearCounts = function()
     {
+      initialLoadMetadataCalled = 0;
       loadMetadataForContentCalled = 0;
       loadMetadataForAdCalled = 0;
       stopCalled = 0;
@@ -758,10 +777,10 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
-      duration: 60
+      duration: 60000
     });
 
-    expect(loadMetadataForContentCalled).toBe(1);
+    expect(initialLoadMetadataCalled).toBe(1);
     expect(contentMetadata.title).toBe("testTitle");
     expect(contentMetadata.assetName).toBe("testTitle");
     expect(contentMetadata.length).toBe(60);
@@ -774,7 +793,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     });
 
     expect(stopCalled).toBe(0);
-    expect(stopTime).toBe(0);
 
     expect(loadMetadataForAdCalled).toBe(1);
     expect(adMetadata.type).toBe("preroll");
@@ -813,12 +831,13 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
     //play midroll
     simulator.simulateAdBreakStarted(plugin);
+    expect(stopCalled).toBe(1);
+    expect(stopTime).toBe(10);
+
     simulator.simulateAdPlayback({
       adId: "testMidrollId",
       adDuration: 5
     });
-    expect(stopCalled).toBe(0);
-    expect(stopTime).toBe(10);
 
     expect(loadMetadataForAdCalled).toBe(1);
     expect(adMetadata.type).toBe("midroll");

@@ -29,6 +29,14 @@ var NielsenAnalyticsPlugin = function (framework)
 
   var nSdkInstance = null;
 
+  var DCR_EVENT = {
+    INITIAL_LOAD_METADATA: 3, //to be used for content before prerolls
+    STOP: 7,
+    LOAD_METADATA: 15,
+    SET_PLAYHEAD_POSITION: 49,
+    END: 57
+  };
+
   /**
    * [Required Function] Return the name of the plugin.
    * @public
@@ -151,6 +159,7 @@ var NielsenAnalyticsPlugin = function (framework)
       //case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
       //  break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
+        mainContentStarted = true;
         trackPlay();
         break;
       //case OO.Analytics.EVENTS.VIDEO_PAUSED:
@@ -178,7 +187,7 @@ var NielsenAnalyticsPlugin = function (framework)
             "type": "content",
             //TODO: Check to see if we can put asset name
             "assetName": metadata.title,
-            "length": contentDuration,
+            "length": Math.round(contentDuration / 1000),
             "title": metadata.title,
             //TODO: Program Name
             "program": "myProgram",
@@ -206,7 +215,8 @@ var NielsenAnalyticsPlugin = function (framework)
             //"adloadtype": "2"
           };
           OO.log("Nielsen Tracking: loadMetadata from metadata updated with playhead " + currentPlayhead);
-          nSdkInstance.ggPM("loadMetadata", contentMetadata);
+          //TODO: Publish 3 event on replay?
+          notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         }
         break;
       //case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
@@ -255,9 +265,9 @@ var NielsenAnalyticsPlugin = function (framework)
         //We want to report the first playhead after this event
         lastPlayheadUpdate = -1;
         OO.log("Nielsen Tracking: stop from ad break with playhead " + currentPlayhead);
-        if (!contentComplete)
+        if (!contentComplete && mainContentStarted)
         {
-          nSdkInstance.ggPM("stop", currentPlayhead);
+          notifyNielsen(DCR_EVENT.STOP, currentPlayhead);
         }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
@@ -317,7 +327,7 @@ var NielsenAnalyticsPlugin = function (framework)
     {
       loadContentMetadataAfterAd = false;
       OO.log("Nielsen Tracking: loadMetadata from content play with playhead " + currentPlayhead);
-      nSdkInstance.ggPM("loadMetadata", contentMetadata);
+      notifyNielsen(DCR_EVENT.LOAD_METADATA, contentMetadata);
     }
   };
 
@@ -336,7 +346,7 @@ var NielsenAnalyticsPlugin = function (framework)
   var trackComplete = function()
   {
     OO.log("Nielsen Tracking: end with playhead " + currentPlayhead);
-    nSdkInstance.ggPM("end", currentPlayhead);
+    notifyNielsen(DCR_EVENT.END, currentPlayhead);
   };
 
   //var trackBufferStart = function()
@@ -352,13 +362,13 @@ var NielsenAnalyticsPlugin = function (framework)
     if (inAdBreak)
     {
       OO.log("Nielsen Tracking: setPlayheadPosition with ad playhead " + currentAdPlayhead);
-      nSdkInstance.ggPM("setPlayheadPosition", currentAdPlayhead);
+      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, currentAdPlayhead);
     }
     else
     {
       //TODO: Handle live streams
       OO.log("Nielsen Tracking: setPlayheadPosition with playhead " + currentPlayhead);
-      nSdkInstance.ggPM("setPlayheadPosition", currentPlayhead);
+      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, currentPlayhead);
     }
   };
 
@@ -370,7 +380,7 @@ var NielsenAnalyticsPlugin = function (framework)
     {
       type = "preroll";
     }
-    else if (currentPlayhead >= contentDuration)
+    else if (contentComplete)
     {
       type = "postroll";
     }
@@ -380,7 +390,7 @@ var NielsenAnalyticsPlugin = function (framework)
     }
 
     OO.log("Nielsen Tracking: loadMetadata for ad with type: " + type + " with ad playhead " + currentAdPlayhead);
-    nSdkInstance.ggPM("loadMetadata", {
+    notifyNielsen(DCR_EVENT.LOAD_METADATA, {
       "type": type,
       "length": metadata.adDuration,
       "assetid": metadata.adId
@@ -393,7 +403,18 @@ var NielsenAnalyticsPlugin = function (framework)
   var trackAdEnd = function()
   {
     OO.log("Nielsen Tracking: stop with ad playhead " + currentAdPlayhead);
-    nSdkInstance.ggPM("stop", currentAdPlayhead);
+    notifyNielsen(DCR_EVENT.STOP, currentAdPlayhead);
+  };
+  
+  var notifyNielsen = function(event, param)
+  {
+    OO.log("ggPM: " + event + " with param: " + param);
+    if ((event === 3 || event === 15) && typeof param === "object" && param.type)
+    {
+      OO.log("ggPM: loadMetadata type: " + param.type);
+    }
+
+    nSdkInstance.ggPM(event, param);
   };
 };
 
