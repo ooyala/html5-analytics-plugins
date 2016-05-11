@@ -108,9 +108,9 @@ var OmnitureAnalyticsPlugin = function (framework)
   {
     OO.log( "Omniture: PluginID \'" + id + "\' received this metadata:", metadata);
     // Set-up the Visitor and AppMeasurement instances.
-    //TODO: Validate metadata
     if (validateOmnitureMetadata(metadata))
     {
+      //TODO: Get metadata, props and evar from backdoor/backlot settings as well
       var visitor = new Visitor(metadata.marketingCloudOrgId);
       visitor.trackingServer = metadata.visitorTrackingServer;
 
@@ -123,7 +123,6 @@ var OmnitureAnalyticsPlugin = function (framework)
       appMeasurement.charSet = "UTF-8";
       appMeasurement.visitorID = metadata.visitorId;
 
-      //TODO: Get props and evar from backdoor/backlot settings as well
       //add in props
       if (!_.isEmpty(metadata.props))
       {
