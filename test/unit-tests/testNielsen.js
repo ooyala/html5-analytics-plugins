@@ -59,6 +59,17 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
     var plugin = new nielsenPluginFactory(framework);
     plugin.init();
+    plugin.setMetadata({
+      "program":"myProgram",
+      "isfullepisode":"N",
+      //TODO: Unit test for page level titles
+      // "title":"My Title",
+      "crossId1":"EP018S9S290015",
+      "crossId2":"ABC",
+      "airdate":"20150420 21:00:00",
+      "segB":"Comedy",
+      "segC":"Drama"
+    });
     return plugin;
   };
 

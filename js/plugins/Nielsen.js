@@ -129,6 +129,45 @@ var NielsenAnalyticsPlugin = function (framework)
   this.setMetadata = function(metadata)
   {
     OO.log( "Nielsen: PluginID \'" + id + "\' received this metadata:", metadata);
+
+    //TODO: Validate metadata
+    if (metadata)
+    {
+      //TODO: Metadata from backlot/backdoor as well
+      //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
+      contentMetadata = {
+        "type": "content",
+        //TODO: Check to see if we can put asset name
+        // "assetName": metadata.title,
+        // "length": Math.round(contentDuration / 1000),
+        "title": metadata.title,
+        //TODO: Program Name
+        "program": metadata.program,
+        // "assetid": embedCode,
+        "segB": metadata.segB,
+        "segC": metadata.segC,
+        //TODO: is full ep
+        "isfullepisode":metadata.isfullepisode,
+        "crossId1": metadata.crossId1,
+        "crossId2": metadata.crossId2,
+        "airdate": metadata.airdate,
+        //TODO: Ad load type
+        "adloadtype":1
+
+        //"type": "content",
+        //"length": "3600",
+        //"title": "myTitle",
+        //"program": "myProgram",
+        //"assetid": "myAssetId",
+        //"segB": "segmentB",
+        //"segC": "segmentC",
+        //"isfullepisode": "Y",
+        //"crossId1": "Reference11",
+        //"crossId2": "Reference22",
+        //"airdate": "20161013 20:00:00",
+        //"adloadtype": "2"
+      };
+    }
   };
 
   /**
@@ -171,7 +210,11 @@ var NielsenAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         if (params && params[0] && params[0].embedCode)
         {
-          embedCode = params[0].embedCode;
+          // embedCode = params[0].embedCode;
+          if (contentMetadata)
+          {
+            contentMetadata["assetid"] = embedCode;
+          }
         }
         resetPlaybackState();
         break;
@@ -181,39 +224,18 @@ var NielsenAnalyticsPlugin = function (framework)
         if (params && params[0])
         {
           var metadata = params[0];
-          contentDuration = metadata.duration;
-          //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
-          contentMetadata = {
-            "type": "content",
-            //TODO: Check to see if we can put asset name
-            "assetName": metadata.title,
-            "length": Math.round(contentDuration / 1000),
-            "title": metadata.title,
-            //TODO: Program Name
-            "program": "myProgram",
-            "assetid": embedCode,
-            "segB": "segmentB",
-            "segC": "segmentC",
-            //TODO: is full ep
-            "isfullepisode":"N",
-            //"crossId1": "Reference11",
-            //"crossId2": "Reference22",
-            "airdate": "20160501 16:48:00",
-            "adloadtype":1
+          if (contentMetadata && metadata.duration)
+          {
+            contentMetadata["length"] = Math.round(metadata.duration / 1000);
+            //only use Backlot metadata title if none was provided earlier
+            if (!contentMetadata["title"])
+            {
+              contentMetadata["title"] = metadata.title;
+            }
 
-            //"type": "content",
-            //"length": "3600",
-            //"title": "myTitle",
-            //"program": "myProgram",
-            //"assetid": "myAssetId",
-            //"segB": "segmentB",
-            //"segC": "segmentC",
-            //"isfullepisode": "Y",
-            //"crossId1": "Reference11",
-            //"crossId2": "Reference22",
-            //"airdate": "20161013 20:00:00",
-            //"adloadtype": "2"
-          };
+            //TODO: Asset name?
+            contentMetadata["assetName"] = metadata.title;
+          }
           OO.log("Nielsen Tracking: loadMetadata from metadata updated with playhead " + currentPlayhead);
           //TODO: Publish 3 event on replay?
           notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
