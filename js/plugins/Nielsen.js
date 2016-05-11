@@ -28,6 +28,9 @@ var NielsenAnalyticsPlugin = function (framework)
   //TODO: ID3 tags
 
   var nSdkInstance = null;
+  var nielsenMetadata = null;
+
+  var storedEvents = [];
 
   var DCR_EVENT = {
     INITIAL_LOAD_METADATA: 3, //to be used for content before prerolls
@@ -36,6 +39,8 @@ var NielsenAnalyticsPlugin = function (framework)
     SET_PLAYHEAD_POSITION: 49,
     END: 57
   };
+
+  var SDK_LOAD_TIMEOUT = 3000;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -89,68 +94,58 @@ var NielsenAnalyticsPlugin = function (framework)
    */
   this.init = function()
   {
-    //var missedEvents;
-    ////if you need to process missed events, here is an example
-    //if (_framework && OO._.isFunction(_framework.getRecordedEvents))
-    //{
+    //TODO: Missed events
+    // var missedEvents;
+    // //if you need to process missed events, here is an example
+    // if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    // {
     //  missedEvents = _framework.getRecordedEvents();
     //  _.each(missedEvents, _.bind(function (recordedEvent)
     //  {
     //    //recordedEvent.timeStamp;
     //    this.processEvent(recordedEvent.eventName, recordedEvent.params);
     //  }, this));
-    //}
-    //
-    //if (window._nolggGlobalParams)
-    //{
-    //  OO.log( "Nielsen: nolggGlobalParams already exists");
-    //}
-    //
-    //window._nolggGlobalParams =
+    // }
 
-    var apid = "TD70BC1B3-07E8-474F-98E5-AE79DD3D774E";
-
-    nSdkInstance = window.NOLCMB.getInstance(apid);
-
-    nSdkInstance.ggInitialize({
-      apid: apid,
-      sfcode: "dcr-cert",
-      apn: "Ooyala V4",
-      nol_sdkDebug: "console"
-    });
+    //If SDK is not loaded by now, load SDK
+    if (!window.NOLCMB)
+    {
+      OO.loadScriptOnce("http://secure-dcr.imrworldwide.com/novms/js/2/ggcmb500.js", trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
+    }
   };
 
-  /**
-   * [Required Function] Set the metadata for this plugin.
-   * @public
-   * @method NielsenAnalyticsPlugin#setMetadata
-   * @param  {object} metadata The metadata for this plugin
-   */
-  this.setMetadata = function(metadata)
+  var trySetupNielsen = function()
   {
-    OO.log( "Nielsen: PluginID \'" + id + "\' received this metadata:", metadata);
-
     //TODO: Validate metadata
-    if (metadata)
+    if (nielsenMetadata && window.NOLCMB)
     {
+      nSdkInstance = window.NOLCMB.getInstance(nielsenMetadata.apid);
+
+      nSdkInstance.ggInitialize({
+        apid: nielsenMetadata.apid,
+        sfcode: nielsenMetadata.sfcode,
+        apn: nielsenMetadata.apn
+        // nol_sdkDebug: "console"
+      });
+
       //TODO: Metadata from backlot/backdoor as well
       //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
-      contentMetadata = {
+      _.extend(contentMetadata, {
         "type": "content",
         //TODO: Check to see if we can put asset name
-        // "assetName": metadata.title,
+        // "assetName": nielsenMetadata.title,
         // "length": Math.round(contentDuration / 1000),
-        "title": metadata.title,
+        "title": nielsenMetadata.title,
         //TODO: Program Name
-        "program": metadata.program,
+        "program": nielsenMetadata.program,
         // "assetid": embedCode,
-        "segB": metadata.segB,
-        "segC": metadata.segC,
+        "segB": nielsenMetadata.segB,
+        "segC": nielsenMetadata.segC,
         //TODO: is full ep
-        "isfullepisode":metadata.isfullepisode,
-        "crossId1": metadata.crossId1,
-        "crossId2": metadata.crossId2,
-        "airdate": metadata.airdate,
+        "isfullepisode":nielsenMetadata.isfullepisode,
+        "crossId1": nielsenMetadata.crossId1,
+        "crossId2": nielsenMetadata.crossId2,
+        "airdate": nielsenMetadata.airdate,
         //TODO: Ad load type
         "adloadtype":1
 
@@ -166,8 +161,39 @@ var NielsenAnalyticsPlugin = function (framework)
         //"crossId2": "Reference22",
         //"airdate": "20161013 20:00:00",
         //"adloadtype": "2"
-      };
+      });
+
+      handleStoredEvents();
     }
+  };
+
+  var handleStoredEvents = function()
+  {
+    var se;
+    while (storedEvents.length > 0)
+    {
+      se = storedEvents.shift();
+      notifyNielsen(se.event, se.param);
+    }
+  };
+
+  var sdkLoadError = function()
+  {
+
+  };
+
+  /**
+   * [Required Function] Set the metadata for this plugin.
+   * @public
+   * @method NielsenAnalyticsPlugin#setMetadata
+   * @param  {object} metadata The metadata for this plugin
+   */
+  this.setMetadata = function(metadata)
+  {
+    OO.log( "Nielsen: PluginID \'" + id + "\' received this metadata:", metadata);
+
+    nielsenMetadata = metadata;
+    trySetupNielsen();
   };
 
   /**
@@ -436,7 +462,19 @@ var NielsenAnalyticsPlugin = function (framework)
       OO.log("ggPM: loadMetadata type: " + param.type);
     }
 
-    nSdkInstance.ggPM(event, param);
+    if (nSdkInstance)
+    {
+      nSdkInstance.ggPM(event, param);
+    }
+    else
+    {
+      OO.log("Nielsen: Storing event: " + event);
+      var storedParam = typeof param === "object" ? _.clone(param) : param;
+      storedEvents.push({
+        event: event,
+        param: storedParam
+      });
+    }
   };
 };
 

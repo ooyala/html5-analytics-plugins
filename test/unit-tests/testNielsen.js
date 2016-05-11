@@ -267,7 +267,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
       }
     };
 
-    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    var plugin = createPlugin(framework);
     //TODO: The require calls init
     expect(initializeCalled).toBe(1);
   });
