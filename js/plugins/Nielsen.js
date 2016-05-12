@@ -123,7 +123,7 @@ var NielsenAnalyticsPlugin = function (framework)
   var trySetupNielsen = function()
   {
     var setup = false;
-    //TODO: Validate metadata
+
     if (nielsenMetadata && window.NOLCMB)
     {
       nSdkInstance = window.NOLCMB.getInstance(nielsenMetadata.apid);
@@ -133,28 +133,6 @@ var NielsenAnalyticsPlugin = function (framework)
         sfcode: nielsenMetadata.sfcode,
         apn: nielsenMetadata.apn
         // nol_sdkDebug: "console"
-      });
-
-      //TODO: Metadata from backlot/backdoor as well
-      //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
-      _.extend(contentMetadata, {
-        "type": "content",
-        //TODO: Check to see if we can put asset name
-        // "assetName": nielsenMetadata.title,
-        // "length": Math.round(contentDuration / 1000),
-        "title": nielsenMetadata.title,
-        //TODO: Program Name
-        "program": nielsenMetadata.program,
-        // "assetid": embedCode,
-        "segB": nielsenMetadata.segB,
-        "segC": nielsenMetadata.segC,
-        //TODO: is full ep
-        "isfullepisode":nielsenMetadata.isfullepisode,
-        "crossId1": nielsenMetadata.crossId1,
-        "crossId2": nielsenMetadata.crossId2,
-        "airdate": nielsenMetadata.airdate,
-        //TODO: Ad load type
-        "adloadtype":1
       });
 
       handleStoredEvents();
@@ -197,8 +175,34 @@ var NielsenAnalyticsPlugin = function (framework)
   this.setMetadata = function(metadata)
   {
     OO.log( "Nielsen: PluginID \'" + id + "\' received this metadata:", metadata);
+    //TODO: Validate metadata
+    if (metadata)
+    {
+      nielsenMetadata = metadata;
 
-    nielsenMetadata = metadata;
+      //TODO: Metadata from backlot/backdoor as well
+      //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
+      _.extend(contentMetadata, {
+        "type": "content",
+        //TODO: Check to see if we can put asset name
+        // "assetName": nielsenMetadata.title,
+        // "length": Math.round(contentDuration / 1000),
+        "title": nielsenMetadata.title,
+        //TODO: Program Name
+        "program": nielsenMetadata.program,
+        // "assetid": embedCode,
+        "segB": nielsenMetadata.segB,
+        "segC": nielsenMetadata.segC,
+        //TODO: is full ep
+        "isfullepisode":nielsenMetadata.isfullepisode,
+        "crossId1": nielsenMetadata.crossId1,
+        "crossId2": nielsenMetadata.crossId2,
+        "airdate": nielsenMetadata.airdate,
+        //TODO: Ad load type
+        "adloadtype":1
+      });
+    }
+
     trySetupNielsen();
   };
 
@@ -254,7 +258,7 @@ var NielsenAnalyticsPlugin = function (framework)
         if (params && params[0])
         {
           var metadata = params[0];
-          if (contentMetadata && metadata.duration)
+          if (metadata && contentMetadata && metadata.duration)
           {
             contentMetadata["length"] = Math.round(metadata.duration / 1000);
             //only use Backlot metadata title if none was provided earlier
@@ -267,7 +271,7 @@ var NielsenAnalyticsPlugin = function (framework)
             contentMetadata["assetName"] = metadata.title;
           }
           OO.log("Nielsen Tracking: loadMetadata from metadata updated with playhead " + currentPlayhead);
-          //TODO: Publish 3 event on replay?
+          //TODO: Publish event 3 on replay?
           notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         }
         break;
@@ -285,12 +289,15 @@ var NielsenAnalyticsPlugin = function (framework)
         if (params && params[0] && params[0].streamPosition)
         {
           var playhead = -1;
+          var log = false;
           if (inAdBreak)
           {
             if (adStarted)
             {
               currentAdPlayhead = params[0].streamPosition;
               playhead = currentAdPlayhead;
+              OO.log("Nielsen Tracking: ad playhead: " + playhead);
+              log = true;
             }
           }
           else
@@ -305,6 +312,11 @@ var NielsenAnalyticsPlugin = function (framework)
             //TODO: receiving video_stream_position_changed immediately after ad_break_started
             lastPlayheadUpdate = playhead;
             trackPlayhead();
+          }
+
+          if(log)
+          {
+            OO.log("Nielsen Tracking: lastPlayheadUpdate: " + lastPlayheadUpdate);
           }
         }
         break;
@@ -406,6 +418,7 @@ var NielsenAnalyticsPlugin = function (framework)
    */
   var trackPlayhead = function()
   {
+    //TODO: Add more checks to ensure we report the correct playhead
     if (inAdBreak)
     {
       OO.log("Nielsen Tracking: setPlayheadPosition with ad playhead " + currentAdPlayhead);
@@ -479,19 +492,18 @@ var NielsenAnalyticsPlugin = function (framework)
    */
   var notifyNielsen = function(event, param)
   {
-    OO.log("ggPM: " + event + " with param: " + param);
-    if ((event === 3 || event === 15) && typeof param === "object" && param.type)
-    {
-      OO.log("ggPM: loadMetadata type: " + param.type);
-    }
-
     if (nSdkInstance)
     {
+      OO.log("ggPM: " + event + " with param: " + param);
+      if ((event === 3 || event === 15) && typeof param === "object" && param.type)
+      {
+        OO.log("ggPM: loadMetadata type: " + param.type);
+      }
       nSdkInstance.ggPM(event, param);
     }
     else
     {
-      OO.log("Nielsen: Storing event: " + event);
+      OO.log("ggPM: Storing event: " + event + " with param: " + param);
       var storedParam = typeof param === "object" ? _.clone(param) : param;
       storedEvents.push({
         event: event,
