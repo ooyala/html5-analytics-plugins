@@ -40,6 +40,7 @@ var NielsenAnalyticsPlugin = function (framework)
     END: 57
   };
 
+  var PLAYHEAD_UPDATE_INTERVAL = 1; //second
   var SDK_LOAD_TIMEOUT = 3000;
 
   /**
@@ -96,7 +97,7 @@ var NielsenAnalyticsPlugin = function (framework)
   {
     //TODO: Test Missed events
     var missedEvents;
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    if (_framework && _.isFunction(_framework.getRecordedEvents))
     {
      missedEvents = _framework.getRecordedEvents();
      _.each(missedEvents, _.bind(function (recordedEvent)
@@ -163,7 +164,12 @@ var NielsenAnalyticsPlugin = function (framework)
    */
   var sdkLoadError = function()
   {
-    //TODO: Find out what to do on SDK Load Error
+    //Destroy and unregister
+    if (_.isString(id))
+    {
+      framework.unregisterPlugin(id);
+    }
+    this.destroy();
   };
 
   /**
@@ -185,17 +191,15 @@ var NielsenAnalyticsPlugin = function (framework)
       _.extend(contentMetadata, {
         "type": "content",
         "title": nielsenMetadata.title,
-        //TODO: Program Name
         "program": nielsenMetadata.program,
-        //TODO: is full ep
         "isfullepisode":nielsenMetadata.isfullepisode,
-        "crossId1": nielsenMetadata.crossId1,
-        "crossId2": nielsenMetadata.crossId2,
         "airdate": nielsenMetadata.airdate,
-        //TODO: Ad load type
+        //Always linear for DCR
+        //TODO: SSAI, set to Dynamic (2)
         "adloadtype":1
       });
 
+      //Optional Nielsen parameters
       if (nielsenMetadata.segB)
       {
         contentMetadata["segB"] = nielsenMetadata.segB;
@@ -204,6 +208,16 @@ var NielsenAnalyticsPlugin = function (framework)
       if (nielsenMetadata.segC)
       {
         contentMetadata["segC"] = nielsenMetadata.segC;
+      }
+
+      if (nielsenMetadata.crossId1)
+      {
+        contentMetadata["crossId1"] = nielsenMetadata.crossId1;
+      }
+
+      if (nielsenMetadata.crossId2)
+      {
+        contentMetadata["crossId2"] = nielsenMetadata.crossId2;
       }
     }
 
@@ -222,7 +236,7 @@ var NielsenAnalyticsPlugin = function (framework)
     OO.log( "Nielsen: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
-      case OO.Analytics.EVENTS.CONTENT_COMPLETED:
+      case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
         contentComplete = true;
         trackComplete();
         break;
@@ -232,11 +246,12 @@ var NielsenAnalyticsPlugin = function (framework)
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
+        //TODO: Unit test and dev test
+        notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         if (params && params[0] && params[0].embedCode)
         {
-          // embedCode = params[0].embedCode;
           if (contentMetadata)
           {
             contentMetadata["assetid"] = embedCode;
@@ -257,12 +272,10 @@ var NielsenAnalyticsPlugin = function (framework)
               contentMetadata["title"] = metadata.title;
             }
 
-            //TODO: Asset name?
-            //TODO: Check to see if we can put asset name
             contentMetadata["assetName"] = metadata.title;
           }
-          OO.log("Nielsen Tracking: loadMetadata from metadata updated with playhead " + currentPlayhead);
-          //TODO: Publish event 3 on replay?
+          OO.log("Nielsen Tracking: initial loadMetadata from metadata updated with playhead " + currentPlayhead);
+          //TODO: Dev test
           notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         }
         break;
@@ -288,7 +301,7 @@ var NielsenAnalyticsPlugin = function (framework)
           }
           //Playhead updates should occur every 1 second according to docs at:
           //https://engineeringforum.nielsen.com/sdk/developers/product-dcr-implementation-av-bsdk.php;
-          if (playhead >= 0 && playhead >= lastPlayheadUpdate + 1)
+          if (playhead >= 0 && playhead >= lastPlayheadUpdate + PLAYHEAD_UPDATE_INTERVAL)
           {
             //TODO: receiving video_stream_position_changed immediately after ad_break_started
             lastPlayheadUpdate = playhead;
@@ -471,7 +484,7 @@ var NielsenAnalyticsPlugin = function (framework)
     if (nSdkInstance)
     {
       OO.log("ggPM: " + event + " with param: " + param);
-      if ((event === 3 || event === 15) && typeof param === "object" && param.type)
+      if ((event === 3 || event === 15) && _.isObject(param) && param.type)
       {
         OO.log("ggPM: loadMetadata type: " + param.type);
       }
@@ -480,7 +493,7 @@ var NielsenAnalyticsPlugin = function (framework)
     else
     {
       OO.log("ggPM: Storing event: " + event + " with param: " + param);
-      var storedParam = typeof param === "object" ? _.clone(param) : param;
+      var storedParam = _.isObject(param) ? _.clone(param) : param;
       storedEvents.push({
         event: event,
         param: storedParam

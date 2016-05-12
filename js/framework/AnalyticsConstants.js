@@ -34,10 +34,10 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event OO.Analytics.EVENTS#CONTENT_COMPLETED
+     * @event OO.Analytics.EVENTS#VIDEO_CONTENT_COMPLETED
      * @description This message is sent when main content playback has completed.
      */
-    CONTENT_COMPLETED:             'content_completed',
+    VIDEO_CONTENT_COMPLETED:        'video_content_completed',
 
     /**
      * @public
