@@ -184,15 +184,9 @@ var NielsenAnalyticsPlugin = function (framework)
       //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
       _.extend(contentMetadata, {
         "type": "content",
-        //TODO: Check to see if we can put asset name
-        // "assetName": nielsenMetadata.title,
-        // "length": Math.round(contentDuration / 1000),
         "title": nielsenMetadata.title,
         //TODO: Program Name
         "program": nielsenMetadata.program,
-        // "assetid": embedCode,
-        "segB": nielsenMetadata.segB,
-        "segC": nielsenMetadata.segC,
         //TODO: is full ep
         "isfullepisode":nielsenMetadata.isfullepisode,
         "crossId1": nielsenMetadata.crossId1,
@@ -201,6 +195,16 @@ var NielsenAnalyticsPlugin = function (framework)
         //TODO: Ad load type
         "adloadtype":1
       });
+
+      if (nielsenMetadata.segB)
+      {
+        contentMetadata["segB"] = nielsenMetadata.segB;
+      }
+
+      if (nielsenMetadata.segC)
+      {
+        contentMetadata["segC"] = nielsenMetadata.segC;
+      }
     }
 
     trySetupNielsen();
@@ -218,26 +222,14 @@ var NielsenAnalyticsPlugin = function (framework)
     OO.log( "Nielsen: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
-      //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
-      //  break;
-      //case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-      //  break;
       case OO.Analytics.EVENTS.CONTENT_COMPLETED:
         contentComplete = true;
         trackComplete();
         break;
-      //case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
-      //  break;
-      //case OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED:
-      //  break;
-      //case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
-      //  break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         mainContentStarted = true;
         trackPlay();
         break;
-      //case OO.Analytics.EVENTS.VIDEO_PAUSED:
-      //  break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
         break;
@@ -252,8 +244,6 @@ var NielsenAnalyticsPlugin = function (framework)
         }
         resetPlaybackState();
         break;
-      //case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
-      //  break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
@@ -268,6 +258,7 @@ var NielsenAnalyticsPlugin = function (framework)
             }
 
             //TODO: Asset name?
+            //TODO: Check to see if we can put asset name
             contentMetadata["assetName"] = metadata.title;
           }
           OO.log("Nielsen Tracking: loadMetadata from metadata updated with playhead " + currentPlayhead);
@@ -275,16 +266,6 @@ var NielsenAnalyticsPlugin = function (framework)
           notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         }
         break;
-      //case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
-      //  break;
-      //case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-      //  break;
-      //case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
-      //  break;
-      //case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
-      //  break;
-      //case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-      //  break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
         {
@@ -347,8 +328,6 @@ var NielsenAnalyticsPlugin = function (framework)
         //We want to report the first playhead after this event
         lastPlayheadUpdate = -1;
         break;
-      //case OO.Analytics.EVENTS.DESTROY:
-      //  break;
       default:
         break;
     }
@@ -464,9 +443,6 @@ var NielsenAnalyticsPlugin = function (framework)
       "type": type,
       "length": metadata.adDuration,
       "assetid": metadata.adId
-      //"adModel": "2",
-      //"tv": "true",
-      //"dataSrc": "cms"
     });
   };
 
