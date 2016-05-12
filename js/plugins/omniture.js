@@ -2,13 +2,10 @@ require("../framework/InitAnalyticsNamespace.js");
 // require("./omniture/AppMeasurement.js");
 // require("./omniture/VideoHeartbeat.min.js");
 // require("./omniture/VisitorAPI.js");
-require("./omniture/sample.adobe.analytics.plugin.delegate");
-require("./omniture/sample.adobe.heartbeat.plugin.delegate");
-require("./omniture/sample.heartbeat.delegate");
 
 /**
  * @class OmnitureAnalyticsPlugin
- * @classdesc This is an example class of a plugin that works with the Ooyala Analytics Framework.
+ * @classdesc Omniture Analytics/Video Heartbeat plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
 var OmnitureAnalyticsPlugin = function (framework)
@@ -86,7 +83,6 @@ var OmnitureAnalyticsPlugin = function (framework)
   this.init = function()
   {
     var missedEvents;
-    //if you need to process missed events, here is an example
     if (_framework && OO._.isFunction(_framework.getRecordedEvents))
     {
       missedEvents = _framework.getRecordedEvents();
@@ -152,14 +148,14 @@ var OmnitureAnalyticsPlugin = function (framework)
       vpPlugin.configure(playerPluginConfig);
 
       // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
-      aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new SampleAdobeAnalyticsPluginDelegate());
+      aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new ADB.va.plugins.aa.AdobeAnalyticsPluginDelegate());
       var aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
       aaPluginConfig.channel = metadata.channel; //optional
       aaPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
       aaPlugin.configure(aaPluginConfig);
 
       // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
-      var ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new SampleAdobeHeartbeatPluginDelegate());
+      var ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new ADB.va.plugins.ah.AdobeHeartbeatPluginDelegate());
       var ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
         metadata.heartbeatTrackingServer,
         metadata.publisherId);
@@ -172,7 +168,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       var plugins = [vpPlugin, aaPlugin, ahPlugin];
 
       // Setup and configure the Heartbeat lib.
-      heartbeat = new ADB.va.Heartbeat(new SampleHeartbeatDelegate(), plugins);
+      heartbeat = new ADB.va.Heartbeat(new ADB.va.HeartbeatDelegate(), plugins);
       var configData = new ADB.va.HeartbeatConfig();
       configData.debugLogging = metadata.debug; // set this to false for production apps.
       heartbeat.configure(configData);
@@ -283,7 +279,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
-          playerDelegate.initializeContent(params[0]);
+          playerDelegate.onInitializeContent(params[0]);
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
@@ -364,6 +360,11 @@ var OmnitureAnalyticsPlugin = function (framework)
     }
   };
 
+  /**
+   * Resets all state variables to their initial values.
+   * @private
+   * @method OmnitureAnalyticsPlugin#resetPlaybackState
+   */
   var resetPlaybackState = function ()
   {
     currentPlayhead = 0;
@@ -374,7 +375,7 @@ var OmnitureAnalyticsPlugin = function (framework)
     queueBufferStart = false;
     seekStarted = false;
     bufferStarted = false;
-    playerDelegate.resetState();
+    playerDelegate.onReplay();
   };
 
   /**
@@ -393,23 +394,25 @@ var OmnitureAnalyticsPlugin = function (framework)
     resetPlaybackState();
   };
 
+  /**
+   * To be called when content has started (via user click, a replay event, etc). Will call the VideoPlayerPlugin's
+   * trackVideoLoad and trackSessionStart APIs. trackVideoLoad must be called before the Omniture SDK will track any
+   * future events.
+   * @private
+   * @method OmnitureAnalyticsPlugin#onContentStart
+   */
   var onContentStart = function()
   {
-    trackVideoLoad();
-    trackSessionStart();
-  };
-
-  //Main Content
-  var trackVideoLoad = function(e)
-  {
     vpPlugin.trackVideoLoad();
-  };
-
-  var trackSessionStart = function(e)
-  {
     vpPlugin.trackSessionStart();
   };
 
+  /**
+   * To be called when the main content has started playback. This can be called for the initial playback after
+   * onContentStart and also after pause events. Will notify the Omniture SDK of a play event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackPlay
+   */
   var trackPlay = function()
   {
     if (!mainContentStarted)
@@ -417,6 +420,8 @@ var OmnitureAnalyticsPlugin = function (framework)
       mainContentStarted = true;
       vpPlugin.trackPlay();
 
+      //if we received a buffer event before we started content playback
+      //send a buffer start event now
       if(queueBufferStart)
       {
         queueBufferStart = false;
@@ -429,23 +434,48 @@ var OmnitureAnalyticsPlugin = function (framework)
     }
   };
 
-  var trackPause = function(e)
+  /**
+   * To be called when the main content has paused. Do not call this before transitioning to an ad playback
+   * from main content or else Omniture will report incorrect analytics. Will notify the Omniture SDK of a pause
+   * event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackPause
+   */
+  var trackPause = function()
   {
     vpPlugin.trackPause();
   };
 
-  var trackSeekStart = function(e)
+  /**
+   * To be called when the user has initiated a seek. Will notify the Omniture SDK of a seek start event. Must be
+   * paired with a trackSeekEnd call.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackSeekStart
+   */
+  var trackSeekStart = function()
   {
     seekStarted = true;
     vpPlugin.trackSeekStart();
   };
 
-  var trackSeekEnd = function(e)
+  /**
+   * To be called when the user has finished a seek. Will notify the Omniture SDK of a seek complete event. Must be
+   * paired with a trackSeekStart call.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackSeekEnd
+   */
+  var trackSeekEnd = function()
   {
     seekStarted = false;
     vpPlugin.trackSeekComplete();
   };
 
+  /**
+   * To be called when the main content and postrolls have finished playing. Will notify the Omniture SDK of a complete
+   * event and a video unload event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackComplete
+   */
   var trackComplete = function()
   {
     mainContentStarted = false;
@@ -453,25 +483,46 @@ var OmnitureAnalyticsPlugin = function (framework)
     vpPlugin.trackVideoUnload();
   };
 
-  var trackBufferStart = function(e)
+  /**
+   * To be called when the video player started buffering the main content. Will notify the Omniture SDK of a buffer start
+   * event. Must be paired with a trackBufferEnd call.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackBufferStart
+   */
+  var trackBufferStart = function()
   {
     bufferStarted = true;
     vpPlugin.trackBufferStart();
   };
 
-  var trackBufferEnd = function(e)
+  /**
+   * To be called when the video player finished buffering the main content. Will notify the Omniture SDK of a buffer
+   * complete event. Must be paired with a trackBufferStart call.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackBufferEnd
+   */
+  var trackBufferEnd = function()
   {
     bufferStarted = false;
     vpPlugin.trackBufferComplete();
   };
 
-  //Ads
-  var trackAdStart = function(e)
+  /**
+   * To be called when an ad has started playback. Will notify the Omniture SDK of an ad start event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackAdStart
+   */
+  var trackAdStart = function()
   {
     vpPlugin.trackAdStart();
   };
 
-  var trackAdEnd = function(e)
+  /**
+   * To be called when an ad has finished playback. Will notify the Omniture SDK of an ad complete event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackAdEnd
+   */
+  var trackAdEnd = function()
   {
     vpPlugin.trackAdComplete();
   };
@@ -484,6 +535,11 @@ var OmnitureAnalyticsPlugin = function (framework)
   };
 };
 
+/**
+ * @class OoyalaPlayerDelegate
+ * @classdesc The video player delegate that the Omniture Heartbeat SDK requires. Omniture will use
+ * this delegate to find out information about the currently playing video periodically.
+ */
 var OoyalaPlayerDelegate = function()
 {
   //video
@@ -502,27 +558,67 @@ var OoyalaPlayerDelegate = function()
 
   var adBreakPosition = 0;
 
-  this.initializeContent = function(metadata)
+  /**
+   * To be called when the content has been initialized. The player delegate will store the metadata passed
+   * into this function for use when the Omniture SDK calls the getVideoInfo API.
+   * @public
+   * @method OoyalaPlayerDelegate#onInitializeContent
+   * @param {object} metadata The metadata for the content.
+   *                        It must contain the following fields:<br/>
+   *   title {string} The title of the content<br />
+   *   length {number} The length of the content
+   */
+  this.onInitializeContent = function(metadata)
   {
     name = metadata.title;
     length = Math.round(metadata.duration/1000);
   };
-  
+
+  /**
+   * To be called when the embed code has changed. The player delegate will store the embed code
+   * for use when the Omniture SDK calls the getVideoInfo API.
+   * @public
+   * @method OoyalaPlayerDelegate#onEmbedCodeChanged
+   * @param {string} embedCode the embed code of the content
+   */
   this.onEmbedCodeChanged = function(embedCode)
   {
     id = embedCode;
   };
 
+  /**
+   * To be called when the playhead has changed. The player delegate will store the current playhead
+   * for use when the Omniture SDK calls the getVideoInfo API.
+   * @public
+   * @method OoyalaPlayerDelegate#onPlayheadChanged
+   * @param {number} playhead The current playhead in seconds
+   */
   this.onPlayheadChanged = function(playhead)
   {
     streamPlayhead = playhead;
   };
 
+  /**
+   * To be called when transitioning to an ad break.
+   * @public
+   * @method OoyalaPlayerDelegate#onAdBreak
+   */
   this.onAdBreak = function()
   {
     adBreakPosition++;
   };
 
+  /**
+   * To be called when starting an ad playback. The player delegate will store the ad metdata for use
+   * when the Omniture SDK calls the getAdInfo API.
+   * @public
+   * @method OoyalaPlayerDelegate#onAdPlayback
+   * @param {object} metadata The metadata for the ad.
+   *                        It must contain the following fields:<br/>
+   *   adId {string} The id of the ad<br />
+   *   adDuration {number} The length of the ad<br />
+   *   adPodPosition {number} The ad pod position of the ad (ex: second ad in the pod would have ad pod position 2)
+   */
   this.onAdPlayback = function(metadata)
   {
     adId = metadata.adId;
@@ -532,7 +628,12 @@ var OoyalaPlayerDelegate = function()
     adName = metadata.adId;
   };
 
-  this.resetState = function()
+  /**
+   * To be called when a replay has been requested. Resets any stored ad metadata and the content playhead.
+   * @public
+   * @method OoyalaPlayerDelegate#onReplay
+   */
+  this.onReplay = function()
   {
     streamPlayhead = 0;
     adId = null;
@@ -543,6 +644,13 @@ var OoyalaPlayerDelegate = function()
   };
 
   //Omniture required functions below
+
+  /**
+   * Required by Omniture. The Omniture SDK will call this function to retrieve various content metadata.
+   * @public
+   * @method OoyalaPlayerDelegate#getVideoInfo
+   * @returns {ADB.va.plugins.videoplayer.VideoInfo}
+   */
   this.getVideoInfo = function()
   {
     var videoInfo = new ADB.va.plugins.videoplayer.VideoInfo();
@@ -558,6 +666,12 @@ var OoyalaPlayerDelegate = function()
     return videoInfo;
   };
 
+  /**
+   * Required by Omniture. The Omniture SDK will call this function to retrieve various ad break metadata.
+   * @public
+   * @method OoyalaPlayerDelegate#getAdBreakInfo
+   * @returns {ADB.va.plugins.videoplayer.AdBreakInfo}
+   */
   this.getAdBreakInfo = function()
   {
     var adBreakInfo = new ADB.va.plugins.videoplayer.AdBreakInfo();
@@ -568,6 +682,12 @@ var OoyalaPlayerDelegate = function()
     return adBreakInfo;
   };
 
+  /**
+   * Required by Omniture. The Omniture SDK will call this function to retrieve various ad metadata.
+   * @public
+   * @method OoyalaPlayerDelegate#getAdInfo
+   * @returns {ADB.va.plugins.videoplayer.AdInfo}
+   */
   this.getAdInfo = function()
   {
     var adInfo = new ADB.va.plugins.videoplayer.AdInfo();
@@ -579,12 +699,26 @@ var OoyalaPlayerDelegate = function()
     return adInfo;
   };
 
+  /**
+   * Required by Omniture. The Omniture SDK will call this function to retrieve various chapter metadata.
+   * As the Ooyala Video PLayer currently does not enforce the concept of chapters, we will return null.
+   * @public
+   * @method OoyalaPlayerDelegate#getChapterInfo
+   * @returns {null}
+   */
   this.getChapterInfo = function()
   {
     //TODO: Chapter info if/when available
    return null;
   };
 
+  /**
+   * Required by Omniture. The Omniture SDK will call this function to retrieve various QoS metadata.
+   * We will update this function when more hooks are introduced in the analytics framework.
+   * @public
+   * @method OoyalaPlayerDelegate#getQoSInfo
+   * @returns {null}
+   */
   this.getQoSInfo = function()
   {
     //TODO: QOS info if/when available
