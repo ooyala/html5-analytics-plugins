@@ -186,7 +186,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#validateOmnitureMetadata
    * @param  {object} metadata The Omniture metadata to validate
-   * @return true if valid, false otherwise
+   * @returns true if valid, false otherwise
    */
   var validateOmnitureMetadata = function(metadata)
   {
@@ -238,16 +238,12 @@ var OmnitureAnalyticsPlugin = function (framework)
     OO.log( "Omniture: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
-      //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
-      //  break;
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
         onContentStart();
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackComplete();
         break;
-      //case OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED:
-      //  break;
       case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
         pauseRequested = true;
        break;
@@ -274,8 +270,6 @@ var OmnitureAnalyticsPlugin = function (framework)
         }
         resetPlaybackState();
         break;
-      //case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
-      //  break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
@@ -296,8 +290,6 @@ var OmnitureAnalyticsPlugin = function (framework)
           trackSeekEnd();
         }
         break;
-      //case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
-      //  break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
         //TODO: Ask about Buffer before play start
         if (!inAdBreak)
@@ -353,8 +345,6 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_ENDED:
         trackAdEnd();
         break;
-      // case OO.Analytics.EVENTS.DESTROY:
-      //   break;
       default:
         break;
     }
