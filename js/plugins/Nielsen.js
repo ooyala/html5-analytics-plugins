@@ -193,7 +193,6 @@ var NielsenAnalyticsPlugin = function (framework)
         "title": nielsenMetadata.title,
         "program": nielsenMetadata.program,
         "isfullepisode":nielsenMetadata.isfullepisode,
-        "airdate": nielsenMetadata.airdate,
         //Always linear for DCR
         //TODO: SSAI, set to Dynamic (2)
         "adloadtype":1
@@ -218,6 +217,11 @@ var NielsenAnalyticsPlugin = function (framework)
       if (nielsenMetadata.crossId2)
       {
         contentMetadata["crossId2"] = nielsenMetadata.crossId2;
+      }
+
+      if (nielsenMetadata.airdate)
+      {
+        contentMetadata["airdate"] = nielsenMetadata.airdate;
       }
     }
 
@@ -267,17 +271,16 @@ var NielsenAnalyticsPlugin = function (framework)
           {
             contentMetadata["length"] = Math.round(metadata.duration / 1000);
             //only use Backlot metadata title if none was provided earlier
-            if (!contentMetadata["title"])
-            {
-              contentMetadata["title"] = metadata.title;
-            }
-
+            contentMetadata["title"] = metadata.title;
             contentMetadata["assetName"] = metadata.title;
           }
           OO.log("Nielsen Tracking: initial loadMetadata from metadata updated with playhead " + currentPlayhead);
           //TODO: Dev test
           notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         }
+        break;
+      case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
+        //TODO: Update content metadata
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
