@@ -13,7 +13,7 @@ require("./InitAnalyticsNamespace.js");
 
 if (!OO.Analytics.EVENTS)
 {
-  const EVENTS =
+  var EVENTS =
   {
     /**
      * @public
@@ -211,6 +211,48 @@ if (!OO.Analytics.EVENTS)
     AD_ENDED:                 'ad_ended',
 
     /**
+     * @event OO.Analytics.EVENTS#AD_POD_STARTED
+     * @description This message is sent when an ad pod starts.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdPodStartedData
+     */
+    AD_POD_STARTED:                 'ad_pod_started',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_POD_ENDED
+     * @description This message is sent when an ad pod ends.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdPodEndedData
+     */
+    AD_POD_ENDED:                   'ad_pod_ended',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_SKIPPED
+     * @description This message is sent when an ad is skipped.
+     */
+    AD_SKIPPED:                     'ad_skipped',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
+     * @description This message is sent when the player enters and exits fullscreen.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.FullscreenChangedData
+     */
+    FULLSCREEN_CHANGED:             'fullscreen_changed',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#VOLUME_CHANGED
+     * @description This message is sent when the player volume has changed.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VolumeChangedData
+     */
+    VOLUME_CHANGED:                 'volume_changed',
+
+    /**
      * @public
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
@@ -222,7 +264,7 @@ if (!OO.Analytics.EVENTS)
 
 if (!OO.Analytics.EVENT_DATA)
 {
-  const EVENT_DATA = {};
+  var EVENT_DATA = {};
 
   /**
    * @public
@@ -355,6 +397,57 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPodPosition = checkAdStartedData(adPodPosition, "adPodPosition", "number");
   };
 
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdPodStartedData
+   * @classdesc Contain information about how many ads are in the ad pod.
+   * @property {number} numberOfAds The number of ads in the pod
+   */
+  EVENT_DATA.AdPodStartedData = function(numberOfAds)
+  {
+    var checkAdPodStartedData = OO._.bind(checkDataType, this, "AdPodStartedData");
+    this.numberOfAds = checkAdPodStartedData(numberOfAds, "numberOfAds", "number");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdPodEndedData
+   * @classdesc Contain information about the adId of the ad pod.
+   * @property {string} adId The id of the ad pod
+   */
+  EVENT_DATA.AdPodEndedData = function(adId)
+  {
+    var checkAdPodEndedData = OO._.bind(checkDataType, this, "AdPodEndedData");
+    this.adId = checkAdPodEndedData(adId, "adId", "string");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#FullscreenChangedData
+   * @classdesc Contains information about whether the player is entering or exiting fullscreen.
+   * @property {boolean} changingToFullscreen Whether or not the player is entering fullscreen.
+   * true represents that the player is entering fullscreen. false represents that the player is
+   * exiting fullscreen.
+   */
+  EVENT_DATA.FullscreenChangedData = function(changingToFullscreen)
+  {
+    var checkFullscreenChangedData = OO._.bind(checkDataType, this, "FullscreenChangedData");
+    this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, "changingToFullscreen", "boolean");
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VolumeChangedData
+   * @classdesc Contains information about the value of the current volume.
+   * @property {number} volume  The current volume after the change; the volume is a value from 0 - 1, with 0
+   * representing a muted state and 1 representing the maximum volume.
+   */
+  EVENT_DATA.VolumeChangedData = function(currentVolume)
+  {
+    var checkVolumeChangedData = OO._.bind(checkDataType, this, "VolumeChangedData");
+    this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", "number");
+  }
+
   var checkDataType = function(className, data, varName, expectedType)
   {
     var error = false;
@@ -383,6 +476,17 @@ if (!OO.Analytics.EVENT_DATA)
             error = true;
           }
         }
+        break;
+      case "boolean":
+        if (!OO._.isBoolean(toRet))
+        {
+          // consider string values "true" and "false" to be valid
+          if (toRet !== "true" || toRet !== "false")
+          {
+            error = true;
+          }
+        }
+        break;
       break;
     }
 
@@ -418,7 +522,7 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
    *    <li>processEvent(eventName, paramArray) - A function to receive events that are published through the framework.</li>
    * </ul>
    */
-  const REQUIRED_PLUGIN_FUNCTIONS =
+  var REQUIRED_PLUGIN_FUNCTIONS =
   [
     "getName",
     "getVersion",
