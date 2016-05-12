@@ -16,6 +16,9 @@ var OmnitureAnalyticsPlugin = function (framework)
   var id;
   var _active = true;
 
+  var OOYALA_PLAYER_NAME = "Ooyala V4";
+  var OOYALA_PLAYER_VERSION = "4.3.3";
+
   var playerDelegate = new OoyalaPlayerDelegate();
   var vpPlugin = null;
   var aaPlugin = null;
@@ -141,7 +144,6 @@ var OmnitureAnalyticsPlugin = function (framework)
 
       // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
       vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
-      //TODO: Find out how to expose the vpPlugin for unit tests
       this.omnitureVideoPlayerPlugin = vpPlugin;
       var playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
       playerPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
@@ -159,9 +161,9 @@ var OmnitureAnalyticsPlugin = function (framework)
       var ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
         metadata.heartbeatTrackingServer,
         metadata.publisherId);
-      ahPluginConfig.ovp = "Ooyala";
+      ahPluginConfig.ovp = OOYALA_PLAYER_NAME;
       //TODO: Get Player version
-      ahPluginConfig.sdk = "4.3.3";
+      ahPluginConfig.sdk = OOYALA_PLAYER_VERSION;
       ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
       ahPlugin.configure(ahPluginConfig);
 
@@ -173,6 +175,11 @@ var OmnitureAnalyticsPlugin = function (framework)
       configData.debugLogging = metadata.debug; // set this to false for production apps.
       heartbeat.configure(configData);
     }
+  };
+
+  var checkSdkLoaded = function()
+  {
+    //TODO: Check all the ADB objects exist
   };
 
   /**
@@ -248,6 +255,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         pauseRequested = true;
        break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
+        //TODO: Throw buffer end event if we have not yet
         trackPlay();
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
