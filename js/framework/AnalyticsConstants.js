@@ -544,7 +544,7 @@ if (!OO.Analytics.EVENT_DATA)
       var expectedType = expectedTypes[i];
       if (expectedType === "string")
       {
-        if (toRet && OO._.isString(toRet))
+        if (OO._.isString(toRet))
         {
           error = false;
           break;
