@@ -345,7 +345,15 @@ if (!OO.Analytics.EVENT_DATA)
     var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
     this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", "number");
     this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", "number");
-  }
+  };
+
+  EVENT_DATA.AdStartedData = function(adId, adDuration, adPodPosition)
+  {
+    var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
+    this.adId = checkAdStartedData(adId, "adId", "string");
+    this.adDuration = checkAdStartedData(adDuration, "adDuration", "number");
+    this.adPodPosition = checkAdStartedData(adPodPosition, "adPodPosition", "number");
+  };
 
   var checkDataType = function(className, data, varName, expectedType)
   {
@@ -385,7 +393,7 @@ if (!OO.Analytics.EVENT_DATA)
     }
 
     return toRet;
-  }
+  };
 
   OO.Analytics.EVENT_DATA = EVENT_DATA;
 }
