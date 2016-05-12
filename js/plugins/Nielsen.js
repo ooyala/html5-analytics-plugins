@@ -2,7 +2,7 @@ require("../framework/InitAnalyticsNamespace.js");
 
 /**
  * @class NielsenAnalyticsPlugin
- * @classdesc This is an example class of a plugin that works with the Ooyala Analytics Framework.
+ * @classdesc Nielsen SDK plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
 var NielsenAnalyticsPlugin = function (framework)
@@ -94,18 +94,17 @@ var NielsenAnalyticsPlugin = function (framework)
    */
   this.init = function()
   {
-    //TODO: Missed events
-    // var missedEvents;
-    // //if you need to process missed events, here is an example
-    // if (_framework && OO._.isFunction(_framework.getRecordedEvents))
-    // {
-    //  missedEvents = _framework.getRecordedEvents();
-    //  _.each(missedEvents, _.bind(function (recordedEvent)
-    //  {
-    //    //recordedEvent.timeStamp;
-    //    this.processEvent(recordedEvent.eventName, recordedEvent.params);
-    //  }, this));
-    // }
+    //TODO: Test Missed events
+    var missedEvents;
+    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    {
+     missedEvents = _framework.getRecordedEvents();
+     _.each(missedEvents, _.bind(function (recordedEvent)
+     {
+       //recordedEvent.timeStamp;
+       this.processEvent(recordedEvent.eventName, recordedEvent.params);
+     }, this));
+    }
 
     //If SDK is not loaded by now, load SDK
     if (!window.NOLCMB)
@@ -114,8 +113,16 @@ var NielsenAnalyticsPlugin = function (framework)
     }
   };
 
+  /**
+   * Tries to setup the Nielsen SDK Instance object. The Nielsen SDK Instance object requires specific metadata and
+   * window.NOLCMB to exist (created by the Nielsen SDK script).
+   * @private
+   * @method NielsenAnalyticsPlugin#trySetupNielsen
+   * @returns {boolean} Whether or not the setup was a success
+   */
   var trySetupNielsen = function()
   {
+    var setup = false;
     //TODO: Validate metadata
     if (nielsenMetadata && window.NOLCMB)
     {
@@ -148,25 +155,19 @@ var NielsenAnalyticsPlugin = function (framework)
         "airdate": nielsenMetadata.airdate,
         //TODO: Ad load type
         "adloadtype":1
-
-        //"type": "content",
-        //"length": "3600",
-        //"title": "myTitle",
-        //"program": "myProgram",
-        //"assetid": "myAssetId",
-        //"segB": "segmentB",
-        //"segC": "segmentC",
-        //"isfullepisode": "Y",
-        //"crossId1": "Reference11",
-        //"crossId2": "Reference22",
-        //"airdate": "20161013 20:00:00",
-        //"adloadtype": "2"
       });
 
       handleStoredEvents();
+      setup = true;
     }
+    return setup;
   };
 
+  /**
+   * Handles any events that were stored due to a delayed SDK initialization.
+   * @private
+   * @method NielsenAnalyticsPlugin#handleStoredEvents
+   */
   var handleStoredEvents = function()
   {
     var se;
@@ -177,9 +178,14 @@ var NielsenAnalyticsPlugin = function (framework)
     }
   };
 
+  /**
+   * Called when the SDK fails to load.
+   * @private
+   * @method NielsenAnalyticsPlugin#sdkLoadError
+   */
   var sdkLoadError = function()
   {
-
+    //TODO: Find out what to do on SDK Load Error
   };
 
   /**
@@ -211,7 +217,6 @@ var NielsenAnalyticsPlugin = function (framework)
       //case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
       //  break;
       //case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-      //  trackSessionStart();
       //  break;
       case OO.Analytics.EVENTS.CONTENT_COMPLETED:
         contentComplete = true;
@@ -228,7 +233,6 @@ var NielsenAnalyticsPlugin = function (framework)
         trackPlay();
         break;
       //case OO.Analytics.EVENTS.VIDEO_PAUSED:
-      //  trackPause();
       //  break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
@@ -268,18 +272,14 @@ var NielsenAnalyticsPlugin = function (framework)
         }
         break;
       //case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
-      //  trackSeekStart();
       //  break;
       //case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-      //  trackSeekEnd();
       //  break;
       //case OO.Analytics.EVENTS.VIDEO_STREAM_DOWNLOADING:
       //  break;
       //case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
-      //  trackBufferStart();
       //  break;
       //case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-      //  trackBufferEnd();
       //  break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
@@ -342,6 +342,11 @@ var NielsenAnalyticsPlugin = function (framework)
     }
   };
 
+  /**
+   * Resets any state variables back to their initial values.
+   * @private
+   * @method NielsenAnalyticsPlugin#resetPlaybackState
+   */
   var resetPlaybackState = function ()
   {
     contentDuration = -1;
@@ -364,11 +369,13 @@ var NielsenAnalyticsPlugin = function (framework)
     resetPlaybackState();
   };
 
-  //Main Content
-  //var trackSessionStart = function()
-  //{
-  //};
-
+  /**
+   * To be called when the main content has started playback. This will be called when the content initially starts
+   * or when transitioning back to main content from an ad. Will notify the Nielsen SDK of a load metadata event
+   * (event 15).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackPlay
+   */
   var trackPlay = function()
   {
     if (loadContentMetadataAfterAd)
@@ -379,32 +386,24 @@ var NielsenAnalyticsPlugin = function (framework)
     }
   };
 
-  //var trackPause = function()
-  //{
-  //};
-  //
-  //var trackSeekStart = function()
-  //{
-  //};
-  //
-  //var trackSeekEnd = function()
-  //{
-  //};
-
+  /**
+   * To be called when the main content has finished playback. This must be called before any postrolls start. Will
+   * notify the Nielsen SDK of a end event (event 57).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackComplete
+   */
   var trackComplete = function()
   {
     OO.log("Nielsen Tracking: end with playhead " + currentPlayhead);
     notifyNielsen(DCR_EVENT.END, currentPlayhead);
   };
 
-  //var trackBufferStart = function()
-  //{
-  //};
-  //
-  //var trackBufferEnd = function()
-  //{
-  //};
-
+  /**
+   * To be called when there is a content playhead update. Will notify the Nielsen SDK of a "set playhead position" event
+   * (event 49).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackPlayhead
+   */
   var trackPlayhead = function()
   {
     if (inAdBreak)
@@ -420,7 +419,17 @@ var NielsenAnalyticsPlugin = function (framework)
     }
   };
 
-  //Ads
+  /**
+   * To be called when an ad playback has started. Will notify the Nielsen SDK of a load metadata event (event 15).
+   * The event type will be one of preroll, midroll, or postroll, depending on the current playhead and if the
+   * content has finished.
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdStart
+   * @param {object} metadata The metadata for the ad.
+   *                        It must contain the following fields:<br/>
+   *   adDuration {number} The length of the ad<br />
+   *   adId {string} The id of the ad<br />
+   */
   var trackAdStart = function(metadata)
   {
     var type = null;
@@ -448,12 +457,26 @@ var NielsenAnalyticsPlugin = function (framework)
     });
   };
 
+  /**
+   * To be called when an ad playback has finished. Will notify the Nielsen SDK of a stop event (event 3).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdEnd
+   */
   var trackAdEnd = function()
   {
     OO.log("Nielsen Tracking: stop with ad playhead " + currentAdPlayhead);
     notifyNielsen(DCR_EVENT.STOP, currentAdPlayhead);
   };
-  
+
+  /**
+   * Notifies the Nielsen SDK of an event. If the SDK instance is not ready, will store the event and its
+   * parameters. These stored events will be handled when the SDK instance is ready.
+   * @private
+   * @method NielsenAnalyticsPlugin#notifyNielsen
+   * @param {number} event The event to notify the SDK about. See
+   *                       https://engineeringforum.nielsen.com/sdk/developers/bsdk-nielsen-browser-sdk-apis.php
+   * @param {object|number} param The param associated with the reported event
+   */
   var notifyNielsen = function(event, param)
   {
     OO.log("ggPM: " + event + " with param: " + param);
