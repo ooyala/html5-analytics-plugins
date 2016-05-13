@@ -19,9 +19,7 @@ describe('Analytics Framework Unit Tests', function()
   var testSetup = function()
   {
     //mute the logging because there will be lots of error messages that are appearing for valid reasons.
-    OO.log = function()
-    {
-    };
+    OO.log = function(){};
     framework = new Analytics.Framework();
   };
 
@@ -43,7 +41,8 @@ describe('Analytics Framework Unit Tests', function()
     it('Test Unregistering Bad Framework', function()
     {
       var errorOccured = false;
-      try {
+      try
+      {
         OO.Analytics.UnregisterFrameworkInstance(undefined);
         expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
         OO.Analytics.UnregisterFrameworkInstance(null);
@@ -55,7 +54,7 @@ describe('Analytics Framework Unit Tests', function()
         OO.Analytics.UnregisterFrameworkInstance([]);
         expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
       }
-      catch (e)
+      catch(e)
       {
         errorOccured = true;
       }
@@ -103,7 +102,7 @@ describe('Analytics Framework Unit Tests', function()
     it('Test Factory Returns Plugin With Missing Required Function', function()
     {
       var i;
-      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
+      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
       {
         var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
         var plugin = new missingFunctionFactory();
@@ -129,9 +128,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.validatePlugin(plugin2)).toBe(true);
 
       //add a second extra function to the first plugin, as a sanity check.
-      plugin["anotherExtraFunction"] = function()
-      {
-      };
+      plugin["anotherExtraFunction"] = function() {};
       expect(framework.validatePlugin(plugin)).toBe(true);
     });
 
@@ -190,9 +187,7 @@ describe('Analytics Framework Unit Tests', function()
 
     it('Test Registering Factory Returning Empty Object', function()
     {
-      var badEmptyPluginFactory = function()
-      {
-      };
+      var badEmptyPluginFactory = function() {};
       expect(framework.registerPlugin(badEmptyPluginFactory)).toBeFalsy();
       var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
@@ -201,7 +196,7 @@ describe('Analytics Framework Unit Tests', function()
     it('Test Registering Factory With Missing Required Function', function()
     {
       var i;
-      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
+      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
       {
         var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
         expect(framework.registerPlugin(missingFunctionFactory)).toBeFalsy();
@@ -375,7 +370,7 @@ describe('Analytics Framework Unit Tests', function()
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
-      test = {test: "testdata"};
+      test = {test:"testdata"};
       expect(framework.unregisterPlugin(test)).toBe(false);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
@@ -385,7 +380,7 @@ describe('Analytics Framework Unit Tests', function()
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
-      test = [1, 2, 3];
+      test = [1,2,3];
       expect(framework.unregisterPlugin(test)).toBe(false);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
@@ -478,8 +473,9 @@ describe('Analytics Framework Unit Tests', function()
 
       var errorHit = false;
       //make sure it doesn't throw an error.
-      try {
-        for (var i = 0; i < upperLimit; i++)
+      try
+      {
+        for(var i = 0; i < upperLimit; i++)
         {
           framework.registerPlugin(goodFactory1);
         }
@@ -510,7 +506,8 @@ describe('Analytics Framework Unit Tests', function()
     {
       var test;
       var errorOccured = false;
-      try {
+      try
+      {
         expect(framework.publishEvent(test)).toBe(false);
         expect(framework.publishEvent({})).toBe(false);
         expect(framework.publishEvent([])).toBe(false);
@@ -519,7 +516,7 @@ describe('Analytics Framework Unit Tests', function()
         expect(framework.publishEvent(5)).toBe(false);
         expect(framework.publishEvent("unitTestBadMessage")).toBe(false);
       }
-      catch (e)
+      catch(e)
       {
         errorOccured = true;
       }
@@ -537,7 +534,7 @@ describe('Analytics Framework Unit Tests', function()
       var numMsgSent = 0;
       var msgName;
       var events = OO.Analytics.EVENTS;
-      for (msgName in events)
+      for(msgName in events)
       {
         expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
         numMsgSent++;
@@ -545,7 +542,7 @@ describe('Analytics Framework Unit Tests', function()
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(numMsgSent);
-        var lastMsg = recordedEvents[length - 1];
+        var lastMsg = recordedEvents[length-1];
         expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
       }
     }
@@ -555,7 +552,7 @@ describe('Analytics Framework Unit Tests', function()
       var recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(0);
 
-      var msgSentObj = {count: 0};
+      var msgSentObj = {count:0};
       var params;
       badParamsHelper(framework, params, msgSentObj);
       params = {};
@@ -572,7 +569,7 @@ describe('Analytics Framework Unit Tests', function()
     var badParamsHelper = function(framework, params, msgSentObj)
     {
       var msgName;
-      for (msgName in OO.Analytics.EVENTS)
+      for(msgName in OO.Analytics.EVENTS)
       {
         expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
         msgSentObj.count++;
@@ -580,7 +577,7 @@ describe('Analytics Framework Unit Tests', function()
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(msgSentObj.count);
-        var lastMsg = recordedEvents[length - 1];
+        var lastMsg = recordedEvents[length-1];
         expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
       }
     };
@@ -635,7 +632,7 @@ describe('Analytics Framework Unit Tests', function()
 
     it('Test Max Messages Recorded', function()
     {
-      for (var i = 0; i < 550; i++)
+      for(var i = 0; i < 550; i++)
       {
         framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED);
       }
@@ -657,7 +654,7 @@ describe('Analytics Framework Unit Tests', function()
     var testCleanup = function()
     {
       //Test factories
-      if (OO.Analytics.Framework.TEST)
+      if(OO.Analytics.Framework.TEST)
       {
         OO.Analytics.Framework.TEST = null;
       }
@@ -740,7 +737,7 @@ describe('Analytics Framework Unit Tests', function()
     it("Test Plugin Init with Metadata For Other Plugins", function()
     {
       var metadata = {};
-      metadata.otherPlugin = {test1: 1, test2: 2};
+      metadata.otherPlugin = {test1:1, test2:2};
       testSinglePluginWithMetadata(metadata, true);
 
       var plugin = OO.Analytics.Framework.TEST[0];
@@ -751,7 +748,7 @@ describe('Analytics Framework Unit Tests', function()
     it("Test Setting Framework Metadata Just For This Plugin", function()
     {
       var metadata = {};
-      metadata.testName = {test1: 1, test2: 2};
+      metadata.testName = {test1:1, test2:2};
       testSinglePluginWithMetadata(metadata, true);
 
       var plugin = OO.Analytics.Framework.TEST[0];
@@ -763,8 +760,8 @@ describe('Analytics Framework Unit Tests', function()
     it("Test Setting Framework Metadata With Data For Multiple Plugins", function()
     {
       var metadata = {};
-      metadata.testName = {test1: 1, test2: 2};
-      metadata.otherTest = {test3: 3, test4: 4};
+      metadata.testName = {test1:1, test2:2};
+      metadata.otherTest = {test3:3, test4:4};
       testSinglePluginWithMetadata(metadata, true);
 
       var plugin = OO.Analytics.Framework.TEST[0];
@@ -787,7 +784,7 @@ describe('Analytics Framework Unit Tests', function()
     var testCleanup = function()
     {
       //Test factories
-      if (OO.Analytics.Framework.TEST)
+      if(OO.Analytics.Framework.TEST)
       {
         OO.Analytics.Framework.TEST = null;
       }
@@ -887,10 +884,11 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryThatThrowsErrorOn("getName");
       var errorOccured = false;
       var pluginID;
-      try {
+      try
+      {
         pluginID = framework.registerPlugin(factory);
       }
-      catch (e)
+      catch(e)
       {
         OO.log(e);
         errorOccured = true;
@@ -905,10 +903,11 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryThatThrowsErrorOn("getVersion");
       var errorOccured = false;
       var pluginID;
-      try {
+      try
+      {
         pluginID = framework.registerPlugin(factory);
       }
-      catch (e)
+      catch(e)
       {
         OO.log(e);
         errorOccured = true;
@@ -923,10 +922,11 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryThatThrowsErrorOn("init");
       var errorOccured = false;
       var pluginID;
-      try {
+      try
+      {
         pluginID = framework.registerPlugin(factory);
       }
-      catch (e)
+      catch(e)
       {
         OO.log(e);
         errorOccured = true;
@@ -939,11 +939,12 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryThatThrowsErrorOn("setMetadata");
       var errorOccured = false;
       var pluginID;
-      try {
+      try
+      {
         pluginID = framework.registerPlugin(factory);
         expect(framework.setPluginMetadata({}));
       }
-      catch (e)
+      catch(e)
       {
         OO.log(e);
         errorOccured = true;
@@ -956,10 +957,11 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryThatThrowsErrorOn("setPluginID");
       var errorOccured = false;
       var pluginID;
-      try {
+      try
+      {
         pluginID = framework.registerPlugin(factory);
       }
-      catch (e)
+      catch(e)
       {
         OO.log(e);
         errorOccured = true;
@@ -973,17 +975,18 @@ describe('Analytics Framework Unit Tests', function()
     it("Test Framework Handles Plugin That Throws Error On processEvent", function()
     {
       var factory = Utils.createFactoryThatThrowsErrorOn("processEvent");
-      var otherFactory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      var otherFactory  = Utils.createFactoryWithGlobalAccessToPluginInstance();
       var errorOccured = false;
       var pluginID1 = framework.registerPlugin(factory);
       expect(framework.getPluginIDList().length).toEqual(1);
       var pluginID2 = framework.registerPlugin(otherFactory);
       expect(framework.getPluginIDList().length).toEqual(2);
-      try {
+      try
+      {
         expect(framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED)).toBe(true);
         expect(framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED)).toBe(true);
       }
-      catch (e)
+      catch(e)
       {
         if (e)
         {
@@ -1001,11 +1004,12 @@ describe('Analytics Framework Unit Tests', function()
       var factory = Utils.createFactoryThatThrowsErrorOn("destroy");
       var errorOccured = false;
       var pluginID;
-      try {
+      try
+      {
         pluginID = framework.registerPlugin(factory);
         framework.unregisterPlugin(pluginID);
       }
-      catch (e)
+      catch(e)
       {
         OO.log(e);
         errorOccured = true;
@@ -1061,15 +1065,15 @@ describe('Analytics Framework Unit Tests', function()
       var metadata =
       {
         embedCode: "test1",
-        metadata: {foo: "test2"}
+        metadata: {foo:"test2"}
       };
 
       var embedCode = "embedCodeTest";
       var data = new OO.Analytics.EVENT_DATA.VideoSourceData(embedCode, metadata);
-      expect(data).toEqual({embedCode: embedCode, metadata: metadata});
+      expect(data).toEqual({embedCode:embedCode,metadata:metadata});
 
-      data = new OO.Analytics.EVENT_DATA.VideoSourceData(2, "test");
-      expect(data).not.toEqual({embedCode: 2, metadata: "test"});
+      data = new OO.Analytics.EVENT_DATA.VideoSourceData(2,"test");
+      expect(data).not.toEqual({embedCode:2,metadata:"test"});
       expect(data.embedCode).toEqual(undefined);
       expect(data.metadata).toEqual(undefined);
     });
@@ -1078,49 +1082,49 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        title: "titleTest",
-        description: "descTest",
-        duration: 2.3,
-        closedCaptions: {foo: "test"},
+        title:"titleTest",
+        description:"descTest",
+        duration:2.3,
+        closedCaptions: {foo:"test"},
         contentType: "contentTest",
         hostedAtURL: "urlTest"
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(metadata.title,
-        metadata.description,
-        metadata.duration,
-        metadata.closedCaptions,
-        metadata.contentType,
-        metadata.hostedAtURL);
+                                                                  metadata.description,
+                                                                  metadata.duration,
+                                                                  metadata.closedCaptions,
+                                                                  metadata.contentType,
+                                                                  metadata.hostedAtURL);
       expect(data).toEqual(metadata);
 
       //check and see if numbers get parsed correctly.
       var temp = OO._.clone(metadata);
       temp.duration = "2.3";
       data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
-        temp.description,
-        temp.duration,
-        temp.closedCaptions,
-        temp.contentType,
-        temp.hostedAtURL);
+                                                              temp.description,
+                                                              temp.duration,
+                                                              temp.closedCaptions,
+                                                              temp.contentType,
+                                                              temp.hostedAtURL);
       expect(data).toEqual(metadata);
 
       temp.duration = "2";
       data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
-        temp.description,
-        temp.duration,
-        temp.closedCaptions,
-        temp.contentType,
-        temp.hostedAtURL);
+                                                              temp.description,
+                                                              temp.duration,
+                                                              temp.closedCaptions,
+                                                              temp.contentType,
+                                                              temp.hostedAtURL);
       expect(data.duration).toEqual(2);
 
       temp.duration = "asdf";
       data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
-        temp.description,
-        temp.duration,
-        temp.closedCaptions,
-        temp.contentType,
-        temp.hostedAtURL);
+                                                              temp.description,
+                                                              temp.duration,
+                                                              temp.closedCaptions,
+                                                              temp.contentType,
+                                                              temp.hostedAtURL);
       expect(data.duration).toBeUndefined();
     });
 
@@ -1128,9 +1132,9 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        currentTime: 1,
-        totalStreamDuration: 2,
-        streamBufferedUntilTime: 2.3,
+        currentTime:1,
+        totalStreamDuration:2,
+        streamBufferedUntilTime:2.3,
         seekableRangeStart: 4.4,
         seekableRangeEnd: 5.5
       };
@@ -1151,7 +1155,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        streamUrl: "testUrl.com"
+        streamUrl:"testUrl.com"
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoBufferingStartedData(metadata.streamUrl);
@@ -1162,7 +1166,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        streamUrl: "testUrl.com"
+        streamUrl:"testUrl.com"
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoBufferingEndedData(metadata.streamUrl);
@@ -1173,7 +1177,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        seekingToTime: 5.05
+        seekingToTime:5.05
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoSeekRequestedData(metadata.seekingToTime);
@@ -1184,7 +1188,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        timeSeekedTo: 5109293.9949
+        timeSeekedTo:5109293.9949
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoSeekCompletedData(metadata.timeSeekedTo);
@@ -1195,12 +1199,12 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        streamPosition: 500,
-        totalStreamDuration: 1000,
+        streamPosition:500,
+        totalStreamDuration:1000,
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData(metadata.streamPosition,
-        metadata.totalStreamDuration);
+                                                                            metadata.totalStreamDuration);
       expect(data).toEqual(metadata);
     });
 
@@ -1208,18 +1212,18 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadataIn =
       {
-        streamPosition: "500",
-        totalStreamDuration: "1000",
+        streamPosition:"500",
+        totalStreamDuration:"1000",
       };
 
       var metadataOut =
       {
-        streamPosition: 500,
-        totalStreamDuration: 1000,
+        streamPosition:500,
+        totalStreamDuration:1000,
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData(metadataIn.streamPosition,
-        metadataIn.totalStreamDuration);
+                                                                            metadataIn.totalStreamDuration);
       expect(data).toEqual(metadataOut);
     });
 
@@ -1227,12 +1231,12 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadataIn =
       {
-        numberOfAds: 3
+        numberOfAds:3
       };
 
       var metadataOut =
       {
-        numberOfAds: 3
+        numberOfAds:3
       };
 
       var data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
@@ -1265,7 +1269,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        adId: "adId"
+        adId:"adId"
       };
 
       var data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
@@ -1288,7 +1292,7 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadata =
       {
-        changingToFullscreen: true
+        changingToFullscreen:true
       };
 
       var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
@@ -1327,12 +1331,12 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadataIn =
       {
-        currentVolume: 100
+        currentVolume:100
       };
 
       var metadataOut =
       {
-        currentVolume: 100
+        currentVolume:100
       };
 
       var data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
@@ -1375,8 +1379,8 @@ describe('Analytics Framework Unit Tests', function()
       };
 
       var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
-        metadataIn.duration,
-        metadataIn.indexInPod);
+                                                           metadataIn.duration,
+                                                           metadataIn.indexInPod);
       expect(data).toEqual(metadataOut);
     });
 
@@ -1397,8 +1401,8 @@ describe('Analytics Framework Unit Tests', function()
       };
 
       var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
-        metadataIn.duration,
-        metadataIn.indexInPod);
+                                                           metadataIn.duration,
+                                                           metadataIn.indexInPod);
       expect(data).toEqual(metadataOut);
     });
   });
