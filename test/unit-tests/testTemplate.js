@@ -122,12 +122,12 @@ describe('Analytics Framework Template Unit Tests', function()
         factory.setMetadata = function(metadata)
         {
           metadataReceived = metadata;
-        }
+        };
         factory.processEvent = function(eventName, params)
         {
           eventProcessed = eventName;
           paramsReceived = params;
-        }
+        };
         return factory;
     };
     framework.registerPlugin(newFactoryWithFunctionTracing);
@@ -137,7 +137,7 @@ describe('Analytics Framework Template Unit Tests', function()
       {
         "data": "mydata"
       }
-    }
+    };
     framework.setPluginMetadata(metadata);
     expect(metadataReceived).toEqual(metadata["template"]);
     framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PAUSED, [metadata]);

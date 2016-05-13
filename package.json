@@ -63,6 +63,7 @@
       "<rootDir>/js/framework/AnalyticsFramework.js": true,
       "<rootDir>/js/framework/InitAnalyticsNamespace.js": true,
       "<rootDir>/js/plugins/AnalyticsPluginTemplate.js": true,
+      "<rootDir>/js/plugins/Omniture.js": true,
       "<rootDir>/js/plugins/Nielsen.js": true
     }
   }

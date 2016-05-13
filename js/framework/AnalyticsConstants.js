@@ -281,7 +281,7 @@ if (!OO.Analytics.EVENT_DATA)
     var checkSourceData = OO._.bind(checkDataType, this, "VideoSourceData");
     this.embedCode = checkSourceData(embedCode, "embedCode", "string");
     this.metadata  = checkSourceData(metadata, "metadata", "object");
-  }
+  };
 
   /**
    * @public
@@ -304,7 +304,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", "object");
     this.contentType    = checkContentData(contentType, "contentType", "string");
     this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", "string");
-  }
+  };
 
   /**
    * @public
@@ -324,7 +324,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, "streamBufferedUntilTime", "number");
     this.seekableRangeStart      = checkDownloadData(seekableRangeStart, "seekableRangeStart", "number");
     this.seekableRangeEnd        = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", "number");
-  }
+  };
 
   /**
    * @public
@@ -336,7 +336,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkBufferingStartedData = OO._.bind(checkDataType, this, "VideoBufferingStartedData");
     this.streamUrl = checkBufferingStartedData(streamUrl, "streamUrl", "string");
-  }
+  };
 
   /**
    * @public
@@ -348,7 +348,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkBufferingEndedData = OO._.bind(checkDataType, this, "VideoBufferingEndedData");
     this.streamUrl = checkBufferingEndedData(streamUrl, "streamUrl", "string");
-  }
+  };
 
   /**
    * @public
@@ -360,7 +360,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkSeekStartedData = OO._.bind(checkDataType, this, "VideoSeekRequestedData");
     this.seekingToTime = checkSeekStartedData(seekingToTime, "seekingToTime", "number");
-  }
+  };
 
   /**
    * @public
@@ -373,7 +373,20 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkSeekEndedData = OO._.bind(checkDataType, this, "VideoSeekCompletedData");
     this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", "number");
-  }
+  };
+
+  EVENT_DATA.AdStartedData = function(adId, adDuration, adPodPosition)
+  {
+    var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
+    this.adId = checkAdStartedData(adId, "adId", "string");
+    this.adDuration = checkAdStartedData(adDuration, "adDuration", "number");
+    this.adPodPosition = checkAdStartedData(adPodPosition, "adPodPosition", "number");
+  };
+
+  EVENT_DATA.AdEndedData = function()
+  {
+
+  };
 
   /**
    * @public
