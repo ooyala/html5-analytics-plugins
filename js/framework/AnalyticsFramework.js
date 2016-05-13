@@ -37,8 +37,8 @@ OO.Analytics.Framework = function()
   var _pluginMetadata;
   var _eventExistenceLookup = {};
   var _uniquePluginId = 0;
-  const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
-  const MAX_EVENTS_RECORDED = 500;
+  var MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
+  var MAX_EVENTS_RECORDED = 500;
 
   /**
    * Helper function for readability mainly. Binds private functions to 'this' instance

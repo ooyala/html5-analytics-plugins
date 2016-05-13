@@ -275,7 +275,7 @@ if (!OO.Analytics.Utils)
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
           streamPosition : metadata.streamPosition
         }]);
-        plugin.processEvent(OO.Analytics.EVENTS.CONTENT_COMPLETED);
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED);
       }
     };
 
