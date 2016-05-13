@@ -34,6 +34,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_CONTENT_COMPLETED
+     * @description This message is sent when main content playback has completed.
+     */
+    VIDEO_CONTENT_COMPLETED:        'video_content_completed',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#PLAYBACK_COMPLETED
      * @description This message is sent when video and ad playback has completed.
      */
@@ -189,6 +196,21 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_STARTED
+     * @description This message is sent when the player starts an ad playback.
+     * @param {Array} paramArray Array of length 3, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdStartedData
+     */
+    AD_STARTED:               'ad_started',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_ENDED
+     * @description This message is sent when the player stops an ad playback.
+     */
+    AD_ENDED:                 'ad_ended',
+
+    /**
      * @event OO.Analytics.EVENTS#AD_POD_STARTED
      * @description This message is sent when an ad pod starts.
      * @param {Array} paramArray Array of length 1, contains an instance of
@@ -365,7 +387,15 @@ if (!OO.Analytics.EVENT_DATA)
     var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
     this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", "number");
     this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", "number");
-  }
+  };
+
+  EVENT_DATA.AdStartedData = function(adId, adDuration, adPodPosition)
+  {
+    var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
+    this.adId = checkAdStartedData(adId, "adId", "string");
+    this.adDuration = checkAdStartedData(adDuration, "adDuration", "number");
+    this.adPodPosition = checkAdStartedData(adPodPosition, "adPodPosition", "number");
+  };
 
   /**
    * @public
@@ -467,7 +497,7 @@ if (!OO.Analytics.EVENT_DATA)
     }
 
     return toRet;
-  }
+  };
 
   OO.Analytics.EVENT_DATA = EVENT_DATA;
 }
