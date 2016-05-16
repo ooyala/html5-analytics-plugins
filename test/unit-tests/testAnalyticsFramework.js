@@ -1226,5 +1226,184 @@ describe('Analytics Framework Unit Tests', function()
                                                                             metadataIn.totalStreamDuration);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test AdPodStartedData', function()
+    {
+      var metadataIn =
+      {
+        numberOfAds:3
+      };
+
+      var metadataOut =
+      {
+        numberOfAds:3
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = "3";
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = 0;
+      metadataOut.numberOfAds = 0;
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = "2";
+      metadataOut.numberOfAds = 2;
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.numberOfAds = "asdf";
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data.numberOfAds).toEqual(undefined);
+
+      metadataIn.numberOfAds = true;
+      data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      expect(data.numberOfAds).toEqual(undefined);
+    });
+
+    it('Test AdPodEndedData', function()
+    {
+      var metadata =
+      {
+        adId:"adId"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data).toEqual(metadata);
+
+      metadata = 1;
+      data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data.adId).toEqual(undefined);
+
+      metadata = false;
+      data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data.adId).toEqual(undefined);
+
+      metadata = {};
+      data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      expect(data.adId).toEqual(undefined);
+    });
+
+    it('Test FullscreenChangedData', function()
+    {
+      var metadata =
+      {
+        changingToFullscreen:true
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data).toEqual(metadata);
+
+      metadata.changingToFullscreen = false;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data).toEqual(metadata);
+
+      metadata.changingToFullscreen = "true";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+
+      metadata.changingToFullscreen = "false";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+
+      metadata.changingToFullscreen = "banana";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+
+      metadata.changingToFullscreen = "";
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+
+      metadata.changingToFullscreen = null;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+
+      metadata.changingToFullscreen = 1;
+      data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadata.changingToFullscreen);
+      expect(data.changingToFullscreen).toEqual(undefined);
+    });
+
+    it('Test VolumeChangedData', function()
+    {
+      var metadataIn =
+      {
+        currentVolume:100
+      };
+
+      var metadataOut =
+      {
+        currentVolume:100
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = 0;
+      metadataOut.currentVolume = 0;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = "100";
+      metadataOut.currentVolume = 100;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = "0";
+      metadataOut.currentVolume = 0;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.currentVolume = true;
+      data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      expect(data.currentVolume).toEqual(undefined);
+    });
+
+    it('Test AdStartedData', function()
+    {
+      var metadataIn =
+      {
+        name: "testName",
+        duration: 10,
+        indexInPod: 1
+      };
+
+      var metadataOut =
+      {
+        adId: "testName",
+        adDuration: 10,
+        adPodPosition: 1
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
+                                                           metadataIn.duration,
+                                                           metadataIn.indexInPod);
+      expect(data).toEqual(metadataOut);
+    });
+
+    it('Test AdStartedData with String Input', function()
+    {
+      var metadataIn =
+      {
+        name: "testName",
+        duration: "10",
+        indexInPod: "1"
+      };
+
+      var metadataOut =
+      {
+        adId: "testName",
+        adDuration: 10,
+        adPodPosition: 1
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
+                                                           metadataIn.duration,
+                                                           metadataIn.indexInPod);
+      expect(data).toEqual(metadataOut);
+    });
   });
 });

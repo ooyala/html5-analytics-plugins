@@ -3,6 +3,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   jest.autoMockOff();
   //this file is the file that defines TEST_ROOT and SRC_ROOT
   require("../unit-test-helpers/test_env.js");
+  require("../unit-test-helpers/mock_adobe.js");
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
 //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
@@ -14,6 +15,8 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   var framework;
 
   var playerName = "Ooyala V4";
+
+
 
   //setup for individual tests
   var testSetup = function()
@@ -35,11 +38,41 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   beforeEach(testSetup);
   afterEach(testCleanup);
 
+  //helpers
+  var createPlugin = function(framework)
+  {
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
+    var plugin = new omniturePluginFactory(framework);
+    plugin.init();
+    plugin.setMetadata(
+      {
+        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+        "reportSuiteId":"ovppooyala",
+        "pageName":"Test Page Name",
+        "visitorId":"test-vid",
+        "debug":true,
+        "channel":"Test Heartbeat Channel",//optional
+        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "publisherId":"ooyalatester",
+        "props":{
+          "prop1":"espn",
+          "prop25":"football"
+        },
+        "eVars":{
+          "eVar9":"en"
+        }
+      }
+    );
+    return plugin;
+  };
+
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     expect(omniturePluginFactory).not.toBeNull();
-    var plugin = new omniturePluginFactory();
+    var plugin = new omniturePluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
@@ -67,7 +100,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var pluginID = framework.registerPlugin(omniturePluginFactory);
     expect(pluginID).toBeDefined();
     var pluginList = framework.getPluginIDList();
@@ -114,10 +147,10 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //
   it('Test Setting Metadata and Processing An Event', function()
   {
-    var metadataRecieved;
-    var eventProcessed;
-    var paramsReceived;
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var metadataReceived = null;
+    var eventProcessed = null;
+    var paramsReceived = null;
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var newFactoryWithFunctionTracing = function()
     {
       var factory = new omniturePluginFactory();
@@ -135,13 +168,13 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     framework.registerPlugin(newFactoryWithFunctionTracing);
     var metadata =
     {
-      "Omniture":
+      "omniture":
       {
         "data": "mydata"
       }
     };
     framework.setPluginMetadata(metadata);
-    expect(metadataReceived).toEqual(metadata["Omniture"]);
+    expect(metadataReceived).toEqual(metadata["omniture"]);
     framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PAUSED, [metadata]);
     expect(eventProcessed).toEqual(OO.Analytics.EVENTS.VIDEO_PAUSED);
     expect(paramsReceived).toEqual([metadata]);
@@ -149,7 +182,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test Framework Destroy With Template', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -187,8 +220,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test all functions', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
     var errorOccured = false;
     try
     {
@@ -196,7 +228,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
       {
         if(OO._.isFunction(plugin[key]))
         {
-          plugin[key].apply(plugin);
+          plugin[key].apply();
         }
       }
     }
@@ -211,18 +243,16 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //new
   it('Delegate can provide valid Video Info', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
-      embedCode : "abcde"
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
       title : "testTitle",
-      duration : 20
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 10
-    }]);
+      duration : 20000
+    });
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
     var delegate = plugin.getPlayerDelegate();
     var videoInfo = delegate.getVideoInfo();
     expect(videoInfo.id).toBe("abcde");
@@ -234,12 +264,12 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Delegate can provide valid Ad Break Info', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 10
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
+    simulator.simulateAdBreakStarted();
     var delegate = plugin.getPlayerDelegate();
     var adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
@@ -249,13 +279,13 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Delegate can provide valid Ad Info', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateAdPlayback({
       adId : "zyxw",
       adDuration : 15,
       adPodPosition : 1
-    }]);
+    });
     var delegate = plugin.getPlayerDelegate();
     var adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("zyxw");
@@ -265,47 +295,47 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Omniture Video Plugin can trackSessionStart', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSessionStart = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED);
+    simulator.simulatePlayerStart();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackPlay', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackPlay = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    simulator.simulateContentPlayback();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackVideoLoad', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    simulator.simulatePlayerStart();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin does not trackVideoLoad if we are resuming playback from a pause', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var videoLoadCalled = 0;
     var playCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function()
@@ -316,65 +346,55 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     {
       playCalled++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    simulator.simulatePlayerStart();
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoPause();
+    simulator.simulateContentPlayback();
     expect(videoLoadCalled).toBe(1);
     expect(playCalled).toBe(2);
   });
 
   it('Omniture Video Plugin can trackPause', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackPause = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
+    simulator.simulateVideoPause();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackSeekStart', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekStart = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED);
-    expect(called).toBe(1);
-  });
-
-  it('Omniture Video Plugin can trackSeekStart', function()
-  {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSeekStart = function()
-    {
-      called++;
-    };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED);
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoSeek();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackSeekComplete', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 10
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED);
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoSeek();
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
     expect(called).toBe(1);
     var delegate = plugin.getPlayerDelegate();
     var videoInfo = delegate.getVideoInfo();
@@ -383,90 +403,99 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Omniture Video Plugin can trackComplete', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackComplete = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_COMPLETED);
+    simulator.simulateContentComplete({
+      streamPosition: 60
+    });
+    simulator.simulatePlaybackComplete();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackVideoUnload', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_COMPLETED);
+    simulator.simulateContentComplete({
+      streamPosition: 60
+    });
+    simulator.simulatePlaybackComplete();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackBufferStart', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackBufferStart = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED);
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoBufferingStarted();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackBufferComplete', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackBufferComplete = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED);
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoBufferingStarted();
+    simulator.simulateVideoBufferingEnded();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackAdStart', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdStart = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "zyxw",
       adDuration : 15,
       adPodPosition : 1
-    }]);
+    });
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can trackAdComplete', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var called = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdComplete = function()
     {
       called++;
     };
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
+    simulator.simulateAdComplete();
     expect(called).toBe(1);
   });
 
   it('Omniture Video Plugin can track all events in a typical playback', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var delegate = plugin.getPlayerDelegate();
 
     var adStartCalled = 0;
@@ -541,299 +570,316 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
       videoUnloadCalled++;
     };
 
+    var clearCounts = function()
+    {
+      videoUnloadCalled = 0;
+      completeCalled = 0;
+      seekCompleteCalled = 0;
+      seekStartCalled = 0;
+      pauseCalled = 0;
+      playCalled = 0;
+      bufferCompleteCalled = 0;
+      bufferStartCalled = 0;
+      sessionStartCalled = 0;
+      videoLoadCalled = 0;
+      adCompleteCalled = 0;
+      adStartCalled = 0;
+    };
+
+    simulator.addPreSimulateCallback(clearCounts);
+
     var videoInfo, adBreakInfo, adInfo;
 
     //initialization
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
       title : "testTitle",
-      duration : 20
-    }]);
+      duration : 20000
+    });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.name).toBe("testTitle");
     expect(videoInfo.length).toBe(20);
-
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
-      embedCode : "abcde"
-    }]);
-    videoInfo = delegate.getVideoInfo();
     expect(videoInfo.id).toBe("abcde");
 
     //user clicks play
-    plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED);
+    simulator.simulatePlayerStart();
+    expect(videoLoadCalled).toBe(1);
     expect(sessionStartCalled).toBe(1);
 
     //preroll
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
     expect(adBreakInfo.position).toBe(1);
     expect(adBreakInfo.startTime).toBe(0);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "preroll",
       adDuration : 15,
       adPodPosition : 1
-    }]);
+    });
+    //the preroll adds another trackPlay call
+    expect(playCalled).toBe(1);
+
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("preroll");
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
     expect(adStartCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
+    simulator.simulateAdComplete();
     expect(adCompleteCalled).toBe(1);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+    simulator.simulateAdBreakEnded();
 
     //main content
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED);
+    simulator.simulateVideoBufferingStarted();
+    //we do not want to report buffering until we report content start
+    expect(bufferStartCalled).toBe(0);
+
+    simulator.simulateContentPlayback();
+    expect(playCalled).toBe(1);
     expect(bufferStartCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED);
+    simulator.simulateVideoBufferingEnded();
     expect(bufferCompleteCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
-    expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(1);
-
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
+    simulator.simulateVideoPause();
     expect(pauseCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
-    expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(2);
+    simulator.simulateContentPlayback();
+    expect(playCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED);
+    simulator.simulateVideoSeek();
     expect(seekStartCalled).toBe(1);
-
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 9
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED);
     expect(seekCompleteCalled).toBe(1);
+
+    simulator.simulateVideoProgress({
+      playheads: [9]
+    });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(9);
 
     //midroll - podded of 2
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 10
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
+    simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(2);
     expect(adBreakInfo.startTime).toBe(10);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "midroll",
       adDuration : 15,
       adPodPosition : 1
-    }]);
+    });
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("midroll");
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
-    expect(adStartCalled).toBe(2);
+    expect(adStartCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
-    expect(adCompleteCalled).toBe(2);
+    simulator.simulateAdComplete();
+    expect(adCompleteCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "midroll2",
       adDuration : 5,
       adPodPosition : 2
-    }]);
+    });
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("midroll2");
     expect(adInfo.length).toBe(5);
     expect(adInfo.position).toBe(2);
-    expect(adStartCalled).toBe(3);
+    expect(adStartCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
-    expect(adCompleteCalled).toBe(3);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+    simulator.simulateAdComplete();
+    expect(adCompleteCalled).toBe(1);
+    simulator.simulateAdBreakEnded();
 
     //main content resumes
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
-    expect(videoLoadCalled).toBe(1);
-    expect(playCalled).toBe(3);
+    simulator.simulateContentPlayback();
+    expect(playCalled).toBe(1);
 
     //TODO: Should completed message go before postroll?
     //postroll
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 60
-    }]);
+    simulator.simulateContentComplete({
+      streamPosition: 60
+    });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(60);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(3);
     expect(adBreakInfo.startTime).toBe(60);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "postroll",
       adDuration : 30,
       adPodPosition : 1
-    }]);
+    });
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("postroll");
     expect(adInfo.length).toBe(30);
     expect(adInfo.position).toBe(1);
-    expect(adStartCalled).toBe(4);
+    expect(adStartCalled).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
-    expect(adCompleteCalled).toBe(4);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+    simulator.simulateAdComplete();
+    expect(adCompleteCalled).toBe(1);
+    simulator.simulateAdBreakEnded();
 
     //main video ends
-    plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_COMPLETED);
+    simulator.simulateContentComplete({
+      streamPosition: 60
+    });
+    simulator.simulatePlaybackComplete();
     expect(completeCalled).toBe(1);
     expect(videoUnloadCalled).toBe(1);
 
     //replay
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED);
+    simulator.simulateReplay();
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(0);
+
+    expect(videoLoadCalled).toBe(1);
+    expect(sessionStartCalled).toBe(1);
   });
 
   //TODO: This only tests for function coverage of the Fake Video Plugin
   it('Omniture Video Plugin can track all events in a typical playback without mocks', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
-    var plugin = new omniturePluginFactory(framework);
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
     var delegate = plugin.getPlayerDelegate();
 
     var videoInfo, adBreakInfo, adInfo;
 
     //initialization
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
       title : "testTitle",
-      duration : 20
-    }]);
+      duration : 20000
+    });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.name).toBe("testTitle");
     expect(videoInfo.length).toBe(20);
-
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
-      embedCode : "abcde"
-    }]);
-    videoInfo = delegate.getVideoInfo();
     expect(videoInfo.id).toBe("abcde");
 
     //user clicks play
-    plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED);
+    simulator.simulatePlayerStart();
 
     //preroll
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
     expect(adBreakInfo.position).toBe(1);
     expect(adBreakInfo.startTime).toBe(0);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "preroll",
       adDuration : 15,
       adPodPosition : 1
-    }]);
+    });
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("preroll");
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+    simulator.simulateAdComplete();
+    simulator.simulateAdBreakEnded();
 
     //main content
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED);
+    simulator.simulateVideoBufferingStarted();
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED);
+    simulator.simulateVideoBufferingEnded();
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    simulator.simulateContentPlayback();
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
+    simulator.simulateVideoPause();
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    simulator.simulateContentPlayback();
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED);
+    simulator.simulateVideoSeek();
 
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 9
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED);
+    simulator.simulateVideoProgress({
+      playheads: [9]
+    });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(9);
 
     //midroll - podded of 2
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 10
-    }]);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
+    simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(2);
     expect(adBreakInfo.startTime).toBe(10);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "midroll",
       adDuration : 15,
       adPodPosition : 1
-    }]);
+    });
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("midroll");
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
+    simulator.simulateAdComplete();
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "midroll2",
       adDuration : 5,
       adPodPosition : 2
-    }]);
+    });
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("midroll2");
     expect(adInfo.length).toBe(5);
     expect(adInfo.position).toBe(2);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+    simulator.simulateAdComplete();
+    simulator.simulateAdBreakEnded();
 
     //main content resumes
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYING);
+    simulator.simulateContentPlayback();
 
     //TODO: Should completed message go before postroll?
     //postroll
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-      streamPosition : 60
-    }]);
+    simulator.simulateContentComplete({
+      streamPosition: 60
+    });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(60);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_STARTED);
+    simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
-    expect(adBreakInfo.position).toBe(1);
+    expect(adBreakInfo.position).toBe(3);
     expect(adBreakInfo.startTime).toBe(60);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
+    simulator.simulateAdPlayback({
       adId : "postroll",
       adDuration : 30,
       adPodPosition : 1
-    }]);
+    });
     adInfo = delegate.getAdInfo();
     expect(adInfo.id).toBe("postroll");
     expect(adInfo.length).toBe(30);
     expect(adInfo.position).toBe(1);
 
-    plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
-    plugin.processEvent(OO.Analytics.EVENTS.AD_BREAK_ENDED);
+    simulator.simulateAdComplete();
+    simulator.simulateAdBreakEnded();
 
     //main video ends
-    plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_COMPLETED);
+    simulator.simulatePlaybackComplete();
 
     //replay
-    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED);
+    simulator.simulateReplay();
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(0);
   });
