@@ -16,7 +16,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   var playerName = "Ooyala V4";
 
-  
+
 
   //setup for individual tests
   var testSetup = function()
@@ -41,7 +41,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //helpers
   var createPlugin = function(framework)
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var plugin = new omniturePluginFactory(framework);
     plugin.init();
     plugin.setMetadata(
@@ -70,7 +70,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     expect(omniturePluginFactory).not.toBeNull();
     var plugin = new omniturePluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
@@ -100,7 +100,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var pluginID = framework.registerPlugin(omniturePluginFactory);
     expect(pluginID).toBeDefined();
     var pluginList = framework.getPluginIDList();
@@ -150,7 +150,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     var metadataReceived = null;
     var eventProcessed = null;
     var paramsReceived = null;
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var newFactoryWithFunctionTracing = function()
     {
       var factory = new omniturePluginFactory();
@@ -182,7 +182,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test Framework Destroy With Template', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/Omniture.js");
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
