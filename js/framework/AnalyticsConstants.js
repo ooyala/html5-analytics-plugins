@@ -355,7 +355,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, "streamBufferedUntilTime", ["number"]);
     this.seekableRangeStart      = checkDownloadData(seekableRangeStart, "seekableRangeStart", ["number"]);
     this.seekableRangeEnd        = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", ["number"]);
-  }
+  };
 
   /**
    * @public
@@ -449,14 +449,41 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdStartedData
    * @classdesc Contains information about the type of ad that has started and its ad data.
    * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {object} adMetadata The metadata associated with the ad
+   * @property {object} adMetadataIn The metadata associated with the ad
    */
-  EVENT_DATA.AdStartedData = function(adType, adMetadata)
+  EVENT_DATA.AdStartedData = function(adType, adMetadataIn)
   {
     var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
-
     this.adType = checkAdStartedData(adType, "adType", ["string"]);
-    this.adMetadata = checkAdType(adType, adMetadata);
+    this.adMetadata = checkAdType(adType, adMetadataIn);
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#LinearVideoData
+   * @classdesc Contains information about the linear video ad data.
+   * @property {string} adId The id of the ad
+   * @property {number} adDuration The duration of the ad video stream
+   * @property {number} adPodPosition The index of the current ad in its ad pod
+   */
+  EVENT_DATA.LinearVideoData = function(adId, adDuration, adPodPosition)
+  {
+    var checkLinearVideoData = OO._.bind(checkDataType, this, "LinearVideoData");
+    this.adId = checkLinearVideoData(adId, "adId", ["string"]);
+    this.adDuration = checkLinearVideoData(adDuration, "adDuration", ["number"]);
+    this.adPodPosition = checkLinearVideoData(adPodPosition, "adPodPosition", ["number"]);
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#NonLinearOverlayData
+   * @classdesc Contains information about the non linear overlay ad data.
+   * @property {string} adId The id of the ad
+   */
+  EVENT_DATA.NonLinearOverlayData = function(adId)
+  {
+    var checkNonLinearOverlayData = OO._.bind(checkDataType, this, "NonLinearOverlayData");
+    this.adId = checkNonLinearOverlayData(adId, "adId", ["string"]);
   }
 
   /**
@@ -464,13 +491,13 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdEndedData
    * @classdesc Contains information about the type of ad that has ended and its ad data.
    * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {object} adMetadata The metadata associated with the ad
+   * @property {string} adId The id of the ad
    */
-  EVENT_DATA.AdEndedData = function(adType, adMetadata)
+  EVENT_DATA.AdEndedData = function(adType, adId)
   {
     var checkAdEndedData = OO._.bind(checkDataType, this, "AdEndedData");
     this.adType = checkAdEndedData(adType, "adType", ["string"]);
-    this.adMetadata = checkAdEndedData(adMetadata, "adMetadata", ["object"]);
+    this.adId = checkAdEndedData(adId, "adId", ["string"]);
   }
 
   /**
@@ -585,9 +612,46 @@ if (!OO.Analytics.EVENT_DATA)
     return toRet;
   };
 
+  /**
+   * @private
+   * @class Analytics.EVENT_DATA#checkAdType
+   * @classdesc Checks for a recognized Ad Type and returns the corresponding EVENT_DATA object.
+   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
+   * @property {object} adMetadata The metadata associated with the ad
+   * @returns {object} The EVENT_DATA object that associates with the Ad Type.
+   */
+  var checkAdType = function(adType, adMetadataIn)
+  {
+    var adMetadataOut;
+    switch (adType)
+    {
+      case ADTYPE.LINEAR_VIDEO:
+        adMetadataOut = new EVENT_DATA.LinearVideoData
+        (
+          adMetadataIn.name,
+          adMetadataIn.duration,
+          adMetadataIn.indexInPod
+        );
+        break;
+      case ADTYPE.NONLINEAR_OVERLAY:
+        adMetadataOut = new EVENT_DATA.NonLinearOverlayData
+        (
+         adMetadataIn.id
+        );
+        break;
+      default:
+        OO.log
+        (
+         "ERROR Ad Type not recognized. Should be one of these values [" +
+         OO._.values(ADTYPE) + "] but was [" + adType + "]."
+        );
+        break;
+    }
+    return adMetadataOut;
+  };
+
   OO.Analytics.EVENT_DATA = EVENT_DATA;
 }
-
 
 if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
 {

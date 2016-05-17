@@ -15,6 +15,13 @@ describe('Analytics Framework Unit Tests', function()
   var _ = OO._;
   var framework;
   OO.DEBUG = true;
+  var ADTYPE =
+  {
+    LINEAR_OVERLAY: "linearOverlay",
+    NONLINEAR_OVERLAY: "nonlinearOverlay",
+    LINEAR_VIDEO: "linearVideo",
+    COMPANION: "companion"
+  };
   //setup for individual tests
   var testSetup = function()
   {
@@ -1374,47 +1381,112 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
+    // indirectly tests LinearVideoData and NonLinearVideoData
     it('Test AdStartedData', function()
     {
+      // test LINEAR_VIDEO adtype
       var metadataIn =
       {
-        name: "testName",
-        duration: 10,
-        indexInPod: 1
+        adType: ADTYPE.LINEAR_VIDEO,
+        adMetadata: {
+          name: "testname",
+          duration: 10,
+          indexInPod: 1
+        }
       };
-
       var metadataOut =
       {
-        adId: "testName",
-        adDuration: 10,
-        adPodPosition: 1
+        adType: ADTYPE.LINEAR_VIDEO,
+        adMetadata: {
+          adId: "testname",
+          adDuration: 10,
+          adPodPosition: 1
+        }
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
-                                                           metadataIn.duration,
-                                                           metadataIn.indexInPod);
+      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
+      expect(data).toEqual(metadataOut);
+
+      // test string numbers
+      metadataIn.duration = "10";
+      metadataIn.indexInPod = "1";
+      data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
+      expect(data).toEqual(metadataOut);
+
+      // test bad inputs for every ad property
+      metadataIn.adMetadata.name = 0;
+      metadataIn.adMetadata.duration = false;
+      metadataIn.adMetadata.indexInPod = "NaN";
+      metadataOut.adMetadata.adId = undefined;
+      metadataOut.adMetadata.adDuration = undefined;
+      metadataOut.adMetadata.adPodPosition = undefined;
+      data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
+      expect(data).toEqual(metadataOut);
+
+      // test NONLINEAR_OVERLAY adtype
+      metadataIn =
+      {
+        adType: ADTYPE.NONLINEAR_OVERLAY,
+        adMetadata: {
+          id: "testname" 
+        }
+      };
+      metadataOut =
+      {
+        adType: ADTYPE.NONLINEAR_OVERLAY,
+        adMetadata: {
+          adId: "testname"
+        }
+      };
+
+      data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
+      expect(data).toEqual(metadataOut);
+
+      // test number as (bad) input
+      metadataIn.adMetadata.id = 1;
+      metadataOut.adMetadata.adId = undefined;
+      data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
+      expect(data).toEqual(metadataOut);
+
+      // test unrecognized ad type
+      metadataIn.adType = "bad ad type";
+      metadataOut.adType = "bad ad type";
+      metadataOut.adMetadata = undefined;
+      data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test AdStartedData with String Input', function()
+    it('Test AdEndedData', function()
     {
       var metadataIn =
       {
-        name: "testName",
-        duration: "10",
-        indexInPod: "1"
+        adType: ADTYPE.LINEAR_VIDEO,
+        adId: "testname",
       };
-
       var metadataOut =
       {
-        adId: "testName",
-        adDuration: 10,
-        adPodPosition: 1
+        adType: ADTYPE.LINEAR_VIDEO,
+        adId: "testname"
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
-                                                           metadataIn.duration,
-                                                           metadataIn.indexInPod);
+      var data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
+      expect(data).toEqual(metadataOut);
+
+      // test number as (bad) input
+      metadataIn.adId = 0;
+      metadataOut.adId = undefined;
+      data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn.adType = ADTYPE.NONLINEAR_OVERLAY;
+      metadataOut.adType = ADTYPE.NONLINEAR_OVERLAY;
+      data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
+      expect(data).toEqual(metadataOut);
+
+      // test bad string input
+      metadataIn.adType = 1;
+      metadataOut.adType = undefined;
+      data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
       expect(data).toEqual(metadataOut);
     });
 
