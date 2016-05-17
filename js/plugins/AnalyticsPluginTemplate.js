@@ -45,7 +45,7 @@ var AnalyticsPluginTemplate = function (framework)
   this.setPluginID = function(newID)
   {
     id = newID;
-  }
+  };
 
   /**
    * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
@@ -56,7 +56,7 @@ var AnalyticsPluginTemplate = function (framework)
   this.getPluginID = function()
   {
     return id;
-  }
+  };
 
   /**
    * [Required Function] Initialize the plugin with the given metadata.
@@ -95,7 +95,7 @@ var AnalyticsPluginTemplate = function (framework)
   this.processEvent = function(eventName, params)
   {
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
-  }
+  };
 
   /**
    * [Required Function] Clean up this plugin so the garbage collector can clear it out.

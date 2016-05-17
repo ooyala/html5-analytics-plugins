@@ -13,7 +13,7 @@ require("./InitAnalyticsNamespace.js");
 
 if (!OO.Analytics.EVENTS)
 {
-  const EVENTS =
+  var EVENTS =
   {
     /**
      * @public
@@ -31,6 +31,13 @@ if (!OO.Analytics.EVENTS)
      * In the case of autoplay, it will be sent immediately after the player is ready to play.
      */
     INITIAL_PLAYBACK_REQUESTED:     'initial_playback_requested',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#VIDEO_CONTENT_COMPLETED
+     * @description This message is sent when main content playback has completed.
+     */
+    VIDEO_CONTENT_COMPLETED:        'video_content_completed',
 
     /**
      * @public
@@ -188,7 +195,6 @@ if (!OO.Analytics.EVENTS)
     AD_BREAK_ENDED:                 'ad_break_ended',
 
     /**
-     * @public
      * @event OO.Analytics.EVENTS#AD_POD_STARTED
      * @description This message is sent when an ad pod starts.
      * @param {Array} paramArray Array of length 1, contains an instance of
@@ -208,7 +214,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_STARTED
-     * @description This message is sent when an ad has started.
+     * @description This message is sent when the player starts an ad playback.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.AdStartedData
      */
@@ -217,7 +223,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_ENDED
-     * @description This message is sent when an ad has ended.
+     * @description This message is sent when the player ends an ad playback.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.AdEndedData
      */
@@ -269,7 +275,7 @@ if (!OO.Analytics.EVENTS)
 
 if (!OO.Analytics.EVENT_DATA)
 {
-  const EVENT_DATA = {};
+  var EVENT_DATA = {};
 
   /**
    * @public
@@ -324,12 +330,12 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoDownloadingMetadata = function(currentTime, totalStreamDuration, streamBufferedUntilTime, seekableRangeStart, seekableRangeEnd)
   {
     var checkDownloadData = OO._.bind(checkDataType, this, "VideoDownloadingMetadata");
-    this.currentTime             = checkDownloadData(currentTime, "currentTime", ["number"]);
-    this.totalStreamDuration     = checkDownloadData(totalStreamDuration, "totalStreamDuration", ["number"]);
-    this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, "streamBufferedUntilTime", ["number"]);
-    this.seekableRangeStart      = checkDownloadData(seekableRangeStart, "seekableRangeStart", ["number"]);
-    this.seekableRangeEnd        = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", ["number"]);
-  }
+    this.currentTime             = checkDownloadData(currentTime, "currentTime", "number");
+    this.totalStreamDuration     = checkDownloadData(totalStreamDuration, "totalStreamDuration", "number");
+    this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, "streamBufferedUntilTime", "number");
+    this.seekableRangeStart      = checkDownloadData(seekableRangeStart, "seekableRangeStart", "number");
+    this.seekableRangeEnd        = checkDownloadData(seekableRangeEnd, "seekableRangeEnd", "number");
+  };
 
   /**
    * @public
@@ -428,8 +434,9 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.AdStartedData = function(adType, adMetadata)
   {
     var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
-    this.adType = checkAdStartedData(adType, "adType", "string");
-    this.adMetadata = checkAdStartedData(adMetadata, "adMetadata", ["object"]);
+
+    this.adType = checkAdStartedData(adType, "adType", ["string"]);
+    this.adMetadata = checkAdType(adType, adMetadata);
   }
 
   /**
@@ -442,7 +449,7 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.AdEndedData = function(adType, adMetadata)
   {
     var checkAdEndedData = OO._.bind(checkDataType, this, "AdEndedData");
-    this.adType = checkAdEndedData(adType, "adType", "string");
+    this.adType = checkAdEndedData(adType, "adType", ["string"]);
     this.adMetadata = checkAdEndedData(adMetadata, "adMetadata", ["object"]);
   }
 
@@ -556,7 +563,7 @@ if (!OO.Analytics.EVENT_DATA)
     }
 
     return toRet;
-  }
+  };
 
   OO.Analytics.EVENT_DATA = EVENT_DATA;
 }
@@ -581,7 +588,7 @@ if (!OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS)
    *    <li>processEvent(eventName, paramArray) - A function to receive events that are published through the framework.</li>
    * </ul>
    */
-  const REQUIRED_PLUGIN_FUNCTIONS =
+  var REQUIRED_PLUGIN_FUNCTIONS =
   [
     "getName",
     "getVersion",

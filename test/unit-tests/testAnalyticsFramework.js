@@ -1373,5 +1373,49 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test AdStartedData', function()
+    {
+      var metadataIn =
+      {
+        name: "testName",
+        duration: 10,
+        indexInPod: 1
+      };
+
+      var metadataOut =
+      {
+        adId: "testName",
+        adDuration: 10,
+        adPodPosition: 1
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
+                                                           metadataIn.duration,
+                                                           metadataIn.indexInPod);
+      expect(data).toEqual(metadataOut);
+    });
+
+    it('Test AdStartedData with String Input', function()
+    {
+      var metadataIn =
+      {
+        name: "testName",
+        duration: "10",
+        indexInPod: "1"
+      };
+
+      var metadataOut =
+      {
+        adId: "testName",
+        adDuration: 10,
+        adPodPosition: 1
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.name,
+                                                           metadataIn.duration,
+                                                           metadataIn.indexInPod);
+      expect(data).toEqual(metadataOut);
+    });
   });
 });

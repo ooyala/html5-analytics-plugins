@@ -16,7 +16,7 @@ OO.Analytics.RecordedEvent = function(timeStamp, eventName, params)
   this.timeStamp = timeStamp;
   this.eventName = eventName;
   this.params = params;
-}
+};
 
 /**
  * @public
@@ -37,8 +37,8 @@ OO.Analytics.Framework = function()
   var _pluginMetadata;
   var _eventExistenceLookup = {};
   var _uniquePluginId = 0;
-  const MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
-  const MAX_EVENTS_RECORDED = 500;
+  var MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
+  var MAX_EVENTS_RECORDED = 500;
 
   /**
    * Helper function for readability mainly. Binds private functions to 'this' instance
@@ -185,7 +185,7 @@ OO.Analytics.Framework = function()
     }
 
     return [];
-  }
+  };
 
   /**
    * Register plugin as a factory. It will be validated and an instance of it will
@@ -535,7 +535,7 @@ OO.Analytics.Framework = function()
       OO.log(createErrorString("Event \'" + eventName + "\' being published and it's not in the list of OO.Analytics.EVENTS"));
     }
     return eventPublished;
-  }
+  };
 
   /**
    * Create a unique id for a given plugin/factory. In case someone needs to register

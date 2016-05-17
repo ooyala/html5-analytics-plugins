@@ -14,11 +14,30 @@ var gulp = require('gulp'),
     listFiles = require('file-lister');
 
 var path = {
-  originalJs: ['./js/']
+  originalJs: ['./js/framework','./js/plugins'],
+  dependencies: ['./js/plugin-dependencies']
 };
 
 // Build All
-gulp.task('build', ['browserify']);
+gulp.task('build', ['browserify', 'publishDependencies']);
+
+gulp.task('publishDependencies', function() {
+  var publish = function(srcArray)
+  {
+    _.each(srcArray, function(sourceFile)
+    {
+      gulp.src(sourceFile).pipe(gulp.dest('./build/'));
+    });
+  };
+  listFiles(path.dependencies, function(error, files) {
+    if (error) {
+      console.log(error);
+    } else {
+      var filteredList = files.filter(_.bind(checkFileExtension,this,".js"));
+      publish(filteredList);
+    }
+  });
+});
 
 gulp.task('browserify', function() {
 
@@ -49,7 +68,8 @@ gulp.task('browserify', function() {
     } else {
       var filteredList = files.filter(_.bind(checkFileExtension,this,".js"));
       bundleThis(filteredList);
-    }});
+    }
+  });
 
 });
 
