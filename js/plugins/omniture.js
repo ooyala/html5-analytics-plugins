@@ -125,20 +125,20 @@ var OmnitureAnalyticsPlugin = function (framework)
       //add in props
       if (!_.isEmpty(metadata.props))
       {
-        _.each(metadata.props, function(key)
+        _.each(metadata.props, function(value, key)
         {
           //TODO: Validate keys (are of form prop#)
-          appMeasurement[key] = metadata.props[key];
+          appMeasurement[key] = value;
         });
       }
 
       //add in eVars
       if (!_.isEmpty(metadata.eVars))
       {
-        _.each(metadata.eVars, function(key)
+        _.each(metadata.eVars, function(value, key)
         {
           //TODO: Validate keys (are of form eVar#)
-          appMeasurement[key] = metadata.eVars[key];
+          appMeasurement[key] = value;
         });
       }
 

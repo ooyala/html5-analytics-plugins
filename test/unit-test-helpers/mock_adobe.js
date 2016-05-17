@@ -107,6 +107,11 @@ ADB = {
   }
 };
 
+//used to store global instances of AppMeasurement
+ADB.OO = {
+
+};
+
 Visitor = function()
 {
 
@@ -114,5 +119,6 @@ Visitor = function()
 
 AppMeasurement = function()
 {
-
+  ADB.OO.AppMeasurement = this;
 };
+
