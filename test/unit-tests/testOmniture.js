@@ -31,6 +31,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];
+    ADB.OO.AppMeasurement = null;
     //return log back to normal
 //    OO.log = console.log;
   };
@@ -39,13 +40,10 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   afterEach(testCleanup);
 
   //helpers
-  var createPlugin = function(framework)
+  var createPlugin = function(framework, metadata)
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
-    var plugin = new omniturePluginFactory(framework);
-    plugin.init();
-    plugin.setMetadata(
-      {
+    if (!metadata){
+      metadata = {
         "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
         "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
         "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
@@ -63,8 +61,12 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
         "eVars":{
           "eVar9":"en"
         }
-      }
-    );
+      };
+    }
+    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
+    var plugin = new omniturePluginFactory(framework);
+    plugin.init();
+    plugin.setMetadata(metadata);
     return plugin;
   };
 
@@ -882,5 +884,33 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateReplay();
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(0);
+  });
+  
+  //evars and props
+  it('Omniture Video Plugin can parse eVars and props', function()
+  {
+    var plugin = createPlugin(framework,
+    {
+        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+        "reportSuiteId":"ovppooyala",
+        "pageName":"Test Page Name",
+        "visitorId":"test-vid",
+        "debug":true,
+        "channel":"Test Heartbeat Channel",//optional
+        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "publisherId":"ooyalatester",
+        "props":{
+          "prop2":"testProp2",
+          "prop15":"testProp15"
+        },
+        "eVars":{
+          "eVar10":"testEVar10"
+        }
+    });
+    expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
+    expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
+    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
   });
 });
