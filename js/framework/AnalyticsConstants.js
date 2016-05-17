@@ -202,22 +202,6 @@ if (!OO.Analytics.EVENTS)
     AD_BREAK_ENDED:                 'ad_break_ended',
 
     /**
-     * @public
-     * @event OO.Analytics.EVENTS#AD_STARTED
-     * @description This message is sent when the player starts an ad playback.
-     * @param {Array} paramArray Array of length 3, contains an instance of
-     * OO.Analytics.EVENT_DATA.AdStartedData
-     */
-    AD_STARTED:               'ad_started',
-
-    /**
-     * @public
-     * @event OO.Analytics.EVENTS#AD_ENDED
-     * @description This message is sent when the player stops an ad playback.
-     */
-    AD_ENDED:                 'ad_ended',
-
-    /**
      * @event OO.Analytics.EVENTS#AD_POD_STARTED
      * @description This message is sent when an ad pod starts.
      * @param {Array} paramArray Array of length 1, contains an instance of
@@ -237,7 +221,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_STARTED
-     * @description This message is sent when an ad has started.
+     * @description This message is sent when the player starts an ad playback.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.AdStartedData
      */
@@ -246,7 +230,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_ENDED
-     * @description This message is sent when an ad has ended.
+     * @description This message is sent when the player ends an ad playback.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.AdEndedData
      */
@@ -422,14 +406,6 @@ if (!OO.Analytics.EVENT_DATA)
     this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", ["number"]);
   }
 
-  EVENT_DATA.AdStartedData = function(adId, adDuration, adPodPosition)
-  {
-    var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
-    this.adId = checkAdStartedData(adId, "adId", "string");
-    this.adDuration = checkAdStartedData(adDuration, "adDuration", "number");
-    this.adPodPosition = checkAdStartedData(adPodPosition, "adPodPosition", "number");
-  };
-
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoStreamPositionChangedData
@@ -478,8 +454,9 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.AdStartedData = function(adType, adMetadata)
   {
     var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
-    this.adType = checkAdStartedData(adType, "adType", "string");
-    this.adMetadata = checkAdStartedData(adMetadata, "adMetadata", ["object"]);
+
+    this.adType = checkAdStartedData(adType, "adType", ["string"]);
+    this.adMetadata = checkAdType(adType, adMetadata);
   }
 
   /**
@@ -492,7 +469,7 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.AdEndedData = function(adType, adMetadata)
   {
     var checkAdEndedData = OO._.bind(checkDataType, this, "AdEndedData");
-    this.adType = checkAdEndedData(adType, "adType", "string");
+    this.adType = checkAdEndedData(adType, "adType", ["string"]);
     this.adMetadata = checkAdEndedData(adMetadata, "adMetadata", ["object"]);
   }
 
