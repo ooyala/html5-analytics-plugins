@@ -282,6 +282,14 @@ if (!OO.Analytics.EVENTS)
 
 if (!OO.Analytics.EVENT_DATA)
 {
+  var ADTYPE =
+  {
+    LINEAR_OVERLAY: "linearOverlay",
+    NONLINEAR_OVERLAY: "nonlinearOverlay",
+    LINEAR_VIDEO: "linearVideo",
+    COMPANION: "companion"
+  };
+
   var EVENT_DATA = {};
 
   /**
@@ -294,7 +302,7 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoElementData = function(streamUrl)
   {
     var checkElementData = OO._.bind(checkDataType, this, "VideoElementData");
-    this.streamUrl = checkElementData(streamUrl, "streamUrl", "string");
+    this.streamUrl = checkElementData(streamUrl, "streamUrl", ["string"]);
   };
 
   /**
