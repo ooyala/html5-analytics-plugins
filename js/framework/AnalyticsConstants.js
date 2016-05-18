@@ -26,6 +26,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_ELEMENT_CREATED
+     * @description This message is sent when the video element is first created.
+     */
+    VIDEO_ELEMENT_CREATED:           'video_element_created',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#INITIAL_PLAYBACK_REQUESTED
      * @description This message is sent the first time the user tries to play the video.
      * In the case of autoplay, it will be sent immediately after the player is ready to play.
@@ -284,6 +291,19 @@ if (!OO.Analytics.EVENT_DATA)
   };
 
   var EVENT_DATA = {};
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoElementData
+   * @classdesc Contains the data passed along with VIDEO_ELEMENT_CREATED. This includes
+   * the stream url of the video element.
+   * @property {string} streamUrl This is the video element's stream URL
+   */
+  EVENT_DATA.VideoElementData = function(streamUrl)
+  {
+    var checkElementData = OO._.bind(checkDataType, this, "VideoElementData");
+    this.streamUrl = checkElementData(streamUrl, "streamUrl", ["string"]);
+  };
 
   /**
    * @public
