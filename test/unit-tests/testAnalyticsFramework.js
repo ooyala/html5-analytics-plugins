@@ -1405,5 +1405,21 @@ describe('Analytics Framework Unit Tests', function()
                                                            metadataIn.indexInPod);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test VideoElementData', function()
+    {
+      var metadataIn =
+      {
+        streamUrl: "http://blahblah"
+      };
+
+      var metadataOut =
+      {
+        streamUrl: "http://blahblah"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoElementData(metadataIn.streamUrl);
+      expect(data).toEqual(metadataOut);
+    });
   });
 });
