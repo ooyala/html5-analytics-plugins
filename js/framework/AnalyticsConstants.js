@@ -26,6 +26,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_ELEMENT_CREATED
+     * @description This message is sent when the video element is first created.
+     */
+    VIDEO_ELEMENT_CREATED:           'video_element_created',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#INITIAL_PLAYBACK_REQUESTED
      * @description This message is sent the first time the user tries to play the video.
      * In the case of autoplay, it will be sent immediately after the player is ready to play.
@@ -268,6 +275,19 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
+   * @class Analytics.EVENT_DATA#VideoElementData
+   * @classdesc Contains the data passed along with VIDEO_ELEMENT_CREATED. This includes
+   * the stream url of the video element.
+   * @property {string} streamUrl This is the video element's stream URL
+   */
+  EVENT_DATA.VideoElementData = function(streamUrl)
+  {
+    var checkElementData = OO._.bind(checkDataType, this, "VideoElementData");
+    this.streamUrl = checkElementData(streamUrl, "streamUrl", "string");
+  };
+
+  /**
+   * @public
    * @class Analytics.EVENT_DATA#VideoSourceData
    * @classdesc Contains the data passed along with VIDEO_SOURCE_CHANGED. This
    * includes the embed code (video id) and any metadata this video stream needs
@@ -383,11 +403,6 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPodPosition = checkAdStartedData(adPodPosition, "adPodPosition", "number");
   };
 
-  EVENT_DATA.AdEndedData = function()
-  {
-
-  };
-
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoStreamPositionChangedData
@@ -420,7 +435,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdPodStartedData = OO._.bind(checkDataType, this, "AdPodStartedData");
     this.numberOfAds = checkAdPodStartedData(numberOfAds, "numberOfAds", "number");
-  }
+  };
 
   /**
    * @public
@@ -432,7 +447,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdPodEndedData = OO._.bind(checkDataType, this, "AdPodEndedData");
     this.adId = checkAdPodEndedData(adId, "adId", "string");
-  }
+  };
 
   /**
    * @public
@@ -446,7 +461,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkFullscreenChangedData = OO._.bind(checkDataType, this, "FullscreenChangedData");
     this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, "changingToFullscreen", "boolean");
-  }
+  };
 
   /**
    * @public
@@ -459,7 +474,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkVolumeChangedData = OO._.bind(checkDataType, this, "VolumeChangedData");
     this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", "number");
-  }
+  };
 
   var checkDataType = function(className, data, varName, expectedType)
   {
