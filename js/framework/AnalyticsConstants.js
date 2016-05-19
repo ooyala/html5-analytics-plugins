@@ -463,7 +463,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
     this.adType = checkAdStartedData(adType, "adType", ["string"]);
-    this.adMetadata = checkAdType(adType, adMetadataIn);
+    this.adMetadata = selectAdType(adType, adMetadataIn);
   }
 
   /**
@@ -622,13 +622,13 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @private
-   * @class Analytics.EVENT_DATA#checkAdType
+   * @class Analytics.EVENT_DATA#selectAdType
    * @classdesc Checks for a recognized Ad Type and returns the corresponding EVENT_DATA object.
    * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
    * @property {object} adMetadata The metadata associated with the ad
    * @returns {object} The EVENT_DATA object that associates with the Ad Type.
    */
-  var checkAdType = function(adType, adMetadataIn)
+  var selectAdType = function(adType, adMetadataIn)
   {
     var adMetadataOut;
     switch (adType)
