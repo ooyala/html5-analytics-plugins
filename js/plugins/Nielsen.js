@@ -13,6 +13,13 @@ var NielsenAnalyticsPlugin = function (framework)
   var id;
   var _active = true;
 
+  var ADTYPE =
+  {
+    LINEAR_OVERLAY: "linearOverlay",
+    NONLINEAR_OVERLAY: "nonlinearOverlay",
+    LINEAR_VIDEO: "linearVideo",
+    COMPANION: "companion"
+  };
 
   var contentDuration = -1;
   var currentPlayhead = 0;
@@ -334,15 +341,27 @@ var NielsenAnalyticsPlugin = function (framework)
         loadContentMetadataAfterAd = true;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
-        adStarted = true;
-        trackAdStart(params[0]);
+        if (params && params[0])
+        {
+          if (params[0].adType === ADTYPE.LINEAR_VIDEO)
+          {
+            adStarted = true;
+            trackAdStart(params[0].adMetadata);
+          }
+        }
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
-        adStarted = false;
-        trackAdEnd();
-        currentAdPlayhead = 0;
-        //We want to report the first playhead after this event
-        lastPlayheadUpdate = -1;
+        if (params && params[0])
+        {
+          if (params[0].adType === ADTYPE.LINEAR_VIDEO)
+          {
+            adStarted = false;
+            trackAdEnd();
+            currentAdPlayhead = 0;
+            //We want to report the first playhead after this event
+            lastPlayheadUpdate = -1;
+          }
+        }
         break;
       default:
         break;
