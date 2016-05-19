@@ -338,20 +338,29 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_STARTED:
         if (params && params[0])
         {
-          playerDelegate.onAdPlayback(params[0]);
-        }
-        trackAdStart();
-        if(!mainContentStarted && !trackedPlayForPreroll)
-        {
-          trackedPlayForPreroll = true;
-          //We need a special track play here for ads if main content has not started.
-          //Don't call the trackPlay() function of this plugin because that one
-          //is for the main content
-          vpPlugin.trackPlay();
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
+          {
+            playerDelegate.onAdPlayback(params[0].adMetadata);
+            trackAdStart();
+            if(!mainContentStarted && !trackedPlayForPreroll)
+            {
+              trackedPlayForPreroll = true;
+              //We need a special track play here for ads if main content has not started.
+              //Don't call the trackPlay() function of this plugin because that one
+              //is for the main content
+              vpPlugin.trackPlay();
+            }
+          }
         }
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
-        trackAdEnd();
+        if (params && params[0])
+        {
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
+          {
+            trackAdEnd();
+          }
+        }
         break;
       default:
         break;

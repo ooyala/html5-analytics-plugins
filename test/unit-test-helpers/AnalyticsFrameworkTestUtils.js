@@ -298,17 +298,23 @@ if (!OO.Analytics.Utils)
       if (metadata)
       {
         plugin.processEvent(OO.Analytics.EVENTS.AD_STARTED, [{
-          adId: metadata.adId,
-          adDuration: metadata.adDuration,
-          adPodPosition: metadata.adPodPosition
+          adType: metadata.adType,
+          adMetadata: {
+            adId: metadata.adMetadata.adId,
+            adDuration: metadata.adMetadata.adDuration,
+            adPodPosition: metadata.adMetadata.adPodPosition
+          }
         }]);
       }
     };
 
-    this.simulateAdComplete = function()
+    this.simulateAdComplete = function(metadata)
     {
       preSimulate();
-      plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED);
+      plugin.processEvent(OO.Analytics.EVENTS.AD_ENDED, [{
+        adType: metadata.adType,
+        adId: metadata.adId
+      }]);
     };
 
     this.simulateAdBreakEnded = function()
