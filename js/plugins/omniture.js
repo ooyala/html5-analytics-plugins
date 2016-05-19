@@ -33,14 +33,6 @@ var OmnitureAnalyticsPlugin = function (framework)
   var seekStarted = false;
   var bufferStarted = false;
 
-  var ADTYPE =
-  {
-    LINEAR_OVERLAY: "linearOverlay",
-    NONLINEAR_OVERLAY: "nonlinearOverlay",
-    LINEAR_VIDEO: "linearVideo",
-    COMPANION: "companion"
-  };
-
   /**
    * [Required Function] Return the name of the plugin.
    * @public
@@ -346,7 +338,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_STARTED:
         if (params && params[0])
         {
-          if (params[0].adType === ADTYPE.LINEAR_VIDEO)
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
           {
             playerDelegate.onAdPlayback(params[0].adMetadata);
             trackAdStart();
@@ -364,7 +356,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_ENDED:
         if (params && params[0])
         {
-          if (params[0].adType === ADTYPE.LINEAR_VIDEO)
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
           {
             trackAdEnd();
           }

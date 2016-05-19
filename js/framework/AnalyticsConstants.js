@@ -7,10 +7,26 @@ require("./InitAnalyticsNamespace.js");
 
 /**
  * @public
+ * @description These are the ad types Ooyala Player supports
+ * @namespace OO.Analytics.AD_TYPE
+ */
+if (!OO.Analytics.AD_TYPE)
+{
+  var AD_TYPE =
+  {
+    LINEAR_OVERLAY: "linearOverlay",
+    NONLINEAR_OVERLAY: "nonlinearOverlay",
+    LINEAR_VIDEO: "linearVideo",
+    COMPANION: "companion"
+  };
+  OO.Analytics.AD_TYPE = AD_TYPE;
+}
+
+/**
+ * @public
  * @description These are the events associated with the Analytics Framework.
  * @namespace OO.Analytics.EVENTS
  */
-
 if (!OO.Analytics.EVENTS)
 {
   var EVENTS =
@@ -282,14 +298,6 @@ if (!OO.Analytics.EVENTS)
 
 if (!OO.Analytics.EVENT_DATA)
 {
-  var ADTYPE =
-  {
-    LINEAR_OVERLAY: "linearOverlay",
-    NONLINEAR_OVERLAY: "nonlinearOverlay",
-    LINEAR_VIDEO: "linearVideo",
-    COMPANION: "companion"
-  };
-
   var EVENT_DATA = {};
 
   /**
@@ -633,7 +641,7 @@ if (!OO.Analytics.EVENT_DATA)
     var adMetadataOut;
     switch (adType)
     {
-      case ADTYPE.LINEAR_VIDEO:
+      case OO.Analytics.AD_TYPE.LINEAR_VIDEO:
         adMetadataOut = new EVENT_DATA.LinearVideoData
         (
           adMetadataIn.name,
@@ -641,7 +649,7 @@ if (!OO.Analytics.EVENT_DATA)
           adMetadataIn.indexInPod
         );
         break;
-      case ADTYPE.NONLINEAR_OVERLAY:
+      case OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY:
         adMetadataOut = new EVENT_DATA.NonLinearOverlayData
         (
          adMetadataIn.id
@@ -651,7 +659,7 @@ if (!OO.Analytics.EVENT_DATA)
         OO.log
         (
          "ERROR Ad Type not recognized. Should be one of these values [" +
-         OO._.values(ADTYPE) + "] but was [" + adType + "]."
+         OO._.values(OO.Analytics.AD_TYPE) + "] but was [" + adType + "]."
         );
         break;
     }

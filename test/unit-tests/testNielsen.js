@@ -22,14 +22,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
   var GGPM_SET_PLAYHEAD_POSITION_EVENT = 49;//"setPlayheadPosition";
   var GGPM_METADATA_TYPE_CONTENT = "content";
 
-  var ADTYPE =
-  {
-    LINEAR_OVERLAY: "linearOverlay",
-    NONLINEAR_OVERLAY: "nonlinearOverlay",
-    LINEAR_VIDEO: "linearVideo",
-    COMPANION: "companion"
-  };
-
   //setup for individual tests
   var testSetup = function()
   {
@@ -392,7 +384,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(stopCalled).toBe(0);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testPrerollId",
         adDuration: 15
@@ -412,7 +404,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
     //preroll ends
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "testPrerollId"
     });
 
@@ -524,7 +516,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(stopTime).toBe(10);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testMidrollId",
         adDuration: 5
@@ -545,7 +537,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
     //midroll ends
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "testMidrollId"
     });
 
@@ -720,7 +712,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     //play postroll
     simulator.simulateAdBreakStarted(plugin);
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testPostrollId",
         adDuration: 20
@@ -822,7 +814,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     //play preroll
     simulator.simulateAdBreakStarted(plugin);
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testPrerollId",
         adDuration: 15
@@ -845,7 +837,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
     //preroll ends
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "testPrerollId"
     });
 
@@ -875,7 +867,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(stopTime).toBe(10);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testMidrollId",
         adDuration: 5
@@ -896,7 +888,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
     //midroll ends
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "testMidrollId"
     });
 
@@ -934,7 +926,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     //play postroll
     simulator.simulateAdBreakStarted(plugin);
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testPostrollId",
         adDuration: 20
@@ -954,7 +946,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
     //postroll ends
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "testPostrollId"
     });
 

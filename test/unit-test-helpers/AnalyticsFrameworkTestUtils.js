@@ -8,14 +8,6 @@ if (!OO.Analytics.Utils)
 
   var Utils = OO.Analytics.Utils;
 
-  Utils.ADTYPE =
-  {
-    LINEAR_OVERLAY: "linearOverlay",
-    NONLINEAR_OVERLAY: "nonlinearOverlay",
-    LINEAR_VIDEO: "linearVideo",
-    COMPANION: "companion"
-  };
-
   Utils.createValidPluginFactory = function(name)
   {
     return function ()

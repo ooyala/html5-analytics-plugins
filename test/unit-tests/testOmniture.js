@@ -284,7 +284,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "zyxw",
         adDuration : 15,
@@ -477,7 +477,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
       called++;
     };
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "zyxw",
         adDuration : 15,
@@ -497,7 +497,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
       called++;
     };
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "adId"
     });
     expect(called).toBe(1);
@@ -625,7 +625,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adBreakInfo.startTime).toBe(0);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "preroll",
         adDuration : 15,
@@ -642,7 +642,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "preroll"
     });
     expect(adCompleteCalled).toBe(1);
@@ -687,7 +687,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adBreakInfo.startTime).toBe(10);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "midroll",
         adDuration : 15,
@@ -701,13 +701,13 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "midroll"
     });
     expect(adCompleteCalled).toBe(1);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "midroll2",
         adDuration : 5,
@@ -721,7 +721,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "midroll2"
     });
     expect(adCompleteCalled).toBe(1);
@@ -746,7 +746,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adBreakInfo.startTime).toBe(60);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "postroll",
         adDuration : 30,
@@ -760,7 +760,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "postroll"
     });
     expect(adCompleteCalled).toBe(1);
@@ -814,7 +814,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adBreakInfo.startTime).toBe(0);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "preroll",
         adDuration : 15,
@@ -827,7 +827,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.position).toBe(1);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "preroll"
     });
     simulator.simulateAdBreakEnded();
@@ -862,7 +862,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adBreakInfo.startTime).toBe(10);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "midroll",
         adDuration : 15,
@@ -875,12 +875,12 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.position).toBe(1);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "midroll"
     });
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "midroll2",
         adDuration : 5,
@@ -893,7 +893,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.position).toBe(2);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "midroll2"
     });
     simulator.simulateAdBreakEnded();
@@ -916,7 +916,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adBreakInfo.startTime).toBe(60);
 
     simulator.simulateAdPlayback({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId : "postroll",
         adDuration : 30,
@@ -929,7 +929,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.position).toBe(1);
 
     simulator.simulateAdComplete({
-      adType: Utils.ADTYPE.LINEAR_VIDEO,
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adId: "postroll"
     });
     simulator.simulateAdBreakEnded();

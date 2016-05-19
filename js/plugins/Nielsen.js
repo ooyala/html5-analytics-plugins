@@ -13,14 +13,6 @@ var NielsenAnalyticsPlugin = function (framework)
   var id;
   var _active = true;
 
-  var ADTYPE =
-  {
-    LINEAR_OVERLAY: "linearOverlay",
-    NONLINEAR_OVERLAY: "nonlinearOverlay",
-    LINEAR_VIDEO: "linearVideo",
-    COMPANION: "companion"
-  };
-
   var contentDuration = -1;
   var currentPlayhead = 0;
   var currentAdPlayhead = 0;
@@ -343,7 +335,7 @@ var NielsenAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_STARTED:
         if (params && params[0])
         {
-          if (params[0].adType === ADTYPE.LINEAR_VIDEO)
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
           {
             adStarted = true;
             trackAdStart(params[0].adMetadata);
@@ -353,7 +345,7 @@ var NielsenAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.AD_ENDED:
         if (params && params[0])
         {
-          if (params[0].adType === ADTYPE.LINEAR_VIDEO)
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
           {
             adStarted = false;
             trackAdEnd();

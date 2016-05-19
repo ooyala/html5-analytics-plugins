@@ -15,13 +15,6 @@ describe('Analytics Framework Unit Tests', function()
   var _ = OO._;
   var framework;
   OO.DEBUG = true;
-  var ADTYPE =
-  {
-    LINEAR_OVERLAY: "linearOverlay",
-    NONLINEAR_OVERLAY: "nonlinearOverlay",
-    LINEAR_VIDEO: "linearVideo",
-    COMPANION: "companion"
-  };
   //setup for individual tests
   var testSetup = function()
   {
@@ -1387,7 +1380,7 @@ describe('Analytics Framework Unit Tests', function()
       // test LINEAR_VIDEO adtype
       var metadataIn =
       {
-        adType: ADTYPE.LINEAR_VIDEO,
+        adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
         adMetadata: {
           name: "testname",
           duration: 10,
@@ -1396,7 +1389,7 @@ describe('Analytics Framework Unit Tests', function()
       };
       var metadataOut =
       {
-        adType: ADTYPE.LINEAR_VIDEO,
+        adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
         adMetadata: {
           adId: "testname",
           adDuration: 10,
@@ -1426,14 +1419,14 @@ describe('Analytics Framework Unit Tests', function()
       // test NONLINEAR_OVERLAY adtype
       metadataIn =
       {
-        adType: ADTYPE.NONLINEAR_OVERLAY,
+        adType: OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY,
         adMetadata: {
           id: "testname" 
         }
       };
       metadataOut =
       {
-        adType: ADTYPE.NONLINEAR_OVERLAY,
+        adType: OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY,
         adMetadata: {
           adId: "testname"
         }
@@ -1460,12 +1453,12 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadataIn =
       {
-        adType: ADTYPE.LINEAR_VIDEO,
+        adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
         adId: "testname",
       };
       var metadataOut =
       {
-        adType: ADTYPE.LINEAR_VIDEO,
+        adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
         adId: "testname"
       };
 
@@ -1478,8 +1471,8 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.adType = ADTYPE.NONLINEAR_OVERLAY;
-      metadataOut.adType = ADTYPE.NONLINEAR_OVERLAY;
+      metadataIn.adType = OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY;
+      metadataOut.adType = OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY;
       data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
       expect(data).toEqual(metadataOut);
 
