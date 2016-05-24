@@ -1,5 +1,6 @@
 require(SRC_ROOT + "framework/InitAnalyticsNamespace.js");
 require(SRC_ROOT + "framework/AnalyticsConstants.js");
+require("../../../html5-common/js/utils/constants.js");
 
 
 if (!OO.Analytics.Utils)
@@ -251,9 +252,11 @@ if (!OO.Analytics.Utils)
       if (metadata)
       {
         var playheads = metadata.playheads;
+        var videoId = metadata.videoId ? metadata.videoId : OO.VIDEO.MAIN;
         _.each(playheads, function(playhead) {
           plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
-            streamPosition : playhead
+            streamPosition : playhead,
+            videoId: videoId
           }]);
         });
       }
