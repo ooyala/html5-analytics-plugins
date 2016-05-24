@@ -328,7 +328,7 @@ if (!OO.Analytics.EVENT_DATA)
     var checkSourceData = OO._.bind(checkDataType, this, "VideoSourceData");
     this.embedCode = checkSourceData(embedCode, "embedCode", ["string"]);
     this.metadata  = checkSourceData(metadata, "metadata", ["object"]);
-  }
+  };
 
   /**
    * @public
@@ -351,7 +351,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", ["object"]);
     this.contentType    = checkContentData(contentType, "contentType", ["string"]);
     this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -383,7 +383,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkBufferingStartedData = OO._.bind(checkDataType, this, "VideoBufferingStartedData");
     this.streamUrl = checkBufferingStartedData(streamUrl, "streamUrl", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -395,7 +395,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkBufferingEndedData = OO._.bind(checkDataType, this, "VideoBufferingEndedData");
     this.streamUrl = checkBufferingEndedData(streamUrl, "streamUrl", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -407,7 +407,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkSeekStartedData = OO._.bind(checkDataType, this, "VideoSeekRequestedData");
     this.seekingToTime = checkSeekStartedData(seekingToTime, "seekingToTime", ["number"]);
-  }
+  };
 
   /**
    * @public
@@ -420,7 +420,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkSeekEndedData = OO._.bind(checkDataType, this, "VideoSeekCompletedData");
     this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, "timeSeekedTo", ["number"]);
-  }
+  };
 
   /**
    * @public
@@ -428,13 +428,16 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the current stream position and the length of the stream.
    * @property {number} streamPosition The current stream position
    * @property {number} totalStreamDuration The total length/duration of the stream
+   * @property {string} videoId Id used to differentiate between various streams (such as ad vs content playback).
+   *                            Possible values are defined in OO.VIDEO.
    */
-  EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration)
+  EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration, videoId)
   {
     var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
     this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", ["number"]);
     this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", ["number"]);
-  }
+    this.videoId = checkVideoStreamPositionChangedData(videoId, "videoId", ["string"]);
+  };
 
   /**
    * @public
@@ -446,7 +449,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdPodStartedData = OO._.bind(checkDataType, this, "AdPodStartedData");
     this.numberOfAds = checkAdPodStartedData(numberOfAds, "numberOfAds", ["number"]);
-  }
+  };
 
   /**
    * @public
@@ -458,7 +461,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdPodEndedData = OO._.bind(checkDataType, this, "AdPodEndedData");
     this.adId = checkAdPodEndedData(adId, "adId", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -472,7 +475,7 @@ if (!OO.Analytics.EVENT_DATA)
     var checkAdStartedData = OO._.bind(checkDataType, this, "AdStartedData");
     this.adType = checkAdStartedData(adType, "adType", ["string"]);
     this.adMetadata = selectAdType(adType, adMetadataIn);
-  }
+  };
 
   /**
    * @public
@@ -488,7 +491,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.adId = checkLinearVideoData(adId, "adId", ["string"]);
     this.adDuration = checkLinearVideoData(adDuration, "adDuration", ["number"]);
     this.adPodPosition = checkLinearVideoData(adPodPosition, "adPodPosition", ["number"]);
-  }
+  };
 
   /**
    * @public
@@ -500,7 +503,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkNonLinearOverlayData = OO._.bind(checkDataType, this, "NonLinearOverlayData");
     this.adId = checkNonLinearOverlayData(adId, "adId", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -514,7 +517,7 @@ if (!OO.Analytics.EVENT_DATA)
     var checkAdEndedData = OO._.bind(checkDataType, this, "AdEndedData");
     this.adType = checkAdEndedData(adType, "adType", ["string"]);
     this.adId = checkAdEndedData(adId, "adId", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -526,7 +529,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
-  }
+  };
 
   /**
    * @public
@@ -540,7 +543,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkFullscreenChangedData = OO._.bind(checkDataType, this, "FullscreenChangedData");
     this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, "changingToFullscreen", ["boolean"]);
-  }
+  };
 
   /**
    * @public
@@ -553,7 +556,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkVolumeChangedData = OO._.bind(checkDataType, this, "VolumeChangedData");
     this.currentVolume = checkVolumeChangedData(currentVolume, "currentVolume", ["number"]);
-  }
+  };
 
   var checkDataType = function(className, data, varName, expectedTypes)
   {
