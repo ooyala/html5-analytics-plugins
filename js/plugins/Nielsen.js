@@ -257,7 +257,7 @@ var NielsenAnalyticsPlugin = function (framework)
         {
           if (contentMetadata)
           {
-            contentMetadata["assetid"] = embedCode;
+            contentMetadata["assetid"] = params[0].embedCode;
           }
         }
         resetPlaybackState();

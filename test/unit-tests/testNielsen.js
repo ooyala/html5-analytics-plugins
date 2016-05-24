@@ -810,6 +810,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(contentMetadata.title).toBe("testTitle");
     expect(contentMetadata.assetName).toBe("testTitle");
     expect(contentMetadata.length).toBe(60);
+    expect(contentMetadata.assetid).toBe("testEmbedCode");
 
     //play preroll
     simulator.simulateAdBreakStarted(plugin);
