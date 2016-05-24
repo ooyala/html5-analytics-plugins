@@ -288,7 +288,7 @@ var NielsenAnalyticsPlugin = function (framework)
           var log = false;
           if (inAdBreak)
           {
-            if (adStarted)
+            if (adStarted && params[0].videoId === OO.VIDEO.ADS)
             {
               currentAdPlayhead = params[0].streamPosition;
               playhead = currentAdPlayhead;
