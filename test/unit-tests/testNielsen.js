@@ -396,7 +396,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(adMetadata.assetid).toBe("testPrerollId");
 
     simulator.simulateVideoProgress({
-      playheads : [1, 5, 15]
+      playheads : [1, 5, 15],
+      videoId : OO.VIDEO.ADS
     });
 
     expect(setPlayheadPositionCalled).toBe(3);
@@ -529,7 +530,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(adMetadata.assetid).toBe("testMidrollId");
 
     simulator.simulateVideoProgress({
-      playheads : [1, 5]
+      playheads : [1, 5],
+      videoId : OO.VIDEO.ADS
     });
 
     expect(setPlayheadPositionCalled).toBe(2);
@@ -830,7 +832,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(adMetadata.assetid).toBe("testPrerollId");
 
     simulator.simulateVideoProgress({
-      playheads : [1, 5, 10, 15]
+      playheads : [1, 5, 10, 15],
+      videoId : OO.VIDEO.ADS
     });
 
     expect(setPlayheadPositionCalled).toBe(4);
@@ -881,7 +884,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(adMetadata.assetid).toBe("testMidrollId");
 
     simulator.simulateVideoProgress({
-      playheads : [1, 5]
+      playheads : [1, 5],
+      videoId : OO.VIDEO.ADS
     });
 
     expect(setPlayheadPositionCalled).toBe(2);
@@ -939,7 +943,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(adMetadata.assetid).toBe("testPostrollId");
 
     simulator.simulateVideoProgress({
-      playheads : [1, 5, 10, 15, 20]
+      playheads : [1, 5, 10, 15, 20],
+      videoId : OO.VIDEO.ADS
     });
 
     expect(setPlayheadPositionCalled).toBe(5);
