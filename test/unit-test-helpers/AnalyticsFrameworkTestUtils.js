@@ -1,6 +1,6 @@
 require(SRC_ROOT + "framework/InitAnalyticsNamespace.js");
 require(SRC_ROOT + "framework/AnalyticsConstants.js");
-require("../../../html5-common/js/utils/constants.js");
+require(COMMON_SRC_ROOT + "utils/constants.js");
 
 
 if (!OO.Analytics.Utils)
