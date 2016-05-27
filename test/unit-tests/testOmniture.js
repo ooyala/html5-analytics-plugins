@@ -298,6 +298,42 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(adInfo.position).toBe(1);
   });
 
+  it('Delegate does not provide ad info if not in ad playback', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateAdPlayback({
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
+      adMetadata: {
+        adId : "zyxw",
+        adDuration : 15,
+        adPodPosition : 1
+      }
+    });
+    simulator.simulateAdComplete({
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
+      adId: "adId"
+    });
+    var delegate = plugin.getPlayerDelegate();
+    var adInfo = delegate.getAdInfo();
+    expect(adInfo).toBe(null);
+  });
+
+  it('Delegate does not provide ad break info if not in ad break', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
+    simulator.simulateAdBreakStarted();
+    simulator.simulateAdBreakEnded();
+    var delegate = plugin.getPlayerDelegate();
+    var adBreakInfo = delegate.getAdBreakInfo();
+    expect(adBreakInfo).toBe(null);
+  });
+
+
   it('Omniture Video Plugin can trackSessionStart', function()
   {
     var plugin = createPlugin(framework);
