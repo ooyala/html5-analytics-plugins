@@ -620,13 +620,18 @@ var OoyalaPlayerDelegate = function()
     inAdBreak = true;
   };
 
+  /**
+   * To be called when transitioning away from an ad break.
+   * @public
+   * @method OoyalaPlayerDelegate#onAdBreakComplete
+   */
   this.onAdBreakComplete = function()
   {
     inAdBreak = false;
   };
 
   /**
-   * To be called when starting an ad playback. The player delegate will store the ad metdata for use
+   * To be called when starting an ad playback. The player delegate will store the ad metadata for use
    * when the Omniture SDK calls the getAdInfo API.
    * @public
    * @method OoyalaPlayerDelegate#onAdPlayback
@@ -646,6 +651,11 @@ var OoyalaPlayerDelegate = function()
     inAdPlayback = true;
   };
 
+  /**
+   * To be called when completing an ad playback.
+   * @public
+   * @method OoyalaPlayerDelegate#onAdPlaybackComplete
+   */
   this.onAdPlaybackComplete = function()
   {
     inAdPlayback = false;
