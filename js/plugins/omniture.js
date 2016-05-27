@@ -334,6 +334,7 @@ var OmnitureAnalyticsPlugin = function (framework)
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
         inAdBreak = false;
+        playerDelegate.onAdBreakComplete();
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
         if (params && params[0])
@@ -359,6 +360,7 @@ var OmnitureAnalyticsPlugin = function (framework)
           if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
           {
             trackAdEnd();
+            playerDelegate.onAdPlaybackComplete();
           }
         }
         break;
@@ -564,6 +566,8 @@ var OoyalaPlayerDelegate = function()
   var adName = null;
 
   var adBreakPosition = 0;
+  var inAdBreak = false;
+  var inAdPlayback = false;
 
   /**
    * To be called when the content has been initialized. The player delegate will store the metadata passed
@@ -613,10 +617,21 @@ var OoyalaPlayerDelegate = function()
   this.onAdBreak = function()
   {
     adBreakPosition++;
+    inAdBreak = true;
   };
 
   /**
-   * To be called when starting an ad playback. The player delegate will store the ad metdata for use
+   * To be called when transitioning away from an ad break.
+   * @public
+   * @method OoyalaPlayerDelegate#onAdBreakComplete
+   */
+  this.onAdBreakComplete = function()
+  {
+    inAdBreak = false;
+  };
+
+  /**
+   * To be called when starting an ad playback. The player delegate will store the ad metadata for use
    * when the Omniture SDK calls the getAdInfo API.
    * @public
    * @method OoyalaPlayerDelegate#onAdPlayback
@@ -633,6 +648,17 @@ var OoyalaPlayerDelegate = function()
     adPosition = metadata.adPodPosition;
     //TODO: Maybe add ad name (optional)
     adName = metadata.adId;
+    inAdPlayback = true;
+  };
+
+  /**
+   * To be called when completing an ad playback.
+   * @public
+   * @method OoyalaPlayerDelegate#onAdPlaybackComplete
+   */
+  this.onAdPlaybackComplete = function()
+  {
+    inAdPlayback = false;
   };
 
   /**
@@ -648,6 +674,8 @@ var OoyalaPlayerDelegate = function()
     adPosition = 1;
     adName = null;
     adBreakPosition = 0;
+    inAdBreak = false;
+    inAdPlayback = false;
   };
 
   //Omniture required functions below
@@ -681,6 +709,12 @@ var OoyalaPlayerDelegate = function()
    */
   this.getAdBreakInfo = function()
   {
+    //We do not want to provide ad break info if we are not in an ad break.
+    //The Heartbeat SDK uses the existence of this return value to determine if we are in an ad break.
+    if (!inAdBreak)
+    {
+      return null;
+    }
     var adBreakInfo = new ADB.va.plugins.videoplayer.AdBreakInfo();
     adBreakInfo.playerName = playerName;
     //TODO: Ad break position? How to ensure accuracy if an ad break is skipped via seeking
@@ -697,6 +731,12 @@ var OoyalaPlayerDelegate = function()
    */
   this.getAdInfo = function()
   {
+    //We do not want to provide ad info if we are not in an ad.
+    //The Heartbeat SDK uses the existence of this return value to determine if we are in an ad.
+    if (!inAdPlayback)
+    {
+      return null;
+    }
     var adInfo = new ADB.va.plugins.videoplayer.AdInfo();
     adInfo.id = adId;
     adInfo.length = adLength;
