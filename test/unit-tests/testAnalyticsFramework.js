@@ -1421,7 +1421,7 @@ describe('Analytics Framework Unit Tests', function()
       {
         adType: OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY,
         adMetadata: {
-          id: "testname" 
+          id: "testname"
         }
       };
       metadataOut =
@@ -1496,6 +1496,58 @@ describe('Analytics Framework Unit Tests', function()
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoElementData(metadataIn.streamUrl);
+      expect(data).toEqual(metadataOut);
+    });
+
+    it('Test AdErrorData', function()
+    {
+      // testing if input is expected to be string
+      var metadataIn = "errorString";
+      var metadataOut =
+      {
+        error: "errorString"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
+      expect(data).toEqual(metadataOut);
+
+      // testing if input is expected to be object
+      metadataIn =
+      {
+        errorObject: "errorObject"
+      };
+      metadataOut =
+      {
+        error: {
+          errorObject: "errorObject"
+        }
+      };
+      data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
+      expect(data).toEqual(metadataOut);
+
+      // testing bad input
+      metadataIn = 1;
+      metadataOut =
+      {
+        error: undefined
+      };
+      data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn = "";
+      metadataOut =
+      {
+        error: ""
+      };
+      data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn = false;
+      metadataOut =
+      {
+        error: undefined
+      };
+      data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
       expect(data).toEqual(metadataOut);
     });
   });
