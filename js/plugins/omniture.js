@@ -29,9 +29,7 @@ var OmnitureAnalyticsPlugin = function (framework)
   var inAdBreak = false;
   var trackedPlayForPreroll = false;
   var pauseRequested = false;
-  var queueBufferStart = false;
   var seekStarted = false;
-  var bufferStarted = false;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -255,7 +253,6 @@ var OmnitureAnalyticsPlugin = function (framework)
         pauseRequested = true;
        break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
-        //TODO: Throw buffer end event if we have not yet
         trackPlay();
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
@@ -301,23 +298,8 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
         //TODO: Ask about Buffer before play start
         //TODO: Revisit buffering logic
-        // if (!inAdBreak)
-        // {
-        //   if (mainContentStarted)
-        //   {
-        //     trackBufferStart();
-        //   }
-        //   else
-        //   {
-        //     queueBufferStart = true;
-        //   }
-        // }
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-        // if (!inAdBreak && bufferStarted)
-        // {
-        //   trackBufferEnd();
-        // }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
@@ -382,9 +364,7 @@ var OmnitureAnalyticsPlugin = function (framework)
     inAdBreak = false;
     trackedPlayForPreroll = false;
     pauseRequested = false;
-    queueBufferStart = false;
     seekStarted = false;
-    bufferStarted = false;
     playerDelegate.onReplay();
   };
 
@@ -429,14 +409,6 @@ var OmnitureAnalyticsPlugin = function (framework)
     {
       mainContentStarted = true;
       vpPlugin.trackPlay();
-
-      //if we received a buffer event before we started content playback
-      //send a buffer start event now
-      if(queueBufferStart)
-      {
-        queueBufferStart = false;
-        trackBufferStart();
-      }
     }
     else
     {
@@ -491,30 +463,6 @@ var OmnitureAnalyticsPlugin = function (framework)
     mainContentStarted = false;
     vpPlugin.trackComplete();
     vpPlugin.trackVideoUnload();
-  };
-
-  /**
-   * To be called when the video player started buffering the main content. Will notify the Omniture SDK of a buffer start
-   * event. Must be paired with a trackBufferEnd call.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackBufferStart
-   */
-  var trackBufferStart = function()
-  {
-    bufferStarted = true;
-    vpPlugin.trackBufferStart();
-  };
-
-  /**
-   * To be called when the video player finished buffering the main content. Will notify the Omniture SDK of a buffer
-   * complete event. Must be paired with a trackBufferStart call.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackBufferEnd
-   */
-  var trackBufferEnd = function()
-  {
-    bufferStarted = false;
-    vpPlugin.trackBufferComplete();
   };
 
   /**
