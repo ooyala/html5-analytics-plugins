@@ -300,23 +300,24 @@ var OmnitureAnalyticsPlugin = function (framework)
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
         //TODO: Ask about Buffer before play start
-        if (!inAdBreak)
-        {
-          if (mainContentStarted)
-          {
-            trackBufferStart();
-          }
-          else
-          {
-            queueBufferStart = true;
-          }
-        }
+        //TODO: Revisit buffering logic
+        // if (!inAdBreak)
+        // {
+        //   if (mainContentStarted)
+        //   {
+        //     trackBufferStart();
+        //   }
+        //   else
+        //   {
+        //     queueBufferStart = true;
+        //   }
+        // }
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-        if (!inAdBreak && bufferStarted)
-        {
-          trackBufferEnd();
-        }
+        // if (!inAdBreak && bufferStarted)
+        // {
+        //   trackBufferEnd();
+        // }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
