@@ -474,34 +474,34 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackBufferStart', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackBufferStart = function()
-    {
-      called++;
-    };
-    simulator.simulateContentPlayback();
-    simulator.simulateVideoBufferingStarted();
-    expect(called).toBe(1);
-  });
-
-  it('Omniture Video Plugin can trackBufferComplete', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackBufferComplete = function()
-    {
-      called++;
-    };
-    simulator.simulateContentPlayback();
-    simulator.simulateVideoBufferingStarted();
-    simulator.simulateVideoBufferingEnded();
-    expect(called).toBe(1);
-  });
+  // it('Omniture Video Plugin can trackBufferStart', function()
+  // {
+  //   var plugin = createPlugin(framework);
+  //   var simulator = Utils.createPlaybackSimulator(plugin);
+  //   var called = 0;
+  //   plugin.omnitureVideoPlayerPlugin.trackBufferStart = function()
+  //   {
+  //     called++;
+  //   };
+  //   simulator.simulateContentPlayback();
+  //   simulator.simulateVideoBufferingStarted();
+  //   expect(called).toBe(1);
+  // });
+  //
+  // it('Omniture Video Plugin can trackBufferComplete', function()
+  // {
+  //   var plugin = createPlugin(framework);
+  //   var simulator = Utils.createPlaybackSimulator(plugin);
+  //   var called = 0;
+  //   plugin.omnitureVideoPlayerPlugin.trackBufferComplete = function()
+  //   {
+  //     called++;
+  //   };
+  //   simulator.simulateContentPlayback();
+  //   simulator.simulateVideoBufferingStarted();
+  //   simulator.simulateVideoBufferingEnded();
+  //   expect(called).toBe(1);
+  // });
 
   it('Omniture Video Plugin can trackAdStart', function()
   {
@@ -569,17 +569,17 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
       videoLoadCalled++;
     };
 
-    var bufferStartCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackBufferStart = function()
-    {
-      bufferStartCalled++;
-    };
-
-    var bufferCompleteCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackBufferComplete = function()
-    {
-      bufferCompleteCalled++;
-    };
+    // var bufferStartCalled = 0;
+    // plugin.omnitureVideoPlayerPlugin.trackBufferStart = function()
+    // {
+    //   bufferStartCalled++;
+    // };
+    //
+    // var bufferCompleteCalled = 0;
+    // plugin.omnitureVideoPlayerPlugin.trackBufferComplete = function()
+    // {
+    //   bufferCompleteCalled++;
+    // };
 
     var playCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackPlay = function()
@@ -685,16 +685,16 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdBreakEnded();
 
     //main content
-    simulator.simulateVideoBufferingStarted();
+    // simulator.simulateVideoBufferingStarted();
     //we do not want to report buffering until we report content start
-    expect(bufferStartCalled).toBe(0);
+    // expect(bufferStartCalled).toBe(0);
 
     simulator.simulateContentPlayback();
     expect(playCalled).toBe(1);
-    expect(bufferStartCalled).toBe(1);
+    // expect(bufferStartCalled).toBe(1);
 
-    simulator.simulateVideoBufferingEnded();
-    expect(bufferCompleteCalled).toBe(1);
+    // simulator.simulateVideoBufferingEnded();
+    // expect(bufferCompleteCalled).toBe(1);
 
     simulator.simulateVideoPause();
     expect(pauseCalled).toBe(1);
