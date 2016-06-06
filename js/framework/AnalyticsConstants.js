@@ -270,6 +270,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_IMPRESSION
+     * @description This message is sent when the ad video element first plays.
+     */
+    AD_IMPRESSION:                  'ad_impression',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
      * @description This message is sent when the player enters and exits fullscreen.
      * @param {Array} paramArray Array of length 1, contains an instance of
