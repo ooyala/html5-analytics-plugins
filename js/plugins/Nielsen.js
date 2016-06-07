@@ -40,8 +40,10 @@ var NielsenAnalyticsPlugin = function (framework)
     END: 57
   };
 
-  var PLAYHEAD_UPDATE_INTERVAL = 1; //second
+  var PLAYHEAD_UPDATE_INTERVAL = 1000; //milliseconds
   var SDK_LOAD_TIMEOUT = 3000;
+  
+  this.testMode = false;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -110,7 +112,7 @@ var NielsenAnalyticsPlugin = function (framework)
     //If SDK is not loaded by now, load SDK
     if (!window.NOLCMB)
     {
-      OO.loadScriptOnce("http://secure-dcr.imrworldwide.com/novms/js/2/ggcmb500.js", trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
+      OO.loadScriptOnce("http://cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js", trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
   };
 
@@ -129,12 +131,24 @@ var NielsenAnalyticsPlugin = function (framework)
     {
       nSdkInstance = window.NOLCMB.getInstance(nielsenMetadata.apid);
 
-      nSdkInstance.ggInitialize({
+      //nsdkv of 511 should be provided to the SDK as per Nielsen's suggestion.
+      //We open the possibility to change this via page level parameters
+      var nsdkv = nielsenMetadata.nsdkv ? nielsenMetadata.nsdkv : "511";
+
+      var initMetadata = {
         apid: nielsenMetadata.apid,
         sfcode: nielsenMetadata.sfcode,
-        apn: nielsenMetadata.apn
-        // nol_sdkDebug: "console"
-      });
+        apn: nielsenMetadata.apn,
+        nsdkv: nsdkv
+        // nol_sdkDebug: "DEBUG"
+      };
+
+      if (nielsenMetadata.nol_sdkDebug)
+      {
+        initMetadata.nol_sdkDebug = nielsenMetadata.nol_sdkDebug;
+      }
+
+      nSdkInstance.ggInitialize(initMetadata);
 
       handleStoredEvents();
       setup = true;
@@ -193,9 +207,8 @@ var NielsenAnalyticsPlugin = function (framework)
         "title": nielsenMetadata.title,
         "program": nielsenMetadata.program,
         "isfullepisode":nielsenMetadata.isfullepisode,
-        //Always linear for DCR
-        //TODO: SSAI, set to Dynamic (2)
-        "adloadtype":1
+        //Setting adloadtype to 2 per Nielsen's suggestion
+        "adloadtype":2
       });
 
       //Optional Nielsen parameters
@@ -304,10 +317,12 @@ var NielsenAnalyticsPlugin = function (framework)
           }
           //Playhead updates should occur every 1 second according to docs at:
           //https://engineeringforum.nielsen.com/sdk/developers/product-dcr-implementation-av-bsdk.php;
-          if (playhead >= 0 && playhead >= lastPlayheadUpdate + PLAYHEAD_UPDATE_INTERVAL)
+          var currentTime = new Date().getTime();
+          var sufficientDelay = currentTime >= lastPlayheadUpdate + PLAYHEAD_UPDATE_INTERVAL || this.testMode;
+          if (playhead >= 0 && sufficientDelay)
           {
             //TODO: receiving video_stream_position_changed immediately after ad_break_started
-            lastPlayheadUpdate = playhead;
+            lastPlayheadUpdate = currentTime;
             trackPlayhead();
           }
 
@@ -428,14 +443,16 @@ var NielsenAnalyticsPlugin = function (framework)
     //TODO: Add more checks to ensure we report the correct playhead
     if (inAdBreak)
     {
-      OO.log("Nielsen Tracking: setPlayheadPosition with ad playhead " + currentAdPlayhead);
-      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, currentAdPlayhead);
+      var reportedAdPlayhead = Math.floor(currentAdPlayhead);
+      OO.log("Nielsen Tracking: setPlayheadPosition with ad playhead " + reportedAdPlayhead);
+      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
     }
     else
     {
       //TODO: Handle live streams
-      OO.log("Nielsen Tracking: setPlayheadPosition with playhead " + currentPlayhead);
-      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, currentPlayhead);
+      var reportedPlayhead = Math.floor(currentPlayhead);
+      OO.log("Nielsen Tracking: setPlayheadPosition with playhead " + reportedPlayhead);
+      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
     }
   };
 
@@ -481,8 +498,12 @@ var NielsenAnalyticsPlugin = function (framework)
    */
   var trackAdEnd = function()
   {
-    OO.log("Nielsen Tracking: stop with ad playhead " + currentAdPlayhead);
-    notifyNielsen(DCR_EVENT.STOP, currentAdPlayhead);
+    var reportedAdPlayhead = Math.floor(currentAdPlayhead);
+    OO.log("Nielsen Tracking: stop with ad playhead " + reportedAdPlayhead);
+    //Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    //the final second due to the 1 second intervals between reporting playheads)
+    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
+    notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
   };
 
   /**
