@@ -277,7 +277,7 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
-     * @event OO.Analytics.EVENTS#AD_IMPRESSION
+     * @event OO.Analytics.EVENTS#AD_CLICKTHROUGH
      * @description This message is sent when an ad clickthrough event has occurred.
      */
     AD_CLICKTHROUGH:                'ad_clickthrough',
