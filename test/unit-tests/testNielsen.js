@@ -58,6 +58,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
   {
     var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
     var plugin = new nielsenPluginFactory(framework);
+    plugin.testMode = true;
     plugin.init();
     plugin.setMetadata({
       "program":"myProgram",
@@ -276,10 +277,12 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
   {
     var loadMetadataCalled = 0;
     var metadata = null;
+    var initParams = null;
     window.NOLCMB = {
       getInstance : function(){
         return {
-          ggInitialize: function() {
+          ggInitialize: function(params) {
+            initParams = params;
           },
           ggPM: function(event, param) {
             if (event === GGPM_INITIAL_LOAD_METADATA_EVENT)
@@ -302,6 +305,10 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(metadata.title).toBe("testTitle");
     expect(metadata.assetName).toBe("testTitle");
     expect(metadata.length).toBe(60);
+    //adloadtype should be 2 per Nielsen's suggestion
+    expect(metadata.adloadtype).toBe(2);
+    //nsdkv should be 511 per Nielsen's suggestion
+    expect(initParams.nsdkv).toBe("511");
   });
 
   it('Nielsen plugin can track loadMetadata event upon playing a preroll ad', function()
@@ -387,20 +394,21 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testPrerollId",
-        adDuration: 15
+        adDuration: 15.2
       }
     });
     expect(loadMetadataForAdCalled).toBe(1);
     expect(adMetadata.type).toBe("preroll");
-    expect(adMetadata.length).toBe(15);
+    expect(adMetadata.length).toBe(15.2);
     expect(adMetadata.assetid).toBe("testPrerollId");
 
     simulator.simulateVideoProgress({
-      playheads : [1, 5, 15],
+      playheads : [1, 5, 15.2],
       videoId : OO.VIDEO.ADS
     });
 
     expect(setPlayheadPositionCalled).toBe(3);
+    //test that playhead is floored
     expect(playhead).toBe(15);
 
     //preroll ends
@@ -409,6 +417,10 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
       adId: "testPrerollId"
     });
 
+    //test to see that ad complete event triggers a playhead position update
+    expect(setPlayheadPositionCalled).toBe(1);
+    //test that playhead is floored
+    expect(playhead).toBe(15);
     expect(stopCalled).toBe(1);
     expect(stopTime).toBe(15);
 
@@ -520,13 +532,13 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
         adId: "testMidrollId",
-        adDuration: 5
+        adDuration: 5.8
       }
     });
 
     expect(loadMetadataForAdCalled).toBe(1);
     expect(adMetadata.type).toBe("midroll");
-    expect(adMetadata.length).toBe(5);
+    expect(adMetadata.length).toBe(5.8);
     expect(adMetadata.assetid).toBe("testMidrollId");
 
     simulator.simulateVideoProgress({
@@ -535,6 +547,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     });
 
     expect(setPlayheadPositionCalled).toBe(2);
+    //test that playhead is floored
     expect(playhead).toBe(5);
 
     //midroll ends
@@ -543,6 +556,10 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
       adId: "testMidrollId"
     });
 
+    //test to see that ad complete event triggers a playhead position update
+    expect(setPlayheadPositionCalled).toBe(1);
+    //test that playhead is floored
+    expect(playhead).toBe(5);
     expect(stopCalled).toBe(1);
     expect(stopTime).toBe(5);
 
@@ -600,18 +617,29 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     });
     expect(setPlayheadPositionCalled).toBe(1);
     expect(playhead).toBe(1);
-    simulator.simulateVideoProgress({
-      playheads : [1.5]
-    });
-    //playheads are sent in 1 second intervals, so we do not want to
-    //send another playhead here (1.5s - 1s < the one second interval)
-    expect(setPlayheadPositionCalled).toBe(0);
-    expect(playhead).toBe(1);
+    //Removing playhead interval testing as it is now based on current time
+    //from Date object rather than playheads
     simulator.simulateVideoProgress({
       playheads : [2, 3, 4, 5, 7.5, 10]
     });
     expect(setPlayheadPositionCalled).toBe(6);
     expect(playhead).toBe(10);
+
+    //test seek backwards
+    simulator.simulateVideoProgress({
+      playheads : [3]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(1);
+    expect(playhead).toBe(3);
+
+    //test seek forwards
+    simulator.simulateVideoProgress({
+      playheads : [30]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(1);
+    expect(playhead).toBe(30);
   });
 
   it('Nielsen plugin can track end event', function()
