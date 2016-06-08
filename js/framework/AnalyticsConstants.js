@@ -277,6 +277,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_CLICKTHROUGH
+     * @description This message is sent when an ad clickthrough event has occurred.
+     */
+    AD_CLICKTHROUGH:                'ad_clickthrough',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
      * @description This message is sent when the player enters and exits fullscreen.
      * @param {Array} paramArray Array of length 1, contains an instance of
