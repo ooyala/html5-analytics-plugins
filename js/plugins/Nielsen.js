@@ -336,10 +336,9 @@ var NielsenAnalyticsPlugin = function (framework)
         inAdBreak = true;
         //We want to report the first playhead after this event
         lastPlayheadUpdate = -1;
-        OO.log("Nielsen Tracking: stop from ad break with playhead " + currentPlayhead);
         if (!contentComplete && mainContentStarted)
         {
-          notifyNielsen(DCR_EVENT.STOP, currentPlayhead);
+          trackAdBreakStart();
         }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
@@ -428,8 +427,12 @@ var NielsenAnalyticsPlugin = function (framework)
    */
   var trackComplete = function()
   {
-    OO.log("Nielsen Tracking: end with playhead " + currentPlayhead);
-    notifyNielsen(DCR_EVENT.END, currentPlayhead);
+    var reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log("Nielsen Tracking: end with playhead " + reportedPlayhead);
+    //Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    //the final second due to the 1 second intervals between reporting playheads)
+    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
+    notifyNielsen(DCR_EVENT.END, reportedPlayhead);
   };
 
   /**
@@ -454,6 +457,21 @@ var NielsenAnalyticsPlugin = function (framework)
       OO.log("Nielsen Tracking: setPlayheadPosition with playhead " + reportedPlayhead);
       notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
     }
+  };
+
+  /**
+   * To be called when an ad break has started. Will notify the Nielsen SDK of a stop event (event 7).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdBreakStart
+   */
+  var trackAdBreakStart = function()
+  {
+    var reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log("Nielsen Tracking: stop from ad break with playhead " + reportedPlayhead);
+    //Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    //the final second due to the 1 second intervals between reporting playheads)
+    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
+    notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
   };
 
   /**

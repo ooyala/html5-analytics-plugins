@@ -525,6 +525,9 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     //play midroll
     simulator.simulateAdBreakStarted();
 
+    //The ad break will send a setPlayheadPosition event to account
+    //for the second the ad break starts on
+    expect(setPlayheadPositionCalled).toBe(1);
     expect(stopCalled).toBe(1);
     expect(stopTime).toBe(10);
 
@@ -597,9 +600,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
     var clearCounts = function()
     {
-      loadMetadataForContentCalled = 0;
-      loadMetadataForAdCalled = 0;
-      stopCalled = 0;
       setPlayheadPositionCalled = 0;
     };
     simulator.addPreSimulateCallback(clearCounts);
@@ -644,6 +644,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   it('Nielsen plugin can track end event', function()
   {
+    var setPlayheadPositionCalled = 0;
+    var playhead = -1;
     var endCalled = 0;
     var endTime = -1;
     window.NOLCMB = {
@@ -657,24 +659,26 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
               endCalled++;
               endTime = param;
             }
+            if (event === GGPM_SET_PLAYHEAD_POSITION_EVENT) {
+              setPlayheadPositionCalled++;
+              playhead = param;
+            }
           }
         }
       }
     };
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
-    var clearCounts = function()
-    {
-      loadMetadataForContentCalled = 0;
-      loadMetadataForAdCalled = 0;
-      stopCalled = 0;
-      setPlayheadPositionCalled = 0;
-    };
-    simulator.addPreSimulateCallback(clearCounts);
 
     simulator.simulateContentComplete({
       streamPosition : 60
     });
+    //There will be two setPlayheadPositions. One from the video
+    //stream position update inside the simulateContentComplete function
+    //and another with the Nielsen complete event. One is sent in addition
+    //to the complete event to account for the second the content ends on
+    expect(setPlayheadPositionCalled).toBe(2);
+    expect(playhead).toBe(60);
     expect(endCalled).toBe(1);
     expect(endTime).toBe(60);
   });
@@ -711,14 +715,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     };
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
-    var clearCounts = function()
-    {
-      loadMetadataForContentCalled = 0;
-      loadMetadataForAdCalled = 0;
-      stopCalled = 0;
-      setPlayheadPositionCalled = 0;
-    };
-    simulator.addPreSimulateCallback(clearCounts);
 
     //received metadata
     simulator.simulatePlayerLoad({
@@ -895,6 +891,9 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
     //play midroll
     simulator.simulateAdBreakStarted(plugin);
+    //The ad break will send a setPlayheadPosition event to account
+    //for the second the ad break starts on
+    expect(setPlayheadPositionCalled).toBe(1);
     expect(stopCalled).toBe(1);
     expect(stopTime).toBe(10);
 
@@ -950,7 +949,11 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
       streamPosition : 60
     });
 
-    expect(setPlayheadPositionCalled).toBe(1);
+    //There will be two setPlayheadPositions. One from the video
+    //stream position update inside the simulateContentComplete function
+    //and another with the Nielsen complete event. One is sent in addition
+    //to the complete event to account for the second the content ends on
+    expect(setPlayheadPositionCalled).toBe(2);
     expect(playhead).toBe(60);
 
     expect(endCalled).toBe(1);
