@@ -17,7 +17,7 @@ var OmnitureAnalyticsPlugin = function (framework)
   var _active = true;
 
   var OOYALA_PLAYER_NAME = "Ooyala V4";
-  var OOYALA_PLAYER_VERSION = "4.5.0";
+  var OOYALA_PLAYER_VERSION = "";
 
   var playerDelegate = new OoyalaPlayerDelegate();
   var vpPlugin = null;
