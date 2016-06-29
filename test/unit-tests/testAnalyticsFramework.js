@@ -1550,5 +1550,34 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test StreamTypeData', function()
+    {
+      var metadataIn =
+      {
+        streamType: OO.Analytics.STREAM_TYPE.VOD
+      };
+
+      var metadataOut =
+      {
+        streamType: OO.Analytics.STREAM_TYPE.VOD
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.StreamTypeMetadata(metadataIn.streamType);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM
+      };
+
+      metadataOut =
+      {
+        streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM
+      };
+
+      data = new OO.Analytics.EVENT_DATA.StreamTypeMetadata(metadataIn.streamType);
+      expect(data).toEqual(metadataOut);
+    });
   });
 });
