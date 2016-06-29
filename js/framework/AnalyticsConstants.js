@@ -144,6 +144,17 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#STREAM_TYPE_UPDATED
+     * @description This message is sent when the content stream type has been
+     * determined by the player. Possible stream types include VODs and live
+     * streams.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.StreamTypeMetadata
+     */
+    STREAM_TYPE_UPDATED: 'stream_type_updated',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#VIDEO_SEEK_REQUESTED
      * @description This message is sent when a video seek is requested.
      * @param {Array} paramArray Array of length 1, contains an instance of
@@ -365,6 +376,18 @@ if (!OO.Analytics.EVENT_DATA)
     this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", ["object"]);
     this.contentType    = checkContentData(contentType, "contentType", ["string"]);
     this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", ["string"]);
+  };
+
+  /**
+   * public
+   * @class Analytics.EVENT_DATA#StreamTypeMetadata
+   * @classdesc Contains information about the content stream type
+   * @property {string} streamType Type of the stream. Possible values include: "VOD" and "liveStream"
+   */
+  EVENT_DATA.StreamTypeMetadata = function(streamType)
+  {
+    var checkStreamTypeData = OO._.bind(checkDataType, this, "StreamTypeMetadata");
+    this.streamType         = checkStreamTypeData(streamType, "streamType", ["string"]);
   };
 
   /**
