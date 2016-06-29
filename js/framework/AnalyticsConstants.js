@@ -22,6 +22,16 @@ if (!OO.Analytics.AD_TYPE)
   OO.Analytics.AD_TYPE = AD_TYPE;
 }
 
+if (!OO.Analytics.STREAM_TYPE)
+{
+  var STREAM_TYPE =
+  {
+    VOD: "vod",
+    LIVE_STREAM: "liveStream"
+  };
+  OO.Analytics.STREAM_TYPE = STREAM_TYPE;
+}
+
 /**
  * @public
  * @description These are the events associated with the Analytics Framework.
@@ -146,8 +156,7 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#STREAM_TYPE_UPDATED
      * @description This message is sent when the content stream type has been
-     * determined by the player. Possible stream types include VODs and live
-     * streams.
+     * determined by the player.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.StreamTypeMetadata
      */
@@ -382,7 +391,7 @@ if (!OO.Analytics.EVENT_DATA)
    * public
    * @class Analytics.EVENT_DATA#StreamTypeMetadata
    * @classdesc Contains information about the content stream type
-   * @property {string} streamType Type of the stream. Possible values include: "VOD" and "liveStream"
+   * @property {string} streamType OO.Analytics.STREAM_TYPE of the stream.
    */
   EVENT_DATA.StreamTypeMetadata = function(streamType)
   {
