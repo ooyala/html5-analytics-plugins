@@ -22,6 +22,16 @@ if (!OO.Analytics.AD_TYPE)
   OO.Analytics.AD_TYPE = AD_TYPE;
 }
 
+if (!OO.Analytics.STREAM_TYPE)
+{
+  var STREAM_TYPE =
+  {
+    VOD: "vod",
+    LIVE_STREAM: "liveStream"
+  };
+  OO.Analytics.STREAM_TYPE = STREAM_TYPE;
+}
+
 /**
  * @public
  * @description These are the events associated with the Analytics Framework.
@@ -141,6 +151,16 @@ if (!OO.Analytics.EVENTS)
      * OO.Analytics.EVENT_DATA.VideoContentMetadata
      */
     VIDEO_CONTENT_METADATA_UPDATED: 'video_content_metadata_updated',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#STREAM_TYPE_UPDATED
+     * @description This message is sent when the content stream type has been
+     * determined by the player.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.StreamTypeMetadata
+     */
+    STREAM_TYPE_UPDATED: 'stream_type_updated',
 
     /**
      * @public
@@ -365,6 +385,18 @@ if (!OO.Analytics.EVENT_DATA)
     this.closedCaptions = checkContentData(closedCaptions, "closedCaptions", ["object"]);
     this.contentType    = checkContentData(contentType, "contentType", ["string"]);
     this.hostedAtURL    = checkContentData(hostedAtURL, "hostedAtURL", ["string"]);
+  };
+
+  /**
+   * public
+   * @class Analytics.EVENT_DATA#StreamTypeMetadata
+   * @classdesc Contains information about the content stream type
+   * @property {string} streamType OO.Analytics.STREAM_TYPE of the stream.
+   */
+  EVENT_DATA.StreamTypeMetadata = function(streamType)
+  {
+    var checkStreamTypeData = OO._.bind(checkDataType, this, "StreamTypeMetadata");
+    this.streamType         = checkStreamTypeData(streamType, "streamType", ["string"]);
   };
 
   /**
