@@ -11,7 +11,9 @@ var GAAnalyticsPlugin = function(framework) {
     var version = "v1";
     var id;
     var _active = true;
-    var _verbose = false;
+    var _cachedEvents = [];
+    var _cacheEvents = true;
+
 
     this.gtm = false;
     this.gaMechanism = 'events';
@@ -27,12 +29,12 @@ var GAAnalyticsPlugin = function(framework) {
     ];
 
     this.playing = false;
-    this.duration = NaN;
-    this.playerRoot = NaN;
-    this.gaMethod = NaN;
-    this.content = NaN;
+    this.duration = null;
+    this.playerRoot = null;
+    this.gaMethod = null;
+    this.content = null;
     this.currentPlaybackType = 'content';
-    this.lastEventReported = NaN;
+    this.lastEventReported = null;
     this.lastReportedPlaybackMilestone = 0;
 
     /**
@@ -41,7 +43,7 @@ var GAAnalyticsPlugin = function(framework) {
      * @method GAAnalyticsPlugin#log
      */
     this.log = function(what) {
-        if (!_verbose || typeof console == 'undefined') return;
+        if (!this.verboseLogging || typeof console == 'undefined') return;
         console.log(what);
     }
 
@@ -137,12 +139,12 @@ var GAAnalyticsPlugin = function(framework) {
         } else {
             // Legacy GA code block support
             if (typeof _gaq != 'undefined') {
-                this.gaMethod = "_gaq.push(['_trackEvent', '" + this.gaEventCategory + "', ':event', ':title']);";
+                this.gaMethod = "_gaq.push(['_trackEvent', '" + this.gaEventCategory + "', ':event', ':title', ':createdAt']);";
                 // Current GA code block support
             } else if (typeof ga != 'undefined') {
-                this.gaMethod = "ga('send', 'event', '" + this.gaEventCategory + "', ':event', ':title');";
+                this.gaMethod = "ga('send', 'event', '" + this.gaEventCategory + "', ':event', ':title', ':createdAt');";
             } else if (this.gtm) {
-                this.gaMethod = "window.dataLayer.push({ 'event': 'OoyalaVideoEvent', 'category': '" + this.gaEventCategory + "', 'action': ':event', 'label': ':title'});";
+                this.gaMethod = "window.dataLayer.push({ 'event': 'OoyalaVideoEvent', 'category': '" + this.gaEventCategory + "', 'action': ':event', 'label': ':title', 'createdAt': ':createdAt'});";
             } else {
                 this.displayError();
             }
@@ -192,6 +194,9 @@ var GAAnalyticsPlugin = function(framework) {
                 break;
             case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
                 this.onContentReady(params);
+                break;
+            case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
+                this.onStreamMetadataUpdated(params);
                 break;
             case OO.Analytics.EVENTS.VIDEO_PLAYING:
                 this.onPlay();
@@ -258,6 +263,32 @@ var GAAnalyticsPlugin = function(framework) {
         this.reportToGA('adPlaybackFinished');
         this.reportToGA('playbackStarted');
         this.log("onAdsPlayed");
+    }
+
+    /**
+     * onStreamMetadataUpdated event is triggered when the stream metadata has been updated.
+     * This will contain custom metadata
+     * @public
+     * @method GAAnalyticsPlugin#onStreamMetadataUpdated
+     */
+    this.onStreamMetadataUpdated = function(metadata) {
+        if (metadata.length) metadata = metadata[0];
+        this.log("onStreamMetadataUpdated");
+
+        if (!!metadata) {
+            _cacheEvents = false;
+            if (!!metadata.base) {
+                var data = metadata.base;
+                this.createdAt = data.created_at || data.CreationDate;
+                if (!!this.createdAt && !!ga && !!ooyalaGaTrackSettings.customDimension) {
+                    ga('set', ooyalaGaTrackSettings.customDimension, this.createdAt);
+                }
+            }
+        }
+
+        while (_cachedEvents.length>0) {
+            this.sendToGA(_cachedEvents.shift());
+        }
     }
 
     /**
@@ -350,6 +381,17 @@ var GAAnalyticsPlugin = function(framework) {
     }
 
     /**
+     * Send event to Google Analytics
+     * @public
+     * @method GAAnalyticsPlugin#sendToGA
+     */
+    this.sendToGA = function(event) {
+        var method = this.gaMethod.replace(/:hostname/g, document.location.host).replace(/:event/g, event).replace(/:title/g, this.content.title).replace(/:createdAt/g, this.createdAt);
+        eval(method);
+        this.log('REPORTED TO GA:' + method);
+    }
+
+    /**
      * Report event to Google Analytics
      * @public
      * @method GAAnalyticsPlugin#reportToGA
@@ -359,8 +401,12 @@ var GAAnalyticsPlugin = function(framework) {
             // Ooyala event subscriptions result in duplicate triggers; we'll filter them out here
             this.lastEventReported = event;
 
-            eval(this.gaMethod.replace(/:hostname/g, document.location.host).replace(/:event/g, event).replace(/:title/g, this.content.title));
-            this.log('REPORTED TO GA:' + this.gaMethod.replace(/:hostname/g, document.location.host).replace(/:event/g, event).replace(/:title/g, this.content.title));
+            if (_cacheEvents) {
+                _cachedEvents.push(event);
+            } else {
+                this.sendToGA(event);
+            }
+
         }
     }
 };
