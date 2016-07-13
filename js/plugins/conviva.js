@@ -21,6 +21,7 @@ var ConvivaAnalyticsPlugin = function (framework)
   var embedCode = null;
   var videoContentMetadata = null;
   var convivaMetadata = null;
+  var systemFactory = null;
   var convivaClient = null;
   var playerStateManager = null;
 
@@ -88,17 +89,35 @@ var ConvivaAnalyticsPlugin = function (framework)
   var trySetupConviva = function()
   {
     if (convivaMetadata && sdkLoaded()){
-      var systemInterface = new Conviva.SystemInterface(
-        new Html5Time(),
-        new Html5Timer(),
-        new Html5Http(),
-        new Html5Storage(),
-        new Html5Metadata(),
-        new Html5Logging()
-      );
+      // Detach previous session if necessary
+      if (convivaClient)
+      {
+        if (validSession())
+        {
+          convivaClient.detachPlayer(currentConvivaSessionKey);
+        }
 
-      var systemSettings = getSystemSettings();
-      var systemFactory = new Conviva.SystemFactory(systemInterface, systemSettings);
+        if (playerStateManager)
+        {
+          convivaClient.releasePlayerStateManager(playerStateManager);
+        }
+      }
+
+      if (!systemFactory)
+      {
+        var systemInterface = new Conviva.SystemInterface(
+          new Html5Time(),
+          new Html5Timer(),
+          new Html5Http(),
+          new Html5Storage(),
+          new Html5Metadata(),
+          new Html5Logging()
+        );
+
+        var systemSettings = getSystemSettings();
+        systemFactory = new Conviva.SystemFactory(systemInterface, systemSettings);
+      }
+
       var clientSettings = getClientSettings();
       convivaClient = new Conviva.Client(clientSettings, systemFactory);
       playerStateManager = convivaClient.getPlayerStateManager();
@@ -202,6 +221,7 @@ var ConvivaAnalyticsPlugin = function (framework)
       // };
       currentConvivaSessionKey = convivaClient.createSession(contentMetadata);
       convivaClient.attachPlayer(currentConvivaSessionKey, playerStateManager);
+      trackStop();
     }
   };
 
@@ -309,11 +329,18 @@ var ConvivaAnalyticsPlugin = function (framework)
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
         break;
+      case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
+        trackStop();
+        break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         trackPlay();
         break;
+      case OO.Analytics.EVENTS.VIDEO_PAUSED:
+        trackPause();
+        break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        resetPlaybackState();
+        // resetPlaybackState();
+        // tryBuildConvivaContentMetadata();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         resetPlaybackState();
@@ -357,11 +384,11 @@ var ConvivaAnalyticsPlugin = function (framework)
    */
   var resetPlaybackState = function ()
   {
-    currentConvivaSessionKey = null;
-    streamType = null;
-    embedCode = null;
-    videoContentMetadata = null;
-    convivaMetadata = null;
+    // currentConvivaSessionKey = null;
+    // streamType = null;
+    // embedCode = null;
+    // videoContentMetadata = null;
+    // convivaMetadata = null;
     // convivaClient = null;
     // playerStateManager = null;
   };
@@ -374,7 +401,23 @@ var ConvivaAnalyticsPlugin = function (framework)
   this.destroy = function ()
   {
     _framework = null;
+    if (convivaClient)
+    {
+      convivaClient.release();
+      convivaClient = null;
+    }
+
+    if (systemFactory)
+    {
+      systemFactory.release();
+      systemFactory = null;
+    }
     resetPlaybackState();
+  };
+
+  var validSession = function()
+  {
+    return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null;
   };
 
   /**
@@ -382,80 +425,49 @@ var ConvivaAnalyticsPlugin = function (framework)
    */
   var canTrack = function()
   {
-    return playerStateManager && convivaClient && currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY;
+    return playerStateManager && convivaClient && validSession();
   };
 
   /**
-   * To be called when the main content has started playback. This will be called when the content initially starts
-   * or when transitioning back to main content from an ad. Will notify the Conviva SDK of a load metadata event
-   * (event 15).
+   *
+   * @param state
+   */
+  var updatePlayerState = function(state)
+  {
+    if (canTrack())
+    {
+      playerStateManager.setPlayerState(state);
+    }
+    else
+    {
+      OO.log("Conviva Plugin Error: trying to set player state when unable to with state " + state);
+    }
+  };
+
+  /**
+   * To be called when the main content has started playback.
    * @private
    * @method ConvivaAnalyticsPlugin#trackPlay
    */
   var trackPlay = function()
   {
-    if (canTrack())
-    {
-      playerStateManager.setPlayerState(Conviva.PlayerStateManager.PlayerState.PLAYING);
-    }
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.PLAYING);
   };
 
   /**
-   * To be called when the main content has finished playback. This must be called before any postrolls start. Will
-   * notify the Conviva SDK of a end event (event 57).
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackComplete
+   *
    */
-  var trackComplete = function()
+  var trackPause = function()
   {
-
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.PAUSED);
   };
 
   /**
-   * To be called when there is a content playhead update. Will notify the Conviva SDK of a "set playhead position" event
-   * (event 49).
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackPlayhead
+   *
    */
-  var trackPlayhead = function()
+  var trackStop = function()
   {
-
-  };
-
-  /**
-   * To be called when an ad break has started. Will notify the Conviva SDK of a stop event (event 7).
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackAdBreakStart
-   */
-  var trackAdBreakStart = function()
-  {
-
-  };
-
-  /**
-   * To be called when an ad playback has started. Will notify the Conviva SDK of a load metadata event (event 15).
-   * The event type will be one of preroll, midroll, or postroll, depending on the current playhead and if the
-   * content has finished.
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackAdStart
-   * @param {object} metadata The metadata for the ad.
-   *                        It must contain the following fields:<br/>
-   *   adDuration {number} The length of the ad<br />
-   *   adId {string} The id of the ad<br />
-   */
-  var trackAdStart = function(metadata)
-  {
-
-  };
-
-  /**
-   * To be called when an ad playback has finished. Will notify the Conviva SDK of a stop event (event 3).
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackAdEnd
-   */
-  var trackAdEnd = function()
-  {
-
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.STOPPED);
   };
 };
 
