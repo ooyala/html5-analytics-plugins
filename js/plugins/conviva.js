@@ -24,6 +24,9 @@ var ConvivaAnalyticsPlugin = function (framework)
   var systemFactory = null;
   var convivaClient = null;
   var playerStateManager = null;
+  var currentPlayhead = -1;
+  var inAdBreak = false;
+  var contentComplete = false;
 
   var OOYALA_TOUCHSTONE_SERVICE_URL = "https://ooyala-test.testonly.conviva.com";
   // Mainly used for reference
@@ -89,20 +92,6 @@ var ConvivaAnalyticsPlugin = function (framework)
   var trySetupConviva = function()
   {
     if (convivaMetadata && sdkLoaded()){
-      // Detach previous session if necessary
-      if (convivaClient)
-      {
-        if (validSession())
-        {
-          convivaClient.detachPlayer(currentConvivaSessionKey);
-        }
-
-        if (playerStateManager)
-        {
-          convivaClient.releasePlayerStateManager(playerStateManager);
-        }
-      }
-
       if (!systemFactory)
       {
         var systemInterface = new Conviva.SystemInterface(
@@ -120,7 +109,7 @@ var ConvivaAnalyticsPlugin = function (framework)
 
       var clientSettings = getClientSettings();
       convivaClient = new Conviva.Client(clientSettings, systemFactory);
-      playerStateManager = convivaClient.getPlayerStateManager();
+
       tryBuildConvivaContentMetadata();
     }
   };
@@ -160,8 +149,20 @@ var ConvivaAnalyticsPlugin = function (framework)
    */
   var tryBuildConvivaContentMetadata = function ()
   {
-    if (videoContentMetadata && embedCode && convivaClient && playerStateManager)
+    if (videoContentMetadata && embedCode && convivaClient)
     {
+      // Detach previous session if necessary
+      if (validSession())
+      {
+        convivaClient.detachPlayer(currentConvivaSessionKey);
+      }
+
+      if (playerStateManager)
+      {
+        convivaClient.releasePlayerStateManager(playerStateManager);
+      }
+
+      playerStateManager = convivaClient.getPlayerStateManager();
       var contentMetadata = new Conviva.ContentMetadata();
 
       // Recommended format for the assetName, using both the ID of the video content and its title
@@ -328,6 +329,7 @@ var ConvivaAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
+        contentComplete = true;
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackStop();
@@ -338,9 +340,14 @@ var ConvivaAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
         trackPause();
         break;
+      case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
+        trackPause();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
+        break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         // resetPlaybackState();
-        // tryBuildConvivaContentMetadata();
+        tryBuildConvivaContentMetadata();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         resetPlaybackState();
@@ -360,14 +367,25 @@ var ConvivaAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
+        if (params && params[0] && params[0].streamPosition)
+        {
+          if (!inAdBreak)
+          {
+            currentPlayhead = params[0].streamPosition;
+          }
+        }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
+        inAdBreak = true;
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
+        inAdBreak = false;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
+        trackAdStart();
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
+        trackAdEnd();
         break;
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
         var streamType = params[0].streamType;
@@ -468,6 +486,49 @@ var ConvivaAnalyticsPlugin = function (framework)
   var trackStop = function()
   {
     updatePlayerState(Conviva.PlayerStateManager.PlayerState.STOPPED);
+  };
+
+  /**
+   *
+   */
+  var trackAdStart = function()
+  {
+    if (canTrack())
+    {
+      var adPosition = null;
+      if (currentPlayhead <= 0)
+      {
+        OO.log("[Conviva] Playing preroll");
+        adPosition = Conviva.Client.AdPosition.PREROLL;
+      }
+      else if (contentComplete)
+      {
+        OO.log("[Conviva] Playing postroll");
+        adPosition = Conviva.Client.AdPosition.POSTROLL;
+      }
+      else
+      {
+        OO.log("[Conviva] Playing midroll");
+        adPosition = Conviva.Client.AdPosition.MIDROLL;
+      }
+
+      //TODO: If SSAI, use CONTENT instead of SEPARATE for adStream
+      var adStream = Conviva.Client.AdStream.SEPARATE;
+      //TODO: Determine when to use CONTENT instead of SEPARATE for adPlayer (iOS probably uses CONTENT because of singleElement)
+      var adPlayer = Conviva.Client.AdPlayer.SEPARATE;
+      convivaClient.adStart(currentConvivaSessionKey, adStream, adPlayer, adPosition);
+    }
+  };
+
+  /**
+   *
+   */
+  var trackAdEnd = function()
+  {
+    if (canTrack())
+    {
+      convivaClient.adEnd(currentConvivaSessionKey);
+    }
   };
 };
 
