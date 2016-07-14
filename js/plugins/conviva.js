@@ -84,6 +84,16 @@ var ConvivaAnalyticsPlugin = function (framework)
    */
   this.init = function()
   {
+    var missedEvents;
+    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    {
+      missedEvents = _framework.getRecordedEvents();
+      _.each(missedEvents, _.bind(function (recordedEvent)
+      {
+        //recordedEvent.timeStamp;
+        this.processEvent(recordedEvent.eventName, recordedEvent.params);
+      }, this));
+    }
   };
 
   /**
@@ -142,6 +152,22 @@ var ConvivaAnalyticsPlugin = function (framework)
     return clientSettings;
   };
 
+  /**
+   *
+   */
+  var clearLastSession = function()
+  {
+    if (validSession())
+    {
+      convivaClient.detachPlayer(currentConvivaSessionKey);
+    }
+
+    if (playerStateManager)
+    {
+      convivaClient.releasePlayerStateManager(playerStateManager);
+    }
+  };
+
   // Gathers all relevant application information for a particular video playback
   // inside a Conviva ContentMetadata object.
   /**
@@ -152,15 +178,7 @@ var ConvivaAnalyticsPlugin = function (framework)
     if (videoContentMetadata && embedCode && convivaClient)
     {
       // Detach previous session if necessary
-      if (validSession())
-      {
-        convivaClient.detachPlayer(currentConvivaSessionKey);
-      }
-
-      if (playerStateManager)
-      {
-        convivaClient.releasePlayerStateManager(playerStateManager);
-      }
+      clearLastSession();
 
       playerStateManager = convivaClient.getPlayerStateManager();
       var contentMetadata = new Conviva.ContentMetadata();
@@ -419,6 +437,7 @@ var ConvivaAnalyticsPlugin = function (framework)
   this.destroy = function ()
   {
     _framework = null;
+    clearLastSession();
     if (convivaClient)
     {
       convivaClient.release();
