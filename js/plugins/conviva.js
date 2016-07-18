@@ -24,6 +24,7 @@ var ConvivaAnalyticsPlugin = function (framework)
   var systemFactory = null;
   var convivaClient = null;
   var playerStateManager = null;
+
   var currentPlayhead = -1;
   var inAdBreak = false;
   var contentComplete = false;
@@ -364,7 +365,7 @@ var ConvivaAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        // resetPlaybackState();
+        resetPlaybackState();
         tryBuildConvivaContentMetadata();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
@@ -427,6 +428,9 @@ var ConvivaAnalyticsPlugin = function (framework)
     // convivaMetadata = null;
     // convivaClient = null;
     // playerStateManager = null;
+    currentPlayhead = -1;
+    inAdBreak = false;
+    contentComplete = false;
   };
 
   /**
@@ -517,17 +521,17 @@ var ConvivaAnalyticsPlugin = function (framework)
       var adPosition = null;
       if (currentPlayhead <= 0)
       {
-        OO.log("[Conviva] Playing preroll");
+        OO.log("[Conviva-Ooyala] Playing preroll");
         adPosition = Conviva.Client.AdPosition.PREROLL;
       }
       else if (contentComplete)
       {
-        OO.log("[Conviva] Playing postroll");
+        OO.log("[Conviva-Ooyala] Playing postroll");
         adPosition = Conviva.Client.AdPosition.POSTROLL;
       }
       else
       {
-        OO.log("[Conviva] Playing midroll");
+        OO.log("[Conviva-Ooyala] Playing midroll");
         adPosition = Conviva.Client.AdPosition.MIDROLL;
       }
 
