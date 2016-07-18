@@ -193,6 +193,14 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_WAITING
+     * @description This message is sent when a video stream has to stop to buffer
+     * the next frame.
+     */
+    VIDEO_WAITING:        'video_waiting',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#VIDEO_BUFFERING_STARTED
      * @description This message is sent when a video stream has to pause playback
      * to load more data. It is also sent when the stream is buffering before
