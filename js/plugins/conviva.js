@@ -26,11 +26,12 @@ var ConvivaAnalyticsPlugin = function (framework)
   var playerStateManager = null;
 
   var currentPlayhead = -1;
+  var buffering = false;
   var inAdBreak = false;
   var contentComplete = false;
 
+  // Below is used for reference only
   var OOYALA_TOUCHSTONE_SERVICE_URL = "https://ooyala-test.testonly.conviva.com";
-  // Mainly used for reference
   var CURRENT_CONVIVA_JS_SDK_VERSION = "Conviva_SDK_JavaScript_2.91.0.24548";
 
   /**
@@ -98,7 +99,12 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
+   * If the required metadata and Conviva SDK is available, this function will
+   * create the system interface and settings to create an instance of the Conviva
+   * Client object. Will also try to create the Conviva Content Metadata once the
+   * Client object is available.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trySetupConviva
    */
   var trySetupConviva = function()
   {
@@ -125,24 +131,26 @@ var ConvivaAnalyticsPlugin = function (framework)
     }
   };
 
-  // Provides SystemSettings to configure Conviva SystemFactory in production mode.
   /**
-   *
-   * @returns {*}
+   * Provides SystemSettings to configure the Conviva SystemFactory
+   * @private
+   * @method ConvivaAnalyticsPlugin#getSystemSettings
+   * @returns {object} An instance of Conviva's SystemSettings
    */
   var getSystemSettings = function()
   {
     var systemSettings = new Conviva.SystemSettings();
     // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.ERROR; // default
+    // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
     // systemSettings.allowUncaughtExceptions = false; // default
-    systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
     return systemSettings;
   };
 
-  // Provides ClientSettings to configure Conviva Client in production mode.
   /**
-   *
-   * @returns {*}
+   * Provides ClientSettings to configure the Conviva Client
+   * @private
+   * @method ConvivaAnalyticsPlugin#getClientSettings
+   * @returns {object} An instance of Conviva's ClientSettings
    */
   var getClientSettings = function()
   {
@@ -154,7 +162,10 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
+   * Clears the last Conviva session by detaching the player from the Conviva Client and
+   * releasing the current player state  manager from the Conviva Client
+   * @private
+   * @method ConvivaAnalyticsPlugin#clearLastSession
    */
   var clearLastSession = function()
   {
@@ -169,10 +180,12 @@ var ConvivaAnalyticsPlugin = function (framework)
     }
   };
 
-  // Gathers all relevant application information for a particular video playback
-  // inside a Conviva ContentMetadata object.
   /**
-   *
+   * Gathers all relevant application information for a particular video playback and stores this
+   * information inside a Conviva ContentMetadata object. Clears the last session if necessary. After
+   * the ContentMetadata is created, the Conviva Client will create a session for tracking.
+   * @private
+   * @method ConvivaAnalyticsPlugin#tryBuildConvivaContentMetadata
    */
   var tryBuildConvivaContentMetadata = function ()
   {
@@ -241,19 +254,31 @@ var ConvivaAnalyticsPlugin = function (framework)
       // };
       currentConvivaSessionKey = convivaClient.createSession(contentMetadata);
       convivaClient.attachPlayer(currentConvivaSessionKey, playerStateManager);
+
+      //Track stop initially
       trackStop();
     }
   };
 
   /**
-   *
-   * @returns {boolean}
+   * Checks to see if the Conviva SDK is loaded
+   * @private
+   * @method ConvivaAnalyticsPlugin#sdkLoaded
+   * @returns {boolean} True if the SDK is loaded, false otherwise
    */
   var sdkLoaded = function()
   {
     return !!window.Conviva;
   };
 
+  /**
+   * Conviva metadata needs to include the following:
+   * gatewayUrl, customerKey
+   * @private
+   * @method ConvivaAnalyticsPlugin#validateConvivaMetadata
+   * @param  {object} metadata The Conviva page level metadata to validate
+   * @returns true if valid, false otherwise
+   */
   var validateConvivaMetadata = function(metadata)
   {
     var valid = true;
@@ -359,6 +384,17 @@ var ConvivaAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
         trackPause();
         break;
+      case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
+        buffering = true;
+        trackBuffering();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
+        if (buffering)
+        {
+          buffering = false;
+          trackPlay();
+        }
+        break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
         trackPause();
         break;
@@ -421,14 +457,8 @@ var ConvivaAnalyticsPlugin = function (framework)
    */
   var resetPlaybackState = function ()
   {
-    // currentConvivaSessionKey = null;
-    // streamType = null;
-    // embedCode = null;
-    // videoContentMetadata = null;
-    // convivaMetadata = null;
-    // convivaClient = null;
-    // playerStateManager = null;
     currentPlayhead = -1;
+    buffering = false;
     inAdBreak = false;
     contentComplete = false;
   };
@@ -462,7 +492,9 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
+   * Checks to see if the Conviva SDK is ready to accept tracking events.
+   * @private
+   * @method ConvivaAnalyticsPlugin#canTrack
    */
   var canTrack = function()
   {
@@ -470,8 +502,10 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
-   * @param state
+   * Updates the Conviva PlayerStateManager of the latest player state.
+   * @private
+   * @method ConvivaAnalyticsPlugin#updatePlayerState
+   * @param {string} state the Conviva.PlayerStateManager.PlayerState to update
    */
   var updatePlayerState = function(state)
   {
@@ -496,7 +530,9 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
+   * To be called when the main content has paused.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackPause
    */
   var trackPause = function()
   {
@@ -504,7 +540,9 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
+   * To be called when the main content is not playing.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackStop
    */
   var trackStop = function()
   {
@@ -512,7 +550,19 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
+   * To be called when the video is paused due to buffering.
+   * @private
+   * @ethod ConvivaAnalyticsPlugin#trackBuffering
+   */
+  var trackBuffering = function()
+  {
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.BUFFERING);
+  };
+
+  /**
+   * To be called when an ad has started playing.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackAdStart
    */
   var trackAdStart = function()
   {
@@ -544,7 +594,9 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 
   /**
-   *
+   * To be called when an ad has stopped playing.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackAdEnd
    */
   var trackAdEnd = function()
   {
