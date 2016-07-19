@@ -331,6 +331,17 @@ if (!OO.Analytics.Utils)
       preSimulate();
       plugin.processEvent(OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED);
     };
+
+    this.simulateBitrateChange = function(bitrateProfile)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_BITRATE_CHANGED, [{
+        bitrate: bitrateProfile.bitrate,
+        width: bitrateProfile.width,
+        height: bitrateProfile.height,
+        id: bitrateProfile.id
+      }]);
+    };
   };
 
   Utils.createPlaybackSimulator = function(plugin)

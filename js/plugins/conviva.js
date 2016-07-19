@@ -424,6 +424,15 @@ var ConvivaAnalyticsPlugin = function(framework)
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
         var streamType = params[0].streamType;
         break;
+      case OO.Analytics.EVENTS.VIDEO_STREAM_BITRATE_CHANGED:
+        if (params && params[0] && _.isNumber(params[0].bitrate))
+        {
+          if (!inAdBreak)
+          {
+            trackBitrateChange(params[0].bitrate);
+          }
+        }
+        break;
       default:
         break;
     }
@@ -537,6 +546,21 @@ var ConvivaAnalyticsPlugin = function(framework)
   var trackBuffering = function()
   {
     updatePlayerState(Conviva.PlayerStateManager.PlayerState.BUFFERING);
+  };
+
+  /**
+   * To be called when the main content changes bitrate.
+   * @private
+   * @ethod ConvivaAnalyticsPlugin#trackBitrateChange
+   * @param {number} bitrate The new bitrate of the main content in bps
+   */
+  var trackBitrateChange = function(bitrate)
+  {
+    if (canTrack())
+    {
+      var kbpsBitrate = Math.round(bitrate/1000);
+      playerStateManager.setBitrateKbps(kbpsBitrate);
+    }
   };
 
   /**

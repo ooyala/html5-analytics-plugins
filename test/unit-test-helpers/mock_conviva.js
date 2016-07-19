@@ -75,10 +75,16 @@ Conviva = {
     Conviva.currentPlayerStateManager = this;
 
     this.currentPlayerState = Conviva.PlayerStateManager.PlayerState.UNKONWN; //unit test helper
+    this.currentBitrate = -1; //unit test helper
 
     this.setPlayerState = function(state)
     {
       this.currentPlayerState = state;
+    };
+
+    this.setBitrateKbps = function(bitrate)
+    {
+      this.currentBitrate = bitrate;
     };
   }
 };

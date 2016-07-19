@@ -248,6 +248,154 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
   });
 
+  it('Conviva Plugin can track bitrate changes',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateContentPlayback();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    simulator.simulateBitrateChange({
+      bitrate: 120000,
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(120); //120000/1000 = 120
+  });
+
+  it('Conviva Plugin does not track bitrate changes when provided an invalid bitrate',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateContentPlayback();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    simulator.simulateBitrateChange({
+      bitrate: "ABCD",
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(-1); //-1 is default in mock_conviva.js
+    simulator.simulateBitrateChange({
+      bitrate: null,
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(-1); //-1 is default in mock_conviva.js
+    //bitrate undefined
+    simulator.simulateBitrateChange({
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(-1); //-1 is default in mock_conviva.js
+
+    //let a correct bitrate go through
+    simulator.simulateBitrateChange({
+      bitrate: 120000,
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(120); //120000/1000 = 120
+
+    simulator.simulateBitrateChange({
+      bitrate: "ABCD",
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(120);
+    simulator.simulateBitrateChange({
+      bitrate: null,
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(120);
+    //bitrate undefined
+    simulator.simulateBitrateChange({
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(120);
+  });
+
+  it('Conviva Plugin does not track bitrate changes during ad playback',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    //preroll
+    simulator.simulateAdBreakStarted();
+    simulator.simulateAdPlayback({
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
+      adMetadata: {
+        adId : "zyxw",
+        adDuration : 15,
+        adPodPosition : 1
+      }
+    });
+
+    simulator.simulateBitrateChange({
+      bitrate: 120000,
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(-1); //-1 is default in mock_conviva.js
+
+    simulator.simulateAdComplete({
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
+      adId: "adId"
+    });
+    simulator.simulateAdBreakEnded();
+
+    simulator.simulateContentPlayback();
+    simulator.simulateBitrateChange({
+      bitrate: 120000,
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(120); //120000/1000 = 120
+
+    //midroll
+    simulator.simulateAdBreakStarted();
+    simulator.simulateAdPlayback({
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
+      adMetadata: {
+        adId : "zyxw",
+        adDuration : 15,
+        adPodPosition : 1
+      }
+    });
+
+    simulator.simulateBitrateChange({
+      bitrate: 180000,
+      width: 640,
+      height: 480,
+      id: "id"
+    });
+    expect(Conviva.currentPlayerStateManager.currentBitrate).toBe(120); //unchanged from last content bitrate change
+  });
+
   it('Conviva Plugin can track preroll ad playback',function()
   {
     var plugin = createPlugin(framework);
