@@ -12,7 +12,6 @@ var NielsenAnalyticsPlugin = function (framework)
   var name = "Nielsen";
   var version = "v1";
   var id;
-  var _active = true;
 
   var contentDuration = -1;
   var currentPlayhead = 0;
