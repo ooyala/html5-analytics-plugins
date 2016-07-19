@@ -1,13 +1,30 @@
 Conviva = {
-  currentPlayerStateManager : null, //unit test helper
+  currentPlayerStateManager: null, //unit test helper
+  currentClient: null, //unit test helper
+  currentSystemFactory: null,
+  currentContentMetadata: null,
   SystemInterface: function(){},
   SystemFactory: function()
   {
-    this.release = function(){};
+    Conviva.currentSystemFactory = this;
+    this.release = function()
+    {
+      Conviva.currentSystemFactory = null;
+    };
   },
   Client: function()
   {
+    //unit test helpers
+    Conviva.currentClient = this;
+    this.adPlaying = false;
+    this.adStartSessionId = -1;
+    this.adEndSessionId = -1;
+    this.adStream = null;
+    this.adPlayer = null;
+    this.adPosition = null;
+
     this.sessionId = 0;
+
     this.getPlayerStateManager = function()
     {
       return new Conviva.PlayerStateManager();
@@ -21,13 +38,38 @@ Conviva = {
     this.release = function()
     {
       this.sessionId = 0;
+      Conviva.currentClient = null;
     };
-    this.adStart = function(){};
-    this.adEnd = function(){};
+    this.adStart = function(sessionId, adStream, adPlayer, adPosition)
+    {
+      if (Conviva.currentPlayerStateManager)
+      {
+        //Conviva SDK sets player state to not monitored on ad start
+        Conviva.currentPlayerStateManager.currentPlayerState = Conviva.PlayerStateManager.PlayerState.NOT_MONITORED;
+      }
+      this.adStartSessionId = sessionId;
+      this.adPlaying = true;
+      this.adStream = adStream;
+      this.adPlayer = adPlayer;
+      this.adPosition = adPosition;
+    };
+    this.adEnd = function(sessionId)
+    {
+      if (Conviva.currentPlayerStateManager)
+      {
+        //Conviva SDK sets player state to stopped on ad end
+        Conviva.currentPlayerStateManager.currentPlayerState = Conviva.PlayerStateManager.PlayerState.STOPPED;
+      }
+      this.adEndSessionId = sessionId;
+      this.adPlaying = false;
+    };
   },
   SystemSettings: function(){},
   ClientSettings: function(){},
-  ContentMetadata: function(){},
+  ContentMetadata: function()
+  {
+    Conviva.currentContentMetadata = this;
+  },
   PlayerStateManager: function()
   {
     Conviva.currentPlayerStateManager = this;

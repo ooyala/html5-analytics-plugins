@@ -6,7 +6,7 @@ require("../../html5-common/js/utils/utils.js");
  * @classdesc Conviva SDK plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
-var ConvivaAnalyticsPlugin = function (framework)
+var ConvivaAnalyticsPlugin = function(framework)
 {
   var _framework = framework;
   var name = "conviva";
@@ -40,7 +40,7 @@ var ConvivaAnalyticsPlugin = function (framework)
    * @method ConvivaAnalyticsPlugin#getName
    * @return {string} The name of the plugin.
    */
-  this.getName = function ()
+  this.getName = function()
   {
     return name;
   };
@@ -51,7 +51,7 @@ var ConvivaAnalyticsPlugin = function (framework)
    * @method ConvivaAnalyticsPlugin#getVersion
    * @return {string} The version of the plugin.
    */
-  this.getVersion = function ()
+  this.getVersion = function()
   {
     return version;
   };
@@ -90,7 +90,7 @@ var ConvivaAnalyticsPlugin = function (framework)
     if (_framework && OO._.isFunction(_framework.getRecordedEvents))
     {
       missedEvents = _framework.getRecordedEvents();
-      _.each(missedEvents, _.bind(function (recordedEvent)
+      _.each(missedEvents, _.bind(function(recordedEvent)
       {
         //recordedEvent.timeStamp;
         this.processEvent(recordedEvent.eventName, recordedEvent.params);
@@ -141,7 +141,7 @@ var ConvivaAnalyticsPlugin = function (framework)
   {
     var systemSettings = new Conviva.SystemSettings();
     // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.ERROR; // default
-    // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
+    systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
     // systemSettings.allowUncaughtExceptions = false; // default
     return systemSettings;
   };
@@ -187,7 +187,7 @@ var ConvivaAnalyticsPlugin = function (framework)
    * @private
    * @method ConvivaAnalyticsPlugin#tryBuildConvivaContentMetadata
    */
-  var tryBuildConvivaContentMetadata = function ()
+  var tryBuildConvivaContentMetadata = function()
   {
     if (videoContentMetadata && embedCode && convivaClient)
     {
@@ -366,12 +366,6 @@ var ConvivaAnalyticsPlugin = function (framework)
           streamType = params[0].streamType;
         }
         break;
-      case OO.Analytics.EVENTS.VIDEO_ELEMENT_CREATED:
-        break;
-      case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
-        break;
-      case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
         contentComplete = true;
         break;
@@ -398,8 +392,6 @@ var ConvivaAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
         trackPause();
         break;
-      case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-        break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
         tryBuildConvivaContentMetadata();
@@ -418,8 +410,6 @@ var ConvivaAnalyticsPlugin = function (framework)
           videoContentMetadata = params[0];
           tryBuildConvivaContentMetadata();
         }
-        break;
-      case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition)
@@ -455,7 +445,7 @@ var ConvivaAnalyticsPlugin = function (framework)
    * @private
    * @method ConvivaAnalyticsPlugin#resetPlaybackState
    */
-  var resetPlaybackState = function ()
+  var resetPlaybackState = function()
   {
     currentPlayhead = -1;
     buffering = false;
@@ -468,9 +458,10 @@ var ConvivaAnalyticsPlugin = function (framework)
    * @public
    * @method ConvivaAnalyticsPlugin#destroy
    */
-  this.destroy = function ()
+  this.destroy = function()
   {
     _framework = null;
+    resetPlaybackState();
     clearLastSession();
     if (convivaClient)
     {
@@ -483,7 +474,6 @@ var ConvivaAnalyticsPlugin = function (framework)
       systemFactory.release();
       systemFactory = null;
     }
-    resetPlaybackState();
   };
 
   var validSession = function()
@@ -607,19 +597,23 @@ var ConvivaAnalyticsPlugin = function (framework)
   };
 };
 
+//Below implementations of system interface functions were pulled from the Conviva Sample App
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
 // Implements Conviva.HttpInterface for Chrome.
 
-function Html5Http () {
+function Html5Http()
+{
 
-  function _constr() {
+  function _constr()
+  {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.makeRequest = function (httpMethod, url, data, contentType, timeoutMs, callback) {
+  this.makeRequest = function(httpMethod, url, data, contentType, timeoutMs, callback)
+  {
     // XDomainRequest only exists in IE, and is IE8-IE9's way of making CORS requests.
     // It is present in IE10 but won't work right.
     // if (typeof XDomainRequest !== "undefined" && navigator.userAgent.indexOf('MSIE 10') === -1) {
@@ -628,20 +622,25 @@ function Html5Http () {
     return this.makeRequestStandard.apply(this, arguments);
   };
 
-  this.makeRequestStandard = function (httpMethod, url, data, contentType, timeoutMs, callback) {
+  this.makeRequestStandard = function(httpMethod, url, data, contentType, timeoutMs, callback)
+  {
     var xmlHttpReq = new XMLHttpRequest();
 
     xmlHttpReq.open(httpMethod, url, true);
 
-    if (contentType && xmlHttpReq.overrideMimeType) {
+    if (contentType && xmlHttpReq.overrideMimeType)
+    {
       xmlHttpReq.overrideMimeType = contentType;
     }
-    if (contentType && xmlHttpReq.setRequestHeader) {
+    if (contentType && xmlHttpReq.setRequestHeader)
+    {
       xmlHttpReq.setRequestHeader('Content-Type',  contentType);
     }
-    if (timeoutMs > 0) {
+    if (timeoutMs > 0)
+    {
       xmlHttpReq.timeout = timeoutMs;
-      xmlHttpReq.ontimeout = function () {
+      xmlHttpReq.ontimeout = function()
+      {
         // Often this callback will be called after onreadystatechange.
         // The first callback called will cleanup the other to prevent duplicate responses.
         xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
@@ -649,12 +648,17 @@ function Html5Http () {
       };
     }
 
-    xmlHttpReq.onreadystatechange = function () {
-      if (xmlHttpReq.readyState === 4) {
+    xmlHttpReq.onreadystatechange = function()
+    {
+      if (xmlHttpReq.readyState === 4)
+      {
         xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
-        if (xmlHttpReq.status == 200) {
+        if (xmlHttpReq.status == 200)
+        {
           if (callback) callback(true, xmlHttpReq.responseText);
-        } else {
+        }
+        else
+        {
           if (callback) callback(false, "http status " + xmlHttpReq.status);
         }
       }
@@ -665,7 +669,7 @@ function Html5Http () {
     return null; // no way to cancel the request
   };
 
-  //   this.makeRequestIE89 = function (httpMethod, url, data, contentType, timeoutMs, callback) {
+  //   this.makeRequestIE89 = function(httpMethod, url, data, contentType, timeoutMs, callback) {
   //    // IE8-9 does not allow changing the contentType on CORS requests.
   //    // IE8-9 does not like mixed intranet/extranet CORS requests.
   //    // IE8-9 does not like mixed HTTPS-in-HTTP-page / HTTP-in-HTTPS-page CORS requests.
@@ -676,18 +680,18 @@ function Html5Http () {
 
   //    if (timeoutMs != null) {
   //        xmlHttpReq.timeout = timeoutMs;
-  //        xmlHttpReq.ontimeout = function () {
+  //        xmlHttpReq.ontimeout = function() {
   //            xmlHttpReq.onload = xmlHttpReq.onerror = null;
   //            if (callback) callback(false, "timeout after "+timeoutMs+" ms");
   //        };
   //    }
 
   // // onreadystatechange won't trigger for XDomainRequest.
-  //    xmlHttpReq.onload = function () {
+  //    xmlHttpReq.onload = function() {
   //    	xmlHttpReq.ontimeout = null;
   //    	if (callback) callback(true, xmlHttpReq.responseText);
   //    };
-  //    xmlHttpReq.onerror = function () {
+  //    xmlHttpReq.onerror = function() {
   //    	xmlHttpReq.ontimeout = null;
   //    	if (callback) callback(false, "http status " + xmlHttpReq.status);
   //    };
@@ -697,7 +701,8 @@ function Html5Http () {
   //    return null; // no way to cancel the request
   //   };
 
-  this.release = function() {
+  this.release = function()
+  {
     // nothing to release
   };
 
@@ -707,27 +712,34 @@ function Html5Http () {
 
 // Implements Conviva.LoggingInterface for Chrome.
 
-function Html5Logging () {
+function Html5Logging()
+{
 
-  function _constr () {
+  function _constr()
+  {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.consoleLog = function (message, logLevel) {
+  this.consoleLog = function(message, logLevel)
+  {
     if (typeof console === 'undefined') return;
     if (console.log && logLevel === Conviva.SystemSettings.LogLevel.DEBUG ||
-      logLevel === Conviva.SystemSettings.LogLevel.INFO) {
+      logLevel === Conviva.SystemSettings.LogLevel.INFO)
+    {
       console.log(message);
-    } else if (console.warn && logLevel === Conviva.SystemSettings.LogLevel.WARNING) {
+    } else if (console.warn && logLevel === Conviva.SystemSettings.LogLevel.WARNING)
+    {
       console.warn(message);
-    } else if (console.error && logLevel === Conviva.SystemSettings.LogLevel.ERROR) {
+    } else if (console.error && logLevel === Conviva.SystemSettings.LogLevel.ERROR)
+    {
       console.error(message);
     }
   };
 
-  this.release = function () {
+  this.release = function()
+  {
     // nothing to release
   };
 
@@ -743,70 +755,84 @@ function Html5Logging () {
 // If you wish you can maintain your own user agent string parsing on the client side
 // instead, and use it to supply the requested Conviva data.
 
-function Html5Metadata () {
+function Html5Metadata()
+{
 
-  function _constr() {
+  function _constr()
+  {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getBrowserName = function () {
+  this.getBrowserName = function()
+  {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getBrowserVersion = function () {
+  this.getBrowserVersion = function()
+  {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceBrand = function () {
+  this.getDeviceBrand = function()
+  {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceManufacturer = function () {
+  this.getDeviceManufacturer = function()
+  {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceModel = function () {
+  this.getDeviceModel = function()
+  {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceType = function () {
+  this.getDeviceType = function()
+  {
     return null;
   };
 
   // There is no value we can access that qualifies as the device version.
-  this.getDeviceVersion = function () {
+  this.getDeviceVersion = function()
+  {
     return null;
   };
 
   // HTML5 can qualify as an application framework of sorts.
-  this.getFrameworkName = function () {
+  this.getFrameworkName = function()
+  {
     return "HTML5";
   };
 
   // No convenient way to detect HTML5 version.
-  this.getFrameworkVersion = function () {
+  this.getFrameworkVersion = function()
+  {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getOperatingSystemName = function () {
+  this.getOperatingSystemName = function()
+  {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getOperatingSystemVersion = function () {
+  this.getOperatingSystemVersion = function()
+  {
     return null;
   };
 
-  this.release = function() {
+  this.release = function()
+  {
     // nothing to release
   };
 
@@ -819,35 +845,46 @@ function Html5Metadata () {
 // HTML5 localStorage relies on a single key to index items,
 // so we find a consistent way to combine storageSpace and storageKey.
 
-function Html5Storage () {
+function Html5Storage()
+{
 
-  function _constr() {
+  function _constr()
+  {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.saveData = function (storageSpace, storageKey, data, callback) {
+  this.saveData = function(storageSpace, storageKey, data, callback)
+  {
     var localStorageKey = storageSpace + "." + storageKey;
-    try {
+    try
+    {
       localStorage.setItem(localStorageKey, data);
       callback(true, null);
-    } catch (e) {
+    }
+    catch (e)
+    {
       callback(false, e.toString());
     }
   };
 
-  this.loadData = function (storageSpace, storageKey, callback) {
+  this.loadData = function(storageSpace, storageKey, callback)
+  {
     var localStorageKey = storageSpace + "." + storageKey;
-    try {
+    try
+    {
       var data = localStorage.getItem(localStorageKey);
       callback(true, data);
-    } catch (e) {
+    }
+    catch (e)
+    {
       callback(false, e.toString());
     }
   };
 
-  this.release = function() {
+  this.release = function()
+  {
     // nothing to release
   };
 
@@ -857,20 +894,24 @@ function Html5Storage () {
 
 // Implements Conviva.TimeInterface for Chrome.
 
-function Html5Time () {
+function Html5Time()
+{
 
-  function _constr() {
+  function _constr()
+  {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.getEpochTimeMs = function () {
+  this.getEpochTimeMs = function()
+  {
     var d = new Date();
     return d.getTime();
   };
 
-  this.release = function() {
+  this.release = function()
+  {
     // nothing to release
   };
 }
@@ -884,18 +925,23 @@ function Html5Time () {
 // Some JavaScript implementations do not have setInterval, in which case
 // you may have to write it yourself using setTimeout.
 
-function Html5Timer () {
+function Html5Timer()
+{
 
-  function _constr() {
+  function _constr()
+  {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.createTimer = function (timerAction, intervalMs, actionName) {
+  this.createTimer = function(timerAction, intervalMs, actionName)
+  {
     var timerId = setInterval(timerAction, intervalMs);
-    var cancelTimerFunc = (function () {
-      if (timerId !== -1) {
+    var cancelTimerFunc = (function()
+    {
+      if (timerId !== -1)
+      {
         clearInterval(timerId);
         timerId = -1;
       }
@@ -903,10 +949,10 @@ function Html5Timer () {
     return cancelTimerFunc;
   };
 
-  this.release = function() {
+  this.release = function()
+  {
     // nothing to release
   };
-
 }
 
 //Add the template to the global list of factories for all new instances of the framework
