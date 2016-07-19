@@ -214,6 +214,34 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_BITRATE_PROFILES
+     * @description This message is sent when all of the possible bitrate profiles for a stream are available.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoBitrateProfileLookupData
+     */
+    VIDEO_STREAM_BITRATE_PROFILES: 'video_stream_bitrate_profiles',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_TARGET_BITRATE_REQUESTED
+     * @description Sent when the a specific bitrate profile is requested. Automatic
+     * bitrate selection is "auto".
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoTargetBitrateData
+     */
+    VIDEO_STREAM_TARGET_BITRATE_REQUESTED: 'video_stream_target_bitrate_requested',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#VIDEO_STREAM_BITRATE_CHANGED
+     * @description
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoBitrateProfileData
+     */
+    VIDEO_STREAM_BITRATE_CHANGED: 'video_stream_bitrate_changed',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#VIDEO_STREAM_POSITION_CHANGED
      * @description This message is sent, periodically, when the video stream position changes.
      * @param {Array} paramArray Array of length 1, contains an instance of
@@ -445,6 +473,55 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
+   * @class Analytics.EVENT_DATA#VideoBitrateProfileLookupData
+   * @classdesc Contains a lookup table for all the possible bitrates available. The
+   * keys are the profile ids for each profile.
+   * @property {object} profiles An lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
+   */
+  EVENT_DATA.VideoBitrateProfileLookupData = function(bitrateProfileArray)
+  {
+    var checkBitrateProfileList = OO._.bind(checkDataType, this, "VideoBitrateProfileLookupData");
+    var list = checkBitrateProfileList(bitrateProfileArray, "bitrateProfileArray", ["array"]);
+    this.profiles = {};
+    for(key in list)
+    {
+      var entry = list[key];
+      this.profiles[entry.id] = entry;
+    }
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoBitrateProfileData
+   * @classdesc Contains information about a bitrate profile.
+   * @property {string} id The id of this profile
+   * @property {number} bitrate The bitrate of this profile
+   * @property {number} width The width of this profile
+   * @property {number} height The height of this profile
+   */
+  EVENT_DATA.VideoBitrateProfileData = function(bitrateProfile)
+  {
+    var checkBitrateProfile = OO._.bind(checkDataType, this, "VideoBitrateProfileData");
+    this.bitrate = checkBitrateProfile(bitrateProfile.bitrate, "bitrate", ["number"]);
+    this.height = checkBitrateProfile(bitrateProfile.height, "height", ["number"]);
+    this.width = checkBitrateProfile(bitrateProfile.width, "width", ["number"]);
+    this.id = checkBitrateProfile(bitrateProfile.id, "id", ["string"]);
+  }
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoTargetBitrateData
+   * @classdesc Contains information what bitrate profile is being requested.
+   * @property {string} bitrateProfileId The id of the bitrate profile being requested.
+   */
+  EVENT_DATA.VideoTargetBitrateData = function(bitrateProfileId)
+  {
+    var checkTargetBitrate = OO._.bind(checkDataType, this, "VideoTargetBitrateData");
+    this.targetProfile = checkTargetBitrate(bitrateProfileId, "bitrateProfileId", ["string"]);
+  }
+
+  /**
+   * @public
    * @class Analytics.EVENT_DATA#VideoSeekRequestedData
    * @classdesc Contains information about seeking to a particular time in the stream.
    * @property {number} seekingToTime The time requested to be seeked to
@@ -625,6 +702,14 @@ if (!OO.Analytics.EVENT_DATA)
         {
           error = false;
           break;
+        }
+      }
+      else if (expectedType === "array")
+      {
+        if (toRet && OO._.isArray(toRet))
+        {
+          error = false;
+
         }
       }
       else if (expectedType === "number")
