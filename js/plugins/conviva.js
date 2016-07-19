@@ -12,9 +12,6 @@ var ConvivaAnalyticsPlugin = function(framework)
   var name = "conviva";
   var version = "v1";
   var id;
-  var _active = true;
-
-  var storedEvents = [];
 
   var currentConvivaSessionKey = null;
   var streamType = null;
@@ -314,24 +311,6 @@ var ConvivaAnalyticsPlugin = function(framework)
     }
 
     return valid;
-  };
-
-  /**
-   * Handles any events that were stored due to a delayed SDK initialization.
-   * @private
-   * @method ConvivaAnalyticsPlugin#handleStoredEvents
-   */
-  var handleStoredEvents = function()
-  {
-  };
-
-  /**
-   * Called when the SDK fails to load.
-   * @private
-   * @method ConvivaAnalyticsPlugin#sdkLoadError
-   */
-  var sdkLoadError = function()
-  {
   };
 
   /**
