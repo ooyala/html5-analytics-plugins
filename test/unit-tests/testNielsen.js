@@ -311,6 +311,248 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
     expect(initParams.nsdkv).toBe("511");
   });
 
+  it('Nielsen plugin can track stop event upon pausing main content', function()
+  {
+    var initialLoadMetadataCalled = 0;
+    var loadMetadataForContentCalled = 0;
+    var contentMetadata = null;
+    var loadMetadataForAdCalled = 0;
+    var adMetadata = null;
+    var stopCalled = 0;
+    var stopTime = -1;
+    var setPlayheadPositionCalled = 0;
+    var playhead = -1;
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            switch(event)
+            {
+              case GGPM_STOP_EVENT:
+                stopCalled++;
+                stopTime = param;
+                break;
+              case GGPM_INITIAL_LOAD_METADATA_EVENT:
+                initialLoadMetadataCalled++;
+                contentMetadata = param;
+                break;
+              case GGPM_LOAD_METADATA_EVENT:
+                if (param)
+                {
+                  if (param.type === GGPM_METADATA_TYPE_CONTENT)
+                  {
+                    loadMetadataForContentCalled++;
+                    contentMetadata = param;
+                  }
+                  else
+                  {
+                    loadMetadataForAdCalled++;
+                    adMetadata = param;
+                  }
+                }
+                break;
+              case GGPM_SET_PLAYHEAD_POSITION_EVENT:
+                setPlayheadPositionCalled++;
+                playhead = param;
+                break;
+            }
+          }
+        }
+      }
+    };
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var clearCounts = function()
+    {
+      initialLoadMetadataCalled = 0;
+      loadMetadataForContentCalled = 0;
+      loadMetadataForAdCalled = 0;
+      stopCalled = 0;
+      setPlayheadPositionCalled = 0;
+    };
+    simulator.addPreSimulateCallback(clearCounts);
+
+    //received metadata
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    expect(initialLoadMetadataCalled).toBe(1);
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+
+    //play content
+    simulator.simulateContentPlayback();
+
+    //we do not publish another loadMetadata here as there was no preroll
+    expect(loadMetadataForContentCalled).toBe(0);
+
+    simulator.simulateVideoProgress({
+      playheads : [1, 2, 3, 4, 5, 7.5, 10]
+    });
+
+    expect(setPlayheadPositionCalled).toBe(7);
+    expect(playhead).toBe(10);
+
+    //pause content
+    simulator.simulateVideoPause();
+    expect(stopCalled).toBe(1);
+    expect(stopTime).toBe(10);
+
+    //resume content
+    simulator.simulateContentPlayback();
+    //we do not expect another loadMetadata as we are resuming from a pause
+    expect(loadMetadataForContentCalled).toBe(0);
+
+    //test to see if setPlayheadPosition works after since Nielsen uses this as their resume notification
+    simulator.simulateVideoProgress({
+      playheads : [11]
+    });
+    expect(setPlayheadPositionCalled).toBe(1);
+    expect(playhead).toBe(11);
+  });
+
+  it('Nielsen plugin can track stop event upon pausing an ad', function()
+  {
+    var initialLoadMetadataCalled = 0;
+    var loadMetadataForContentCalled = 0;
+    var contentMetadata = null;
+    var loadMetadataForAdCalled = 0;
+    var adMetadata = null;
+    var stopCalled = 0;
+    var stopTime = -1;
+    var setPlayheadPositionCalled = 0;
+    var playhead = -1;
+    window.NOLCMB = {
+      getInstance : function(){
+        return {
+          ggInitialize: function() {
+          },
+          ggPM: function(event, param) {
+            switch(event)
+            {
+              case GGPM_STOP_EVENT:
+                stopCalled++;
+                stopTime = param;
+                break;
+              case GGPM_INITIAL_LOAD_METADATA_EVENT:
+                initialLoadMetadataCalled++;
+                contentMetadata = param;
+                break;
+              case GGPM_LOAD_METADATA_EVENT:
+                if (param)
+                {
+                  if (param.type === GGPM_METADATA_TYPE_CONTENT)
+                  {
+                    loadMetadataForContentCalled++;
+                    contentMetadata = param;
+                  }
+                  else
+                  {
+                    loadMetadataForAdCalled++;
+                    adMetadata = param;
+                  }
+                }
+                break;
+              case GGPM_SET_PLAYHEAD_POSITION_EVENT:
+                setPlayheadPositionCalled++;
+                playhead = param;
+                break;
+            }
+          }
+        }
+      }
+    };
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var clearCounts = function()
+    {
+      initialLoadMetadataCalled = 0;
+      loadMetadataForContentCalled = 0;
+      loadMetadataForAdCalled = 0;
+      stopCalled = 0;
+      setPlayheadPositionCalled = 0;
+    };
+    simulator.addPreSimulateCallback(clearCounts);
+
+    //received metadata
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    expect(initialLoadMetadataCalled).toBe(1);
+    expect(contentMetadata.title).toBe("testTitle");
+    expect(contentMetadata.assetName).toBe("testTitle");
+    expect(contentMetadata.length).toBe(60);
+
+    //play preroll
+    simulator.simulateAdBreakStarted();
+    expect(stopCalled).toBe(0);
+
+    simulator.simulateAdPlayback({
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
+      adMetadata: {
+        adId: "testPrerollId",
+        adDuration: 15.2
+      }
+    });
+    expect(loadMetadataForAdCalled).toBe(1);
+    expect(adMetadata.type).toBe("preroll");
+    expect(adMetadata.length).toBe(15.2);
+    expect(adMetadata.assetid).toBe("testPrerollId");
+
+    simulator.simulateVideoProgress({
+      playheads : [1, 5, 7],
+      videoId : OO.VIDEO.ADS
+    });
+
+    expect(setPlayheadPositionCalled).toBe(3);
+    expect(playhead).toBe(7);
+
+    //pause ad
+    simulator.simulateVideoPause();
+    expect(stopCalled).toBe(1);
+    expect(stopTime).toBe(7);
+
+    simulator.simulateVideoProgress({
+      playheads : [15.2],
+      videoId : OO.VIDEO.ADS
+    });
+
+    expect(setPlayheadPositionCalled).toBe(1);
+    //test that playhead is floored
+    expect(playhead).toBe(15);
+
+    //preroll ends
+    simulator.simulateAdComplete({
+      adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
+      adId: "testPrerollId"
+    });
+
+    //test to see that ad complete event triggers a playhead position update
+    expect(setPlayheadPositionCalled).toBe(1);
+    //test that playhead is floored
+    expect(playhead).toBe(15);
+    expect(stopCalled).toBe(1);
+    expect(stopTime).toBe(15);
+
+    simulator.simulateAdBreakEnded();
+
+    //test to see if setPlayheadPosition works after since Nielsen uses this as their resume notification
+    simulator.simulateVideoProgress({
+      playheads : [11]
+    });
+    expect(setPlayheadPositionCalled).toBe(1);
+    expect(playhead).toBe(11);
+  });
+
   it('Nielsen plugin can track loadMetadata event upon playing a preroll ad', function()
   {
     var initialLoadMetadataCalled = 0;
