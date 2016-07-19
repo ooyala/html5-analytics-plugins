@@ -1173,6 +1173,109 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadata);
     });
 
+    it('Test VideoBitrateProfileData', function()
+    {
+      var metadata =
+      {
+        bitrate:1000,
+        height:2000,
+        width:3000.3,
+        id:"testProfile"
+      };
+
+      var metadata2 =
+      {
+        bitrate:"1000",
+        height:"2000",
+        width:"3000.3",
+        id:"testProfile"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata);
+      expect(data).toEqual(metadata);
+
+      data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata2);
+      //make sure it converts the string to numbers.
+      expect(data).toEqual(metadata);
+
+      //double check bad data
+      var badMetadata =
+      {
+        bitrate:{},
+//        height:"2000",
+        width:[],
+        id:{}
+      };
+
+      var badMetadataResult =
+      {
+
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoBufferingEndedData(badMetadata);
+      expect(data).toEqual(badMetadataResult);
+    });
+
+    it('Test VideoBitrateProfileLookupData', function()
+    {
+      var metadata1 =
+      {
+        bitrate:1000,
+        height:2000,
+        width:3000.3,
+        id:"testProfile1"
+      };
+
+      var metadata2 =
+      {
+        bitrate:4000,
+        height:5000,
+        width:6000.3,
+        id:"testProfile2"
+      };
+
+      var metadata3 =
+      {
+        bitrate:7000,
+        height:8000,
+        width:9000.3,
+        id:"testProfile3"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileLookupData([metadata1, metadata2, metadata3]);
+      expect(data).toBeDefined();
+      expect(data.profiles.testProfile1).toEqual(metadata1);
+      expect(data.profiles.testProfile2).toEqual(metadata2);
+      expect(data.profiles.testProfile3).toEqual(metadata3);
+
+      data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileLookupData("bad data");
+      expect(data.profiles).toEqual({});
+    });
+
+    it('Test VideoTargetBitrateData', function()
+    {
+      var metadata =
+      {
+        targetProfile:"testProfile"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoTargetBitrateData(metadata.targetProfile);
+      expect(data).toEqual(metadata);
+
+      var badMetadata =
+      {
+        targetProfile:{}
+      };
+
+      var badMetadataResult =
+      {
+
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoTargetBitrateData(badMetadata.targetProfile);
+      expect(data).toEqual(badMetadataResult);
+    });
+
     it('Test VideoSeekRequestedData', function()
     {
       var metadata =
