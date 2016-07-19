@@ -483,7 +483,7 @@ if (!OO.Analytics.EVENT_DATA)
     var checkBitrateProfileList = OO._.bind(checkDataType, this, "VideoBitrateProfileLookupData");
     var list = checkBitrateProfileList(bitrateProfileArray, "bitrateProfileArray", ["array"]);
     this.profiles = {};
-    for(key in list)
+    for(var key in list)
     {
       var entry = list[key];
       this.profiles[entry.id] = entry;
