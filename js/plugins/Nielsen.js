@@ -261,6 +261,16 @@ var NielsenAnalyticsPlugin = function (framework)
         mainContentStarted = true;
         trackPlay();
         break;
+      case OO.Analytics.EVENTS.VIDEO_PAUSED:
+        if (!inAdBreak)
+        {
+          trackContentPause();
+        }
+        else
+        {
+          trackAdPause();
+        }
+        break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
         //TODO: Unit test and dev test
@@ -417,6 +427,32 @@ var NielsenAnalyticsPlugin = function (framework)
       OO.log("Nielsen Tracking: loadMetadata from content play with playhead " + currentPlayhead);
       notifyNielsen(DCR_EVENT.LOAD_METADATA, contentMetadata);
     }
+  };
+
+  /**
+   * To be called when the main content has been paused. Will notify the Nielsen SDK of a stop event
+   * (event 7).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackContentPause
+   */
+  var trackContentPause = function()
+  {
+    var reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log("Nielsen Tracking: stop from content pause with playhead " + reportedPlayhead);
+    notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
+  };
+
+  /**
+   * To be called when an ad has been paused. Will notify the Nielsen SDK of a stop event
+   * (event 7).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdPause
+   */
+  var trackAdPause = function()
+  {
+    var reportedAdPlayhead = Math.floor(currentAdPlayhead);
+    OO.log("Nielsen Tracking: stop from ad pause with ad playhead " + reportedAdPlayhead);
+    notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
   };
 
   /**
