@@ -141,7 +141,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   {
     var systemSettings = new Conviva.SystemSettings();
     // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.ERROR; // default
-    systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
+    // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
     // systemSettings.allowUncaughtExceptions = false; // default
     return systemSettings;
   };
