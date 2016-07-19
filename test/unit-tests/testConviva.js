@@ -54,6 +54,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
   it('Test Conviva Plugin Validity', function() {
     var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
     expect(convivaPluginFactory).not.toBeNull();
+    expect(convivaPluginFactory).toBeDefined();
     var plugin = new convivaPluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
@@ -129,7 +130,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       {
         if(OO._.isFunction(plugin[key]))
         {
-          plugin[key].apply();
+          var testFunction = _.bind(plugin[key], plugin);
+          testFunction.apply();
         }
       }
     }
@@ -391,7 +393,15 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     simulator.simulatePlaybackComplete();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
     simulator.simulateReplay();
+    var secondSessionId = Conviva.currentClient.sessionId;
+    expect(secondSessionId).toNotBe(firstSessionId);
+    simulator.simulateContentPlayback();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    simulator.simulatePlaybackComplete();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    simulator.simulateReplay();
     expect(Conviva.currentClient.sessionId).toNotBe(firstSessionId);
+    expect(Conviva.currentClient.sessionId).toNotBe(secondSessionId);
   });
 
   it('Conviva Plugin can start new session on embed code change',function()
@@ -413,7 +423,19 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "newTestTitle",
       duration: 60000
     });
+    var secondSessionId = Conviva.currentClient.sessionId;
+    expect(secondSessionId).toNotBe(firstSessionId);
+    simulator.simulateContentPlayback();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    simulator.simulatePlaybackComplete();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    simulator.simulatePlayerLoad({
+      embedCode: "newTestEmbedCode",
+      title: "newTestTitle",
+      duration: 60000
+    });
     expect(Conviva.currentClient.sessionId).toNotBe(firstSessionId);
+    expect(Conviva.currentClient.sessionId).toNotBe(secondSessionId);
   });
   
   //destroy

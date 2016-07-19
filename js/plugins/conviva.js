@@ -105,7 +105,8 @@ var ConvivaAnalyticsPlugin = function(framework)
    */
   var trySetupConviva = function()
   {
-    if (convivaMetadata && sdkLoaded()){
+    if (convivaMetadata && sdkLoaded())
+    {
       if (!systemFactory)
       {
         var systemInterface = new Conviva.SystemInterface(
@@ -160,7 +161,7 @@ var ConvivaAnalyticsPlugin = function(framework)
 
   /**
    * Clears the last Conviva session by detaching the player from the Conviva Client and
-   * releasing the current player state  manager from the Conviva Client
+   * releasing the current player state manager from the Conviva Client
    * @private
    * @method ConvivaAnalyticsPlugin#clearLastSession
    */
@@ -183,9 +184,11 @@ var ConvivaAnalyticsPlugin = function(framework)
    * the ContentMetadata is created, the Conviva Client will create a session for tracking.
    * @private
    * @method ConvivaAnalyticsPlugin#tryBuildConvivaContentMetadata
+   * @returns {boolean} true if the Conviva Content Metadata and Session was created, false otherwise
    */
   var tryBuildConvivaContentMetadata = function()
   {
+    var success = false;
     if (videoContentMetadata && embedCode && convivaClient)
     {
       // Detach previous session if necessary
@@ -254,7 +257,9 @@ var ConvivaAnalyticsPlugin = function(framework)
 
       //Track stop initially
       trackStop();
+      success = true;
     }
+    return success;
   };
 
   /**
@@ -321,9 +326,14 @@ var ConvivaAnalyticsPlugin = function(framework)
    */
   this.setMetadata = function(metadata)
   {
-    if (validateConvivaMetadata(metadata)) {
+    if (validateConvivaMetadata(metadata))
+    {
       convivaMetadata = metadata;
       trySetupConviva();
+    }
+    else
+    {
+      this.destroy();
     }
   };
 
@@ -457,7 +467,8 @@ var ConvivaAnalyticsPlugin = function(framework)
 
   var validSession = function()
   {
-    return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null;
+    return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null
+           && typeof currentConvivaSessionKey !== 'undefined';
   };
 
   /**
