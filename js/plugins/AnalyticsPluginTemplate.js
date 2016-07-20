@@ -11,7 +11,6 @@ var AnalyticsPluginTemplate = function (framework)
   var name = "template";
   var version = "v1";
   var id;
-  var _active = true;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -95,6 +94,19 @@ var AnalyticsPluginTemplate = function (framework)
   this.processEvent = function(eventName, params)
   {
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
+    switch(eventName)
+    {
+      case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
+        if (params && params[0])
+        {
+          //Retrieve the stream type here.
+          //Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
+          var streamType = params[0].streamType;
+        }
+        break;
+      default:
+        break;
+    }
   };
 
   /**

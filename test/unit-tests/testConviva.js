@@ -156,7 +156,44 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     });
     //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
+    //default to VOD
     expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.VOD);
+    expect(Conviva.currentContentMetadata.duration).toBe(60);
+  });
+
+  it('Conviva Plugin can provide content metadata to Conviva with explicit VOD stream type',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000,
+      streamType: OO.Analytics.STREAM_TYPE.VOD
+    });
+    //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
+    expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
+    expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.VOD);
+    expect(Conviva.currentContentMetadata.duration).toBe(60);
+  });
+
+  it('Conviva Plugin can provide live content metadata to Conviva',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000,
+      streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM
+    });
+    //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
+    expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
+    expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.LIVE);
     expect(Conviva.currentContentMetadata.duration).toBe(60);
   });
 

@@ -189,7 +189,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var tryBuildConvivaContentMetadata = function()
   {
     var success = false;
-    if (videoContentMetadata && embedCode && convivaClient)
+    if (videoContentMetadata && embedCode && convivaClient && streamType)
     {
       // Detach previous session if necessary
       clearLastSession();
@@ -422,7 +422,13 @@ var ConvivaAnalyticsPlugin = function(framework)
         trackAdEnd();
         break;
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
-        var streamType = params[0].streamType;
+        if (params && params[0])
+        {
+          //Retrieve the stream type here.
+          //Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
+          streamType = params[0].streamType;
+          tryBuildConvivaContentMetadata();
+        }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_BITRATE_CHANGED:
         if (params && params[0] && _.isNumber(params[0].bitrate))
