@@ -211,6 +211,10 @@ if (!OO.Analytics.Utils)
           title: metadata.title,
           duration: metadata.duration
         }]);
+        var streamType = metadata.streamType ? metadata.streamType : OO.Analytics.STREAM_TYPE.VOD;
+        plugin.processEvent(OO.Analytics.EVENTS.STREAM_TYPE_UPDATED, [{
+          streamType: streamType
+        }]);
       }
     };
 
