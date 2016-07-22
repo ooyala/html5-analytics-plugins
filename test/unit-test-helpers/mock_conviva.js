@@ -24,10 +24,15 @@ Conviva = {
     this.adPosition = null;
 
     this.sessionId = 0;
+    this.sessionsCleanedUp = 0;
 
     this.getPlayerStateManager = function()
     {
       return new Conviva.PlayerStateManager();
+    };
+    this.cleanupSession = function()
+    {
+      this.sessionsCleanedUp++;
     };
     this.detachPlayer = function(){};
     this.releasePlayerStateManager = function(){};
@@ -86,6 +91,8 @@ Conviva = {
     {
       this.currentBitrate = bitrate;
     };
+
+    this.release = function(){};
   }
 };
 

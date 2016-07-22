@@ -577,7 +577,12 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+
+    //when playback completes, session will end
+    expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
     simulator.simulateReplay();
+    //there is no session to clean up, so this will remain at 1
+    expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
     var secondSessionId = Conviva.currentClient.sessionId;
     expect(secondSessionId).toNotBe(firstSessionId);
     simulator.simulateContentPlayback();
@@ -603,22 +608,29 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+
+    //when playback completes, session will end
+    expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
     simulator.simulatePlayerLoad({
       embedCode: "newTestEmbedCode",
       title: "newTestTitle",
       duration: 60000
     });
+    //there is no session to clean up, so this will remain at 1
+    expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
     var secondSessionId = Conviva.currentClient.sessionId;
     expect(secondSessionId).toNotBe(firstSessionId);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
-    simulator.simulatePlaybackComplete();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+
+    //simulate discovery
+    expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
     simulator.simulatePlayerLoad({
       embedCode: "newTestEmbedCode",
       title: "newTestTitle",
       duration: 60000
     });
+    expect(Conviva.currentClient.sessionsCleanedUp).toBe(2);
     expect(Conviva.currentClient.sessionId).toNotBe(firstSessionId);
     expect(Conviva.currentClient.sessionId).toNotBe(secondSessionId);
   });

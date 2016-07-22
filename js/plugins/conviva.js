@@ -169,13 +169,18 @@ var ConvivaAnalyticsPlugin = function(framework)
   {
     if (validSession())
     {
-      convivaClient.detachPlayer(currentConvivaSessionKey);
+      // convivaClient.detachPlayer(currentConvivaSessionKey);
+      convivaClient.cleanupSession(currentConvivaSessionKey);
+      currentConvivaSessionKey = Conviva.Client.NO_SESSION_KEY;
     }
 
-    if (playerStateManager)
-    {
-      convivaClient.releasePlayerStateManager(playerStateManager);
-    }
+    //TODO: Find out when to release player state manager
+    // if (playerStateManager)
+    // {
+    //   playerStateManager.release();
+    //   convivaClient.releasePlayerStateManager(playerStateManager);
+    //   playerStateManager = null;
+    // }
   };
 
   /**
@@ -189,11 +194,8 @@ var ConvivaAnalyticsPlugin = function(framework)
   var tryBuildConvivaContentMetadata = function()
   {
     var success = false;
-    if (videoContentMetadata && embedCode && convivaClient && streamType)
+    if (videoContentMetadata && embedCode && convivaClient && streamType && !validSession())
     {
-      // Detach previous session if necessary
-      clearLastSession();
-
       playerStateManager = convivaClient.getPlayerStateManager();
       var contentMetadata = new Conviva.ContentMetadata();
 
@@ -349,17 +351,13 @@ var ConvivaAnalyticsPlugin = function(framework)
     OO.log( "Conviva: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
-      case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
-        if (params && params[0])
-        {
-          streamType = params[0].streamType;
-        }
-        break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
         contentComplete = true;
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackStop();
+        //Conviva docs say to end the session when the video has finished
+        clearLastSession();
         break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         trackPlay();
@@ -383,12 +381,15 @@ var ConvivaAnalyticsPlugin = function(framework)
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
+        clearLastSession();
         tryBuildConvivaContentMetadata();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         resetPlaybackState();
+        clearLastSession();
         if (params && params[0] && params[0].embedCode)
         {
+          resetContentState();
           embedCode = params[0].embedCode;
           tryBuildConvivaContentMetadata();
         }
@@ -455,6 +456,17 @@ var ConvivaAnalyticsPlugin = function(framework)
     buffering = false;
     inAdBreak = false;
     contentComplete = false;
+  };
+
+  /**
+   * Resets any content state variables back to their initial values.
+   * @private
+   * @method ConvivaAnalyticsPlugin#resetContentState
+   */
+  var resetContentState = function()
+  {
+    videoContentMetadata = null;
+    embedCode = null;
   };
 
   /**
