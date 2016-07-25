@@ -15,7 +15,8 @@ var gulp = require('gulp'),
 
 var path = {
   originalJs: ['./js/framework','./js/plugins'],
-  dependencies: ['./js/plugin-dependencies']
+  dependencies: ['./js/plugin-dependencies'],
+  scripts: ['./js/plugins/**/*.*']
 };
 
 // Build All
