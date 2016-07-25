@@ -204,6 +204,7 @@ if (!OO.Analytics.Utils)
       //TODO: Validate metadata
       if (metadata)
       {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED);
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
           embedCode: metadata.embedCode
         }]);
@@ -214,6 +215,19 @@ if (!OO.Analytics.Utils)
         var streamType = metadata.streamType ? metadata.streamType : OO.Analytics.STREAM_TYPE.VOD;
         plugin.processEvent(OO.Analytics.EVENTS.STREAM_TYPE_UPDATED, [{
           streamType: streamType
+        }]);
+      }
+    };
+
+    this.simulateStreamMetadataUpdated = function(metadata)
+    {
+      preSimulate();
+      metadata = metadata || {};
+      if (metadata)
+      {
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED, [{
+          base: metadata.base || {},
+          modules: metadata.modules || {}
         }]);
       }
     };
@@ -257,10 +271,12 @@ if (!OO.Analytics.Utils)
       {
         var playheads = metadata.playheads;
         var videoId = metadata.videoId ? metadata.videoId : OO.VIDEO.MAIN;
+        var totalStreamDuration = metadata.totalStreamDuration ? metadata.totalStreamDuration : 60;
         _.each(playheads, function(playhead) {
           plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED, [{
             streamPosition : playhead,
-            videoId: videoId
+            videoId: videoId,
+            totalStreamDuration: totalStreamDuration
           }]);
         });
       }
