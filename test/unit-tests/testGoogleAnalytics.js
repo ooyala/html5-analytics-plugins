@@ -47,8 +47,8 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
   var testSetup = function() {
     framework = new Analytics.Framework();
     //mute the logging becuase there will be lots of error messages
-    // OO.log = function() {
-    // };
+    OO.log = function() {
+    };
   };
 
   //cleanup for individual tests
@@ -85,9 +85,13 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     testFields['eventCategory'] = EVENT_CATEGORY.OOYALA;
     testFields['eventAction'] = eventAction;
     testFields['eventLabel'] = eventLabel;
-    for(var key in eventHitTypeOrder)
+    for(var i in eventHitTypeOrder)
     {
-      expect(eventFields[key]).toBe(testFields[key]);
+      var key = eventHitTypeOrder[i];
+      if (eventFields[key])
+      {
+        expect(eventFields[key]).toBe(testFields[key]);
+      }
     }
   };
 

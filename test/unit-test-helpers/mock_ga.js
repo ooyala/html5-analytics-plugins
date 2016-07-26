@@ -26,14 +26,21 @@ ga = function(command)
       //0 and 1 are command and hit type
       for (var i = 2; i < length; i++)
       {
-        var hitTypeField = eventHitTypeOrder[i - 2];
-        if (typeof arguments[i] === 'object' && i === length)
+        if (arguments[i])
         {
-          MockGa.gaEventFields[hitTypeField] = arguments[i][hitTypeField];
-        }
-        else
-        {
-          MockGa.gaEventFields[hitTypeField] = arguments[i];
+          if (typeof arguments[i] === 'object' && i === length - 1)
+          {
+            var fieldsObject = arguments[i];
+            for (var key in fieldsObject)
+            {
+              MockGa.gaEventFields[key] = fieldsObject[key];
+            }
+          }
+          else
+          {
+            var hitTypeField = eventHitTypeOrder[i - 2];
+            MockGa.gaEventFields[hitTypeField] = arguments[i];
+          }
         }
       }
     }
