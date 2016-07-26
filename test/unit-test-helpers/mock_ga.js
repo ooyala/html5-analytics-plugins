@@ -3,18 +3,39 @@
 //unit test helpers
 MockGa = {
   gaCommand: null,
-  gaArguments: null
+  gaHitType: null,
+  gaEventFields: {
+    eventCategory: null,
+    eventAction: null,
+    eventLabel: null,
+    eventValue: null
+  }
 };
 
 
 ga = function(command)
 {
+  var eventHitTypeOrder = ['eventCategory', 'eventAction', 'eventLabel', 'eventValue'];
   if (command)
   {
     if (typeof command === "string")
     {
       MockGa.gaCommand = command;
-      MockGa.gaArguments = arguments;
+      MockGa.gaHitType = arguments[1];
+      var length = arguments.length;
+      //0 and 1 are command and hit type
+      for (var i = 2; i < length; i++)
+      {
+        var hitTypeField = eventHitTypeOrder[i - 2];
+        if (typeof arguments[i] === 'object' && i === length)
+        {
+          MockGa.gaEventFields[hitTypeField] = arguments[i][hitTypeField];
+        }
+        else
+        {
+          MockGa.gaEventFields[hitTypeField] = arguments[i];
+        }
+      }
     }
     else if (typeof command === "function")
     {
@@ -30,5 +51,6 @@ ga = function(command)
 resetMockGa = function()
 {
   MockGa.gaCommand = null;
-  MockGa.gaArguments = null;
+  MockGa.gaHitType = null;
+  MockGa.gaEventFields = {};
 };

@@ -442,9 +442,51 @@ var GAAnalyticsPlugin = function(framework)
    */
   this.sendToGA = function(event)
   {
-    var method = this.gaMethod.replace(/:hostname/g, document.location.host).replace(/:event/g, event).replace(/:title/g, this.content.title).replace(/:createdAt/g, this.createdAt);
-    eval(method);
-    this.log('REPORTED TO GA:' + method);
+    //TODO: Test _gaq and this.gtm
+    var title = this.content ? this.content.title : "";
+    var param = null;
+    // Legacy GA code block support
+    if (typeof _gaq != 'undefined')
+    {
+      param = ['_trackEvent', this.gaEventCategory, event, title];
+      if (this.createdAt)
+      {
+        param.push(this.createdAt);
+      }
+      _gaq.push(param);
+    }
+    // Current GA code block support
+    else if (typeof ga != 'undefined')
+    {
+      param = {
+        'eventCategory': this.gaEventCategory,
+        'eventAction': event,
+        'eventLabel': title
+      };
+      if (this.createdAt)
+      {
+        param['eventValue'] = this.createdAt;
+      }
+      ga('send', 'event', param);
+    }
+    else if (this.gtm)
+    {
+      param = {
+        'event': 'OoyalaVideoEvent',
+        'category': this.gaEventCategory,
+        'action': event,
+        'label': title
+      };
+      if (this.createdAt)
+      {
+        param['value'] = this.createdAt;
+      }
+      window.dataLayer.push(param);
+    }
+    else
+    {
+      this.displayError();
+    }
   };
 
   /**
