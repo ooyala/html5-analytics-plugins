@@ -30,12 +30,15 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
 
   var EVENT_ACTION = {
     PLAYBACK_STARTED: "playbackStarted",
+    PLAYBACK_PAUSED: "playbackPaused",
     CONTENT_READY: "contentReady",
     PLAY_PROGRESS_STARTED: "playProgressStarted",
     PLAY_PROGRESS_QUARTER: "playProgressQuarter",
     PLAY_PROGRESS_HALF: "playProgressHalf",
     PLAY_PROGRESS_THREE_QUARTERS: "playProgressThreeQuarters",
-    PLAY_PROGRESS_END: "playProgressEnd"
+    PLAY_PROGRESS_END: "playProgressEnd",
+    AD_PLAYBACK_STARTED: "adPlaybackStarted",
+    AD_PLAYBACK_FINISHED: "adPlaybackFinished"
   };
 
   //setup for individual tests
@@ -105,6 +108,71 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     simulator.simulateContentPlayback();
 
     checkGaArgumentsForEvent(EVENT_ACTION.PLAYBACK_STARTED, "testTitle");
+  });
+
+  it('GA sends playbackPaused event when content is paused after starting', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoProgress({
+      playheads: [0, 1],
+      totalStreamDuration: 60
+    });
+
+    simulator.simulateVideoPause();
+
+    checkGaArgumentsForEvent(EVENT_ACTION.PLAYBACK_PAUSED, "testTitle");
+  });
+
+  //Works around a limitation where a pause event is fired when content starts
+  it('GA does not send playbackPaused event when content is paused before starting', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+
+    resetMockGa();
+
+    simulator.simulateVideoPause();
+
+    expect(MockGa.gaCommand).toBe(null);
+  });
+
+  //Works around a limitation where a pause event is fired when content finishes
+  it('GA does not send playbackPaused event when content is paused after finishing', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 60],
+      totalStreamDuration: 60
+    });
+
+    simulator.simulatePlaybackComplete();
+
+    resetMockGa();
+
+    simulator.simulateVideoPause();
+
+    expect(MockGa.gaCommand).toBe(null);
   });
 
   it('GA sends playback milestone for playProgressStarted', function() {
@@ -324,4 +392,46 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
 
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
   });
+
+  //ADS
+  it('GA sends adPlaybackStarted when an ad starts', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15],
+      totalStreamDuration: 60
+    });
+
+    simulator.simulateAdBreakStarted();
+
+    checkGaArgumentsForEvent(EVENT_ACTION.AD_PLAYBACK_STARTED, "testTitle");
+  });
+
+  // it('GA sends adPlaybackFinished when an ad ends', function() {
+  //   var plugin = createPlugin(framework);
+  //   var simulator = Utils.createPlaybackSimulator(plugin);
+  //   simulator.simulatePlayerLoad({
+  //     embedCode: "testEmbedCode",
+  //     title: "testTitle",
+  //     duration: 60000
+  //   });
+  //   simulator.simulateStreamMetadataUpdated();
+  //   simulator.simulateContentPlayback();
+  //   simulator.simulateVideoProgress({
+  //     playheads: [0, 1, 15],
+  //     totalStreamDuration: 60
+  //   });
+  //
+  //   simulator.simulateAdBreakStarted();
+  //   simulator.simulateAdBreakEnded();
+  //
+  //   checkGaArgumentsForEvent(EVENT_ACTION.AD_PLAYBACK_FINISHED, "testTitle");
+  // });
 });
