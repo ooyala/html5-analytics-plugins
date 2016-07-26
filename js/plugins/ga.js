@@ -411,11 +411,26 @@ var GAAnalyticsPlugin = function(framework)
   {
     if (this.gaTrackingEnabled)
     {
-      //TODO: Test _gaq and this.gtm
       var title = this.content ? this.content.title : "";
       var param = null;
+
+      // Google Tag Manager support
+      if (this.gtm)
+      {
+        param = {
+          'event': 'OoyalaVideoEvent',
+          'category': this.gaEventCategory,
+          'action': event,
+          'label': title
+        };
+        if (this.createdAt)
+        {
+          param['value'] = this.createdAt;
+        }
+        window.dataLayer.push(param);
+      }
       // Legacy GA code block support
-      if (typeof _gaq != 'undefined')
+      else if (typeof _gaq != 'undefined')
       {
         param = ['_trackEvent', this.gaEventCategory, event, title];
         if (this.createdAt)
@@ -437,20 +452,6 @@ var GAAnalyticsPlugin = function(framework)
           param['eventValue'] = this.createdAt;
         }
         ga('send', 'event', param);
-      }
-      else if (this.gtm)
-      {
-        param = {
-          'event': 'OoyalaVideoEvent',
-          'category': this.gaEventCategory,
-          'action': event,
-          'label': title
-        };
-        if (this.createdAt)
-        {
-          param['value'] = this.createdAt;
-        }
-        window.dataLayer.push(param);
       }
     }
   };
