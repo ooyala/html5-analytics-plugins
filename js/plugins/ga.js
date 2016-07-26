@@ -17,7 +17,6 @@ var GAAnalyticsPlugin = function(framework)
 
 
   this.gtm = false;
-  this.gaMechanism = 'events';
   this.gaPageviewFormat = 'ooyala-event/:event/:title';
   this.gaEventCategory = 'Ooyala';
   this.verboseLogging = false;
@@ -32,7 +31,7 @@ var GAAnalyticsPlugin = function(framework)
   this.playing = false;
   this.duration = null;
   this.playerRoot = null;
-  this.gaMethod = null;
+  this.gaTrackingEnabled = false;
   this.content = null;
   this.currentPlaybackType = 'content';
   this.lastEventReported = null;
@@ -101,7 +100,7 @@ var GAAnalyticsPlugin = function(framework)
    */
   this.displayError = function()
   {
-    this.gaMethod = false;
+    this.gaTrackingEnabled = false;
     console.error("The Ooyala Google Analytics Tracking module is installed, but no valid Google Analytics code block is detected.");
   };
 
@@ -112,14 +111,15 @@ var GAAnalyticsPlugin = function(framework)
    */
   this.importUserSettings = function()
   {
-    if (typeof window.ooyalaGASettings != 'undefined')
-    {
-      var GA = this;
-      _.each(window.ooyalaGASettings, function(value, index)
-      {
-        eval('GA.' + index + '=window.ooyalaGaSettings["' + index + '"]');
-      });
-    }
+    //TODO: What does this do?
+    // if (typeof window.ooyalaGASettings != 'undefined')
+    // {
+    //   var GA = this;
+    //   _.each(window.ooyalaGASettings, function(value, index)
+    //   {
+    //     eval('GA.' + index + '=window.ooyalaGaSettings["' + index + '"]');
+    //   });
+    // }
   };
 
   /**
@@ -132,49 +132,17 @@ var GAAnalyticsPlugin = function(framework)
     // If dataLayer is present, GTM is being used; force events
     if (typeof window["dataLayer"] != 'undefined')
     {
-      this.gaMechanism = 'events';
       this.gtm = true;
     }
 
-    // Track as pageviews?
-    if (this.gaMechanism == 'pageviews')
+    //Check if any of the Google Analytics SDKs are loaded
+    if (typeof _gaq != 'undefined' || typeof ga != 'undefined' || this.gtm)
     {
-      // Legacy GA code block support
-      if (typeof _gaq != 'undefined')
-      {
-        this.gaMethod = "_gaq.push(['_trackPageview', '" + this.gaPageviewFormat + "'])";
-        // Current GA code block support
-      }
-      else if (typeof ga != 'undefined')
-      {
-        this.gaMethod = "ga('send', 'pageview', '" + this.gaPageviewFormat + "')";
-      }
-      else
-      {
-        this.displayError();
-      }
-      // Track as events?
+      this.gaTrackingEnabled = true;
     }
     else
     {
-      // Legacy GA code block support
-      if (typeof _gaq != 'undefined')
-      {
-        this.gaMethod = "_gaq.push(['_trackEvent', '" + this.gaEventCategory + "', ':event', ':title', ':createdAt']);";
-        // Current GA code block support
-      }
-      else if (typeof ga != 'undefined')
-      {
-        this.gaMethod = "ga('send', 'event', '" + this.gaEventCategory + "', ':event', ':title', ':createdAt');";
-      }
-      else if (this.gtm)
-      {
-        this.gaMethod = "window.dataLayer.push({ 'event': 'OoyalaVideoEvent', 'category': '" + this.gaEventCategory + "', 'action': ':event', 'label': ':title', 'createdAt': ':createdAt'});";
-      }
-      else
-      {
-        this.displayError();
-      }
+      this.displayError();
     }
   };
 
@@ -216,7 +184,6 @@ var GAAnalyticsPlugin = function(framework)
    */
   this.processEvent = function(eventName, params)
   {
-
     switch (eventName)
     {
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
@@ -442,9 +409,51 @@ var GAAnalyticsPlugin = function(framework)
    */
   this.sendToGA = function(event)
   {
-    var method = this.gaMethod.replace(/:hostname/g, document.location.host).replace(/:event/g, event).replace(/:title/g, this.content.title).replace(/:createdAt/g, this.createdAt);
-    eval(method);
-    this.log('REPORTED TO GA:' + method);
+    if (this.gaTrackingEnabled)
+    {
+      var title = this.content ? this.content.title : "";
+      var param = null;
+
+      // Google Tag Manager support
+      if (this.gtm)
+      {
+        param = {
+          'event': 'OoyalaVideoEvent',
+          'category': this.gaEventCategory,
+          'action': event,
+          'label': title
+        };
+        if (this.createdAt)
+        {
+          param['value'] = this.createdAt;
+        }
+        window.dataLayer.push(param);
+      }
+      // Legacy GA code block support
+      else if (typeof _gaq != 'undefined')
+      {
+        param = ['_trackEvent', this.gaEventCategory, event, title];
+        if (this.createdAt)
+        {
+          param.push(this.createdAt);
+        }
+        _gaq.push(param);
+      }
+      // Current GA code block support
+      else if (typeof ga != 'undefined')
+      {
+        param = {
+          'eventCategory': this.gaEventCategory,
+          'eventAction': event,
+          'eventLabel': title
+        };
+        if (this.createdAt)
+        {
+          param['eventValue'] = this.createdAt;
+        }
+        ga('send', 'event', param);
+      }
+    }
   };
 
   /**
@@ -454,7 +463,7 @@ var GAAnalyticsPlugin = function(framework)
    */
   this.reportToGA = function(event)
   {
-    if (this.gaMethod && this.lastEventReported != event)
+    if (this.lastEventReported != event)
     {
       // Ooyala event subscriptions result in duplicate triggers; we'll filter them out here
       this.lastEventReported = event;

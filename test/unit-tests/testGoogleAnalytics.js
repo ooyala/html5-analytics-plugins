@@ -28,6 +28,8 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     OOYALA: "Ooyala"
   };
 
+  var eventHitTypeOrder = ['eventCategory', 'eventAction', 'eventLabel', 'eventValue'];
+
   var EVENT_ACTION = {
     PLAYBACK_STARTED: "playbackStarted",
     PLAYBACK_PAUSED: "playbackPaused",
@@ -45,8 +47,8 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
   var testSetup = function() {
     framework = new Analytics.Framework();
     //mute the logging becuase there will be lots of error messages
-    // OO.log = function() {
-    // };
+    OO.log = function() {
+    };
   };
 
   //cleanup for individual tests
@@ -76,12 +78,21 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
   {
     //command, hit type
     expect(MockGa.gaCommand).toBe(COMMAND.SEND);
-    expect(MockGa.gaArguments[1]).toBe(HIT_TYPE.EVENT);
+    var eventFields = MockGa.gaEventFields;
+    expect(MockGa.gaHitType).toBe(HIT_TYPE.EVENT);
     //eventCategory, eventAction, eventLabel, eventValue
-    expect(MockGa.gaArguments[2]).toBe(EVENT_CATEGORY.OOYALA);
-    expect(MockGa.gaArguments[3]).toBe(eventAction);
-    //GA plugin uses title as the event label
-    expect(MockGa.gaArguments[4]).toBe(eventLabel);
+    var testFields = {};
+    testFields['eventCategory'] = EVENT_CATEGORY.OOYALA;
+    testFields['eventAction'] = eventAction;
+    testFields['eventLabel'] = eventLabel;
+    for(var i in eventHitTypeOrder)
+    {
+      var key = eventHitTypeOrder[i];
+      if (eventFields[key])
+      {
+        expect(eventFields[key]).toBe(testFields[key]);
+      }
+    }
   };
 
   it('GA sends contentReady event when player is loaded', function() {
