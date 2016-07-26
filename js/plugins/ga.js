@@ -298,7 +298,6 @@ var GAAnalyticsPlugin = function(framework)
     this.currentPlaybackType = 'content';
 
     this.reportToGA('adPlaybackFinished');
-    this.reportToGA('playbackStarted');
     this.log("onAdsPlayed");
   };
 
@@ -375,7 +374,7 @@ var GAAnalyticsPlugin = function(framework)
       {
         this.reportToGA(milestone[1]);
         this.lastReportedPlaybackMilestone = milestone[0];
-        this.log("onPositionChanged (" + time + ", " + milestone[1] + ")");
+        this.log("onPositionChanged (" + this.currentPlayheadPosition + ", " + milestone[1] + ")");
       }
     }, this);
   };
