@@ -414,24 +414,24 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     checkGaArgumentsForEvent(EVENT_ACTION.AD_PLAYBACK_STARTED, "testTitle");
   });
 
-  // it('GA sends adPlaybackFinished when an ad ends', function() {
-  //   var plugin = createPlugin(framework);
-  //   var simulator = Utils.createPlaybackSimulator(plugin);
-  //   simulator.simulatePlayerLoad({
-  //     embedCode: "testEmbedCode",
-  //     title: "testTitle",
-  //     duration: 60000
-  //   });
-  //   simulator.simulateStreamMetadataUpdated();
-  //   simulator.simulateContentPlayback();
-  //   simulator.simulateVideoProgress({
-  //     playheads: [0, 1, 15],
-  //     totalStreamDuration: 60
-  //   });
-  //
-  //   simulator.simulateAdBreakStarted();
-  //   simulator.simulateAdBreakEnded();
-  //
-  //   checkGaArgumentsForEvent(EVENT_ACTION.AD_PLAYBACK_FINISHED, "testTitle");
-  // });
+  it('GA sends adPlaybackFinished when an ad ends', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15],
+      totalStreamDuration: 60
+    });
+
+    simulator.simulateAdBreakStarted();
+    simulator.simulateAdBreakEnded();
+
+    checkGaArgumentsForEvent(EVENT_ACTION.AD_PLAYBACK_FINISHED, "testTitle");
+  });
 });
