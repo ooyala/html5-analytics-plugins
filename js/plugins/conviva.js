@@ -23,6 +23,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var playerStateManager = null;
 
   var currentPlayhead = -1;
+  var paused = false;
   var buffering = false;
   var inAdBreak = false;
   var contentComplete = false;
@@ -360,9 +361,11 @@ var ConvivaAnalyticsPlugin = function(framework)
         clearLastSession();
         break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
+        paused = false;
         trackPlay();
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
+        paused = true;
         trackPause();
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
@@ -373,7 +376,14 @@ var ConvivaAnalyticsPlugin = function(framework)
         if (buffering)
         {
           buffering = false;
-          trackPlay();
+          if (paused)
+          {
+            trackPause();
+          }
+          else
+          {
+            trackPlay();
+          }
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
@@ -454,6 +464,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   {
     currentPlayhead = -1;
     buffering = false;
+    paused = false;
     inAdBreak = false;
     contentComplete = false;
   };

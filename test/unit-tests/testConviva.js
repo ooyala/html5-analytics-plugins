@@ -285,6 +285,26 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
   });
 
+  it('Conviva Plugin can track PAUSED after buffering finishes when content is PAUSED',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateContentPlayback();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    simulator.simulateVideoPause();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
+
+    simulator.simulateVideoBufferingStarted();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.BUFFERING);
+    simulator.simulateVideoBufferingEnded();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
+  });
+
   it('Conviva Plugin can track bitrate changes',function()
   {
     var plugin = createPlugin(framework);
