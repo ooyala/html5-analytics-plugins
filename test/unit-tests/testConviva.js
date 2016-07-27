@@ -675,6 +675,47 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentSystemFactory).toBe(null);
   });
 
+  it('Conviva Plugin calls destroy on beforeunload after content has started',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var firstSessionId = Conviva.currentClient.sessionId;
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateContentPlayback();
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+
+    var beforeUnloadEvent = document.createEvent("Event");
+    beforeUnloadEvent.initEvent("beforeunload", true, true);
+    window.document.dispatchEvent(beforeUnloadEvent);
+
+    expect(Conviva.currentClient).toBe(null);
+    expect(Conviva.currentSystemFactory).toBe(null);
+  });
+
+  it('Conviva Plugin calls destroy on beforeunload before content has started',function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var firstSessionId = Conviva.currentClient.sessionId;
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+
+    var beforeUnloadEvent = document.createEvent("Event");
+    beforeUnloadEvent.initEvent("beforeunload", true, true);
+    window.document.dispatchEvent(beforeUnloadEvent);
+
+    expect(Conviva.currentClient).toBe(null);
+    expect(Conviva.currentSystemFactory).toBe(null);
+  });
+
   //negative cases
   it('Conviva Plugin will not track if player state manager was not created due to missing page level metadata',function()
   {

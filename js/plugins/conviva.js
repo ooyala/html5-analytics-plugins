@@ -94,6 +94,12 @@ var ConvivaAnalyticsPlugin = function(framework)
         this.processEvent(recordedEvent.eventName, recordedEvent.params);
       }, this));
     }
+
+    //Conviva wants to know when sessions end when the page is closed
+    //Adding this beforeunload event listener as a failsafe
+    window.addEventListener('beforeunload', _.bind(function(){
+      this.destroy();
+    }, this));
   };
 
   /**
