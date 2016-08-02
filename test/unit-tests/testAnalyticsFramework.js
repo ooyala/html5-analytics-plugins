@@ -1682,5 +1682,49 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.StreamTypeMetadata(metadataIn.streamType);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test VideoErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: 100,
+        errorMessage: "Error Message"
+      };
+
+      var metadataOut =
+      {
+        errorCode: 100,
+        errorMessage: "Error Message"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      // test number as string
+      metadataIn =
+      {
+        errorCode: "100",
+        errorMessage: "Error Message"
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      // test bad input
+      metadataIn =
+      {
+        errorCode: 0,
+        errorMessage: 100
+      };
+
+      metadataOut =
+      {
+        errorCode: 0,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+    });
   });
 });

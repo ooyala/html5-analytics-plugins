@@ -251,6 +251,15 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#VIDEO_ERROR
+     * @description This message is sent when a video error occurs.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoErrorData
+     */
+    VIDEO_ERROR:                    'video_error',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
@@ -560,6 +569,20 @@ if (!OO.Analytics.EVENT_DATA)
     this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", ["number"]);
     this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", ["number"]);
     this.videoId = checkVideoStreamPositionChangedData(videoId, "videoId", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @classdesc Contains information about the error code and message of the video error.
+   * @property {number} errorCode The error code
+   * @property {string} errorMEssage The message that corresponds to the error code
+   */
+  EVENT_DATA.VideoErrorData = function(errorCode, errorMessage)
+  {
+    var checkVideoErrorData = OO._.bind(checkDataType, this, "VideoErrorData");
+    this.errorCode = checkVideoErrorData(errorCode, "errorCode", ["number"]);
+    this.errorMessage = checkVideoErrorData(errorMessage, "errorMessage", ["string"]);
   };
 
   /**
