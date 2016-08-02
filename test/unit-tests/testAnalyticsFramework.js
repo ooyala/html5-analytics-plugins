@@ -1688,23 +1688,35 @@ describe('Analytics Framework Unit Tests', function()
       var metadataIn =
       {
         errorCode: 100,
-        errorMessage: "Error Message"
       };
 
       var metadataOut =
       {
         errorCode: 100,
-        errorMessage: "Error Message"
+        errorMessage: "General Error"
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      var data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode);
       expect(data).toEqual(metadataOut);
 
       // test number as string
       metadataIn =
       {
         errorCode: "100",
-        errorMessage: "Error Message"
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: 0,
+      };
+
+      metadataOut =
+      {
+        errorCode: 0,
+        errorMessage: undefined
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
@@ -1713,13 +1725,26 @@ describe('Analytics Framework Unit Tests', function()
       // test bad input
       metadataIn =
       {
-        errorCode: 0,
-        errorMessage: 100
+        errorCode: null,
       };
 
       metadataOut =
       {
-        errorCode: 0,
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: undefined,
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
         errorMessage: undefined
       };
 
