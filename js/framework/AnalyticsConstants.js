@@ -22,6 +22,11 @@ if (!OO.Analytics.AD_TYPE)
   OO.Analytics.AD_TYPE = AD_TYPE;
 }
 
+/**
+ * @public
+ * @description These are the stream types Ooyala Player supports
+ * @namespace OO.Analytics.STREAM_TYPE
+ */
 if (!OO.Analytics.STREAM_TYPE)
 {
   var STREAM_TYPE =
@@ -30,6 +35,20 @@ if (!OO.Analytics.STREAM_TYPE)
     LIVE_STREAM: "liveStream"
   };
   OO.Analytics.STREAM_TYPE = STREAM_TYPE;
+}
+
+/**
+ * @public
+ * @description These are the Ooyala Player error codes
+ * @namespace OO.Analytics.ERROR_CODE
+ */
+if (!OO.Analytics.ERROR_CODE)
+{
+  var ERROR_CODE =
+  {
+    "100": "General Error"
+  };
+  OO.Analytics.ERROR_CODE = ERROR_CODE;
 }
 
 /**
@@ -248,6 +267,15 @@ if (!OO.Analytics.EVENTS)
      * OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData
      */
     VIDEO_STREAM_POSITION_CHANGED:  'video_stream_position_changed',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#VIDEO_ERROR
+     * @description This message is sent when a video error occurs.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.VideoErrorData
+     */
+    VIDEO_ERROR:                    'video_error',
 
     /**
      * @public
@@ -564,6 +592,19 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
+   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @classdesc Contains information about the error code and message of the video error.
+   * @property {string} errorCode The error code
+   */
+  EVENT_DATA.VideoErrorData = function(errorCode)
+  {
+    var checkVideoErrorData = OO._.bind(checkDataType, this, "VideoErrorData");
+    this.errorCode = checkVideoErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = translateErrorCode(errorCode);
+  };
+
+  /**
+   * @public
    * @class Analytics.EVENT_DATA#AdPodStartedData
    * @classdesc Contain information about how many ads are in the ad pod.
    * @property {number} numberOfAds The number of ads in the pod
@@ -751,9 +792,9 @@ if (!OO.Analytics.EVENT_DATA)
 
     if (error)
     {
-      OO.log
+      logErrorString
       (
-        "ERROR Analytics.EVENT_DATA." + className + " being created with invalid " + varName +
+        "Analytics.EVENT_DATA." + className + " being created with invalid " + varName +
         ". Should be one of these types [" + expectedTypes + "] but was [" + typeof(data) + "]."
       );
       return undefined;
@@ -764,7 +805,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @private
-   * @class Analytics.EVENT_DATA#selectAdType
+   * @class Analytics#selectAdType
    * @classdesc Checks for a recognized Ad Type and returns the corresponding EVENT_DATA object.
    * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
    * @property {object} adMetadata The metadata associated with the ad
@@ -786,18 +827,51 @@ if (!OO.Analytics.EVENT_DATA)
       case OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY:
         adMetadataOut = new EVENT_DATA.NonLinearOverlayData
         (
-         adMetadataIn.id
+          adMetadataIn.id
         );
         break;
       default:
-        OO.log
+        logErrorString
         (
-         "ERROR Ad Type not recognized. Should be one of these values [" +
-         OO._.values(OO.Analytics.AD_TYPE) + "] but was [" + adType + "]."
+          "Ad Type not recognized. Should be one of these values [" +
+          OO._.values(OO.Analytics.AD_TYPE) + "] but was [" + adType + "]."
         );
         break;
     }
     return adMetadataOut;
+  };
+
+  /**
+   * @private
+   * @class Analytics#translateErrorCode
+   * @classdesc Translates the error code provided into the corresponding error message.
+   * @property {number} code The error code
+   * @returns {string} The error string associated with the error code number.
+   */
+  var translateErrorCode = function(code)
+  {
+    var errorMessage;
+    if (_.has(ERROR_CODE, code))
+    {
+      errorMessage = ERROR_CODE[code];
+    }
+    else
+    {
+      logErrorString("Error code not recognized. Error code provided was: " + code);
+    }
+    return errorMessage;
+  };
+
+  /**
+   * @private
+   * @class Analytics#logErrorString
+   * @classdesc Helper function to return an error string with the Analytics Constants prefix.
+   * @property {string} origStr the error string
+   * @returns {string} The new error string.
+   */
+  var logErrorString = function(origStr)
+  {
+    OO.log("Error AnalyticsConstants: " + origStr);
   };
 
   OO.Analytics.EVENT_DATA = EVENT_DATA;
