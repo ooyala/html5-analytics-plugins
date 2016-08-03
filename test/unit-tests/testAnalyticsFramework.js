@@ -1687,27 +1687,34 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadataIn =
       {
-        errorCode: 100,
+        errorCode: "100",
       };
 
       var metadataOut =
       {
-        errorCode: 100,
+        errorCode: "100",
         errorMessage: "General Error"
       };
 
       var data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode);
       expect(data).toEqual(metadataOut);
 
-      // test number as string
+      // test unknown error code
       metadataIn =
       {
-        errorCode: "100",
+        errorCode: "101",
       };
 
-      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode);
+      metadataOut =
+      {
+        errorCode: "101",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
+      // will not accept numbers (at least for now, because VC_PLAY_FAILED's "code" arg is string only)
       metadataIn =
       {
         errorCode: 0,
@@ -1715,14 +1722,14 @@ describe('Analytics Framework Unit Tests', function()
 
       metadataOut =
       {
-        errorCode: 0,
+        errorCode: undefined,
         errorMessage: undefined
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
-      // test bad input
+      // test bad inputs
       metadataIn =
       {
         errorCode: null,
