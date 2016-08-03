@@ -234,7 +234,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_STREAM_BITRATE_CHANGED
-     * @description
+     * @description This message is sent when the video stream's bitrate changes.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoBitrateProfileData
      */
