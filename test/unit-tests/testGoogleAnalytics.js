@@ -69,15 +69,21 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     var gaPluginFactory = require(SRC_ROOT + "plugins/googleAnalytics.js");
     var plugin = new gaPluginFactory(framework);
     plugin.init();
-    metadata = {};
+    metadata = metadata ? metadata : {};
     plugin.setMetadata(metadata);
     return plugin;
   };
 
   var checkGaArgumentsForEvent = function(eventAction, eventLabel)
   {
+    checkGaArgumentsForEventWithTrackerName(null, eventAction, eventLabel);
+  };
+
+  var checkGaArgumentsForEventWithTrackerName = function(trackerName, eventAction, eventLabel)
+  {
     //command, hit type
-    expect(MockGa.gaCommand).toBe(COMMAND.SEND);
+    var command = trackerName ? trackerName + "." + COMMAND.SEND : COMMAND.SEND;
+    expect(MockGa.gaCommand).toBe(command);
     var eventFields = MockGa.gaEventFields;
     expect(MockGa.gaHitType).toBe(HIT_TYPE.EVENT);
     //eventCategory, eventAction, eventLabel, eventValue
@@ -444,5 +450,169 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     simulator.simulateAdBreakEnded();
 
     checkGaArgumentsForEvent(EVENT_ACTION.AD_PLAYBACK_FINISHED, "testTitle");
+  });
+
+  //replay
+  it('GA can replay and publish tracking events', function() {
+    var plugin = createPlugin(framework, {
+      trackerName: "testTrackerName"
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    //sample playback
+    simulator.simulateStreamMetadataUpdated();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.CONTENT_READY, "testTitle");
+
+    simulator.simulateContentPlayback();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAYBACK_STARTED, "testTitle");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
+
+    simulator.simulateReplay();
+
+    //sample playback
+
+    simulator.simulateContentPlayback();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAYBACK_STARTED, "testTitle");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
+  });
+
+  //tracker name and embed code changes
+  it('GA can track using provided tracker name', function() {
+    var plugin = createPlugin(framework, {
+      trackerName: "testTrackerName"
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    //sample playback
+    simulator.simulateStreamMetadataUpdated();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.CONTENT_READY, "testTitle");
+
+    simulator.simulateContentPlayback();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAYBACK_STARTED, "testTitle");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
+  });
+
+  it('GA can change provided tracker name and embed code', function() {
+    var plugin = createPlugin(framework, {
+      trackerName: "testTrackerName"
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    //sample playback
+    simulator.simulateStreamMetadataUpdated();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.CONTENT_READY, "testTitle");
+
+    simulator.simulateContentPlayback();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAYBACK_STARTED, "testTitle");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
+
+    plugin.setMetadata({
+      trackerName: "otherTrackerName"
+    });
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode2",
+      title: "testTitle2",
+      duration: 60000
+    });
+
+    //sample playback
+    simulator.simulateStreamMetadataUpdated();
+    checkGaArgumentsForEventWithTrackerName("otherTrackerName", EVENT_ACTION.CONTENT_READY, "testTitle2");
+
+    simulator.simulateContentPlayback();
+    checkGaArgumentsForEventWithTrackerName("otherTrackerName", EVENT_ACTION.PLAYBACK_STARTED, "testTitle2");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEventWithTrackerName("otherTrackerName", EVENT_ACTION.PLAY_PROGRESS_END, "testTitle2");
+  });
+
+  it('GA can remove provided tracker name', function() {
+    var plugin = createPlugin(framework, {
+      trackerName: "testTrackerName"
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    //sample playback
+    simulator.simulateStreamMetadataUpdated();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.CONTENT_READY, "testTitle");
+
+    simulator.simulateContentPlayback();
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAYBACK_STARTED, "testTitle");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
+
+    plugin.setMetadata({});
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode2",
+      title: "testTitle2",
+      duration: 60000
+    });
+
+    //sample playback
+    simulator.simulateStreamMetadataUpdated();
+    checkGaArgumentsForEvent(EVENT_ACTION.CONTENT_READY, "testTitle2");
+
+    simulator.simulateContentPlayback();
+    checkGaArgumentsForEvent(EVENT_ACTION.PLAYBACK_STARTED, "testTitle2");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_END, "testTitle2");
   });
 });
