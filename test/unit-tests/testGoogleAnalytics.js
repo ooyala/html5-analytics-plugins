@@ -66,7 +66,7 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
   //helpers
   var createPlugin = function(framework, metadata)
   {
-    var gaPluginFactory = require(SRC_ROOT + "plugins/ga.js");
+    var gaPluginFactory = require(SRC_ROOT + "plugins/googleAnalytics.js");
     var plugin = new gaPluginFactory(framework);
     plugin.init();
     metadata = {};
