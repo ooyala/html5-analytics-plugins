@@ -66,7 +66,7 @@
       "<rootDir>/js/plugins/omniture.js": true,
       "<rootDir>/js/plugins/Nielsen.js": true,
       "<rootDir>/js/plugins/conviva.js": true,
-      "<rootDir>/js/plugins/ga.js": true
+      "<rootDir>/js/plugins/googleAnalytics.js": true
     }
   }
 }
