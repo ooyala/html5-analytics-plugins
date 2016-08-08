@@ -615,4 +615,54 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
 
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_END, "testTitle2");
   });
+
+
+  it('GA will ignore empty string tracker names', function() {
+    var plugin = createPlugin(framework, {
+      trackerName: ""
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    simulator.simulateStreamMetadataUpdated();
+
+    expect(MockGa.gaCommand).toBe(COMMAND.SEND);
+    checkGaArgumentsForEvent(EVENT_ACTION.CONTENT_READY, "testTitle");
+  });
+
+  it('GA will ignore null tracker names', function() {
+    var plugin = createPlugin(framework, {
+      trackerName: null
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    simulator.simulateStreamMetadataUpdated();
+
+    expect(MockGa.gaCommand).toBe(COMMAND.SEND);
+    checkGaArgumentsForEvent(EVENT_ACTION.CONTENT_READY, "testTitle");
+  });
+
+  it('GA will ignore undefined tracker names', function() {
+    var plugin = createPlugin(framework, {});
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+
+    simulator.simulateStreamMetadataUpdated();
+
+    expect(MockGa.gaCommand).toBe(COMMAND.SEND);
+    checkGaArgumentsForEvent(EVENT_ACTION.CONTENT_READY, "testTitle");
+  });
 });

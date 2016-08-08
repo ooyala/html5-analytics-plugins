@@ -175,8 +175,8 @@ var GAAnalyticsPlugin = function(framework)
     if (metadata)
     {
       this.log("GA: PluginID \'" + id + "\' received this metadata:", metadata);
-      //Grab the tracker name if available
-      if (metadata.trackerName)
+      //Grab the tracker name if available and valid
+      if (validateTrackerName(metadata.trackerName))
       {
         trackerName = metadata.trackerName;
         this.log("GA: Using tracker name:", trackerName);
@@ -530,7 +530,7 @@ var GAAnalyticsPlugin = function(framework)
    * https://developers.google.com/analytics/devguides/collection/analyticsjs/creating-trackers
    * @private
    * @method GAAnalyticsPlugin#getGACommand
-   * @param commandName the name of the ga() command
+   * @param {string} commandName the name of the ga() command
    * @returns {string} the final command to provide to the ga() method
    */
   var getGACommand = function(commandName)
@@ -539,6 +539,23 @@ var GAAnalyticsPlugin = function(framework)
     {
       return trackerName ? trackerName + '.' + commandName : commandName;
     }
+    else
+    {
+      return null;
+    }
+  };
+
+  /**
+   * Checks to see if the tracker name is valid. The tracker name is expected to be
+   * a non-empty string.
+   * @private
+   * @method GAAnalyticsPlugin#validateTrackerName
+   * @param {string} name the tracker name to validate
+   * @returns {boolean} true if the tracker name is valid, false otherwise
+   */
+  var validateTrackerName = function(name)
+  {
+    return _.isString(name) && !_.isEmpty(name);
   };
 };
 
