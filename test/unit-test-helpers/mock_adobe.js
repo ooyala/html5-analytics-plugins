@@ -4,6 +4,7 @@ ADB = {
       videoplayer: {
         VideoPlayerPlugin: function()
         {
+          ADB.OO.VideoPlayerPlugin = this;
           this.configure = function(){};
           this.trackVideoLoad = function()
           {
@@ -54,7 +55,7 @@ ADB = {
         },
         VideoPlayerPluginConfig: function()
         {
-
+          ADB.OO.VideoPlayerPluginConfig = this;
         },
         AssetType: {
           
@@ -83,18 +84,34 @@ ADB = {
       aa: {
         AdobeAnalyticsPlugin: function()
         {
+          ADB.OO.AdobeAnalyticsPlugin = this;
           this.configure = function(){};
         },
-        AdobeAnalyticsPluginConfig: function(){},
-        AdobeAnalyticsPluginDelegate: function(){}
+        AdobeAnalyticsPluginConfig: function()
+        {
+          ADB.OO.AdobeAnalyticsPluginConfig = this;
+        },
+        AdobeAnalyticsPluginDelegate: function()
+        {
+          ADB.OO.AdobeAnalyticsPluginDelegate = this;
+        }
       },
       ah: {
         AdobeHeartbeatPlugin: function()
         {
+          ADB.OO.AdobeHeartbeatPlugin = this;
           this.configure = function(){};
         },
-        AdobeHeartbeatPluginConfig: function(){},
-        AdobeHeartbeatPluginDelegate: function(){}
+        AdobeHeartbeatPluginConfig: function(heartbeatTrackingServer, publisherId)
+        {
+          this.heartbeatTrackingServer = heartbeatTrackingServer;
+          this.publisherId = publisherId;
+          ADB.OO.AdobeHeartbeatPluginConfig = this;
+        },
+        AdobeHeartbeatPluginDelegate: function()
+        {
+          ADB.OO.AdobeHeartbeatPluginDelegate = this;
+        }
       }
     },
     Heartbeat: function()
@@ -102,23 +119,31 @@ ADB = {
       this.configure = function(){};
       this.destroy = function(){};
     },
-    HeartbeatConfig: function(){},
+    HeartbeatConfig: function()
+    {
+      ADB.OO.HeartbeatConfig = this;
+    },
     HeartbeatDelegate: function(){}
   }
 };
 
-//used to store global instances of AppMeasurement
+//used to store global instances of Adobe Plugins
 ADB.OO = {
 
 };
 
 Visitor = function()
 {
-
+  ADB.OO.Visitor = this;
 };
 
 AppMeasurement = function()
 {
   ADB.OO.AppMeasurement = this;
+};
+
+resetGlobalInstances = function()
+{
+  ADB.OO = {};
 };
 

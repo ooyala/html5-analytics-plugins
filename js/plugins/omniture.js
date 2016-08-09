@@ -106,6 +106,8 @@ var OmnitureAnalyticsPlugin = function (framework)
     // Set-up the Visitor and AppMeasurement instances.
     if (validateOmnitureMetadata(metadata))
     {
+      //Doc: https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_as_configure.html
+
       //TODO: Get metadata, props and evar from backdoor/backlot settings as well
       var visitor = new Visitor(metadata.marketingCloudOrgId);
       visitor.trackingServer = metadata.visitorTrackingServer;
@@ -162,6 +164,11 @@ var OmnitureAnalyticsPlugin = function (framework)
       //TODO: Get Player version
       ahPluginConfig.sdk = OOYALA_PLAYER_VERSION;
       ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      if (metadata.heartbeatSSL)
+      {
+        // set this to true to enable Heartbeat calls through HTTPS
+        ahPluginConfig.ssl = metadata.heartbeatSSL;
+      }
       ahPlugin.configure(ahPluginConfig);
 
       var plugins = [vpPlugin, aaPlugin, ahPlugin];
