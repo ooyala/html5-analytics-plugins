@@ -31,7 +31,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];
-    ADB.OO.AppMeasurement = null;
+    resetGlobalInstances();
     //return log back to normal
 //    OO.log = console.log;
   };
@@ -53,6 +53,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
         "debug":true,
         "channel":"Test Heartbeat Channel",//optional
         "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "heartbeatSSL":false,
         "publisherId":"ooyalatester",
         "props":{
           "prop1":"espn",
@@ -952,5 +953,138 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
     expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
     expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
+  });
+
+  //Adobe Plugin Setup
+  it('Omniture Video Plugin can instantiate Adobe Plugins', function()
+  {
+    var plugin = createPlugin(framework,
+      {
+        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+        "reportSuiteId":"ovppooyala",
+        "pageName":"Test Page Name",
+        "visitorId":"test-vid",
+        "debug":false,
+        "channel":"Test Heartbeat Channel",//optional
+        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "heartbeatSSL":false,
+        "publisherId":"ooyalatester",
+        "props":{
+          "prop2":"testProp2",
+          "prop15":"testProp15"
+        },
+        "eVars":{
+          "eVar10":"testEVar10"
+        }
+      });
+
+    expect(ADB.OO.Visitor.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+
+    expect(ADB.OO.AppMeasurement.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+    expect(ADB.OO.AppMeasurement.account).toBe("ovppooyala");
+    expect(ADB.OO.AppMeasurement.pageName).toBe("Test Page Name");
+    expect(ADB.OO.AppMeasurement.visitorID).toBe("test-vid");
+
+    expect(ADB.OO.VideoPlayerPluginConfig.debugLogging).toBe(false);
+
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe("Test Heartbeat Channel");
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.debugLogging).toBe(false);
+
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe("ovppartners.hb.omtrdc.net");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe("ooyalatester");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.debugLogging).toBe(false);
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.ssl).toBe(undefined);
+
+    expect(ADB.OO.HeartbeatConfig.debugLogging).toBe(false);
+  });
+
+  it('Omniture Video Plugin turn on debug logging', function()
+  {
+    var plugin = createPlugin(framework,
+      {
+        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+        "reportSuiteId":"ovppooyala",
+        "pageName":"Test Page Name",
+        "visitorId":"test-vid",
+        "debug":true,
+        "channel":"Test Heartbeat Channel",//optional
+        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "heartbeatSSL":false,
+        "publisherId":"ooyalatester",
+        "props":{
+          "prop2":"testProp2",
+          "prop15":"testProp15"
+        },
+        "eVars":{
+          "eVar10":"testEVar10"
+        }
+      });
+
+    expect(ADB.OO.Visitor.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+
+    expect(ADB.OO.AppMeasurement.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+    expect(ADB.OO.AppMeasurement.account).toBe("ovppooyala");
+    expect(ADB.OO.AppMeasurement.pageName).toBe("Test Page Name");
+    expect(ADB.OO.AppMeasurement.visitorID).toBe("test-vid");
+
+    expect(ADB.OO.VideoPlayerPluginConfig.debugLogging).toBe(true);
+
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe("Test Heartbeat Channel");
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.debugLogging).toBe(true);
+
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe("ovppartners.hb.omtrdc.net");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe("ooyalatester");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.debugLogging).toBe(true);
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.ssl).toBe(undefined);
+
+    expect(ADB.OO.HeartbeatConfig.debugLogging).toBe(true);
+  });
+
+  it('Omniture Video Plugin can turn on SSL mode', function()
+  {
+    var plugin = createPlugin(framework,
+      {
+        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+        "reportSuiteId":"ovppooyala",
+        "pageName":"Test Page Name",
+        "visitorId":"test-vid",
+        "debug":false,
+        "channel":"Test Heartbeat Channel",//optional
+        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "heartbeatSSL":true,
+        "publisherId":"ooyalatester",
+        "props":{
+          "prop2":"testProp2",
+          "prop15":"testProp15"
+        },
+        "eVars":{
+          "eVar10":"testEVar10"
+        }
+      });
+
+    expect(ADB.OO.Visitor.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+
+    expect(ADB.OO.AppMeasurement.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+    expect(ADB.OO.AppMeasurement.account).toBe("ovppooyala");
+    expect(ADB.OO.AppMeasurement.pageName).toBe("Test Page Name");
+    expect(ADB.OO.AppMeasurement.visitorID).toBe("test-vid");
+
+    expect(ADB.OO.VideoPlayerPluginConfig.debugLogging).toBe(false);
+
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe("Test Heartbeat Channel");
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.debugLogging).toBe(false);
+
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe("ovppartners.hb.omtrdc.net");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe("ooyalatester");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.debugLogging).toBe(false);
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.ssl).toBe(true);
+
+    expect(ADB.OO.HeartbeatConfig.debugLogging).toBe(false);
   });
 });
