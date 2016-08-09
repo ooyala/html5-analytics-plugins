@@ -162,6 +162,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       //TODO: Get Player version
       ahPluginConfig.sdk = OOYALA_PLAYER_VERSION;
       ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      if (metadata.heartbeatSSL) ahPluginConfig.ssl = metadata.heartbeatSSL; // set this to true to enable Heartbeat calls through HTTPS
       ahPlugin.configure(ahPluginConfig);
 
       var plugins = [vpPlugin, aaPlugin, ahPlugin];
