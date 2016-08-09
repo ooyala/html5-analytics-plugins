@@ -297,7 +297,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    */
   var validateCustomMetadata = function(metadata)
   {
-    return !!metadata && _.isObject(metadata);
+    return _.isObject(metadata);
   };
 
   /**
