@@ -53,6 +53,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
         "debug":true,
         "channel":"Test Heartbeat Channel",//optional
         "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+        "heartbeatSSL":false,
         "publisherId":"ooyalatester",
         "props":{
           "prop1":"espn",
