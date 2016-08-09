@@ -253,6 +253,12 @@ var ConvivaAnalyticsPlugin = function(framework)
       // video quality assessements/troubleshooting for that particular user.
       // contentMetadata.viewerId = userData.id;
 
+      var customMetadata = convivaMetadata["customMetadata"];
+      if (validateCustomMetadata(customMetadata))
+      {
+        contentMetadata.custom = customMetadata;
+      }
+
       // Custom metadata, usually defined in a metadata spreadsheet.
       // Based on the type of video application and the expectations in terms of
       // Conviva metrics and filtering capabilities.
@@ -280,6 +286,18 @@ var ConvivaAnalyticsPlugin = function(framework)
   var sdkLoaded = function()
   {
     return !!window.Conviva;
+  };
+
+  /**
+   * Validates the custom metadata passed in via page level settings.
+   * @private
+   * @method ConvivaAnalyticsPlugin#validateCustomMetadata
+   * @param  {object} metadata The Conviva custom metadata to validate
+   * @returns {boolean} true if valid, false otherwise
+   */
+  var validateCustomMetadata = function(metadata)
+  {
+    return !!metadata && _.isObject(metadata);
   };
 
   /**
