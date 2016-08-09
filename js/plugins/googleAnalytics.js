@@ -8,13 +8,14 @@ require("../framework/InitAnalyticsNamespace.js");
 var GAAnalyticsPlugin = function(framework)
 {
   var _framework = framework;
-  var name = "GA";
+  var name = "googleAnalytics";
   var version = "v1";
   var id;
   var _active = true;
   var _cachedEvents = [];
   var _cacheEvents = true;
 
+  var trackerName = null;
 
   this.gtm = false;
   this.gaPageviewFormat = 'ooyala-event/:event/:title';
@@ -30,7 +31,6 @@ var GAAnalyticsPlugin = function(framework)
 
   this.playing = false;
   this.duration = null;
-  this.playerRoot = null;
   this.gaTrackingEnabled = false;
   this.content = null;
   this.currentPlaybackType = 'content';
@@ -172,7 +172,20 @@ var GAAnalyticsPlugin = function(framework)
    */
   this.setMetadata = function(metadata)
   {
-    this.log("GA: PluginID \'" + id + "\' received this metadata:", metadata);
+    if (metadata)
+    {
+      this.log("GA: PluginID \'" + id + "\' received this metadata:", metadata);
+      //Grab the tracker name if available and valid
+      if (validateTrackerName(metadata.trackerName))
+      {
+        trackerName = metadata.trackerName;
+        this.log("GA: Using tracker name:", trackerName);
+      }
+      else
+      {
+        trackerName = null;
+      }
+    }
   };
 
   /**
@@ -189,10 +202,15 @@ var GAAnalyticsPlugin = function(framework)
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         this.onPlayerCreated();
         break;
+      case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
+        resetPlaybackState();
+        break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         this.onPositionChanged(params);
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
+        resetPlaybackState();
+        resetContent();
         this.onContentReady(params);
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
@@ -217,8 +235,31 @@ var GAAnalyticsPlugin = function(framework)
       default:
         break;
     }
-
   };
+
+  /**
+   * Resets any properties and variables associated with the playback state.
+   * @private
+   * @method GAAnalyticsPlugin#resetPlaybackState
+   */
+  var resetPlaybackState = _.bind(function()
+  {
+    this.playing = false;
+    this.lastEventReported = null;
+    this.lastReportedPlaybackMilestone = 0;
+    this.currentPlaybackType = 'content';
+  }, this);
+
+  /**
+   * Resets any properties and variables associated with the content.
+   * @private
+   * @method GAAnalyticsPlugin#resetContent
+   */
+  var resetContent = _.bind(function()
+  {
+    this.duration = null;
+    this.content = null;
+  }, this);
 
   /**
    * [Required Function] Clean up this plugin so the garbage collector can clear it out.
@@ -286,9 +327,11 @@ var GAAnalyticsPlugin = function(framework)
       {
         var data = metadata.base;
         this.createdAt = data.created_at || data.CreationDate;
+        //TODO: How do we test createAd and customDimension?
         if (!!this.createdAt && !!ga && !!ooyalaGaTrackSettings.customDimension)
         {
-          ga('set', ooyalaGaTrackSettings.customDimension, this.createdAt);
+          var command = getGACommand('set');
+          ga(command, ooyalaGaTrackSettings.customDimension, this.createdAt);
         }
       }
     }
@@ -451,7 +494,8 @@ var GAAnalyticsPlugin = function(framework)
         {
           param['eventValue'] = this.createdAt;
         }
-        ga('send', 'event', param);
+        var command = getGACommand('send');
+        ga(command, 'event', param);
       }
     }
   };
@@ -477,7 +521,42 @@ var GAAnalyticsPlugin = function(framework)
         this.sendToGA(event);
       }
     }
-  }
+  };
+
+  /**
+   * Generates the command string to use with the ga() method. If a tracker name
+   * was provided in the metadata, we will prepend the tracker name to the command
+   * per GA docs at:
+   * https://developers.google.com/analytics/devguides/collection/analyticsjs/creating-trackers
+   * @private
+   * @method GAAnalyticsPlugin#getGACommand
+   * @param {string} commandName the name of the ga() command
+   * @returns {string} the final command to provide to the ga() method
+   */
+  var getGACommand = function(commandName)
+  {
+    if (commandName)
+    {
+      return trackerName ? trackerName + '.' + commandName : commandName;
+    }
+    else
+    {
+      return null;
+    }
+  };
+
+  /**
+   * Checks to see if the tracker name is valid. The tracker name is expected to be
+   * a non-empty string.
+   * @private
+   * @method GAAnalyticsPlugin#validateTrackerName
+   * @param {string} name the tracker name to validate
+   * @returns {boolean} true if the tracker name is valid, false otherwise
+   */
+  var validateTrackerName = function(name)
+  {
+    return _.isString(name) && !_.isEmpty(name);
+  };
 };
 
 //Add the template to the global list of factories for all new instances of the framework
