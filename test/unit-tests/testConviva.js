@@ -760,4 +760,29 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     //custom metadata
     expect(_.isEqual(Conviva.currentContentMetadata.custom, customMetadata)).toBe(true);
   });
+
+  it('Conviva Plugin will ignore null custom metadata', function()
+  {
+    var plugin = createPlugin(framework, {
+      "gatewayUrl":"testUrl",
+      "customerKey":"testKey",
+      "customMetadata": null
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000
+    });
+    //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
+    expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
+    //default to VOD
+    expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.VOD);
+    expect(Conviva.currentContentMetadata.duration).toBe(60);
+
+    //custom metadata
+    expect(Conviva.currentContentMetadata.custom).toBe(undefined);
+  });
 });
