@@ -632,7 +632,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdStartedData
    * @classdesc Contains information about the type of ad that has started and its ad data.
    * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {object} adMetadataIn The metadata associated with the ad
+   * @property {object} adMetadata The metadata associated with the ad(i.e. EVENT_DATA.LinearVideoData or EVENT_DATA.NonLinearOverlayData)
    */
   EVENT_DATA.AdStartedData = function(adType, adMetadataIn)
   {
