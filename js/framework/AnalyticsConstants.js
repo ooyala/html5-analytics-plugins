@@ -624,7 +624,7 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.AdPodEndedData = function(adId)
   {
     var checkAdPodEndedData = OO._.bind(checkDataType, this, "AdPodEndedData");
-    this.adId = checkAdPodEndedData(adId, "adId", ["string"]);
+    this.adId = checkAdPodEndedData(adId, "adId", ["string", "number"]);
   };
 
   /**
@@ -652,7 +652,7 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.LinearVideoData = function(adId, adDuration, adPodPosition)
   {
     var checkLinearVideoData = OO._.bind(checkDataType, this, "LinearVideoData");
-    this.adId = checkLinearVideoData(adId, "adId", ["string"]);
+    this.adId = checkLinearVideoData(adId, "adId", ["string", "number"]);
     this.adDuration = checkLinearVideoData(adDuration, "adDuration", ["number"]);
     this.adPodPosition = checkLinearVideoData(adPodPosition, "adPodPosition", ["number"]);
   };
@@ -666,7 +666,7 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.NonLinearOverlayData = function(adId)
   {
     var checkNonLinearOverlayData = OO._.bind(checkDataType, this, "NonLinearOverlayData");
-    this.adId = checkNonLinearOverlayData(adId, "adId", ["string"]);
+    this.adId = checkNonLinearOverlayData(adId, "adId", ["string", "number"]);
   };
 
   /**
@@ -680,7 +680,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdEndedData = OO._.bind(checkDataType, this, "AdEndedData");
     this.adType = checkAdEndedData(adType, "adType", ["string"]);
-    this.adId = checkAdEndedData(adId, "adId", ["string"]);
+    this.adId = checkAdEndedData(adId, "adId", ["string", "number"]);
   };
 
   /**
