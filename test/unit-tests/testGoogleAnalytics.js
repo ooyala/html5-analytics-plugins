@@ -147,6 +147,26 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     checkGaArgumentsForEvent(EVENT_ACTION.PLAYBACK_PAUSED, "testTitle");
   });
 
+  it('GA sends playbackPaused event when video is paused without a pause request', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoProgress({
+      playheads: [0, 1],
+      totalStreamDuration: 60
+    });
+
+    plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
+
+    checkGaArgumentsForEvent(EVENT_ACTION.PLAYBACK_PAUSED, "testTitle");
+  });
+
   //Works around a limitation where a pause event is fired when content starts
   it('GA does not send playbackPaused event when content is paused before starting', function() {
     var plugin = createPlugin(framework);

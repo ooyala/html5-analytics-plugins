@@ -228,7 +228,7 @@ var GAAnalyticsPlugin = function(framework)
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
         this.onAdsPlayed();
         break;
-      case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
+      case OO.Analytics.EVENTS.VIDEO_PAUSED:
         this.onPaused();
         break;
 
