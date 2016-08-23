@@ -22,11 +22,11 @@ var GAAnalyticsPlugin = function(framework)
   this.gaEventCategory = 'Ooyala';
   this.verboseLogging = false;
   this.playbackMilestones = [
-    [0.01, 'playProgressStarted'],
+    [0, 'playProgressStarted'],
     [0.25, 'playProgressQuarter'],
     [0.5, 'playProgressHalf'],
     [0.75, 'playProgressThreeQuarters'],
-    [0.97, 'playProgressEnd']
+    [1.00, 'playProgressEnd']
   ];
 
   this.playing = false;
@@ -35,7 +35,7 @@ var GAAnalyticsPlugin = function(framework)
   this.content = null;
   this.currentPlaybackType = 'content';
   this.lastEventReported = null;
-  this.lastReportedPlaybackMilestone = 0;
+  this.lastReportedPlaybackMilestone = -1;
 
   /**
    * Log plugin events if verboseLogging is set to 'true'.
@@ -246,7 +246,7 @@ var GAAnalyticsPlugin = function(framework)
   {
     this.playing = false;
     this.lastEventReported = null;
-    this.lastReportedPlaybackMilestone = 0;
+    this.lastReportedPlaybackMilestone = -1;
     this.currentPlaybackType = 'content';
   }, this);
 
@@ -380,7 +380,7 @@ var GAAnalyticsPlugin = function(framework)
 
     _.each(this.playbackMilestones, function(milestone)
     {
-      if ((this.currentPlayheadPosition / this.duration) > milestone[0] && this.lastReportedPlaybackMilestone != milestone[0] && milestone[0] > this.lastReportedPlaybackMilestone)
+      if ((this.currentPlayheadPosition / this.duration) >= milestone[0] && this.lastReportedPlaybackMilestone != milestone[0] && milestone[0] > this.lastReportedPlaybackMilestone)
       {
         this.reportToGA(milestone[1]);
         this.lastReportedPlaybackMilestone = milestone[0];
