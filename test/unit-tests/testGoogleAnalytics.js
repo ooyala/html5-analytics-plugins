@@ -230,6 +230,34 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_STARTED, "testTitle");
   });
 
+  it('GA sends playback milestone for playProgressStarted at 0% through the content', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 6000000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+    simulator.simulateVideoProgress({
+      playheads: [0],
+      totalStreamDuration: 6000
+    });
+
+    checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_STARTED, "testTitle");
+
+    resetMockGa();
+
+    simulator.simulateVideoProgress({
+      playheads: [1],
+      totalStreamDuration: 6000
+    });
+
+    //check we don't send playProgressStarted again
+    expect(MockGa.gaCommand).toBe(null);
+  });
+
   it('GA sends playback milestone for playProgressQuarter', function() {
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
@@ -240,8 +268,6 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
     simulator.simulateStreamMetadataUpdated();
     simulator.simulateContentPlayback();
-    //TODO: Currently we need to get past the milestone to trigger the event
-    //Playheads equal to the milestone will not trigger the event
     simulator.simulateVideoProgress({
       playheads: [0, 1, 15, 16],
       totalStreamDuration: 60
@@ -260,8 +286,6 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
     simulator.simulateStreamMetadataUpdated();
     simulator.simulateContentPlayback();
-    //TODO: Currently we need to get past the milestone to trigger the event
-    //Playheads equal to the milestone will not trigger the event
     simulator.simulateVideoProgress({
       playheads: [0, 1, 15, 16],
       totalStreamDuration: 60
@@ -300,8 +324,6 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
     simulator.simulateStreamMetadataUpdated();
     simulator.simulateContentPlayback();
-    //TODO: Currently we need to get past the milestone to trigger the event
-    //Playheads equal to the milestone will not trigger the event
     simulator.simulateVideoProgress({
       playheads: [0, 1, 15, 16, 20, 25, 30, 31],
       totalStreamDuration: 60
@@ -320,8 +342,6 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
     simulator.simulateStreamMetadataUpdated();
     simulator.simulateContentPlayback();
-    //TODO: Currently we need to get past the milestone to trigger the event
-    //Playheads equal to the milestone will not trigger the event
     simulator.simulateVideoProgress({
       playheads: [0, 1, 15, 16, 20, 25, 30, 31],
       totalStreamDuration: 60
@@ -360,8 +380,6 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
     simulator.simulateStreamMetadataUpdated();
     simulator.simulateContentPlayback();
-    //TODO: Currently we need to get past the milestone to trigger the event
-    //Playheads equal to the milestone will not trigger the event
     simulator.simulateVideoProgress({
       playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46],
       totalStreamDuration: 60
@@ -380,8 +398,6 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
     simulator.simulateStreamMetadataUpdated();
     simulator.simulateContentPlayback();
-    //TODO: Currently we need to get past the milestone to trigger the event
-    //Playheads equal to the milestone will not trigger the event
     simulator.simulateVideoProgress({
       playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46],
       totalStreamDuration: 60
@@ -420,11 +436,36 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
     simulator.simulateStreamMetadataUpdated();
     simulator.simulateContentPlayback();
-    //TODO: Currently we need to get past the milestone to trigger the event
-    //Playheads equal to the milestone will not trigger the event
     simulator.simulateVideoProgress({
       playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
       totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
+  });
+
+  it('GA sends playback milestone for playProgressEnd at 100% through the content', function() {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 6000000
+    });
+    simulator.simulateStreamMetadataUpdated();
+    simulator.simulateContentPlayback();
+
+    resetMockGa();
+    simulator.simulateVideoProgress({
+      playheads: [0, 5999],
+      totalStreamDuration: 6000
+    });
+
+    checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_THREE_QUARTERS, "testTitle");
+
+    simulator.simulateVideoProgress({
+      playheads: [0, 6000],
+      totalStreamDuration: 6000
     });
 
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_END, "testTitle");
@@ -506,7 +547,14 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAYBACK_STARTED, "testTitle");
 
     simulator.simulateVideoProgress({
-      playheads: [0, 1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
+      playheads: [0],
+      totalStreamDuration: 60
+    });
+
+    checkGaArgumentsForEventWithTrackerName("testTrackerName", EVENT_ACTION.PLAY_PROGRESS_STARTED, "testTitle");
+
+    simulator.simulateVideoProgress({
+      playheads: [1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],
       totalStreamDuration: 60
     });
 
