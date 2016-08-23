@@ -246,6 +246,16 @@ describe('Analytics Framework GA Plugin Unit Tests', function() {
     });
 
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_STARTED, "testTitle");
+
+    resetMockGa();
+
+    simulator.simulateVideoProgress({
+      playheads: [1],
+      totalStreamDuration: 6000
+    });
+
+    //check we don't send playProgressStarted again
+    expect(MockGa.gaCommand).toBe(null);
   });
 
   it('GA sends playback milestone for playProgressQuarter', function() {
