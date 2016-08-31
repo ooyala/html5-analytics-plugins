@@ -585,6 +585,64 @@ describe('Analytics Framework Unit Tests', function()
       }
     };
 
+    describe('Test Framework Initialization', function()
+    {
+      it('Test Flatten Events Function', function()
+      {
+        // Should return the correct number of values
+        var object = {};
+        expect(framework.flattenEvents(object).length).toBe(0);
+
+        object = {
+          a: true,
+          b: true,
+          c: true
+        };
+        expect(framework.flattenEvents(object).length).toBe(3);
+
+        object = {
+          a: {
+            aa1: true,
+            aa2: true,
+            aa3: true
+          },
+          b: {
+            bb: true
+          }
+        };
+        expect(framework.flattenEvents(object).length).toBe(4);
+
+        object = {
+          a: {
+            aa1: true,
+            aa2: true,
+          },
+          b: {},
+          c: true,
+          d: true,
+          e: true
+        };
+        expect(framework.flattenEvents(object).length).toBe(5);
+
+        object = {
+          a: {
+            aa1: true,
+            aa2: {
+              aaa1: true
+            },
+          },
+          b: {
+            b1: {
+              bb1: {
+                bbb1: true
+              }
+            }
+          }
+        };
+        expect(framework.flattenEvents(object).length).toBe(3);
+      });
+    });
+
     describe('Test Recording With No Plugins Registered', function()
     {
       it('Test Sending Invalid Messages', function()
