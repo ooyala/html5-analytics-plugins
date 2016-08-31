@@ -533,7 +533,7 @@ describe('Analytics Framework Unit Tests', function()
 
       var numMsgSent = 0;
       var msgName;
-      var events = OO.Analytics.EVENTS;
+      var events = framework.flattenEvents(OO.Analytics.EVENTS); 
       for(msgName in events)
       {
         expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
@@ -569,7 +569,8 @@ describe('Analytics Framework Unit Tests', function()
     var badParamsHelper = function(framework, params, msgSentObj)
     {
       var msgName;
-      for(msgName in OO.Analytics.EVENTS)
+      var eventArray = framework.flattenEvents(OO.Analytics.EVENTS); 
+      for(eventObject in eventArray)
       {
         expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
         msgSentObj.count++;
@@ -580,6 +581,11 @@ describe('Analytics Framework Unit Tests', function()
         var lastMsg = recordedEvents[length-1];
         expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
       }
+    };
+
+    var getEvent = function(eventObject)
+    {
+      
     };
 
     describe('Test Recording With No Plugins Registered', function()
@@ -1758,5 +1764,23 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test VideoPlaybackErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataIn);
+    });
+
+    it('Test AuthorizationErrorData', function()
+    {
+
+    });
+
   });
 });

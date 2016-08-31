@@ -39,7 +39,7 @@ if (!OO.Analytics.STREAM_TYPE)
 
 /**
  * @public
- * @description These are the Ooyala Player error codes
+ * @description (NOTE: will deprecate) These are the Ooyala Player error codes
  * @namespace OO.Analytics.ERROR_CODE
  */
 if (!OO.Analytics.ERROR_CODE)
@@ -271,7 +271,8 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_ERROR
-     * @description This message is sent when a video error occurs.
+     * @description (NOTE: will deprecate and be replaced by OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK)
+     * This message is sent when a video error occurs.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoErrorData
      */
@@ -381,7 +382,33 @@ if (!OO.Analytics.EVENTS)
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */
-    DESTROY:                        'destroy'
+    DESTROY:                        'destroy',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS.ERROR
+     * @description This property contains different the categories of Ooyala Player Errors.
+     */
+    ERROR:
+    {
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
+       * @description This message is sent when a video playback error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.VideoPlaybackErrorData
+       */
+      VIDEO_PLAYBACK:               'video_playback_error',
+
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#AUTHORIZATION
+       * @description This message is sent when a stream authorization server (SAS) error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.AuthorizationErrorData
+       */
+      AUTHORIZATION:                'authorization_error'
+    }
   };
   OO.Analytics.EVENTS = EVENTS;
 }
@@ -593,14 +620,44 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoErrorData
-   * @classdesc Contains information about the error code and message of the video error.
+   * @classdesc (NOTE: will deprecate and be replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
+   * Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
    */
   EVENT_DATA.VideoErrorData = function(errorCode)
   {
     var checkVideoErrorData = OO._.bind(checkDataType, this, "VideoErrorData");
     this.errorCode = checkVideoErrorData(errorCode, "errorCode", ["string"]);
     this.errorMessage = translateErrorCode(errorCode);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @classdesc Contains information about the error code and message of the video error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.VideoPlaybackErrorData = function(errorCode, errorMessage)
+  {
+    var checkVideoPlaybackErrorData = OO._.bind(checkDataType, this, "VideoPlaybackErrorData");
+    this.errorCode = checkVideoPlaybackErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkVideoPlaybackErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AuthorizationErrorData
+   * @classdesc Contains information about the error code and message of the authorization error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.AuthorizationErrorData = function(errorCode, errorMessage)
+  {
+    var checkAuthorizationErrorData = OO._.bind(checkDataType, this, "AuthorizationErrorData");
+    this.errorCode = checkAuthorizationErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkAuthorizationErrorData(errorMessage, "errorMessage", ["string"]);
   };
 
   /**
