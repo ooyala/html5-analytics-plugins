@@ -485,16 +485,13 @@ OO.Analytics.Framework = function()
     return success;
   };
 
-  //PublishMessage should only publish messages that are in OO.Analytics.EVENTS.
-  //To avoid doing an expensive string search through OO.Analyitcs.EVENTS for this checking,
-  //here we convert OO.Analytics.EVENTS into another object where we can directly look up if
-  //the message exists.
-  for(var tempEventName in OO.Analytics.EVENTS)
-  {
-    _eventExistenceLookup[OO.Analytics.EVENTS[tempEventName]] = true;
-  }
-  tempEventName = undefined; //cleanup memory leak (thanks to unit tests!)
-
+  /**
+   * Helper function to flatten an object with a nested objects into a single array of values.
+   * @public
+   * @method OO.Analytics.Framework#flattenEvents
+   * @param {object} eventObject The event key-value pair to flatten
+   * @returns {string[]} An array of strings representing the flattened values of the object.
+   */
   this.flattenEvents = function(eventObject)
   {
     var eventArray = [];
@@ -520,6 +517,12 @@ OO.Analytics.Framework = function()
     return eventArray;
   };
 
+  /**
+   * Helper function to create the events lookup dictionary.
+   * @public
+   * @method OO.Analytics.Framework#createEventDictionary
+   * @returns {object|null} The created events dictionary. Returns null if there are any errors.
+   */
   this.createEventDictionary = function()
   {
     var eventDictionary = null;
