@@ -22,6 +22,11 @@ if (!OO.Analytics.AD_TYPE)
   OO.Analytics.AD_TYPE = AD_TYPE;
 }
 
+/**
+ * @public
+ * @description These are the stream types Ooyala Player supports
+ * @namespace OO.Analytics.STREAM_TYPE
+ */
 if (!OO.Analytics.STREAM_TYPE)
 {
   var STREAM_TYPE =
@@ -234,7 +239,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_STREAM_BITRATE_CHANGED
-     * @description
+     * @description This message is sent when the video stream's bitrate changes.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoBitrateProfileData
      */
@@ -353,7 +358,33 @@ if (!OO.Analytics.EVENTS)
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */
-    DESTROY:                        'destroy'
+    DESTROY:                        'destroy',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS.ERROR
+     * @description This property contains different the categories of Ooyala Player Errors.
+     */
+    ERROR:
+    {
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
+       * @description This message is sent when a video playback error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.VideoPlaybackErrorData
+       */
+      VIDEO_PLAYBACK:               'video_playback_error',
+
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#AUTHORIZATION
+       * @description This message is sent when a stream authorization server (SAS) error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.AuthorizationErrorData
+       */
+      AUTHORIZATION:                'authorization_error'
+    }
   };
   OO.Analytics.EVENTS = EVENTS;
 }
@@ -564,6 +595,49 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
+   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @classdesc (NOTE: will deprecate and be replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
+   * Contains information about the error code and message of the video error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.VideoErrorData = function(errorCode)
+  {
+    var checkVideoErrorData = OO._.bind(checkDataType, this, "VideoErrorData");
+    this.errorCode = checkVideoErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = translateErrorCode(errorCode);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @classdesc Contains information about the error code and message of the video error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.VideoPlaybackErrorData = function(errorCode, errorMessage)
+  {
+    var checkVideoPlaybackErrorData = OO._.bind(checkDataType, this, "VideoPlaybackErrorData");
+    this.errorCode = checkVideoPlaybackErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkVideoPlaybackErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AuthorizationErrorData
+   * @classdesc Contains information about the error code and message of the authorization error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.AuthorizationErrorData = function(errorCode, errorMessage)
+  {
+    var checkAuthorizationErrorData = OO._.bind(checkDataType, this, "AuthorizationErrorData");
+    this.errorCode = checkAuthorizationErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkAuthorizationErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
    * @class Analytics.EVENT_DATA#AdPodStartedData
    * @classdesc Contain information about how many ads are in the ad pod.
    * @property {number} numberOfAds The number of ads in the pod
@@ -591,7 +665,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdStartedData
    * @classdesc Contains information about the type of ad that has started and its ad data.
    * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {object} adMetadataIn The metadata associated with the ad
+   * @property {object} adMetadata The metadata associated with the ad(i.e. EVENT_DATA.LinearVideoData or EVENT_DATA.NonLinearOverlayData)
    */
   EVENT_DATA.AdStartedData = function(adType, adMetadataIn)
   {
@@ -751,9 +825,9 @@ if (!OO.Analytics.EVENT_DATA)
 
     if (error)
     {
-      OO.log
+      logErrorString
       (
-        "ERROR Analytics.EVENT_DATA." + className + " being created with invalid " + varName +
+        "Analytics.EVENT_DATA." + className + " being created with invalid " + varName +
         ". Should be one of these types [" + expectedTypes + "] but was [" + typeof(data) + "]."
       );
       return undefined;
@@ -764,7 +838,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @private
-   * @class Analytics.EVENT_DATA#selectAdType
+   * @class Analytics#selectAdType
    * @classdesc Checks for a recognized Ad Type and returns the corresponding EVENT_DATA object.
    * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
    * @property {object} adMetadata The metadata associated with the ad
@@ -786,18 +860,51 @@ if (!OO.Analytics.EVENT_DATA)
       case OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY:
         adMetadataOut = new EVENT_DATA.NonLinearOverlayData
         (
-         adMetadataIn.id
+          adMetadataIn.id
         );
         break;
       default:
-        OO.log
+        logErrorString
         (
-         "ERROR Ad Type not recognized. Should be one of these values [" +
-         OO._.values(OO.Analytics.AD_TYPE) + "] but was [" + adType + "]."
+          "Ad Type not recognized. Should be one of these values [" +
+          OO._.values(OO.Analytics.AD_TYPE) + "] but was [" + adType + "]."
         );
         break;
     }
     return adMetadataOut;
+  };
+
+  /**
+   * @private
+   * @class Analytics#translateErrorCode
+   * @classdesc Translates the error code provided into the corresponding error message.
+   * @property {number} code The error code
+   * @returns {string} The error string associated with the error code number.
+   */
+  var translateErrorCode = function(code)
+  {
+    var errorMessage;
+    if (_.has(ERROR_CODE, code))
+    {
+      errorMessage = ERROR_CODE[code];
+    }
+    else
+    {
+      logErrorString("Error code not recognized. Error code provided was: " + code);
+    }
+    return errorMessage;
+  };
+
+  /**
+   * @private
+   * @class Analytics#logErrorString
+   * @classdesc Helper function to return an error string with the Analytics Constants prefix.
+   * @property {string} origStr the error string
+   * @returns {string} The new error string.
+   */
+  var logErrorString = function(origStr)
+  {
+    OO.log("Error AnalyticsConstants: " + origStr);
   };
 
   OO.Analytics.EVENT_DATA = EVENT_DATA;

@@ -533,7 +533,7 @@ describe('Analytics Framework Unit Tests', function()
 
       var numMsgSent = 0;
       var msgName;
-      var events = OO.Analytics.EVENTS;
+      var events = framework.flattenEvents(OO.Analytics.EVENTS); 
       for(msgName in events)
       {
         expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
@@ -569,7 +569,8 @@ describe('Analytics Framework Unit Tests', function()
     var badParamsHelper = function(framework, params, msgSentObj)
     {
       var msgName;
-      for(msgName in OO.Analytics.EVENTS)
+      var eventArray = framework.flattenEvents(OO.Analytics.EVENTS); 
+      for(eventObject in eventArray)
       {
         expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
         msgSentObj.count++;
@@ -1682,5 +1683,99 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.StreamTypeMetadata(metadataIn.streamType);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test VideoErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: "100",
+      };
+
+      var metadataOut =
+      {
+        errorCode: "100",
+        errorMessage: "General Error"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode);
+      expect(data).toEqual(metadataOut);
+
+      // test unknown error code
+      metadataIn =
+      {
+        errorCode: "101",
+      };
+
+      metadataOut =
+      {
+        errorCode: "101",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      // will not accept numbers (at least for now, because VC_PLAY_FAILED's "code" arg is string only)
+      metadataIn =
+      {
+        errorCode: 0,
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      // test bad inputs
+      metadataIn =
+      {
+        errorCode: null,
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: undefined,
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+    });
+
+    it('Test VideoPlaybackErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataIn);
+    });
+
+    it('Test AuthorizationErrorData', function()
+    {
+
+    });
+
   });
 });
