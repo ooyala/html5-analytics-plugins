@@ -489,11 +489,63 @@ OO.Analytics.Framework = function()
   //To avoid doing an expensive string search through OO.Analyitcs.EVENTS for this checking,
   //here we convert OO.Analytics.EVENTS into another object where we can directly look up if
   //the message exists.
-  for(var tempEventName in OO.Analytics.EVENTS)
+  for(var key in OO.Analytics.EVENTS)
   {
-     _eventExistenceLookup[OO.Analytics.EVENTS[tempEventName]] = true;
+    _eventExistenceLookup[key] = true;
   }
-  tempEventName = undefined; //cleanup memory leak (thanks to unit tests!)
+  key = undefined; //cleanup memory leak (thanks to unit tests!)
+
+  this.flattenEvents = function(eventObject, parentName)
+  {
+    var eventArray = [];
+    var eventKeys = _.keys(eventObject);
+    for (var i = 0; i < eventKeys.length; i++)
+    {
+      var eventKey = eventKeys[i];
+      var eventValue = eventObject[eventKey];
+      if (typeof eventValue === "object")
+      {
+        var innerEvents = this.flattenEvents(eventValue, eventKey);
+        for (var j = 0; j < innerEvents.length; j++)
+        {
+          var innerEvent = innerEvents[j];
+          var innerEventItem = {
+            eventParent: innerEvent.eventParent,
+            eventName: innerEvent.eventName
+          };
+          eventArray.push(innerEvent);
+        }
+      }
+      else
+      {
+        var eventItem = {
+          eventParent: parentName,
+          eventName: eventValue
+        };
+        eventArray.push(eventItem);
+      }
+    }
+    return eventArray;
+  };
+
+  this.createEventDictionary = function()
+  {
+    var eventDictionary = null;
+    var eventArray = this.flattenEvents(OO.Analytics.EVENTS);
+    console.log(eventArray);
+    if (eventArray && eventArray instanceof Array)
+    {
+      eventDictionary = {};
+      for (var i = 0; i < eventArray.length; i++)
+      {
+        var eventName = eventArray[i].eventName;
+        eventDictionary[eventName] = true;
+      }
+    }
+    return eventDictionary;
+  };
+
+  _eventExistenceLookup = this.createEventDictionary();
 
   /**
    * Publish an event to all registered and active plugins.
