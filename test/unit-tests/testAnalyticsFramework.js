@@ -1769,14 +1769,87 @@ describe('Analytics Framework Unit Tests', function()
         errorCode: "error code",
         errorMessage: "error message"
       };
+      
+      var metadataOut =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
 
       var data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        errorCode: 123,
+        errorMessage: 456
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: "",
+        errorMessage: false
+      };
+
+      metadataOut =
+      {
+        errorCode: "",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
     });
 
     it('Test AuthorizationErrorData', function()
     {
+      var metadataIn =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
 
+      var data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        errorCode: 123,
+        errorMessage: 456
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: "",
+        errorMessage: false
+      };
+
+      metadataOut =
+      {
+        errorCode: "",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
     });
 
   });
