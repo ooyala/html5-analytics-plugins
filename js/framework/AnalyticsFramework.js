@@ -489,13 +489,13 @@ OO.Analytics.Framework = function()
   //To avoid doing an expensive string search through OO.Analyitcs.EVENTS for this checking,
   //here we convert OO.Analytics.EVENTS into another object where we can directly look up if
   //the message exists.
-  for(var key in OO.Analytics.EVENTS)
+  for(var tempEventName in OO.Analytics.EVENTS)
   {
-    _eventExistenceLookup[key] = true;
+    _eventExistenceLookup[OO.Analytics.EVENTS[tempEventName]] = true;
   }
-  key = undefined; //cleanup memory leak (thanks to unit tests!)
+  tempEventName = undefined; //cleanup memory leak (thanks to unit tests!)
 
-  this.flattenEvents = function(eventObject, parentName)
+  this.flattenEvents = function(eventObject)
   {
     var eventArray = [];
     var eventKeys = _.keys(eventObject);
@@ -505,24 +505,16 @@ OO.Analytics.Framework = function()
       var eventValue = eventObject[eventKey];
       if (typeof eventValue === "object")
       {
-        var innerEvents = this.flattenEvents(eventValue, eventKey);
+        var innerEvents = this.flattenEvents(eventValue);
         for (var j = 0; j < innerEvents.length; j++)
         {
           var innerEvent = innerEvents[j];
-          var innerEventItem = {
-            eventParent: innerEvent.eventParent,
-            eventName: innerEvent.eventName
-          };
           eventArray.push(innerEvent);
         }
       }
       else
       {
-        var eventItem = {
-          eventParent: parentName,
-          eventName: eventValue
-        };
-        eventArray.push(eventItem);
+        eventArray.push(eventValue);
       }
     }
     return eventArray;
@@ -532,13 +524,12 @@ OO.Analytics.Framework = function()
   {
     var eventDictionary = null;
     var eventArray = this.flattenEvents(OO.Analytics.EVENTS);
-    console.log(eventArray);
     if (eventArray && eventArray instanceof Array)
     {
       eventDictionary = {};
       for (var i = 0; i < eventArray.length; i++)
       {
-        var eventName = eventArray[i].eventName;
+        var eventName = eventArray[i];
         eventDictionary[eventName] = true;
       }
     }
