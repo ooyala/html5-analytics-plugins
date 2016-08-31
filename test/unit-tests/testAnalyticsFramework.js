@@ -534,16 +534,17 @@ describe('Analytics Framework Unit Tests', function()
       var numMsgSent = 0;
       var msgName;
       var events = framework.flattenEvents(OO.Analytics.EVENTS); 
-      for(msgName in events)
+      for(var i = 0; i < events.length; i++)
       {
-        expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
+        msgName = events[i];
+        expect(framework.publishEvent(msgName)).toBe(true);
         numMsgSent++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(numMsgSent);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
+        expect(lastMsg.eventName).toEqual(msgName);
       }
     }
 
@@ -569,23 +570,19 @@ describe('Analytics Framework Unit Tests', function()
     var badParamsHelper = function(framework, params, msgSentObj)
     {
       var msgName;
-      var eventArray = framework.flattenEvents(OO.Analytics.EVENTS); 
-      for(eventObject in eventArray)
+      var events = framework.flattenEvents(OO.Analytics.EVENTS); 
+      for(var i = 0; i < events.length; i++)
       {
-        expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
+        msgName = events[i];
+        expect(framework.publishEvent(msgName)).toBe(true);
         msgSentObj.count++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(msgSentObj.count);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
+        expect(lastMsg.eventName).toEqual(msgName);
       }
-    };
-
-    var getEvent = function(eventObject)
-    {
-      
     };
 
     describe('Test Recording With No Plugins Registered', function()
