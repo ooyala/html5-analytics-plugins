@@ -507,7 +507,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#VideoBitrateProfileLookupData
    * @classdesc Contains a lookup table for all the possible bitrates available. The
    * keys are the profile ids for each profile.
-   * @property {object} profiles An lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
+   * @property {object} profiles A lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
    */
   EVENT_DATA.VideoBitrateProfileLookupData = function(bitrateProfileArray)
   {
@@ -596,7 +596,8 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoErrorData
-   * @classdesc (NOTE: will deprecate and be replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
+   * @classdesc [DEPRECATED]
+   * (NOTE: replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
    * Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
