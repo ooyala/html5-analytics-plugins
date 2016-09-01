@@ -39,7 +39,8 @@ if (!OO.Analytics.STREAM_TYPE)
 
 /**
  * @public
- * @description (NOTE: will deprecate) These are the Ooyala Player error codes
+ * @description [DEPRECATED]
+ * These are the Ooyala Player error codes
  * @namespace OO.Analytics.ERROR_CODE
  */
 if (!OO.Analytics.ERROR_CODE)
@@ -271,7 +272,8 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_ERROR
-     * @description (NOTE: will deprecate and be replaced by OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK)
+     * @description [DEPRECATED]
+     * (NOTE: replaced by OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK)
      * This message is sent when a video error occurs.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoErrorData
@@ -531,7 +533,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#VideoBitrateProfileLookupData
    * @classdesc Contains a lookup table for all the possible bitrates available. The
    * keys are the profile ids for each profile.
-   * @property {object} profiles An lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
+   * @property {object} profiles A lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
    */
   EVENT_DATA.VideoBitrateProfileLookupData = function(bitrateProfileArray)
   {
@@ -620,7 +622,8 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoErrorData
-   * @classdesc (NOTE: will deprecate and be replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
+   * @classdesc [DEPRECATED]
+   * (NOTE: replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
    * Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
