@@ -1769,6 +1769,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
+    // [DEPRECATED]
     it('Test VideoErrorData', function()
     {
       var metadataIn =
