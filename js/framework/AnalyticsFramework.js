@@ -485,15 +485,61 @@ OO.Analytics.Framework = function()
     return success;
   };
 
-  //PublishMessage should only publish messages that are in OO.Analytics.EVENTS.
-  //To avoid doing an expensive string search through OO.Analyitcs.EVENTS for this checking,
-  //here we convert OO.Analytics.EVENTS into another object where we can directly look up if
-  //the message exists.
-  for(var tempEventName in OO.Analytics.EVENTS)
+  /**
+   * Helper function to flatten an object with a nested objects into a single array of values.
+   * @public
+   * @method OO.Analytics.Framework#flattenEvents
+   * @param {object} eventObject The event key-value pair to flatten
+   * @returns {string[]} An array of strings representing the flattened values of the object.
+   */
+  this.flattenEvents = function(eventObject)
   {
-     _eventExistenceLookup[OO.Analytics.EVENTS[tempEventName]] = true;
-  }
-  tempEventName = undefined; //cleanup memory leak (thanks to unit tests!)
+    var eventArray = [];
+    var eventKeys = _.keys(eventObject);
+    for (var i = 0; i < eventKeys.length; i++)
+    {
+      var eventKey = eventKeys[i];
+      var eventValue = eventObject[eventKey];
+      if (typeof eventValue === "object")
+      {
+        var innerEvents = this.flattenEvents(eventValue);
+        for (var j = 0; j < innerEvents.length; j++)
+        {
+          var innerEvent = innerEvents[j];
+          eventArray.push(innerEvent);
+        }
+      }
+      else
+      {
+        eventArray.push(eventValue);
+      }
+    }
+    return eventArray;
+  };
+
+  /**
+   * Helper function to create the events lookup dictionary.
+   * @public
+   * @method OO.Analytics.Framework#createEventDictionary
+   * @returns {object|null} The created events dictionary. Returns null if there are any errors.
+   */
+  this.createEventDictionary = function()
+  {
+    var eventDictionary = null;
+    var eventArray = this.flattenEvents(OO.Analytics.EVENTS);
+    if (eventArray && eventArray instanceof Array)
+    {
+      eventDictionary = {};
+      for (var i = 0; i < eventArray.length; i++)
+      {
+        var eventName = eventArray[i];
+        eventDictionary[eventName] = true;
+      }
+    }
+    return eventDictionary;
+  };
+
+  _eventExistenceLookup = this.createEventDictionary();
 
   /**
    * Publish an event to all registered and active plugins.

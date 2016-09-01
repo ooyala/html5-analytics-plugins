@@ -39,7 +39,8 @@ if (!OO.Analytics.STREAM_TYPE)
 
 /**
  * @public
- * @description These are the Ooyala Player error codes
+ * @description [DEPRECATED]
+ * These are the Ooyala Player error codes
  * @namespace OO.Analytics.ERROR_CODE
  */
 if (!OO.Analytics.ERROR_CODE)
@@ -271,7 +272,9 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_ERROR
-     * @description This message is sent when a video error occurs.
+     * @description [DEPRECATED]
+     * (NOTE: replaced by OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK)
+     * This message is sent when a video error occurs.
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.VideoErrorData
      */
@@ -381,7 +384,33 @@ if (!OO.Analytics.EVENTS)
      * @event OO.Analytics.EVENTS#DESTROY
      * @description This message is sent when the player and its plugins are destroying.
      */
-    DESTROY:                        'destroy'
+    DESTROY:                        'destroy',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS.ERROR
+     * @description This property contains different the categories of Ooyala Player Errors.
+     */
+    ERROR:
+    {
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
+       * @description This message is sent when a video playback error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.VideoPlaybackErrorData
+       */
+      VIDEO_PLAYBACK:               'video_playback_error',
+
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#AUTHORIZATION
+       * @description This message is sent when a stream authorization server (SAS) error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.AuthorizationErrorData
+       */
+      AUTHORIZATION:                'authorization_error'
+    }
   };
   OO.Analytics.EVENTS = EVENTS;
 }
@@ -504,7 +533,11 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#VideoBitrateProfileLookupData
    * @classdesc Contains a lookup table for all the possible bitrates available. The
    * keys are the profile ids for each profile.
-   * @property {object} profiles An lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
+   * @property {object} profiles A lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
+   *
+   * @constructor
+   * @param {object} bitrateProfileArray An array of objects containing profile data
+   * (bitrate, width, height, and id)
    */
   EVENT_DATA.VideoBitrateProfileLookupData = function(bitrateProfileArray)
   {
@@ -540,12 +573,12 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#VideoTargetBitrateData
    * @classdesc Contains information what bitrate profile is being requested.
-   * @property {string} bitrateProfileId The id of the bitrate profile being requested.
+   * @property {string} targetProfile The id of the bitrate profile being requested.
    */
-  EVENT_DATA.VideoTargetBitrateData = function(bitrateProfileId)
+  EVENT_DATA.VideoTargetBitrateData = function(targetProfile)
   {
     var checkTargetBitrate = OO._.bind(checkDataType, this, "VideoTargetBitrateData");
-    this.targetProfile = checkTargetBitrate(bitrateProfileId, "bitrateProfileId", ["string"]);
+    this.targetProfile = checkTargetBitrate(targetProfile, "targetProfile", ["string"]);
   }
 
   /**
@@ -593,14 +626,48 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoErrorData
-   * @classdesc Contains information about the error code and message of the video error.
+   * @classdesc [DEPRECATED]
+   * (NOTE: replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
+   * Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   *
+   * @constructor
+   * @param {string} errorCode The error code
    */
   EVENT_DATA.VideoErrorData = function(errorCode)
   {
     var checkVideoErrorData = OO._.bind(checkDataType, this, "VideoErrorData");
     this.errorCode = checkVideoErrorData(errorCode, "errorCode", ["string"]);
     this.errorMessage = translateErrorCode(errorCode);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @classdesc Contains information about the error code and message of the video error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.VideoPlaybackErrorData = function(errorCode, errorMessage)
+  {
+    var checkVideoPlaybackErrorData = OO._.bind(checkDataType, this, "VideoPlaybackErrorData");
+    this.errorCode = checkVideoPlaybackErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkVideoPlaybackErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AuthorizationErrorData
+   * @classdesc Contains information about the error code and message of the authorization error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.AuthorizationErrorData = function(errorCode, errorMessage)
+  {
+    var checkAuthorizationErrorData = OO._.bind(checkDataType, this, "AuthorizationErrorData");
+    this.errorCode = checkAuthorizationErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkAuthorizationErrorData(errorMessage, "errorMessage", ["string"]);
   };
 
   /**

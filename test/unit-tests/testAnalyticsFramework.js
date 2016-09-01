@@ -533,17 +533,18 @@ describe('Analytics Framework Unit Tests', function()
 
       var numMsgSent = 0;
       var msgName;
-      var events = OO.Analytics.EVENTS;
-      for(msgName in events)
+      var events = framework.flattenEvents(OO.Analytics.EVENTS); 
+      for(var i = 0; i < events.length; i++)
       {
-        expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
+        msgName = events[i];
+        expect(framework.publishEvent(msgName)).toBe(true);
         numMsgSent++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(numMsgSent);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
+        expect(lastMsg.eventName).toEqual(msgName);
       }
     }
 
@@ -569,18 +570,103 @@ describe('Analytics Framework Unit Tests', function()
     var badParamsHelper = function(framework, params, msgSentObj)
     {
       var msgName;
-      for(msgName in OO.Analytics.EVENTS)
+      var events = framework.flattenEvents(OO.Analytics.EVENTS); 
+      for(var i = 0; i < events.length; i++)
       {
-        expect(framework.publishEvent(OO.Analytics.EVENTS[msgName])).toBe(true);
+        msgName = events[i];
+        expect(framework.publishEvent(msgName)).toBe(true);
         msgSentObj.count++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         var length = recordedEvents.length;
         expect(length).toEqual(msgSentObj.count);
         var lastMsg = recordedEvents[length-1];
-        expect(lastMsg.eventName).toEqual(OO.Analytics.EVENTS[msgName]);
+        expect(lastMsg.eventName).toEqual(msgName);
       }
     };
+
+    describe('Test Framework Initialization', function()
+    {
+
+      it('Test Flatten Events Function', function()
+      {
+        var object = {};
+        expect(framework.flattenEvents(object).length).toBe(0);
+
+        object = {
+          a: 'a_val',
+          b: 'b_val',
+          c: 'c_val'
+        };
+
+        // Should return the correct number of values
+        var flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(3);
+
+        // Should return the correct values
+        var expectedVals = ['a_val', 'b_val', 'c_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
+
+        object = {
+          a: {
+            aa1: 'aa1_val',
+            aa2: 'aa2_val',
+            aa3: 'aa3_val'
+          },
+          b: {
+            bb:'bb_val' 
+          }
+        };
+        flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(4);
+        expectedVals = ['aa1_val', 'aa2_val', 'aa3_val', 'bb_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
+
+        object = {
+          a: {
+            aa1: 'aa1_val',
+            aa2: 'aa2_val',
+          },
+          b: {},
+          c: 'c_val',
+          d: 'd_val',
+          e: 'e_val'
+        };
+        flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(5);
+        expectedVals = ['aa1_val', 'aa2_val', 'c_val', 'd_val', 'e_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
+
+        object = {
+          a: {
+            aa1: 'aa1_val',
+            aa2: {
+              aaa1: 'aaa1_val'
+            },
+          },
+          b: {
+            b1: {
+              bb1: {
+                bbb1: 'bbb1_val'
+              }
+            }
+          }
+        };
+        flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(3);
+        expectedVals = ['aa1_val', 'aaa1_val', 'bbb1_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
+      });
+
+    });
 
     describe('Test Recording With No Plugins Registered', function()
     {
@@ -1683,6 +1769,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
+    // [DEPRECATED]
     it('Test VideoErrorData', function()
     {
       var metadataIn =
@@ -1758,5 +1845,96 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
+
+    it('Test VideoPlaybackErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
+      
+      var metadataOut =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        errorCode: 123,
+        errorMessage: 456
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: "",
+        errorMessage: false
+      };
+
+      metadataOut =
+      {
+        errorCode: "",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+    });
+
+    it('Test AuthorizationErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        errorCode: 123,
+        errorMessage: 456
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: "",
+        errorMessage: false
+      };
+
+      metadataOut =
+      {
+        errorCode: "",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+    });
+
   });
 });
