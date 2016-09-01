@@ -534,6 +534,10 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains a lookup table for all the possible bitrates available. The
    * keys are the profile ids for each profile.
    * @property {object} profiles A lookup table containing instances of VideoBitrateProfileData. The key is the 'id' of each VideoBitrateProfileData.
+   *
+   * @constructor
+   * @param {object} bitrateProfileArray An array of objects containing profile data
+   * (bitrate, width, height, and id)
    */
   EVENT_DATA.VideoBitrateProfileLookupData = function(bitrateProfileArray)
   {
@@ -569,12 +573,12 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#VideoTargetBitrateData
    * @classdesc Contains information what bitrate profile is being requested.
-   * @property {string} bitrateProfileId The id of the bitrate profile being requested.
+   * @property {string} targetProfile The id of the bitrate profile being requested.
    */
-  EVENT_DATA.VideoTargetBitrateData = function(bitrateProfileId)
+  EVENT_DATA.VideoTargetBitrateData = function(targetProfile)
   {
     var checkTargetBitrate = OO._.bind(checkDataType, this, "VideoTargetBitrateData");
-    this.targetProfile = checkTargetBitrate(bitrateProfileId, "bitrateProfileId", ["string"]);
+    this.targetProfile = checkTargetBitrate(targetProfile, "targetProfile", ["string"]);
   }
 
   /**
@@ -627,6 +631,9 @@ if (!OO.Analytics.EVENT_DATA)
    * Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
+   *
+   * @constructor
+   * @param {string} errorCode The error code
    */
   EVENT_DATA.VideoErrorData = function(errorCode)
   {
