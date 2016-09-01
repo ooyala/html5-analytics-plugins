@@ -587,60 +587,85 @@ describe('Analytics Framework Unit Tests', function()
 
     describe('Test Framework Initialization', function()
     {
+
       it('Test Flatten Events Function', function()
       {
-        // Should return the correct number of values
         var object = {};
         expect(framework.flattenEvents(object).length).toBe(0);
 
         object = {
-          a: true,
-          b: true,
-          c: true
+          a: 'a_val',
+          b: 'b_val',
+          c: 'c_val'
         };
-        expect(framework.flattenEvents(object).length).toBe(3);
+
+        // Should return the correct number of values
+        var flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(3);
+
+        // Should return the correct values
+        var expectedVals = ['a_val', 'b_val', 'c_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
 
         object = {
           a: {
-            aa1: true,
-            aa2: true,
-            aa3: true
+            aa1: 'aa1_val',
+            aa2: 'aa2_val',
+            aa3: 'aa3_val'
           },
           b: {
-            bb: true
+            bb:'bb_val' 
           }
         };
-        expect(framework.flattenEvents(object).length).toBe(4);
+        flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(4);
+        expectedVals = ['aa1_val', 'aa2_val', 'aa3_val', 'bb_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
 
         object = {
           a: {
-            aa1: true,
-            aa2: true,
+            aa1: 'aa1_val',
+            aa2: 'aa2_val',
           },
           b: {},
-          c: true,
-          d: true,
-          e: true
+          c: 'c_val',
+          d: 'd_val',
+          e: 'e_val'
         };
-        expect(framework.flattenEvents(object).length).toBe(5);
+        flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(5);
+        expectedVals = ['aa1_val', 'aa2_val', 'c_val', 'd_val', 'e_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
 
         object = {
           a: {
-            aa1: true,
+            aa1: 'aa1_val',
             aa2: {
-              aaa1: true
+              aaa1: 'aaa1_val'
             },
           },
           b: {
             b1: {
               bb1: {
-                bbb1: true
+                bbb1: 'bbb1_val'
               }
             }
           }
         };
-        expect(framework.flattenEvents(object).length).toBe(3);
+        flattenResult = framework.flattenEvents(object);
+        expect(flattenResult.length).toBe(3);
+        expectedVals = ['aa1_val', 'aaa1_val', 'bbb1_val'];
+        _.each(expectedVals, function(expectedVal) {
+          expect(_.contains(flattenResult, expectedVal)).toBe(true);
+        });
       });
+
     });
 
     describe('Test Recording With No Plugins Registered', function()
