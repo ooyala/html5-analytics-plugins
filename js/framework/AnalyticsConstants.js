@@ -599,26 +599,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoErrorData
-   * @classdesc [DEPRECATED]
-   * (NOTE: replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
-   * Contains information about the error code and message of the video error.
-   * @property {string} errorCode The error code
-   * @property {string} errorMessage The error message
-   *
-   * @constructor
-   * @param {string} errorCode The error code
-   */
-  EVENT_DATA.VideoErrorData = function(errorCode)
-  {
-    var checkVideoErrorData = OO._.bind(checkDataType, this, "VideoErrorData");
-    this.errorCode = checkVideoErrorData(errorCode, "errorCode", ["string"]);
-    this.errorMessage = translateErrorCode(errorCode);
-  };
-
-  /**
-   * @public
-   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @class Analytics.EVENT_DATA#VideoPlaybackErrorData
    * @classdesc Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
