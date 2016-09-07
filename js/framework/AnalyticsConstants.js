@@ -599,26 +599,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoErrorData
-   * @classdesc [DEPRECATED]
-   * (NOTE: replaced by Analytics.EVENT_DATA.VideoPlaybackErrorData)
-   * Contains information about the error code and message of the video error.
-   * @property {string} errorCode The error code
-   * @property {string} errorMessage The error message
-   *
-   * @constructor
-   * @param {string} errorCode The error code
-   */
-  EVENT_DATA.VideoErrorData = function(errorCode)
-  {
-    var checkVideoErrorData = OO._.bind(checkDataType, this, "VideoErrorData");
-    this.errorCode = checkVideoErrorData(errorCode, "errorCode", ["string"]);
-    this.errorMessage = translateErrorCode(errorCode);
-  };
-
-  /**
-   * @public
-   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @class Analytics.EVENT_DATA#VideoPlaybackErrorData
    * @classdesc Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
@@ -880,27 +861,6 @@ if (!OO.Analytics.EVENT_DATA)
         break;
     }
     return adMetadataOut;
-  };
-
-  /**
-   * @private
-   * @class Analytics#translateErrorCode
-   * @classdesc Translates the error code provided into the corresponding error message.
-   * @property {number} code The error code
-   * @returns {string} The error string associated with the error code number.
-   */
-  var translateErrorCode = function(code)
-  {
-    var errorMessage;
-    if (_.has(ERROR_CODE, code))
-    {
-      errorMessage = ERROR_CODE[code];
-    }
-    else
-    {
-      logErrorString("Error code not recognized. Error code provided was: " + code);
-    }
-    return errorMessage;
   };
 
   /**
