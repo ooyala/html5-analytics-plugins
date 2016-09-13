@@ -362,6 +362,14 @@ if (!OO.Analytics.Utils)
         id: bitrateProfile.id
       }]);
     };
+
+    this.simulateVideoElementCreated = function(streamUrl)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_ELEMENT_CREATED, [{
+        streamUrl: streamUrl
+      }]);
+    };
   };
 
   Utils.createPlaybackSimulator = function(plugin)
