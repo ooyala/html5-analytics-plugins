@@ -14,6 +14,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var id;
 
   var currentConvivaSessionKey = null;
+  var streamUrl = null;
   var streamType = null;
   var embedCode = null;
   var videoContentMetadata = null;
@@ -201,7 +202,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var tryBuildConvivaContentMetadata = function()
   {
     var success = false;
-    if (videoContentMetadata && embedCode && convivaClient && streamType && !validSession())
+    if (videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession())
     {
       playerStateManager = convivaClient.getPlayerStateManager();
       var contentMetadata = new Conviva.ContentMetadata();
@@ -211,7 +212,7 @@ var ConvivaAnalyticsPlugin = function(framework)
 
       // The stream url for this video content.
       // For manifest-based streaming protocols, it should point to the top-level manifest.
-      // contentMetadata.streamUrl = videoData.url;
+      contentMetadata.streamUrl = streamUrl;
 
       // The type of stream for this content. Usually either live or VOD.
       // Sometimes the application may not know right away, in which case you have the option to set it to Unknown
@@ -246,7 +247,11 @@ var ConvivaAnalyticsPlugin = function(framework)
       // A human-readable identifier for your application.
       // Very helpful to filter traffic and compare performance for different builds of
       // the video application.
-      // contentMetadata.applicationName = "JS SDK Sample Application 1.2.3";
+      var appName = convivaMetadata["applicationName"];
+      if (_.isString(appName))
+      {
+        contentMetadata.applicationName = appName;
+      }
 
       // An identifier for the current user. Can be obfuscated to ensure privacy.
       // Can be used to isolate video traffic for a particular and help with
@@ -376,6 +381,13 @@ var ConvivaAnalyticsPlugin = function(framework)
     OO.log( "Conviva: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
+      case OO.Analytics.EVENTS.VIDEO_ELEMENT_CREATED:
+        if (params && params[0] && params[0].streamUrl)
+        {
+          streamUrl = params[0].streamUrl;
+          tryBuildConvivaContentMetadata();
+        }
+        break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
         contentComplete = true;
         break;
@@ -500,6 +512,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    */
   var resetContentState = function()
   {
+    streamUrl = null;
     videoContentMetadata = null;
     embedCode = null;
   };
