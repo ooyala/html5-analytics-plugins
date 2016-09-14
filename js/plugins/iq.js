@@ -1,4 +1,5 @@
 require("../framework/InitAnalyticsNamespace.js");
+require("../../html5-common/js/utils/utils.js");
 
 /**
  * @class AnalyticsPluginTemplate
@@ -8,7 +9,7 @@ require("../framework/InitAnalyticsNamespace.js");
 var AnalyticsPluginTemplate = function (framework)
 {
   var _framework = framework;
-  var name = "iq_analytics";
+  var name = "iq";
   var version = "v1";
   var id;
 
