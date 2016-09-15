@@ -204,13 +204,20 @@ if (!OO.Analytics.Utils)
       //TODO: Validate metadata
       if (metadata)
       {
-        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED);
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED, [{
+          pcode: metadata.pcode,
+          playerBrandingId: metadata.playerBrandingId
+        }]);
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
-          embedCode: metadata.embedCode
+          embedCode: metadata.embedCode,
+          metadata: {
+            autoPlay: metadata.autoPlay
+          }
         }]);
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
           title: metadata.title,
-          duration: metadata.duration
+          duration: metadata.duration,
+          contentType: metadata.contentType
         }]);
         var streamType = metadata.streamType ? metadata.streamType : OO.Analytics.STREAM_TYPE.VOD;
         plugin.processEvent(OO.Analytics.EVENTS.STREAM_TYPE_UPDATED, [{

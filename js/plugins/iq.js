@@ -15,13 +15,15 @@ var AnalyticsPluginTemplate = function (framework)
 
   var SDK_LOAD_TIMEOUT = 3000;
 
-  var ooyalaReporter;
-  var pCode;
+  var pcode;
   var playerId;
   var currentEmbedCode;
   var mediaId;
   var contentType;
   var currentPlayheadPosition;
+  
+  this.ooyalaReporter;
+  this.testMode = false;
 
   /**
    * [Required Function] Return the name of the plugin.
@@ -83,7 +85,11 @@ var AnalyticsPluginTemplate = function (framework)
     }
     //use recorded events.
 
-    if (!window.Ooyala)
+    if (this.testMode)
+    {
+      trySetupAnalytics();
+    }
+    else if (!window.Ooyala)
     {
       OO.loadScriptOnce("https://analytics.ooyala.com/static/v3/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
@@ -127,17 +133,17 @@ var AnalyticsPluginTemplate = function (framework)
           mediaId = params[0].title;
           contentType = params[0].contentType;
           duration = params[0].duration;
-          if (ooyalaReporter)
+          if (this.ooyalaReporter)
           {
-            ooyalaReporter.initializeMedia(mediaId, contentType);
+            this.ooyalaReporter.initializeMedia(mediaId, contentType);
             OO.log("IQ: Reported: initializeMedia() with args: " + mediaId + ", " + contentType);
-            ooyalaReporter.setMediaDuration(duration);
+            this.ooyalaReporter.setMediaDuration(duration);
             OO.log("IQ: Reported: setMediaDuration() with args: " + duration);
           }
           else
           {
             OO.log("Tried reporting event: " + OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED +
-                   " but ooyalaReporter is: " + ooyalaReporter);
+                   " but ooyalaReporter is: " + this.ooyalaReporter);
           }
         }
         break;
@@ -153,58 +159,55 @@ var AnalyticsPluginTemplate = function (framework)
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         if (params && params[0])
         {
-          pCode = params[0].pcode;
-          OO.log(pCode);
+          pcode = params[0].pcode;
           playerId = params[0].playerBrandingId;
-          if (ooyalaReporter)
+          if (this.ooyalaReporter)
           {
-            //ooyalaReporter._base.pcode = pCode;
-            ooyalaReporter._base.pcode = "NpdGUyOiGhe-7laHC2JnUG3Mg-No";
-            ooyalaReporter.reportPlayerLoad();
+            this.ooyalaReporter._base.pcode = pcode;
+            this.ooyalaReporter.reportPlayerLoad();
             OO.log("IQ: Reported: reportPlayerLoad()");
           }
           else
           {
             OO.log("IQ: Tried reporting event: " + OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED +
-                   " but ooyalaReporter is: " + ooyalaReporter);
+                   " but ooyalaReporter is: " + this.ooyalaReporter);
           }
         }
         break;
 
       case OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED:
         OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
-        ooyalaReporter.reportPlayRequested(autoPlay);
+        this.ooyalaReporter.reportPlayRequested(autoPlay);
         break;
 
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0])
         {
-          console.log(params[0]);
           currentPlayheadPosition = params[0].streamPosition;
           if (currentPlayheadPosition > 0)
           {
-            if (ooyalaReporter)
+            if (this.ooyalaReporter)
             {
-              ooyalaReporter.reportPlayHeadUpdate(Math.floor(currentPlayheadPosition * 1000));
+              this.ooyalaReporter.reportPlayHeadUpdate(Math.floor(currentPlayheadPosition * 1000));
               OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
             }
             else
             {
               OO.log("IQ: Tried reporting event: " + OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED +
-                     " but ooyalaReporter is: " + ooyalaReporter);
+                     " but ooyalaReporter is: " + this.ooyalaReporter);
             }
           }
         }
         break;
 
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        ooyalaReporter.reportPause();
+        this.ooyalaReporter.reportPause();
         OO.log("IQ: Reported: reportPause()");
         break;
 
       // TODO: use for resume?
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
-        ooyalaReporter.reportResume();
+        this.ooyalaReporter.reportResume();
         OO.log("IQ: Reported: reportResume()");
         break;
 
@@ -212,18 +215,18 @@ var AnalyticsPluginTemplate = function (framework)
         if (params && params[0])
         {
           var seekedPlayheadPosition = params[0].timeSeekedTo;
-          ooyalaReporter.reportSeek(currentPlayheadPosition, seekedPlayheadPosition);
+          this.ooyalaReporter.reportSeek(currentPlayheadPosition, seekedPlayheadPosition);
           OO.log("IQ: Reported: reportSeek() with args: " + currentPlayheadPosition + ", " + seekedPlayheadPosition);
         }
         break;
 
       case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
-        ooyalaReporter.reportComplete();
+        this.ooyalaReporter.reportComplete();
         OO.log("IQ: Reported: reportComplete()");
         break;
 
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        ooyalaReporter.reportReplay();
+        this.ooyalaReporter.reportReplay();
         OO.log("IQ: Reported: reportReplay()");
         break;
 
@@ -240,7 +243,7 @@ var AnalyticsPluginTemplate = function (framework)
   this.destroy = function ()
   {
     _framework = null;
-  }
+  };
 
   /**
    * Called when the SDK fails to load.
@@ -249,7 +252,6 @@ var AnalyticsPluginTemplate = function (framework)
    */
   var sdkLoadError = function()
   {
-    console.log("bad banana");
     //Destroy and unregister
     if (_.isString(id))
     {
@@ -260,27 +262,33 @@ var AnalyticsPluginTemplate = function (framework)
 
   var trySetupAnalytics = OO._.bind(function()
   {
-    console.log("banana");
-    ooyalaReporter = new Ooyala.Analytics.Reporter();
-
-    var missedEvents;
-    //if you need to process missed events, here is an example
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    if (window.Ooyala)
     {
-      missedEvents = _framework.getRecordedEvents();
-      for (var i = 0; i < missedEvents.length; i++)
-      {
-        recordedEvent = missedEvents[i];
-        this.processEvent(recordedEvent.eventName, recordedEvent.params);
-      }
-    }
+      this.ooyalaReporter = new Ooyala.Analytics.Reporter();
 
-    // TODO: setup
-    var deviceInfo = {};
-    var playerName = "Ooyala Player";
-    var playerVersion = "v4"; // TODO: need a mechanism in core to get this
-    ooyalaReporter.setDeviceInfo();
-    ooyalaReporter.setPlayerInfo(playerId, playerName, playerVersion);
+      var missedEvents;
+      //if you need to process missed events, here is an example
+      if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+      {
+        missedEvents = _framework.getRecordedEvents();
+        for (var i = 0; i < missedEvents.length; i++)
+        {
+          recordedEvent = missedEvents[i];
+          this.processEvent(recordedEvent.eventName, recordedEvent.params);
+        }
+      }
+
+      // TODO: setup
+      var deviceInfo = {};
+      var playerName = "Ooyala Player";
+      var playerVersion = "v4"; // TODO: need a mechanism in core to get this
+      this.ooyalaReporter.setDeviceInfo();
+      this.ooyalaReporter.setPlayerInfo(playerId, playerName, playerVersion);
+    }
+    else
+    {
+      OO.log("IQ Plugin: Analytics SDK not loaded");
+    }
   }, this);
 };
 

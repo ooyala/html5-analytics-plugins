@@ -30,6 +30,16 @@ describe('Analytics Framework Template Unit Tests', function()
     //    OO.log = console.log;
   };
 
+  var createPlugin = function(framework)
+  {
+    var iqPluginFactory = require(SRC_ROOT + "plugins/iq.js");
+    var plugin = new iqPluginFactory(framework);
+    plugin.testMode = true;
+    plugin.init();
+    //plugin.setMetadata({});
+    return plugin;
+  };
+
   beforeEach(testSetup);
   afterEach(testCleanup);
 
@@ -205,4 +215,85 @@ describe('Analytics Framework Template Unit Tests', function()
 
     expect(errorOccured).toBe(false);
   });
+
+  it('IQ Plugin can initialize and set device and player info', function()
+  {
+    var setDeviceInfoCalled = 0;
+    var setPlayerInfoCalled = 0;
+    window.Ooyala = {
+      Analytics : {
+        Reporter: function() {
+          return {
+            setDeviceInfo: function() {
+              setDeviceInfoCalled++;
+            },
+            setPlayerInfo: function() {
+              setPlayerInfoCalled++;
+            }
+          };
+        }
+      }
+    };
+    var plugin = createPlugin(framework);
+    expect(setDeviceInfoCalled).toBe(1);
+    expect(setPlayerInfoCalled).toBe(1);
+  });
+
+  it('', function()
+  {
+    var mediaId = null;
+    var contentType = null;
+    var duration = null;
+    var autoPlay = null;
+    var initializeMediaCalled = 0;
+    var setMediaDurationCalled = 0;
+    var reportPlayerLoadCalled = 0;
+
+    window.Ooyala = {
+      Analytics : {
+        Reporter: function() {
+          return {
+            _base: {},
+            setDeviceInfo: function() {
+            },
+            setPlayerInfo: function() {
+            },
+            reportPlayerLoad: function() {
+              reportPlayerLoadCalled++;
+            },
+            initializeMedia: function(mediaIdIn, contentTypeIn) {
+              initializeMediaCalled++;
+              mediaId = mediaIdIn;
+              contentType = contentTypeIn;
+            },
+            setMediaDuration: function(durationIn) {
+              setMediaDurationCalled++;
+              duration = durationIn;
+            }
+          };
+        }
+      }
+    };
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000,
+      contentType: "Video",
+      pcode: "testPcode",
+      playerBrandingId: "testPlayerBrandingId",
+      metadata: {
+        autoPlay: false
+      }
+    });
+    expect(reportPlayerLoadCalled).toBe(1);
+    expect(initializeMediaCalled).toBe(1);
+    expect(setMediaDurationCalled).toBe(1);
+    expect(mediaId).toBe("testTitle");
+    expect(contentType).toBe("Video");
+    expect(duration).toBe(60000);
+    expect(plugin.ooyalaReporter._base.pcode).toBe("testPcode");
+  });
+
 });
