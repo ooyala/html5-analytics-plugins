@@ -793,7 +793,11 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentContentMetadata.duration).toBe(60);
 
     //custom metadata
-    expect(_.isEqual(Conviva.currentContentMetadata.custom, customMetadata)).toBe(true);
+    expect(Conviva.currentContentMetadata.custom['testKey']).toBe('testValue');
+    expect(Conviva.currentContentMetadata.custom['testAccount']).toBe('testAccountName');
+    //custom metadata should still include player vendor and version
+    expect(_.has(Conviva.currentContentMetadata.custom, 'playerVendor')).toBe(true);
+    expect(_.has(Conviva.currentContentMetadata.custom, 'playerVersion')).toBe(true);
   });
 
   it('Conviva Plugin will ignore null custom metadata', function()
@@ -818,8 +822,9 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.VOD);
     expect(Conviva.currentContentMetadata.duration).toBe(60);
 
-    //custom metadata
-    expect(Conviva.currentContentMetadata.custom).toBe(undefined);
+    //custom metadata should still include player vendor and version
+    expect(_.has(Conviva.currentContentMetadata.custom, 'playerVendor')).toBe(true);
+    expect(_.has(Conviva.currentContentMetadata.custom, 'playerVersion')).toBe(true);
   });
 
   it('Conviva Plugin can send application name', function()
