@@ -2,11 +2,11 @@ require("../framework/InitAnalyticsNamespace.js");
 require("../../html5-common/js/utils/utils.js");
 
 /**
- * @class AnalyticsPluginTemplate
+ * @class IqPlugin
  * @classdesc This is an example class of a plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
-var AnalyticsPluginTemplate = function (framework)
+var IqPlugin= function (framework)
 {
   var _framework = framework;
   var name = "iq";
@@ -15,20 +15,21 @@ var AnalyticsPluginTemplate = function (framework)
 
   var SDK_LOAD_TIMEOUT = 3000;
 
-  var pcode;
-  var playerId;
-  var currentEmbedCode;
-  var mediaId;
-  var contentType;
-  var currentPlayheadPosition;
+  var autoPlay = null;
+  var pcode = null;
+  var playerId = null;
+  var currentEmbedCode = null;
+  var mediaId = null;
+  var contentType = null;
+  var currentPlayheadPosition = null;
   
-  this.ooyalaReporter;
+  this.ooyalaReporter = null;
   this.testMode = false;
 
   /**
    * [Required Function] Return the name of the plugin.
    * @public
-   * @method AnalyticsPluginTemplate#getName
+   * @method IqPlugin#getName
    * @return {string} The name of the plugin.
    */
   this.getName = function ()
@@ -39,7 +40,7 @@ var AnalyticsPluginTemplate = function (framework)
   /**
    * [Required Function] Return the version string of the plugin.
    * @public
-   * @method AnalyticsPluginTemplate#getVersion
+   * @method IqPlugin#getVersion
    * @return {string} The version of the plugin.
    */
   this.getVersion = function ()
@@ -48,10 +49,21 @@ var AnalyticsPluginTemplate = function (framework)
   };
 
   /**
+   * Return the autoPlay value.
+   * @public
+   * @method IqPlugin@getAutoPlay
+   * @return {boolean} The value of autoPlay.
+   */
+  this.getAutoPlay = function()
+  {
+    return autoPlay;
+  };
+
+  /**
    * [Required Function] Set the plugin id given by the Analytics Framework when
    * this plugin is registered.
    * @public
-   * @method AnalyticsPluginTemplate#setPluginID
+   * @method IqPlugin#setPluginID
    * @param  {string} newID The plugin id
    */
   this.setPluginID = function(newID)
@@ -62,7 +74,7 @@ var AnalyticsPluginTemplate = function (framework)
   /**
    * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
    * @public
-   * @method AnalyticsPluginTemplate#setPluginID
+   * @method IqPlugin#setPluginID
    * @return  {string} The pluginID assigned to this instance from the Analytics Framework.
    */
   this.getPluginID = function()
@@ -73,7 +85,7 @@ var AnalyticsPluginTemplate = function (framework)
   /**
    * [Required Function] Initialize the plugin with the given metadata.
    * @public
-   * @method AnalyticsPluginTemplate#init
+   * @method IqPlugin#init
    */
   this.init = function()
   {
@@ -98,7 +110,7 @@ var AnalyticsPluginTemplate = function (framework)
   /**
    * [Required Function] Set the metadata for this plugin.
    * @public
-   * @method AnalyticsPluginTemplate#setMetadata
+   * @method IqPlugin#setMetadata
    * @param  {object} metadata The metadata for this plugin
    */
   this.setMetadata = function(metadata)
@@ -109,7 +121,7 @@ var AnalyticsPluginTemplate = function (framework)
   /**
    * [Required Function] Process an event from the Analytics Framework, with the given parameters.
    * @public
-   * @method AnalyticsPluginTemplate#processEvent
+   * @method IqPlugin#processEvent
    * @param  {string} eventName Name of the event
    * @param  {Array} params     Array of parameters sent with the event
    */
@@ -175,7 +187,7 @@ var AnalyticsPluginTemplate = function (framework)
         }
         break;
 
-      case OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED:
+      case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
         OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
         this.ooyalaReporter.reportPlayRequested(autoPlay);
         break;
@@ -188,7 +200,8 @@ var AnalyticsPluginTemplate = function (framework)
           {
             if (this.ooyalaReporter)
             {
-              this.ooyalaReporter.reportPlayHeadUpdate(Math.floor(currentPlayheadPosition * 1000));
+              var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
+              this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
               OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
             }
             else
@@ -215,12 +228,14 @@ var AnalyticsPluginTemplate = function (framework)
         if (params && params[0])
         {
           var seekedPlayheadPosition = params[0].timeSeekedTo;
-          this.ooyalaReporter.reportSeek(currentPlayheadPosition, seekedPlayheadPosition);
-          OO.log("IQ: Reported: reportSeek() with args: " + currentPlayheadPosition + ", " + seekedPlayheadPosition);
+          var seekedPlayheadPositionMilli = seekedPlayheadPosition * 1000;
+          var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
+          this.ooyalaReporter.reportSeek(currentPlayheadPositionMilli, seekedPlayheadPositionMilli);
+          OO.log("IQ: Reported: reportSeek() with args: " + currentPlayheadPositionMilli + ", " + seekedPlayheadPositionMilli);
         }
         break;
 
-      case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
+      case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         this.ooyalaReporter.reportComplete();
         OO.log("IQ: Reported: reportComplete()");
         break;
@@ -238,7 +253,7 @@ var AnalyticsPluginTemplate = function (framework)
   /**
    * [Required Function] Clean up this plugin so the garbage collector can clear it out.
    * @public
-   * @method AnalyticsPluginTemplate#destroy
+   * @method IqPlugin#destroy
    */
   this.destroy = function ()
   {
@@ -294,6 +309,6 @@ var AnalyticsPluginTemplate = function (framework)
 
 //Add the template to the global list of factories for all new instances of the framework
 //and register the template with all current instance of the framework.
-OO.Analytics.RegisterPluginFactory(AnalyticsPluginTemplate);
+OO.Analytics.RegisterPluginFactory(IqPlugin);
 
-module.exports = AnalyticsPluginTemplate;
+module.exports = IqPlugin;

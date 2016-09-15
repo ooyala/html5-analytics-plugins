@@ -204,6 +204,13 @@ if (!OO.Analytics.Utils)
       //TODO: Validate metadata
       if (metadata)
       {
+        var innerMetadata = metadata.metadata;
+        var autoPlay = null;
+        if (innerMetadata)
+        {
+          autoPlay = innerMetadata.autoPlay;
+        }
+
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED, [{
           pcode: metadata.pcode,
           playerBrandingId: metadata.playerBrandingId
@@ -211,7 +218,7 @@ if (!OO.Analytics.Utils)
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
           embedCode: metadata.embedCode,
           metadata: {
-            autoPlay: metadata.autoPlay
+            autoPlay: autoPlay
           }
         }]);
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED, [{
@@ -289,11 +296,18 @@ if (!OO.Analytics.Utils)
       }
     };
 
-    this.simulateVideoSeek = function()
+    this.simulateVideoSeek = function(metadata)
     {
       preSimulate();
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED);
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED);
+      var params = null;
+      if (metadata)
+      {
+        params = [{
+          timeSeekedTo: metadata.timeSeekedTo
+        }];
+      }
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED, params);
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED, params);
     };
 
     this.simulateContentComplete = function(metadata)

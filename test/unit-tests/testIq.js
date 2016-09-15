@@ -19,6 +19,74 @@ describe('Analytics Framework Template Unit Tests', function()
     framework = new Analytics.Framework();
     //mute the logging becuase there will be lots of error messages
     OO.log = function(){};
+
+    window.Ooyala = {
+      Analytics : {
+        Reporter: function() {
+          return {
+            _base: {},
+
+            // defined strictly for unit testing states
+            unitTestState: {
+              mediaId: null,
+              contentType: null,
+              setDeviceInfoCalled: 0,
+              setPlayerInfoCalled: 0,
+              seekedPlayheadPosition: null,
+              currentPlayheadPosition: null,
+              initializeMediaCalled: 0,
+              setMediaDurationCalled: 0,
+              reportPlayerLoadCalled: 0,
+              reportPlayRequestedCalled: 0,
+              reportPauseCalled: 0,
+              reportPlayHeadUpdateCalled: 0,
+              reportSeekCalled: 0,
+              reportCompleteCalled: 0,
+              reportReplayCalled: 0,
+            },
+
+            setDeviceInfo: function() {
+              this.unitTestState.setDeviceInfoCalled++;
+            },
+            setPlayerInfo: function() {
+              this.unitTestState.setPlayerInfoCalled++;
+            },
+            initializeMedia: function(mediaId, contentType) {
+              this.unitTestState.initializeMediaCalled++;
+              this.unitTestState.mediaId = mediaId;
+              this.unitTestState.contentType = contentType;
+            },
+            setMediaDuration: function(duration) {
+              this.unitTestState.setMediaDurationCalled++;
+              this.unitTestState.duration = duration;
+            },
+            reportPlayerLoad: function() {
+              this.unitTestState.reportPlayerLoadCalled++;
+            },
+            reportPlayRequested: function() {
+              this.unitTestState.reportPlayRequestedCalled++;
+            },
+            reportPause: function() {
+              this.unitTestState.reportPauseCalled++;
+            },
+            reportPlayHeadUpdate: function(currentPlayheadPosition) {
+              this.unitTestState.currentPlayheadPosition = currentPlayheadPosition;
+              this.unitTestState.reportPlayHeadUpdateCalled++;
+            },
+            reportSeek: function(currentPlayheadPosition, seekedPlayheadPosition) {
+              this.unitTestState.seekedPlayheadPosition = seekedPlayheadPosition;
+              this.unitTestState.reportSeekCalled++;
+            },
+            reportComplete: function() {
+              this.unitTestState.reportCompleteCalled++;
+            },
+            reportReplay: function() {
+              this.unitTestState.reportReplayCalled++;
+            },
+          };
+        }
+      }
+    };
   };
 
   //cleanup for individual tests
@@ -28,6 +96,7 @@ describe('Analytics Framework Template Unit Tests', function()
     OO.Analytics.FrameworkInstanceList = [];
     //return log back to normal
     //    OO.log = console.log;
+    window.Ooyala = null;
   };
 
   var createPlugin = function(framework)
@@ -218,64 +287,18 @@ describe('Analytics Framework Template Unit Tests', function()
 
   it('IQ Plugin can initialize and set device and player info', function()
   {
-    var setDeviceInfoCalled = 0;
-    var setPlayerInfoCalled = 0;
-    window.Ooyala = {
-      Analytics : {
-        Reporter: function() {
-          return {
-            setDeviceInfo: function() {
-              setDeviceInfoCalled++;
-            },
-            setPlayerInfo: function() {
-              setPlayerInfoCalled++;
-            }
-          };
-        }
-      }
-    };
     var plugin = createPlugin(framework);
-    expect(setDeviceInfoCalled).toBe(1);
-    expect(setPlayerInfoCalled).toBe(1);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.setDeviceInfoCalled).toBe(1);
+    expect(unitTestState.setPlayerInfoCalled).toBe(1);
   });
 
-  it('', function()
+  it('IQ Plugin should initialize media metadata and report player loaded', function()
   {
-    var mediaId = null;
-    var contentType = null;
-    var duration = null;
-    var autoPlay = null;
-    var initializeMediaCalled = 0;
-    var setMediaDurationCalled = 0;
-    var reportPlayerLoadCalled = 0;
 
-    window.Ooyala = {
-      Analytics : {
-        Reporter: function() {
-          return {
-            _base: {},
-            setDeviceInfo: function() {
-            },
-            setPlayerInfo: function() {
-            },
-            reportPlayerLoad: function() {
-              reportPlayerLoadCalled++;
-            },
-            initializeMedia: function(mediaIdIn, contentTypeIn) {
-              initializeMediaCalled++;
-              mediaId = mediaIdIn;
-              contentType = contentTypeIn;
-            },
-            setMediaDuration: function(durationIn) {
-              setMediaDurationCalled++;
-              duration = durationIn;
-            }
-          };
-        }
-      }
-    };
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
+
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
@@ -287,13 +310,105 @@ describe('Analytics Framework Template Unit Tests', function()
         autoPlay: false
       }
     });
-    expect(reportPlayerLoadCalled).toBe(1);
-    expect(initializeMediaCalled).toBe(1);
-    expect(setMediaDurationCalled).toBe(1);
-    expect(mediaId).toBe("testTitle");
-    expect(contentType).toBe("Video");
-    expect(duration).toBe(60000);
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportPlayerLoadCalled).toBe(1);
+    expect(unitTestState.initializeMediaCalled).toBe(1);
+    expect(unitTestState.setMediaDurationCalled).toBe(1);
+    expect(unitTestState.mediaId).toBe("testTitle");
+    expect(unitTestState.contentType).toBe("Video");
+    expect(unitTestState.duration).toBe(60000);
     expect(plugin.ooyalaReporter._base.pcode).toBe("testPcode");
+  });
+
+  it ('IQ Plugin should report pause', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateVideoPause();
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportPauseCalled).toBe(1);
+  });
+
+  it ('IQ Plugin should report playback completed', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulatePlaybackComplete();
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCompleteCalled).toBe(1);
+  });
+
+  it ('IQ Plugin should report replay', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateReplay();
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportReplayCalled).toBe(1);
+  });
+
+  it ('IQ Plugin should report playhead updates', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateVideoProgress({
+      playheads: [1, 2, 3, 4, 5, 7.5, 10]
+    });
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportPlayHeadUpdateCalled).toBe(7);
+  });
+
+  it ('IQ Plugin should report seek', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateVideoProgress({
+      playheads: [1]
+    });
+
+    simulator.simulateVideoSeek({
+      timeSeekedTo: 10
+    });
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportPlayHeadUpdateCalled).toBe(1);
+    expect(unitTestState.reportSeekCalled).toBe(1);
+
+    expect(unitTestState.currentPlayheadPosition).toBe(1000);
+    expect(unitTestState.seekedPlayheadPosition).toBe(10000);
+  });
+
+  it ('IQ Plugin should report play requested', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000,
+      contentType: "Video",
+      pcode: "testPcode",
+      playerBrandingId: "testPlayerBrandingId",
+      metadata: {
+        autoPlay: false
+      }
+    });
+    simulator.simulatePlayerStart();
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportPlayRequestedCalled).toBe(1);
+    expect(plugin.getAutoPlay()).toBe(false);
   });
 
 });
