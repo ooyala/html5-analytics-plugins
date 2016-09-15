@@ -13,6 +13,9 @@ var ConvivaAnalyticsPlugin = function(framework)
   var version = "v1";
   var id;
 
+  var OOYALA_PLAYER_VENDOR = "Ooyala";
+  var OOYALA_PLAYER_VERSION = "";
+
   var currentConvivaSessionKey = null;
   var streamUrl = null;
   var streamType = null;
@@ -258,7 +261,11 @@ var ConvivaAnalyticsPlugin = function(framework)
       // video quality assessements/troubleshooting for that particular user.
       // contentMetadata.viewerId = userData.id;
 
-      var customMetadata = convivaMetadata["customMetadata"];
+      var customMetadata = {};
+      customMetadata.playerVendor = OOYALA_PLAYER_VENDOR;
+      customMetadata.playerVersion = OOYALA_PLAYER_VERSION;
+
+      customMetadata = _.extend(customMetadata, convivaMetadata["customMetadata"]);
       if (validateCustomMetadata(customMetadata))
       {
         contentMetadata.custom = customMetadata;
