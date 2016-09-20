@@ -1936,7 +1936,6 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
-    // TODO: Improve name
     it('Test GeneralErrorData', function()
     {
       var metadataIn =
@@ -1979,8 +1978,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
-    // TODO: Improve name
-    it('Test BackendErrorData', function()
+    it('Test MetadataLoadingErrorData', function()
     {
       var metadataIn =
       {
@@ -1988,7 +1986,7 @@ describe('Analytics Framework Unit Tests', function()
         errorMessage: "error message"
       };
 
-      var data = new OO.Analytics.EVENT_DATA.BackendErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      var data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataIn);
 
       metadataIn =
@@ -2003,7 +2001,7 @@ describe('Analytics Framework Unit Tests', function()
         errorMessage: undefined
       };
 
-      data = new OO.Analytics.EVENT_DATA.BackendErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
       metadataIn =
@@ -2018,7 +2016,7 @@ describe('Analytics Framework Unit Tests', function()
         errorMessage: undefined
       };
 
-      data = new OO.Analytics.EVENT_DATA.BackendErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
 

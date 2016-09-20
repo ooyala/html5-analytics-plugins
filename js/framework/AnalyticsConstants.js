@@ -394,24 +394,23 @@ if (!OO.Analytics.EVENTS)
     ERROR:
     {
       /**
-       * TODO: Improve name
        * @public
-       * @event OO.Analytics.EVENTS.ERROR# 
-       * @description This message is sent when a 
+       * @event OO.Analytics.EVENTS.ERROR#GENERAL
+       * @description This message is sent when a general error occurs.
        * @param {Array} paramArray Array of length 1, contains an instance of
-       * OO.Analytics.EVENT_DATA. 
+       * OO.Analytics.EVENT_DATA.GeneralErrorData
        */
       GENERAL:                      'general_error',
 
       /**
-       * TODO: Improve name
        * @public
-       * @event OO.Analytics.EVENTS.ERROR# 
-       * @description This message is sent when a 
+       * @event OO.Analytics.EVENTS.ERROR#METADATA_LOADING
+       * @description This message is sent when a metadata loading error occurs
+       * (invalid metadata, invalid content, or network error).
        * @param {Array} paramArray Array of length 1, contains an instance of
-       * OO.Analytics.EVENT_DATA. 
+       * OO.Analytics.EVENT_DATA.MetadataLoadingError
        */
-      BACKEND:                      'backend_error',
+      METADATA_LOADING:             'metadata_loading_error',
 
       /**
        * @public
@@ -677,18 +676,18 @@ if (!OO.Analytics.EVENT_DATA)
   };
 
   /**
-   * TODO: improve name
    * @public
-   * @class Analytics.EVENT_DATA# 
-   * @classdesc Contains information about the error code and message of a 
+   * @class Analytics.EVENT_DATA#MetadataLoadingError
+   * @classdesc Contains information about the error code and message of a metadata loading
+   * error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
    */
-  EVENT_DATA.BackendErrorData = function(errorCode, errorMessage)
+  EVENT_DATA.MetadataLoadingErrorData = function(errorCode, errorMessage)
   {
-    var checkBackendErrorData = OO._.bind(checkDataType, this, "BackendErrorData");
-    this.errorCode = checkBackendErrorData(errorCode, "errorCode", ["string"]);
-    this.errorMessage = checkBackendErrorData(errorMessage, "errorMessage", ["string"]);
+    var checkMetadataLoadingErrorData = OO._.bind(checkDataType, this, "MetadataLoadingErrorData");
+    this.errorCode = checkMetadataLoadingErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkMetadataLoadingErrorData(errorMessage, "errorMessage", ["string"]);
   };
 
   /**
