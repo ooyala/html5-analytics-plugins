@@ -395,6 +395,25 @@ if (!OO.Analytics.EVENTS)
     {
       /**
        * @public
+       * @event OO.Analytics.EVENTS.ERROR#GENERAL
+       * @description This message is sent when a general error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.GeneralErrorData
+       */
+      GENERAL:                      'general_error',
+
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#METADATA_LOADING
+       * @description This message is sent when a metadata loading error occurs
+       * (invalid metadata, invalid content, or a network error when loading metadata).
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.MetadataLoadingError
+       */
+      METADATA_LOADING:             'metadata_loading_error',
+
+      /**
+       * @public
        * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
        * @description This message is sent when a video playback error occurs.
        * @param {Array} paramArray Array of length 1, contains an instance of
@@ -644,7 +663,36 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @class Analytics.EVENT_DATA#GeneralErrorData
+   * @classdesc Contains information about the error code and message of a general error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.GeneralErrorData = function(errorCode, errorMessage)
+  {
+    var checkGeneralErrorData = OO._.bind(checkDataType, this, "GeneralErrorData");
+    this.errorCode = checkGeneralErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkGeneralErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#MetadataLoadingErrorData
+   * @classdesc Contains information about the error code and message of a metadata loading
+   * error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.MetadataLoadingErrorData = function(errorCode, errorMessage)
+  {
+    var checkMetadataLoadingErrorData = OO._.bind(checkDataType, this, "MetadataLoadingErrorData");
+    this.errorCode = checkMetadataLoadingErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkMetadataLoadingErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoPlaybackErrorData
    * @classdesc Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
