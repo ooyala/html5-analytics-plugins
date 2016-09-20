@@ -394,6 +394,26 @@ if (!OO.Analytics.EVENTS)
     ERROR:
     {
       /**
+       * TODO: Improve name
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR# 
+       * @description This message is sent when a 
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA. 
+       */
+      GENERAL:                      'general_error',
+
+      /**
+       * TODO: Improve name
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR# 
+       * @description This message is sent when a 
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA. 
+       */
+      BACKEND:                      'backend_error',
+
+      /**
        * @public
        * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
        * @description This message is sent when a video playback error occurs.
@@ -644,7 +664,36 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @class Analytics.EVENT_DATA#GeneralErrorData
+   * @classdesc Contains information about the error code and message of a general error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.GeneralErrorData = function(errorCode, errorMessage)
+  {
+    var checkGeneralErrorData = OO._.bind(checkDataType, this, "GeneralErrorData");
+    this.errorCode = checkGeneralErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkGeneralErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * TODO: improve name
+   * @public
+   * @class Analytics.EVENT_DATA# 
+   * @classdesc Contains information about the error code and message of a 
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.BackendErrorData = function(errorCode, errorMessage)
+  {
+    var checkBackendErrorData = OO._.bind(checkDataType, this, "BackendErrorData");
+    this.errorCode = checkBackendErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkBackendErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoPlaybackErrorData
    * @classdesc Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
