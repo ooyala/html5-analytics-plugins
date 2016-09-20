@@ -406,7 +406,7 @@ if (!OO.Analytics.EVENTS)
        * @public
        * @event OO.Analytics.EVENTS.ERROR#METADATA_LOADING
        * @description This message is sent when a metadata loading error occurs
-       * (invalid metadata, invalid content, or network error).
+       * (invalid metadata, invalid content, or a network error when loading metadata).
        * @param {Array} paramArray Array of length 1, contains an instance of
        * OO.Analytics.EVENT_DATA.MetadataLoadingError
        */
