@@ -677,7 +677,7 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#MetadataLoadingError
+   * @class Analytics.EVENT_DATA#MetadataLoadingErrorData
    * @classdesc Contains information about the error code and message of a metadata loading
    * error.
    * @property {string} errorCode The error code
