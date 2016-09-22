@@ -51,6 +51,12 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     return plugin;
   };
 
+  var startPlayer = function(simulator, streamUrl){
+    streamUrl = streamUrl ? streamUrl : "http://testStreamUrl";
+    simulator.simulateVideoElementCreated(streamUrl);
+    simulator.simulatePlayerStart();
+  };
+
   it('Test Conviva Plugin Validity', function() {
     var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
     expect(convivaPluginFactory).not.toBeNull();
@@ -154,7 +160,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: title,
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
     //default to VOD
@@ -174,7 +180,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       duration: 60000,
       streamType: OO.Analytics.STREAM_TYPE.VOD
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
     expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.VOD);
@@ -193,7 +199,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       duration: 60000,
       streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
     expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.LIVE);
@@ -211,7 +217,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: title,
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
     expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.VOD);
@@ -224,7 +230,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: newTitle,
       duration: 30000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + newEmbedCode + "] " + newTitle);
     expect(Conviva.currentContentMetadata.streamType).toBe(Conviva.ContentMetadata.StreamType.VOD);
     expect(Conviva.currentContentMetadata.duration).toBe(30);
@@ -239,7 +245,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
   });
@@ -253,7 +259,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateVideoPause();
@@ -269,7 +275,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
@@ -285,7 +291,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateVideoBufferingStarted();
@@ -303,7 +309,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateVideoPause();
@@ -324,7 +330,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateBitrateChange({
@@ -345,7 +351,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateBitrateChange({
@@ -411,7 +417,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     //preroll
     simulator.simulateAdBreakStarted();
     simulator.simulateAdPlayback({
@@ -470,13 +476,12 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
   {
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
-    var sessionId = Conviva.currentClient.sessionId;
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateAdBreakStarted();
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
@@ -486,6 +491,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
         adPodPosition : 1
       }
     });
+    var sessionId = Conviva.currentClient.sessionId;
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
     expect(Conviva.currentClient.adPlaying).toBe(true);
     expect(Conviva.currentClient.adStartSessionId).toBe(sessionId);
@@ -510,13 +516,12 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
   {
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
-    var sessionId = Conviva.currentClient.sessionId;
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     expect(Conviva.currentClient.adPlaying).toBe(false);
@@ -534,6 +539,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
         adPodPosition : 1
       }
     });
+    var sessionId = Conviva.currentClient.sessionId;
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
     expect(Conviva.currentClient.adPlaying).toBe(true);
     expect(Conviva.currentClient.adStartSessionId).toBe(sessionId);
@@ -555,13 +561,12 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
   {
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
-    var sessionId = Conviva.currentClient.sessionId;
     simulator.simulatePlayerLoad({
       embedCode: "testEmbedCode",
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     expect(Conviva.currentClient.adPlaying).toBe(false);
@@ -580,6 +585,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
         adPodPosition : 1
       }
     });
+    var sessionId = Conviva.currentClient.sessionId;
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
     expect(Conviva.currentClient.adPlaying).toBe(true);
     expect(Conviva.currentClient.adStartSessionId).toBe(sessionId);
@@ -608,7 +614,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
@@ -640,7 +646,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     expect(Conviva.currentContentMetadata.streamUrl).toBe("http://testStreamUrl");
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
@@ -654,7 +660,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "newTestTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrlTwo");
+    startPlayer(simulator, "http://testStreamUrlTwo");
     expect(Conviva.currentContentMetadata.streamUrl).toBe("http://testStreamUrlTwo");
     //there is no session to clean up, so this will remain at 1
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
@@ -670,7 +676,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "newTestTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrlThree");
+    startPlayer(simulator, "http://testStreamUrlThree");
     expect(Conviva.currentContentMetadata.streamUrl).toBe("http://testStreamUrlThree");
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(2);
     expect(Conviva.currentClient.sessionId).toNotBe(firstSessionId);
@@ -688,7 +694,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
@@ -708,7 +714,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
 
@@ -730,7 +736,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: "testTitle",
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
 
     var beforeUnloadEvent = document.createEvent("Event");
@@ -765,6 +771,26 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     expect(Conviva.currentContentMetadata).toBe(null);
   });
 
+  it('Conviva Plugin will not start session until we receive INITIAL_PLAYBACK_REQUESTED event',function()
+  {
+    var plugin = createPlugin(framework, {
+      "gatewayUrl":"testUrl",
+      "customerKey":"testKey"
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000
+    });
+    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    //no INITIAL_PLAYBACK_REQUESTED
+    expect(Conviva.currentClient.sessionId).toBe(Conviva.Client.NO_SESSION_KEY);
+    //INITIAL_PLAYBACK_REQUESTED
+    simulator.simulatePlayerStart();
+    expect(Conviva.currentClient.sessionId).toNotBe(Conviva.Client.NO_SESSION_KEY);
+  });
+
   //custom metadata
   it('Conviva Plugin can send custom metadata', function()
   {
@@ -785,7 +811,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: title,
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
     //default to VOD
@@ -815,7 +841,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: title,
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     //asset name format is defined as "[" + embedCode + "] " + title in conviva.js and Conviva's sample app
     expect(Conviva.currentContentMetadata.assetName).toBe("[" + embedCode + "] " + title);
     //default to VOD
@@ -842,7 +868,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: title,
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     expect(Conviva.currentContentMetadata.applicationName).toBe("testAppName");
   });
 
@@ -861,7 +887,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
       title: title,
       duration: 60000
     });
-    simulator.simulateVideoElementCreated("http://testStreamUrl");
+    startPlayer(simulator);
     expect(Conviva.currentContentMetadata.applicationName).toBe(undefined);
   });
 });
