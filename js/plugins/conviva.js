@@ -517,7 +517,17 @@ var ConvivaAnalyticsPlugin = function(framework)
         {
           var errorCode = params[0].errorCode;
           var errorMessage = params[0].errorMessage;
-          var errorString = "Error Code: " + errorCode + ", Error Message: " + errorMessage;
+
+          var errorString = "";
+          if (errorMessage)
+          {
+            errorString = "Error Code: " + errorCode + ", Error Message: " + errorMessage;
+          }
+          else
+          {
+            errorString = "Error Code: " + errorCode;
+          }
+
           if (playerStateManager)
           {
             playerStateManager.sendError(errorString, Conviva.Client.ErrorSeverity.FATAL);
