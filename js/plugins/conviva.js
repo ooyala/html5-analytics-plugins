@@ -510,49 +510,17 @@ var ConvivaAnalyticsPlugin = function(framework)
         }
         break;
       case OO.Analytics.EVENTS.ERROR.GENERAL:
-        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
-        {
-          var errorCode = params[0].errorCode;
-          var errorMessage = params[0].errorMessage;
-          if (playerStateManager)
-          {
-            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
-          }
-        }
-        clearLastSession();
-        break;
       case OO.Analytics.EVENTS.ERROR.METADATA_LOADING:
-        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
-        {
-          var errorCode = params[0].errorCode;
-          var errorMessage = params[0].errorMessage;
-          if (playerStateManager)
-          {
-            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
-          }
-        }
-        clearLastSession();
-        break;
       case OO.Analytics.EVENTS.ERROR.VIDEO_PLAYBACK:
-        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
-        {
-          var errorCode = params[0].errorCode;
-          var errorMessage = params[0].errorMessage;
-          if (playerStateManager)
-          {
-            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
-          }
-        }
-        clearLastSession();
-        break;
       case OO.Analytics.EVENTS.ERROR.AUTHORIZATION:
-        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
+        if (params && params[0] && params[0].errorCode)
         {
           var errorCode = params[0].errorCode;
           var errorMessage = params[0].errorMessage;
+          var errorString = "Error Code: " + errorCode + ", ErrorMessage: " + errorMessage;
           if (playerStateManager)
           {
-            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
+            playerStateManager.sendError(errorString, Conviva.Client.ErrorSeverity.FATAL);
           }
         }
         clearLastSession();
