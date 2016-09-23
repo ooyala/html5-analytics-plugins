@@ -864,4 +864,118 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function() {
     simulator.simulateVideoElementCreated("http://testStreamUrl");
     expect(Conviva.currentContentMetadata.applicationName).toBe(undefined);
   });
+
+  it('Conviva Plugin should report ad errors', function()
+  {
+    var plugin = createPlugin(framework, {
+      "gatewayUrl":"testUrl",
+      "customerKey":"testKey",
+      "applicationName": {}
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000
+    });
+    simulator.simulateVideoElementCreated("http://testStreamUrl");
+
+    var error = "adError";
+    simulator.simulateAdError(error);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(error);
+  });
+
+  it('Conviva Plugin should report general errors', function()
+  {
+    var plugin = createPlugin(framework, {
+      "gatewayUrl":"testUrl",
+      "customerKey":"testKey",
+      "applicationName": {}
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000
+    });
+    simulator.simulateVideoElementCreated("http://testStreamUrl");
+
+    var errorCode = "generalErrorCode";
+    var errorMessage = "generalErrorMessage";
+    simulator.simulateGeneralError(errorCode, errorMessage);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorMessage);
+  });
+
+  it('Conviva Plugin should report metadata loading errors', function()
+  {
+    var plugin = createPlugin(framework, {
+      "gatewayUrl":"testUrl",
+      "customerKey":"testKey",
+      "applicationName": {}
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000
+    });
+    simulator.simulateVideoElementCreated("http://testStreamUrl");
+
+    var errorCode = "metadataLoadingErrorCode";
+    var errorMessage = "metadataLoadingErrorMessage";
+    simulator.simulateMetadataLoadingError(errorCode, errorMessage);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorMessage);
+  });
+
+  it('Conviva Plugin should report video playback errors', function()
+  {
+    var plugin = createPlugin(framework, {
+      "gatewayUrl":"testUrl",
+      "customerKey":"testKey",
+      "applicationName": {}
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000
+    });
+    simulator.simulateVideoElementCreated("http://testStreamUrl");
+
+    var errorCode = "videoPlaybackErrorCode";
+    var errorMessage = "videoPlaybackErrorMessage";
+    simulator.simulateVideoPlaybackError(errorCode, errorMessage);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorMessage);
+  });
+
+  it('Conviva Plugin should report authorization erorrs', function()
+  {
+    var plugin = createPlugin(framework, {
+      "gatewayUrl":"testUrl",
+      "customerKey":"testKey",
+      "applicationName": {}
+    });
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var embedCode = "testEmbedCode";
+    var title = "testTitle";
+    simulator.simulatePlayerLoad({
+      embedCode: embedCode,
+      title: title,
+      duration: 60000
+    });
+    simulator.simulateVideoElementCreated("http://testStreamUrl");
+
+    var errorCode = "authorizationErrorCode";
+    var errorMessage = "authorizationErrorMessage";
+    simulator.simulateAuthorizationError(errorCode, errorMessage);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorMessage);
+  });
 });
