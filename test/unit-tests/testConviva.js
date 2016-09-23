@@ -945,6 +945,17 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     var errorString = createErrorString(errorCode, errorMessage);
     simulator.simulateGeneralError(errorCode, errorMessage);
     expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    // test bad errorMessage;
+    errorString = "Error Code: " + errorCode;
+    simulator.simulateGeneralError(errorCode, "");
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateGeneralError(errorCode, null);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateGeneralError(errorCode, undefined);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
   });
 
   it('Conviva Plugin should report metadata loading errors', function()
@@ -968,6 +979,17 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     var errorMessage = "metadataLoadingErrorMessage";
     var errorString = createErrorString(errorCode, errorMessage);
     simulator.simulateMetadataLoadingError(errorCode, errorMessage);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    // test bad errorMessage;
+    errorString = "Error Code: " + errorCode;
+    simulator.simulateMetadataLoadingError(errorCode, "");
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateMetadataLoadingError(errorCode, null);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateMetadataLoadingError(errorCode, undefined);
     expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
   });
 
@@ -993,6 +1015,17 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     var errorString = createErrorString(errorCode, errorMessage);
     simulator.simulateVideoPlaybackError(errorCode, errorMessage);
     expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    // test bad errorMessage;
+    errorString = "Error Code: " + errorCode;
+    simulator.simulateVideoPlaybackError(errorCode, "");
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateVideoPlaybackError(errorCode, null);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateVideoPlaybackError(errorCode, undefined);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
   });
 
   it('Conviva Plugin should report authorization errors', function()
@@ -1016,6 +1049,17 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     var errorMessage = "authorizationErrorMessage";
     var errorString = createErrorString(errorCode, errorMessage);
     simulator.simulateAuthorizationError(errorCode, errorMessage);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+    
+    // test bad errorMessage;
+    errorString = "Error Code: " + errorCode;
+    simulator.simulateAuthorizationError(errorCode, "");
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateAuthorizationError(errorCode, null);
+    expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
+
+    simulator.simulateAuthorizationError(errorCode, undefined);
     expect(Conviva.currentPlayerStateManager.errorSent).toBe(errorString);
   });
 });
