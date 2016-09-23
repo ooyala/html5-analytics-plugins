@@ -370,6 +370,50 @@ if (!OO.Analytics.Utils)
         streamUrl: streamUrl
       }]);
     };
+
+    this.simulateAdError = function(error)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_ERROR, [{
+        error: error
+      }]);
+    };
+
+    this.simulateGeneralError = function(errorCode, errorMessage)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.ERROR.GENERAL, [{
+        errorCode: errorCode,
+        errorMessage: errorMessage
+      }]);
+    };
+
+    this.simulateMetadataLoadingError = function(errorCode, errorMessage)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.ERROR.METADATA_LOADING, [{
+        errorCode: errorCode,
+        errorMessage: errorMessage
+      }]);
+    };
+
+    this.simulateVideoPlaybackError = function(errorCode, errorMessage)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.ERROR.VIDEO_PLAYBACK, [{
+        errorCode: errorCode,
+        errorMessage: errorMessage
+      }]);
+    };
+
+    this.simulateAuthorizationError = function(errorCode, errorMessage)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.ERROR.AUTHORIZATION, [{
+        errorCode: errorCode,
+        errorMessage: errorMessage
+      }]);
+    };
   };
 
   Utils.createPlaybackSimulator = function(plugin)

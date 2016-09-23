@@ -499,6 +499,60 @@ var ConvivaAnalyticsPlugin = function(framework)
           }
         }
         break;
+      case OO.Analytics.EVENTS.AD_ERROR:
+        if (params && params[0] && params[0].error)
+        {
+          var error = params[0].error;
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(error, Conviva.Client.ErrorSeverity.WARNING);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.ERROR.GENERAL:
+        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
+        {
+          var errorCode = params[0].errorCode;
+          var errorMessage = params[0].errorMessage;
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.ERROR.METADATA_LOADING:
+        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
+        {
+          var errorCode = params[0].errorCode;
+          var errorMessage = params[0].errorMessage;
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.ERROR.VIDEO_PLAYBACK:
+        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
+        {
+          var errorCode = params[0].errorCode;
+          var errorMessage = params[0].errorMessage;
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.ERROR.AUTHORIZATION:
+        if (params && params[0] && params[0].errorCode && params[0].errorMessage)
+        {
+          var errorCode = params[0].errorCode;
+          var errorMessage = params[0].errorMessage;
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
+          }
+        }
+        break;
       default:
         break;
     }
