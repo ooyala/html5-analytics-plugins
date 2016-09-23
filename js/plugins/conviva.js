@@ -499,6 +499,42 @@ var ConvivaAnalyticsPlugin = function(framework)
           }
         }
         break;
+      case OO.Analytics.EVENTS.AD_ERROR:
+        if (params && params[0] && params[0].error)
+        {
+          var error = params[0].error;
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(error, Conviva.Client.ErrorSeverity.WARNING);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.ERROR.GENERAL:
+      case OO.Analytics.EVENTS.ERROR.METADATA_LOADING:
+      case OO.Analytics.EVENTS.ERROR.VIDEO_PLAYBACK:
+      case OO.Analytics.EVENTS.ERROR.AUTHORIZATION:
+        if (params && params[0] && params[0].errorCode)
+        {
+          var errorCode = params[0].errorCode;
+          var errorMessage = params[0].errorMessage;
+
+          var errorString = "";
+          if (errorMessage)
+          {
+            errorString = "Error Code: " + errorCode + ", Error Message: " + errorMessage;
+          }
+          else
+          {
+            errorString = "Error Code: " + errorCode;
+          }
+
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(errorString, Conviva.Client.ErrorSeverity.FATAL);
+          }
+        }
+        clearLastSession();
+        break;
       default:
         break;
     }

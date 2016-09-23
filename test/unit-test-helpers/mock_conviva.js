@@ -87,12 +87,18 @@ Conviva = {
   {
     Conviva.currentPlayerStateManager = this;
 
-    this.currentPlayerState = Conviva.PlayerStateManager.PlayerState.UNKONWN; //unit test helper
+    this.currentPlayerState = Conviva.PlayerStateManager.PlayerState.UNKNOWN; //unit test helper
     this.currentBitrate = -1; //unit test helper
+    this.errorSent = null;
 
     this.setPlayerState = function(state)
     {
       this.currentPlayerState = state;
+    };
+
+    this.sendError = function(error)
+    {
+      this.errorSent = error;
     };
 
     this.setBitrateKbps = function(bitrate)
@@ -128,6 +134,11 @@ Conviva.ContentMetadata.StreamType = {
 };
 
 Conviva.Client.NO_SESSION_KEY = -2;
+
+Conviva.Client.ErrorSeverity = {
+  FATAL: "fatal",
+  WARNING: "warning"
+};
 
 Conviva.Client.AdPosition = {
   PREROLL: "preroll",
