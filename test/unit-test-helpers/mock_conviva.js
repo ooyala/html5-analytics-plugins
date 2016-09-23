@@ -23,7 +23,7 @@ Conviva = {
     this.adPlayer = null;
     this.adPosition = null;
 
-    this.sessionId = 0;
+    this.sessionId = Conviva.Client.NO_SESSION_KEY;
     this.sessionsCleanedUp = 0;
 
     this.getPlayerStateManager = function()
@@ -37,12 +37,20 @@ Conviva = {
     this.detachPlayer = function(){};
     this.releasePlayerStateManager = function(){};
     this.createSession = function(){
-      return this.sessionId++;
+      if (this.sessionId === Conviva.Client.NO_SESSION_KEY)
+      {
+        this.sessionId = 1;
+      }
+      else
+      {
+        this.sessionId++;
+      }
+      return this.sessionId;
     };
     this.attachPlayer = function(){};
     this.release = function()
     {
-      this.sessionId = 0;
+      this.sessionId = Conviva.Client.NO_SESSION_KEY;
       Conviva.currentClient = null;
     };
     this.adStart = function(sessionId, adStream, adPlayer, adPosition)

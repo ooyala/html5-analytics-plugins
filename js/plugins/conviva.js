@@ -31,6 +31,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var buffering = false;
   var inAdBreak = false;
   var contentComplete = false;
+  var playRequested = false;
 
   // Below is used for reference only
   var OOYALA_TOUCHSTONE_SERVICE_URL = "https://ooyala-test.testonly.conviva.com";
@@ -205,7 +206,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var tryBuildConvivaContentMetadata = function()
   {
     var success = false;
-    if (videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession())
+    if (playRequested && videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession())
     {
       playerStateManager = convivaClient.getPlayerStateManager();
       var contentMetadata = new Conviva.ContentMetadata();
@@ -403,6 +404,10 @@ var ConvivaAnalyticsPlugin = function(framework)
         //Conviva docs say to end the session when the video has finished
         clearLastSession();
         break;
+      case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
+        playRequested = true;
+        tryBuildConvivaContentMetadata();
+        break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         paused = false;
         trackPlay();
@@ -435,6 +440,7 @@ var ConvivaAnalyticsPlugin = function(framework)
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
         clearLastSession();
+        playRequested = true;
         tryBuildConvivaContentMetadata();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
@@ -536,6 +542,7 @@ var ConvivaAnalyticsPlugin = function(framework)
     paused = false;
     inAdBreak = false;
     contentComplete = false;
+    playRequested = false;
   };
 
   /**
