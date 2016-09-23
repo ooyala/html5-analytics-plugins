@@ -519,6 +519,7 @@ var ConvivaAnalyticsPlugin = function(framework)
             playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
           }
         }
+        clearLastSession();
         break;
       case OO.Analytics.EVENTS.ERROR.METADATA_LOADING:
         if (params && params[0] && params[0].errorCode && params[0].errorMessage)
@@ -530,6 +531,7 @@ var ConvivaAnalyticsPlugin = function(framework)
             playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
           }
         }
+        clearLastSession();
         break;
       case OO.Analytics.EVENTS.ERROR.VIDEO_PLAYBACK:
         if (params && params[0] && params[0].errorCode && params[0].errorMessage)
@@ -541,6 +543,7 @@ var ConvivaAnalyticsPlugin = function(framework)
             playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
           }
         }
+        clearLastSession();
         break;
       case OO.Analytics.EVENTS.ERROR.AUTHORIZATION:
         if (params && params[0] && params[0].errorCode && params[0].errorMessage)
@@ -552,6 +555,7 @@ var ConvivaAnalyticsPlugin = function(framework)
             playerStateManager.sendError(errorMessage, Conviva.Client.ErrorSeverity.FATAL);
           }
         }
+        clearLastSession();
         break;
       default:
         break;
