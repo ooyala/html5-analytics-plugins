@@ -565,7 +565,9 @@ if (!OO.Analytics.EVENT_DATA)
     this.profiles = {};
     for (var i = 0; i < list.length; i++) {
       var entry = list[i];
-      this.profiles[entry.id] = entry;
+      if (entry && entry.id) {
+        this.profiles[entry.id] = entry;
+      }
     }
   }
 
