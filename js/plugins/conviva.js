@@ -14,7 +14,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var id;
 
   var OOYALA_PLAYER_VENDOR = "Ooyala";
-  var OOYALA_PLAYER_VERSION = "4.8.9";
+  var OOYALA_PLAYER_VERSION = "4.8.10";
 
   var currentConvivaSessionKey = null;
   var streamUrl = null;
