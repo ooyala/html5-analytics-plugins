@@ -585,7 +585,7 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoBitrateProfileData = function(bitrateProfile)
   {
     var checkBitrateProfile = OO._.bind(checkDataType, this, "VideoBitrateProfileData");
-    this.bitrate = checkBitrateProfile(bitrateProfile.bitrate, "bitrate", ["number"]);
+    this.bitrate = checkBitrateProfile(bitrateProfile.bitrate, "bitrate", ["number","string"]);
     this.height = checkBitrateProfile(bitrateProfile.height, "height", ["number"]);
     this.width = checkBitrateProfile(bitrateProfile.width, "width", ["number"]);
     this.id = checkBitrateProfile(bitrateProfile.id, "id", ["string"]);
