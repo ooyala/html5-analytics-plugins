@@ -1277,12 +1277,23 @@ describe('Analytics Framework Unit Tests', function()
         id:"testProfile"
       };
 
+      var metadata3 =
+      {
+        bitrate:"low",
+        height:2000,
+        width:3000.3,
+        id:"testProfile"
+      };
+
       var data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata);
       expect(data).toEqual(metadata);
 
       data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata2);
       //make sure it converts the string to numbers.
       expect(data).toEqual(metadata);
+
+      data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata3);
+      expect(data).toEqual(metadata3);
 
       //double check bad data
       var badMetadata =
