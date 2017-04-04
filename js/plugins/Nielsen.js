@@ -111,7 +111,7 @@ var NielsenAnalyticsPlugin = function (framework)
     //If SDK is not loaded by now, load SDK
     if (!window.NOLCMB)
     {
-      OO.loadScriptOnce("http://cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js", trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
+      OO.loadScriptOnce("//cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js", trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
   };
 
