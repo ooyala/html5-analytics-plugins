@@ -6,10 +6,8 @@ Open-source HTML5 analytics framework and plugins that can be used with the Ooya
 - git clone [git hub repo location]
 - cd ./html5-analytics-plugins
 - git pull
-- git submodule init
-- git submodule update
+- git submodule update -init -recursive
 - npm install
-- npm update
 
 ## Building the analytics managers
 gulp build
