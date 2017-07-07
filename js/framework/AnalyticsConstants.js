@@ -821,14 +821,11 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    *
    */
-  EVENT_DATA.SdkAdEventData = function(adPluginName, eventType, event, params)
+  EVENT_DATA.SdkAdEventData = function(adPluginName, sdkAdEvent)
   {
     var checkSdkAdEventData = OO._.bind(checkDataType, this, "SdkAdEventData");
     this.adPluginName = checkSdkAdEventData(adPluginName, "adPluginName", ["string"]);
-    //eventType and event can be many things depending on the SDK
-    this.eventType = eventType;
-    this.event = event;
-    this.params = params;
+    this.sdkAdEvent = checkSdkAdEventData(sdkAdEvent, "sdkAdEvent", ["object"]);
   };
 
   /**
