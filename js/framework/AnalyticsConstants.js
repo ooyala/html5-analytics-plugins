@@ -828,7 +828,7 @@ if (!OO.Analytics.EVENT_DATA)
     //eventType and event can be many things depending on the SDK
     this.eventType = eventType;
     this.event = event;
-    this.params = checkSdkAdEventData(params, "params", ["array"]);
+    this.params = params;
   };
 
   /**
