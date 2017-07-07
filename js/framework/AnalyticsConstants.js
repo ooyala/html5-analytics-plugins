@@ -362,6 +362,11 @@ if (!OO.Analytics.EVENTS)
     AD_CLICKTHROUGH_OPENED:         'ad_clickthrough_opened',
 
     /**
+     *
+     */
+    SDK_AD_EVENT:                   'sdkAdEvent',
+
+    /**
      * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
      * @description This message is sent when the player enters and exits fullscreen.
@@ -811,6 +816,19 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
+  };
+
+  /**
+   *
+   */
+  EVENT_DATA.SdkAdEventData = function(adPluginName, eventType, event, params)
+  {
+    var checkSdkAdEventData = OO._bind(checkDataType, this, "SdkAdEventData");
+    this.adPluginName = checkSdkAdEventData(adPluginName, "adPluginName", ["string"]);
+    //eventType and event can be many things depending on the SDK
+    this.eventType = eventType;
+    this.event = event;
+    this.params = checkSdkAdEventData(params, "params", ["array"]);
   };
 
   /**
