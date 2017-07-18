@@ -8,6 +8,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
   require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
 
+  require("../../html5-common/js/utils/utils.js");
+
   var Analytics = OO.Analytics;
   var Utils = OO.Analytics.Utils;
   var _ = OO._;

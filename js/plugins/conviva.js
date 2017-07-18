@@ -1,5 +1,4 @@
 require("../framework/InitAnalyticsNamespace.js");
-require("../../html5-common/js/utils/utils.js");
 
 /**
  * @class ConvivaAnalyticsPlugin

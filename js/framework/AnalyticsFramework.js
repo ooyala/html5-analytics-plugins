@@ -1,4 +1,3 @@
-require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js")
 require("./InitAnalyticsNamespace.js");
 require("./AnalyticsConstants.js");
 
@@ -668,7 +667,7 @@ OO.Analytics.Framework = function()
    * -Elminates checking to see if function exists.
    * -If an error is thrown while calling the function, this will catch it and
    * output a message and the framework can continue running.
-   * -If OO.DEBUG is true, safeFunctionCall will check if the function being called
+   * -If OO.publicApi.DEBUG is true, safeFunctionCall will check if the function being called
    * is in the list of required functions. If it's not, then it will output a message.
    * Only functions in the required list should be called in the framework code.
    * @private
@@ -680,7 +679,7 @@ OO.Analytics.Framework = function()
    */
   var safeFunctionCall = privateMember(function(plugin, funcName, params)
   {
-    if (OO.DEBUG)
+    if (OO.publicApi.DEBUG)
     {
       debugCheckFunctionIsInRequiredList(funcName);
     }

@@ -1,6 +1,3 @@
-require("../../html5-common/js/utils/InitModules/InitOO.js");
-require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js");
-
 if (!OO.Analytics)
 {
   OO.Analytics = {};
