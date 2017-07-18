@@ -362,6 +362,13 @@ if (!OO.Analytics.EVENTS)
     AD_CLICKTHROUGH_OPENED:         'ad_clickthrough_opened',
 
     /**
+     * @private
+     * @event OO.Analytics.EVENTS#SDK_AD_EVENT
+     * @description This message is sent when an SDK Ad Event has occurred.
+     */
+    SDK_AD_EVENT:                   'sdkAdEvent',
+
+    /**
      * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
      * @description This message is sent when the player enters and exits fullscreen.
@@ -571,7 +578,7 @@ if (!OO.Analytics.EVENT_DATA)
         this.profiles[entry.id] = entry;
       }
     }
-  }
+  };
 
   /**
    * @public
@@ -589,7 +596,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.height = checkBitrateProfile(bitrateProfile.height, "height", ["number"]);
     this.width = checkBitrateProfile(bitrateProfile.width, "width", ["number"]);
     this.id = checkBitrateProfile(bitrateProfile.id, "id", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -601,7 +608,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkTargetBitrate = OO._.bind(checkDataType, this, "VideoTargetBitrateData");
     this.targetProfile = checkTargetBitrate(targetProfile, "targetProfile", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -811,6 +818,22 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
+  };
+
+  /**
+   * @private
+   * @class Analytics.EVENT_DATA#SdkAdEventData
+   * @classdesc Contains information about SDK Ad Event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {object} sdkAdEvent An object containing details of the ad event. This may vary
+   *                               between ad plugin to ad plugin.
+   */
+  EVENT_DATA.SdkAdEventData = function(adPluginName, sdkAdEvent)
+  {
+    var checkSdkAdEventData = OO._.bind(checkDataType, this, "SdkAdEventData");
+    this.adPluginName = checkSdkAdEventData(adPluginName, "adPluginName", ["string"]);
+    this.sdkAdEvent = checkSdkAdEventData(sdkAdEvent, "sdkAdEvent", ["object"]);
   };
 
   /**

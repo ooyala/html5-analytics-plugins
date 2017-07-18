@@ -2031,5 +2031,34 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
+    it('Test SdkAdEventData', function()
+    {
+      var metadataIn = {
+        adPluginName: "testAdPlugin",
+        sdkAdEvent: {
+          eventType: "testEventType",
+          event: "testEvent",
+          params: [{}]
+        }
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.sdkAdEvent);
+      expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        adPluginName: {},
+        sdkAdEvent: "blah"
+      };
+
+      var metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.sdkAdEvent);
+      expect(data).toEqual(metadataOut);
+    });
   });
 });
