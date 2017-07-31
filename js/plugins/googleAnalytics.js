@@ -14,6 +14,8 @@ var GAAnalyticsPlugin = function(framework)
   var _active = true;
   var _cachedEvents = [];
   var _cacheEvents = true;
+  
+  var gaFunction = window.GoogleAnalyticsObject || 'ga';
 
   var trackerName = null;
 
@@ -136,7 +138,7 @@ var GAAnalyticsPlugin = function(framework)
     }
 
     //Check if any of the Google Analytics SDKs are loaded
-    if (typeof _gaq != 'undefined' || typeof ga != 'undefined' || this.gtm)
+    if (typeof _gaq != 'undefined' || typeof window[gaFunction] != 'undefined' || this.gtm)
     {
       this.gaTrackingEnabled = true;
     }
@@ -483,7 +485,7 @@ var GAAnalyticsPlugin = function(framework)
         _gaq.push(param);
       }
       // Current GA code block support
-      else if (typeof ga != 'undefined')
+      else if (typeof window[gaFunction] != 'undefined')
       {
         param = {
           'eventCategory': this.gaEventCategory,
@@ -495,7 +497,7 @@ var GAAnalyticsPlugin = function(framework)
           param['eventValue'] = this.createdAt;
         }
         var command = getGACommand('send');
-        ga(command, 'event', param);
+        window[gaFunction](command, 'event', param);
       }
     }
   };
