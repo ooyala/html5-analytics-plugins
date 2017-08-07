@@ -23,7 +23,7 @@ Conviva = {
     this.adPlayer = null;
     this.adPosition = null;
 
-    this.sessionId = 0;
+    this.sessionId = Conviva.Client.NO_SESSION_KEY;
     this.sessionsCleanedUp = 0;
 
     this.getPlayerStateManager = function()
@@ -37,12 +37,20 @@ Conviva = {
     this.detachPlayer = function(){};
     this.releasePlayerStateManager = function(){};
     this.createSession = function(){
-      return this.sessionId++;
+      if (this.sessionId === Conviva.Client.NO_SESSION_KEY)
+      {
+        this.sessionId = 1;
+      }
+      else
+      {
+        this.sessionId++;
+      }
+      return this.sessionId;
     };
     this.attachPlayer = function(){};
     this.release = function()
     {
-      this.sessionId = 0;
+      this.sessionId = Conviva.Client.NO_SESSION_KEY;
       Conviva.currentClient = null;
     };
     this.adStart = function(sessionId, adStream, adPlayer, adPosition)
@@ -79,12 +87,18 @@ Conviva = {
   {
     Conviva.currentPlayerStateManager = this;
 
-    this.currentPlayerState = Conviva.PlayerStateManager.PlayerState.UNKONWN; //unit test helper
+    this.currentPlayerState = Conviva.PlayerStateManager.PlayerState.UNKNOWN; //unit test helper
     this.currentBitrate = -1; //unit test helper
+    this.errorSent = null;
 
     this.setPlayerState = function(state)
     {
       this.currentPlayerState = state;
+    };
+
+    this.sendError = function(error)
+    {
+      this.errorSent = error;
     };
 
     this.setBitrateKbps = function(bitrate)
@@ -120,6 +134,11 @@ Conviva.ContentMetadata.StreamType = {
 };
 
 Conviva.Client.NO_SESSION_KEY = -2;
+
+Conviva.Client.ErrorSeverity = {
+  FATAL: "fatal",
+  WARNING: "warning"
+};
 
 Conviva.Client.AdPosition = {
   PREROLL: "preroll",

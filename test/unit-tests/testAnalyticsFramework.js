@@ -1277,12 +1277,23 @@ describe('Analytics Framework Unit Tests', function()
         id:"testProfile"
       };
 
+      var metadata3 =
+      {
+        bitrate:"low",
+        height:2000,
+        width:3000.3,
+        id:"testProfile"
+      };
+
       var data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata);
       expect(data).toEqual(metadata);
 
       data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata2);
       //make sure it converts the string to numbers.
       expect(data).toEqual(metadata);
+
+      data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata3);
+      expect(data).toEqual(metadata3);
 
       //double check bad data
       var badMetadata =
@@ -1936,5 +1947,118 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
+    it('Test GeneralErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        errorCode: 123,
+        errorMessage: 456
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: "",
+        errorMessage: false
+      };
+
+      metadataOut =
+      {
+        errorCode: "",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+    });
+
+    it('Test MetadataLoadingErrorData', function()
+    {
+      var metadataIn =
+      {
+        errorCode: "error code",
+        errorMessage: "error message"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        errorCode: 123,
+        errorMessage: 456
+      };
+
+      metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+
+      metadataIn =
+      {
+        errorCode: "",
+        errorMessage: false
+      };
+
+      metadataOut =
+      {
+        errorCode: "",
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      expect(data).toEqual(metadataOut);
+    });
+
+    it('Test SdkAdEventData', function()
+    {
+      var metadataIn = {
+        adPluginName: "testAdPlugin",
+        sdkAdEvent: {
+          eventType: "testEventType",
+          event: "testEvent",
+          params: [{}]
+        }
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.sdkAdEvent);
+      expect(data).toEqual(metadataIn);
+
+      metadataIn =
+      {
+        adPluginName: {},
+        sdkAdEvent: "blah"
+      };
+
+      var metadataOut =
+      {
+        errorCode: undefined,
+        errorMessage: undefined
+      };
+
+      data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.sdkAdEvent);
+      expect(data).toEqual(metadataOut);
+    });
   });
 });

@@ -362,6 +362,13 @@ if (!OO.Analytics.EVENTS)
     AD_CLICKTHROUGH_OPENED:         'ad_clickthrough_opened',
 
     /**
+     * @private
+     * @event OO.Analytics.EVENTS#SDK_AD_EVENT
+     * @description This message is sent when an SDK Ad Event has occurred.
+     */
+    SDK_AD_EVENT:                   'sdkAdEvent',
+
+    /**
      * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
      * @description This message is sent when the player enters and exits fullscreen.
@@ -393,6 +400,25 @@ if (!OO.Analytics.EVENTS)
      */
     ERROR:
     {
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#GENERAL
+       * @description This message is sent when a general error occurs.
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.GeneralErrorData
+       */
+      GENERAL:                      'general_error',
+
+      /**
+       * @public
+       * @event OO.Analytics.EVENTS.ERROR#METADATA_LOADING
+       * @description This message is sent when a metadata loading error occurs
+       * (invalid metadata, invalid content, or a network error when loading metadata).
+       * @param {Array} paramArray Array of length 1, contains an instance of
+       * OO.Analytics.EVENT_DATA.MetadataLoadingError
+       */
+      METADATA_LOADING:             'metadata_loading_error',
+
       /**
        * @public
        * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
@@ -542,14 +568,17 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoBitrateProfileLookupData = function(bitrateProfileArray)
   {
     var checkBitrateProfileList = OO._.bind(checkDataType, this, "VideoBitrateProfileLookupData");
-    var list = checkBitrateProfileList(bitrateProfileArray, "bitrateProfileArray", ["array"]);
+    var list = checkBitrateProfileList(bitrateProfileArray, "bitrateProfileArray", ["array"]) || [];
     this.profiles = {};
-    for(var key in list)
+    for (var i = 0; i < list.length; i++)
     {
-      var entry = list[key];
-      this.profiles[entry.id] = entry;
+      var entry = list[i];
+      if (entry && entry.id)
+      {
+        this.profiles[entry.id] = entry;
+      }
     }
-  }
+  };
 
   /**
    * @public
@@ -563,11 +592,11 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.VideoBitrateProfileData = function(bitrateProfile)
   {
     var checkBitrateProfile = OO._.bind(checkDataType, this, "VideoBitrateProfileData");
-    this.bitrate = checkBitrateProfile(bitrateProfile.bitrate, "bitrate", ["number"]);
+    this.bitrate = checkBitrateProfile(bitrateProfile.bitrate, "bitrate", ["number","string"]);
     this.height = checkBitrateProfile(bitrateProfile.height, "height", ["number"]);
     this.width = checkBitrateProfile(bitrateProfile.width, "width", ["number"]);
     this.id = checkBitrateProfile(bitrateProfile.id, "id", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -579,7 +608,7 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkTargetBitrate = OO._.bind(checkDataType, this, "VideoTargetBitrateData");
     this.targetProfile = checkTargetBitrate(targetProfile, "targetProfile", ["string"]);
-  }
+  };
 
   /**
    * @public
@@ -644,7 +673,36 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoErrorData
+   * @class Analytics.EVENT_DATA#GeneralErrorData
+   * @classdesc Contains information about the error code and message of a general error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.GeneralErrorData = function(errorCode, errorMessage)
+  {
+    var checkGeneralErrorData = OO._.bind(checkDataType, this, "GeneralErrorData");
+    this.errorCode = checkGeneralErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkGeneralErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#MetadataLoadingErrorData
+   * @classdesc Contains information about the error code and message of a metadata loading
+   * error.
+   * @property {string} errorCode The error code
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.MetadataLoadingErrorData = function(errorCode, errorMessage)
+  {
+    var checkMetadataLoadingErrorData = OO._.bind(checkDataType, this, "MetadataLoadingErrorData");
+    this.errorCode = checkMetadataLoadingErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkMetadataLoadingErrorData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoPlaybackErrorData
    * @classdesc Contains information about the error code and message of the video error.
    * @property {string} errorCode The error code
    * @property {string} errorMessage The error message
@@ -760,6 +818,22 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
+  };
+
+  /**
+   * @private
+   * @class Analytics.EVENT_DATA#SdkAdEventData
+   * @classdesc Contains information about SDK Ad Event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {object} sdkAdEvent An object containing details of the ad event. This may vary
+   *                               between ad plugin to ad plugin.
+   */
+  EVENT_DATA.SdkAdEventData = function(adPluginName, sdkAdEvent)
+  {
+    var checkSdkAdEventData = OO._.bind(checkDataType, this, "SdkAdEventData");
+    this.adPluginName = checkSdkAdEventData(adPluginName, "adPluginName", ["string"]);
+    this.sdkAdEvent = checkSdkAdEventData(sdkAdEvent, "sdkAdEvent", ["object"]);
   };
 
   /**

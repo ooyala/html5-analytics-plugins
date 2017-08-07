@@ -13,6 +13,9 @@ var ConvivaAnalyticsPlugin = function(framework)
   var version = "v1";
   var id;
 
+  var OOYALA_PLAYER_VENDOR = "Ooyala";
+  var OOYALA_PLAYER_VERSION = "";
+
   var currentConvivaSessionKey = null;
   var streamUrl = null;
   var streamType = null;
@@ -28,6 +31,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var buffering = false;
   var inAdBreak = false;
   var contentComplete = false;
+  var playRequested = false;
 
   // Below is used for reference only
   var OOYALA_TOUCHSTONE_SERVICE_URL = "https://ooyala-test.testonly.conviva.com";
@@ -202,7 +206,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   var tryBuildConvivaContentMetadata = function()
   {
     var success = false;
-    if (videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession())
+    if (playRequested && videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession())
     {
       playerStateManager = convivaClient.getPlayerStateManager();
       var contentMetadata = new Conviva.ContentMetadata();
@@ -258,7 +262,11 @@ var ConvivaAnalyticsPlugin = function(framework)
       // video quality assessements/troubleshooting for that particular user.
       // contentMetadata.viewerId = userData.id;
 
-      var customMetadata = convivaMetadata["customMetadata"];
+      var customMetadata = {};
+      customMetadata.playerVendor = OOYALA_PLAYER_VENDOR;
+      customMetadata.playerVersion = OOYALA_PLAYER_VERSION;
+
+      customMetadata = _.extend(customMetadata, convivaMetadata["customMetadata"]);
       if (validateCustomMetadata(customMetadata))
       {
         contentMetadata.custom = customMetadata;
@@ -396,6 +404,10 @@ var ConvivaAnalyticsPlugin = function(framework)
         //Conviva docs say to end the session when the video has finished
         clearLastSession();
         break;
+      case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
+        playRequested = true;
+        tryBuildConvivaContentMetadata();
+        break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         paused = false;
         trackPlay();
@@ -428,6 +440,7 @@ var ConvivaAnalyticsPlugin = function(framework)
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
         clearLastSession();
+        playRequested = true;
         tryBuildConvivaContentMetadata();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
@@ -486,6 +499,42 @@ var ConvivaAnalyticsPlugin = function(framework)
           }
         }
         break;
+      case OO.Analytics.EVENTS.AD_ERROR:
+        if (params && params[0] && params[0].error)
+        {
+          var error = params[0].error;
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(error, Conviva.Client.ErrorSeverity.WARNING);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.ERROR.GENERAL:
+      case OO.Analytics.EVENTS.ERROR.METADATA_LOADING:
+      case OO.Analytics.EVENTS.ERROR.VIDEO_PLAYBACK:
+      case OO.Analytics.EVENTS.ERROR.AUTHORIZATION:
+        if (params && params[0] && params[0].errorCode)
+        {
+          var errorCode = params[0].errorCode;
+          var errorMessage = params[0].errorMessage;
+
+          var errorString = "";
+          if (errorMessage)
+          {
+            errorString = "Error Code: " + errorCode + ", Error Message: " + errorMessage;
+          }
+          else
+          {
+            errorString = "Error Code: " + errorCode;
+          }
+
+          if (playerStateManager)
+          {
+            playerStateManager.sendError(errorString, Conviva.Client.ErrorSeverity.FATAL);
+          }
+        }
+        clearLastSession();
+        break;
       default:
         break;
     }
@@ -503,6 +552,7 @@ var ConvivaAnalyticsPlugin = function(framework)
     paused = false;
     inAdBreak = false;
     contentComplete = false;
+    playRequested = false;
   };
 
   /**
