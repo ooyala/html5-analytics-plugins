@@ -282,6 +282,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_SDK_LOADED
+     * @description This message is sent when ad sdk has loaded successfully.
+     */
+    AD_SDK_LOADED:               'ad_sdk_loaded',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
@@ -818,6 +825,19 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
+  };
+  
+ /**
+   * @private
+   * @class Analytics.EVENT_DATA#AdSdkLoadedData
+   * @classdesc Contains information about the ad SDK loaded event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   */
+  EVENT_DATA.AdSdkLoadedData = function(adPluginName)
+  {
+    var checkAdSdkLoadedData = OO._.bind(checkDataType, this, "AdSdkLoadedData");
+    this.adPluginName = checkAdSdkLoadedData(adPluginName, "adPluginName", ["string"]);
   };
 
   /**
