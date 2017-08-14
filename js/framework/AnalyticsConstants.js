@@ -289,6 +289,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_SDK_LOAD_FAILURE
+     * @description This message is sent when ad sdk has failed to load.
+     */
+    AD_SDK_LOAD_FAILURE:               'ad_sdk_load_failure',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
@@ -834,10 +841,28 @@ if (!OO.Analytics.EVENT_DATA)
    * we do not want to expose this as a public event.
    * @property {string} adPluginName The name of the ad plugin that sent this event
    */
-  EVENT_DATA.AdSdkLoadedData = function(adPluginName)
+  EVENT_DATA.AdSdkLoadedData = function(adPluginName, playerCoreVersion)
   {
     var checkAdSdkLoadedData = OO._.bind(checkDataType, this, "AdSdkLoadedData");
     this.adPluginName = checkAdSdkLoadedData(adPluginName, "adPluginName", ["string"]);
+    this.playerCoreVersion = checkAdSdkLoadedData(playerCoreVersion, "playerCoreVersion", ["string"]);
+  };
+
+   /**
+   * @private
+   * @class Analytics.EVENT_DATA#AdSdkLoadFailureData
+   * @classdesc Contains information about the ad SDK load failure event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {string} playerCoreVersion The player core version
+   * @property {string} error The error message associated with the ad sdk load failure
+   */
+  EVENT_DATA.AdSdkLoadFailureData = function(adPluginName, playerCoreVersion, error)
+  {
+    var checkAdSdkLoadFailureData = OO._.bind(checkDataType, this, "AdSdkLoadFailureData");
+    this.adPluginName = checkAdSdkLoadFailureData(adPluginName, "adPluginName", ["string"]);
+    this.playerCoreVersion = checkAdSdkLoadFailureData(playerCoreVersion, "playerCoreVersion", ["string"]);
+    this.errorMessage = checkAdSdkLoadFailureData(error, "error", ["string"]);
   };
 
   /**
