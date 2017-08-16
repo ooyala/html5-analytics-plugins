@@ -245,6 +245,7 @@ var IqPlugin= function (framework)
         OO.log("IQ: Reported: reportReplay()");
         break;
 
+      case OO.Analytics.EVENTS.AD_REQUEST:
       case OO.Analytics.EVENTS.AD_SDK_LOADED:
       case OO.Analytics.EVENTS.AD_SDK_LOAD_FAILURE:
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:

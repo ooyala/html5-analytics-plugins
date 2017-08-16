@@ -296,6 +296,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_REQUEST
+     * @description This message is sent when an ad request is sent to the ad sdk.
+     */
+    AD_REQUEST:               'ad_request',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
@@ -834,11 +841,25 @@ if (!OO.Analytics.EVENT_DATA)
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
   };
   
+   /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdRequestData
+   * @classdesc Contains information about the ad request event. 
+   * @property {string} adPluginName The name of the ad plugin used
+   * @property {number} adPosition The position the ad is scheduled to play
+   */
+  EVENT_DATA.AdRequestData = function(adPluginName, adPosition)
+  {
+    var checkAdRequestData = OO._.bind(checkDataType, this, "AdRequestData");
+    this.adPluginName = checkAdRequestData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdRequestData(adPosition, "adPosition", ["number"]);
+  };
+
+
  /**
-   * @private
+   * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadedData
-   * @classdesc Contains information about the ad SDK loaded event. This has been marked private because
-   * we do not want to expose this as a public event.
+   * @classdesc Contains information about the ad SDK loaded event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    */
   EVENT_DATA.AdSdkLoadedData = function(adPluginName, playerCoreVersion)
@@ -849,10 +870,9 @@ if (!OO.Analytics.EVENT_DATA)
   };
 
    /**
-   * @private
+   * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadFailureData
-   * @classdesc Contains information about the ad SDK load failure event. This has been marked private because
-   * we do not want to expose this as a public event.
+   * @classdesc Contains information about the ad SDK load failure event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {string} playerCoreVersion The player core version
    * @property {string} error The error message associated with the ad sdk load failure
