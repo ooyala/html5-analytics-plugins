@@ -246,6 +246,7 @@ var IqPlugin= function (framework)
         break;
 
       case OO.Analytics.EVENTS.AD_REQUEST:
+      case OO.Analytics.EVENTS.AD_REQUEST_SUCCESS:
       case OO.Analytics.EVENTS.AD_SDK_LOADED:
       case OO.Analytics.EVENTS.AD_SDK_LOAD_FAILURE:
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
@@ -265,7 +266,8 @@ var IqPlugin= function (framework)
         break;
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
         //var eventMetadata = JSON.parse(JSON.stringify(params[0].sdkAdEvent))
-        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(params.getAdData()));
+        // OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName );
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + params.adEventName);
         break;
       default:
         break;

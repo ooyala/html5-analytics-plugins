@@ -303,6 +303,27 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_REQUEST_SUCCESS
+     * @description This event is sent when an ad request successfully returns and ad or playlist of ads.
+     */
+    AD_REQUEST_SUCCESS:               'ad_request_success',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_REQUEST_ERROR
+     * @description This event is sent when an ad request fails due to an error.
+     */
+    AD_REQUEST_ERROR:               'ad_request_error',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_REQUEST_EMPTY
+     * @description This event is sent when an ad request returns but contains no ads.
+     */
+    AD_REQUEST_EMPTY:               'ad_request_empty',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
@@ -856,6 +877,28 @@ if (!OO.Analytics.EVENT_DATA)
   };
 
 
+   /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdRequestSuccssData
+   * @classdesc Contains information about the ad request success event. 
+   * @property {string} adPluginName The name of the ad plugin used
+   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {number} numberOfAds The number of ads returned
+   * @property {string} adType The ad type: VAST or VPAID
+   * @property {number} responseTime the ad request response time
+   * @property {boolean} isPlaylist if the ad response is a playlist or not
+   */
+  EVENT_DATA.AdRequestSuccessData = function(adPluginName, adPosition, numberOfAds, adType, responseTime, isPlaylist)
+  {
+    var checkAdRequestSuccessData = OO._.bind(checkDataType, this, "AdRequestSuccessData");
+    this.adPluginName = checkAdRequestSuccessData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdRequestSuccessData(adPosition, "adPosition", ["number"]);
+    this.numberOfAds = checkAdRequestSuccessData(numberOfAds, "numberOfAds", ["number"]);
+    this.adType = checkAdRequestSuccessData(adType, "adType", ["string"]);
+    this.responseTime = checkAdRequestSuccessData(responseTime, "responseTime", ["number"]);
+    this.isPlaylist = checkAdRequestSuccessData(isPlaylist, "isPlaylist", ["boolean"]);
+  };
+
  /**
    * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadedData
@@ -875,14 +918,16 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the ad SDK load failure event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {string} playerCoreVersion The player core version
-   * @property {string} error The error message associated with the ad sdk load failure
+   * @property {string} errorMessage The error message associated with the ad sdk load failure
+   * @param {boolean} adBlocked True if the SDK load event was caused by an ad blocker.
    */
-  EVENT_DATA.AdSdkLoadFailureData = function(adPluginName, playerCoreVersion, error)
+  EVENT_DATA.AdSdkLoadFailureData = function(adPluginName, playerCoreVersion, errorMessage, adBlocked)
   {
     var checkAdSdkLoadFailureData = OO._.bind(checkDataType, this, "AdSdkLoadFailureData");
     this.adPluginName = checkAdSdkLoadFailureData(adPluginName, "adPluginName", ["string"]);
     this.playerCoreVersion = checkAdSdkLoadFailureData(playerCoreVersion, "playerCoreVersion", ["string"]);
-    this.errorMessage = checkAdSdkLoadFailureData(error, "error", ["string"]);
+    this.errorMessage = checkAdSdkLoadFailureData(errorMessage, "errorMessage", ["string"]);
+    this.adBlocked = checkAdSdkLoadFailureData(adBlocked, "adBlocked", ["boolean"]);
   };
 
   /**
@@ -891,14 +936,16 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about SDK Ad Event. This has been marked private because
    * we do not want to expose this as a public event.
    * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {object} sdkAdEvent An object containing details of the ad event. This may vary
+   * @property {string} adEventName The name of this event from the ad plugin
+   * @property {object} adEventData An object containing details of the ad event. This may vary
    *                               between ad plugin to ad plugin.
    */
-  EVENT_DATA.SdkAdEventData = function(adPluginName, sdkAdEvent)
+  EVENT_DATA.SdkAdEventData = function(adPluginName, adEventName, adEventData)
   {
     var checkSdkAdEventData = OO._.bind(checkDataType, this, "SdkAdEventData");
     this.adPluginName = checkSdkAdEventData(adPluginName, "adPluginName", ["string"]);
-    this.sdkAdEvent = checkSdkAdEventData(sdkAdEvent, "sdkAdEvent", ["object"]);
+    this.adEventName = checkSdkAdEventData(adEventName, "adEventName", ["string"]);
+    this.adEventData = checkSdkAdEventData(adEventData, "adEventData", ["object"]);
   };
 
   /**
