@@ -142,13 +142,14 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
-          mediaId = params[0].title;
-          contentType = params[0].contentType;
+          //mediaId = params[0].title;
+          //contentType = params[0].contentType;
+          contentType = "ooyala"
           duration = params[0].duration;
           if (this.ooyalaReporter)
           {
-            this.ooyalaReporter.initializeMedia(mediaId, contentType);
-            OO.log("IQ: Reported: initializeMedia() with args: " + mediaId + ", " + contentType);
+            this.ooyalaReporter.initializeMedia(currentEmbedCode, contentType);
+            OO.log("IQ: Reported: initializeMedia() with args: " + currentEmbedCode + ", " + contentType);
             this.ooyalaReporter.setMediaDuration(duration);
             OO.log("IQ: Reported: setMediaDuration() with args: " + duration);
           }
