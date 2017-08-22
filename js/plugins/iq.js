@@ -19,8 +19,7 @@ var IqPlugin= function (framework)
   var pcode = null;
   var playerId = null;
   var currentEmbedCode = null;
-  var mediaId = null;
-  var contentType = null;
+  var contentType = "ooyala";
   var currentPlayheadPosition = null;
   
   this.ooyalaReporter = null;
@@ -142,9 +141,6 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
-          //mediaId = params[0].title;
-          //contentType = params[0].contentType;
-          contentType = "ooyala"
           duration = params[0].duration;
           if (this.ooyalaReporter)
           {
@@ -258,17 +254,20 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_ENDED:
       case OO.Analytics.EVENTS.AD_SKIPPED:
       case OO.Analytics.EVENTS.AD_ERROR:
+      case OO.Analytics.EVENTS.AD_REQUEST_EMPTY:
+      case OO.Analytics.EVENTS.AD_REQUEST_ERROR:
+      case OO.Analytics.EVENTS.AD_PLAYBACK_ERROR:
       case OO.Analytics.EVENTS.AD_IMPRESSION:
       case OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED:
         var eventMetadata = JSON.parse(JSON.stringify(params[0]));
         eventMetadata.adEventName = eventName;
-        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         break;
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
         var eventMetadata = JSON.parse(JSON.stringify(params[0]));
         eventMetadata.adEventName = "" + eventName + " : " + eventMetadata.adEventName;
-        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         break;
       default:

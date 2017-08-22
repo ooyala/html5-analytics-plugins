@@ -324,6 +324,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_PLAYBACK_ERROR
+     * @description This event is sent when an ad playback fails due to an error.
+     */
+    AD_PLAYBACK_ERROR:               'ad_playback_error',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
      * @description This message is sent when the player stops the main content
      * to start playing linear ads.
@@ -862,7 +869,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
   };
   
-   /**
+  /**
    * @public
    * @class Analytics.EVENT_DATA#AdRequestData
    * @classdesc Contains information about the ad request event. 
@@ -877,7 +884,7 @@ if (!OO.Analytics.EVENT_DATA)
   };
 
 
-   /**
+  /**
    * @public
    * @class Analytics.EVENT_DATA#AdRequestSuccssData
    * @classdesc Contains information about the ad request success event. 
@@ -899,6 +906,75 @@ if (!OO.Analytics.EVENT_DATA)
     this.isPlaylist = checkAdRequestSuccessData(isPlaylist, "isPlaylist", ["boolean"]);
   };
 
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdRequestEmptyData
+   * @classdesc Contains information about the ad SDK loaded event. 
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {string} adTagUrl The ad tag url post macro substitution
+   * @property {string} errorCode The error code if any
+   * @property {string} errorMessage The error message
+   */
+  EVENT_DATA.AdRequestEmptyData = function(adPluginName, adPosition, adTagUrl, errorCode, errorMessage)
+  {
+    var checkAdRequestEmptyData = OO._.bind(checkDataType, this, "AdRequestEmptyData");
+    this.adPluginName = checkAdRequestEmptyData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdRequestEmptyData(adPosition, "adPosition", ["number"]);
+    this.adTagUrl = checkAdRequestEmptyData(adTagUrl, "adTagUrl", ["string"]);
+    this.errorCode = checkAdRequestEmptyData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkAdRequestEmptyData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdRequestErrorData
+   * @classdesc Contains information about the ad SDK loaded event. 
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {string} adTagUrl The ad tag url post macro substitution
+   * @property {string} errorCode The error code if any
+   * @property {string} errorMessage The error message
+   * @property {boolean} isTimeout If ad request timed out or not
+   * @property {boolean} isBlocked If ad was blocked by an ad blocker
+   */
+  EVENT_DATA.AdRequestErrorData = function(adPluginName, adPosition, adTagUrl, errorCode, errorMessage, isTimeout, isBlocked)
+  {
+    var checkAdRequestErrorData = OO._.bind(checkDataType, this, "AdRequestErrorData");
+    this.adPluginName = checkAdRequestErrorData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdRequestErrorData(adPosition, "adPosition", ["number"]);
+    this.adTagUrl = checkAdRequestErrorData(adTagUrl, "adTagUrl", ["string"]);
+    this.errorCode = checkAdRequestErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkAdRequestErrorData(errorMessage, "errorMessage", ["string"]);
+    this.isTimeout = checkAdRequestErrorData(isTimeout, "isTimeout", ["boolean"]);
+    this.isBlocked = checkAdRequestErrorData(isBlocked, "isBlocked", ["boolean"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdPlaybackErrorData
+   * @classdesc Contains information about the ad SDK loaded event. 
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {string} adTagUrl The ad tag url post macro substitution
+   * @property {string} errorCode The error code if any
+   * @property {string} errorMessage The error message
+   * @property {string[]} videoPluginList List of all video plugins used
+   * @property {string} mediaFileUrl The url used to retrieve the ad media file
+   */
+  EVENT_DATA.AdPlaybackErrorData = function(adPluginName, adPosition, adTagUrl, errorCode, errorMessage, videoPluginList, mediaFileUrl)
+  {
+    var checkAdPlaybackErrorData = OO._.bind(checkDataType, this, "AdPlaybackErrorData");
+    this.adPluginName = checkAdPlaybackErrorData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdPlaybackErrorData(adPosition, "adPosition", ["number"]);
+    this.adTagUrl = checkAdPlaybackErrorData(adTagUrl, "adTagUrl", ["string"]);
+    this.errorCode = checkAdPlaybackErrorData(errorCode, "errorCode", ["string"]);
+    this.errorMessage = checkAdPlaybackErrorData(errorMessage, "errorMessage", ["string"]);
+    this.videoPluginList = checkAdPlaybackErrorData(videoPluginList, "videoPluginList", ["array"]);
+    this.mediaFileUrl = checkAdPlaybackErrorData(mediaFileUrl, "mediaFileUrl", ["string"]);
+  };
+
+
  /**
    * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadedData
@@ -919,7 +995,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {string} playerCoreVersion The player core version
    * @property {string} errorMessage The error message associated with the ad sdk load failure
-   * @param {boolean} adBlocked True if the SDK load event was caused by an ad blocker.
+   * @property {boolean} adBlocked True if the SDK load event was caused by an ad blocker.
    */
   EVENT_DATA.AdSdkLoadFailureData = function(adPluginName, playerCoreVersion, errorMessage, adBlocked)
   {
