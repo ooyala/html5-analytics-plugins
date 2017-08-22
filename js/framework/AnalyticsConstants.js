@@ -913,7 +913,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {string} errorCode The error code if any
+   * @property {number} errorCode The error code if any
    * @property {string} errorMessage The error message
    */
   EVENT_DATA.AdRequestEmptyData = function(adPluginName, adPosition, adTagUrl, errorCode, errorMessage)
@@ -922,7 +922,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPluginName = checkAdRequestEmptyData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestEmptyData(adPosition, "adPosition", ["number"]);
     this.adTagUrl = checkAdRequestEmptyData(adTagUrl, "adTagUrl", ["string"]);
-    this.errorCode = checkAdRequestEmptyData(errorCode, "errorCode", ["string"]);
+    this.errorCode = checkAdRequestEmptyData(errorCode, "errorCode", ["number"]);
     this.errorMessage = checkAdRequestEmptyData(errorMessage, "errorMessage", ["string"]);
   };
 
@@ -933,7 +933,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {string} errorCode The error code if any
+   * @property {number} errorCode The error code if any
    * @property {string} errorMessage The error message
    * @property {boolean} isTimeout If ad request timed out or not
    * @property {boolean} isBlocked If ad was blocked by an ad blocker
@@ -944,7 +944,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPluginName = checkAdRequestErrorData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestErrorData(adPosition, "adPosition", ["number"]);
     this.adTagUrl = checkAdRequestErrorData(adTagUrl, "adTagUrl", ["string"]);
-    this.errorCode = checkAdRequestErrorData(errorCode, "errorCode", ["string"]);
+    this.errorCode = checkAdRequestErrorData(errorCode, "errorCode", ["number"]);
     this.errorMessage = checkAdRequestErrorData(errorMessage, "errorMessage", ["string"]);
     this.isTimeout = checkAdRequestErrorData(isTimeout, "isTimeout", ["boolean"]);
     this.isBlocked = checkAdRequestErrorData(isBlocked, "isBlocked", ["boolean"]);
@@ -957,7 +957,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {string} errorCode The error code if any
+   * @property {number} errorCode The error code if any
    * @property {string} errorMessage The error message
    * @property {string[]} videoPluginList List of all video plugins used
    * @property {string} mediaFileUrl The url used to retrieve the ad media file
@@ -968,7 +968,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPluginName = checkAdPlaybackErrorData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdPlaybackErrorData(adPosition, "adPosition", ["number"]);
     this.adTagUrl = checkAdPlaybackErrorData(adTagUrl, "adTagUrl", ["string"]);
-    this.errorCode = checkAdPlaybackErrorData(errorCode, "errorCode", ["string"]);
+    this.errorCode = checkAdPlaybackErrorData(errorCode, "errorCode", ["number"]);
     this.errorMessage = checkAdPlaybackErrorData(errorMessage, "errorMessage", ["string"]);
     this.videoPluginList = checkAdPlaybackErrorData(videoPluginList, "videoPluginList", ["array"]);
     this.mediaFileUrl = checkAdPlaybackErrorData(mediaFileUrl, "mediaFileUrl", ["string"]);
