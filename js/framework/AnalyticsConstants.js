@@ -875,12 +875,14 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the ad request event. 
    * @property {string} adPluginName The name of the ad plugin used
    * @property {number} adPosition The position the ad is scheduled to play
+   * @property {boolean} preloadingEnabled Boolean to determine if preloading is enabled or not
    */
-  EVENT_DATA.AdRequestData = function(adPluginName, adPosition)
+  EVENT_DATA.AdRequestData = function(adPluginName, adPosition, preloadingEnabled)
   {
     var checkAdRequestData = OO._.bind(checkDataType, this, "AdRequestData");
     this.adPluginName = checkAdRequestData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestData(adPosition, "adPosition", ["number"]);
+    this.preloadingEnabled = checkAdRequestData(preloadingEnabled, "preloadingEnabled", ["boolean"]);
   };
 
 
