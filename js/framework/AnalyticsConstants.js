@@ -405,6 +405,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_COMPLETED
+     * @description This message is sent when the ad playback is completed.
+     */
+    AD_COMPLETED:                   'ad_completed',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_CLICKTHROUGH_OPENED
      * @description This message is sent when an ad clickthrough event has occurred.
      */
@@ -893,17 +900,17 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin used
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {number} numberOfAds The number of ads returned
-   * @property {string} adType The ad type: VAST or VPAID
-   * @property {number} responseTime the ad request response time
+   * @property {string} adProtocol The ad protocol: VAST or VPAID
+   * @property {number} responseTime The time in milliseconds that it took to get a response for the ad request
    * @property {boolean} isPlaylist if the ad response is a playlist or not
    */
-  EVENT_DATA.AdRequestSuccessData = function(adPluginName, adPosition, numberOfAds, adType, responseTime, isPlaylist)
+  EVENT_DATA.AdRequestSuccessData = function(adPluginName, adPosition, numberOfAds, adProtocol, responseTime, isPlaylist)
   {
     var checkAdRequestSuccessData = OO._.bind(checkDataType, this, "AdRequestSuccessData");
     this.adPluginName = checkAdRequestSuccessData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestSuccessData(adPosition, "adPosition", ["number"]);
     this.numberOfAds = checkAdRequestSuccessData(numberOfAds, "numberOfAds", ["number"]);
-    this.adType = checkAdRequestSuccessData(adType, "adType", ["string"]);
+    this.adProtocol = checkAdRequestSuccessData(adProtocol, "adProtocol", ["string"]);
     this.responseTime = checkAdRequestSuccessData(responseTime, "responseTime", ["number"]);
     this.isPlaylist = checkAdRequestSuccessData(isPlaylist, "isPlaylist", ["boolean"]);
   };
@@ -911,7 +918,7 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#AdRequestEmptyData
-   * @classdesc Contains information about the ad SDK loaded event. 
+   * @classdesc Contains information about the ad request empty event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
@@ -931,7 +938,7 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#AdRequestErrorData
-   * @classdesc Contains information about the ad SDK loaded event. 
+   * @classdesc Contains information about the ad request error event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
@@ -955,7 +962,7 @@ if (!OO.Analytics.EVENT_DATA)
   /**
    * @public
    * @class Analytics.EVENT_DATA#AdPlaybackErrorData
-   * @classdesc Contains information about the ad SDK loaded event. 
+   * @classdesc Contains information about the ad playback error event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
@@ -976,6 +983,43 @@ if (!OO.Analytics.EVENT_DATA)
     this.mediaFileUrl = checkAdPlaybackErrorData(mediaFileUrl, "mediaFileUrl", ["string"]);
   };
 
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdImpressionData
+   * @classdesc Contains information about the ad impression event. 
+   * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {number} adPosition The time the ad is scheduled to play
+   * @property {number} adLoadTime The time in milliseconds between the ad request success and started
+   * @property {string} adProtocol The ad protocol (VAST / VPAID)
+   * @property {string} adType The ad type (LinearOverlay, LinearVideo, NonLinearOverlay, NonLinearVideo)
+   * @property {string} fallbackPosition The fallback position of the ad
+   */
+  EVENT_DATA.AdImpressionData = function(adPluginName, adPosition, adLoadTime, adProtocol, adType, fallbackPosition)
+  {
+    var checkAdImpressionData = OO._.bind(checkDataType, this, "AdImpressionData");
+    this.adPluginName = checkAdImpressionData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdImpressionData(adPosition, "adPosition", ["number"]);
+    this.adLoadTime = checkAdImpressionData(adLoadTime, "adLoadTime", ["number"]);
+    this.adProtocol = checkAdImpressionData(adProtocol, "adProtocol", ["string"]);
+    this.adType = checkAdImpressionData(adType, "adType", ["string"]);
+    this.fallbackPosition = checkAdImpressionData(fallbackPosition, "fallbackPosition", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdCompletedData
+   * @classdesc Contains information about the ad completed event. 
+   * @property {string} adPluginName The name of the ad plugin used
+   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {boolean} skipped True if ad was skipped by user.
+   */
+  EVENT_DATA.AdCompletedData = function(adPluginName, adPosition, skipped)
+  {
+    var checkAdCompletedData = OO._.bind(checkDataType, this, "AdCompletedData");
+    this.adPluginName = checkAdCompletedData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdCompletedData(adPosition, "adPosition", ["number"]);
+    this.skipped = checkAdCompletedData(skipped, "skipped", ["boolean"]);
+  };
 
  /**
    * @public
@@ -983,11 +1027,11 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the ad SDK loaded event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    */
-  EVENT_DATA.AdSdkLoadedData = function(adPluginName, playerCoreVersion)
+  EVENT_DATA.LoadAdSdkData = function(adPluginName, playerCoreVersion)
   {
-    var checkAdSdkLoadedData = OO._.bind(checkDataType, this, "AdSdkLoadedData");
-    this.adPluginName = checkAdSdkLoadedData(adPluginName, "adPluginName", ["string"]);
-    this.playerCoreVersion = checkAdSdkLoadedData(playerCoreVersion, "playerCoreVersion", ["string"]);
+    var checkLoadAdSdkData = OO._.bind(checkDataType, this, "LoadAdSdkData");
+    this.adPluginName = checkLoadAdSdkData(adPluginName, "adPluginName", ["string"]);
+    this.playerCoreVersion = checkLoadAdSdkData(playerCoreVersion, "playerCoreVersion", ["string"]);
   };
 
    /**
@@ -999,13 +1043,13 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} errorMessage The error message associated with the ad sdk load failure
    * @property {boolean} adBlocked True if the SDK load event was caused by an ad blocker.
    */
-  EVENT_DATA.AdSdkLoadFailureData = function(adPluginName, playerCoreVersion, errorMessage, adBlocked)
+  EVENT_DATA.LoadAdSdkFailureData = function(adPluginName, playerCoreVersion, errorMessage, adBlocked)
   {
-    var checkAdSdkLoadFailureData = OO._.bind(checkDataType, this, "AdSdkLoadFailureData");
-    this.adPluginName = checkAdSdkLoadFailureData(adPluginName, "adPluginName", ["string"]);
-    this.playerCoreVersion = checkAdSdkLoadFailureData(playerCoreVersion, "playerCoreVersion", ["string"]);
-    this.errorMessage = checkAdSdkLoadFailureData(errorMessage, "errorMessage", ["string"]);
-    this.adBlocked = checkAdSdkLoadFailureData(adBlocked, "adBlocked", ["boolean"]);
+    var checkLoadAdSdkFailureData = OO._.bind(checkDataType, this, "LoadAdSdkFailureData");
+    this.adPluginName = checkLoadAdSdkFailureData(adPluginName, "adPluginName", ["string"]);
+    this.playerCoreVersion = checkLoadAdSdkFailureData(playerCoreVersion, "playerCoreVersion", ["string"]);
+    this.errorMessage = checkLoadAdSdkFailureData(errorMessage, "errorMessage", ["string"]);
+    this.adBlocked = checkLoadAdSdkFailureData(adBlocked, "adBlocked", ["boolean"]);
   };
 
   /**
