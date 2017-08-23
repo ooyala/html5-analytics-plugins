@@ -258,6 +258,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_REQUEST_ERROR:
       case OO.Analytics.EVENTS.AD_PLAYBACK_ERROR:
       case OO.Analytics.EVENTS.AD_IMPRESSION:
+      case OO.Analytics.EVENTS.AD_COMPLETED:
       case OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED:
         var eventMetadata = params[0];
         if(eventMetadata == null)

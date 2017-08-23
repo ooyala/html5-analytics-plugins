@@ -1010,14 +1010,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdCompletedData
    * @classdesc Contains information about the ad completed event. 
    * @property {string} adPluginName The name of the ad plugin used
-   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {number} timeSinceImpression The time passed since the ad impression 
+   *                                          was recorded in milliseconds
    * @property {boolean} skipped True if ad was skipped by user.
    */
-  EVENT_DATA.AdCompletedData = function(adPluginName, adPosition, skipped)
+  EVENT_DATA.AdCompletedData = function(adPluginName, timeSinceImpression, skipped)
   {
     var checkAdCompletedData = OO._.bind(checkDataType, this, "AdCompletedData");
     this.adPluginName = checkAdCompletedData(adPluginName, "adPluginName", ["string"]);
-    this.adPosition = checkAdCompletedData(adPosition, "adPosition", ["number"]);
+    this.timeSinceImpression = checkAdCompletedData(timeSinceImpression, "timeSinceImpression", ["number"]);
     this.skipped = checkAdCompletedData(skipped, "skipped", ["boolean"]);
   };
 
