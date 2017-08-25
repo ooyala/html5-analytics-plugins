@@ -315,8 +315,8 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(unitTestState.reportPlayerLoadCalled).toBe(1);
     expect(unitTestState.initializeMediaCalled).toBe(1);
     expect(unitTestState.setMediaDurationCalled).toBe(1);
-    expect(unitTestState.mediaId).toBe("testTitle");
-    expect(unitTestState.contentType).toBe("Video");
+    expect(unitTestState.mediaId).toBe("testEmbedCode");
+    expect(unitTestState.contentType).toBe("ooyala");
     expect(unitTestState.duration).toBe(60000);
     expect(plugin.ooyalaReporter._base.pcode).toBe("testPcode");
   });

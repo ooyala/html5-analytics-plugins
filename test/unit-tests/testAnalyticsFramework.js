@@ -2035,20 +2035,17 @@ describe('Analytics Framework Unit Tests', function()
     {
       var metadataIn = {
         adPluginName: "testAdPlugin",
-        sdkAdEvent: {
-          eventType: "testEventType",
-          event: "testEvent",
-          params: [{}]
-        }
+        adEventName: "testAdEvent",
+        adEventData: {}
       };
 
-      var data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.sdkAdEvent);
+      var data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.adEventName, metadataIn.adEventData);
       expect(data).toEqual(metadataIn);
 
       metadataIn =
       {
         adPluginName: {},
-        sdkAdEvent: "blah"
+        adEventName: "blah"
       };
 
       var metadataOut =
