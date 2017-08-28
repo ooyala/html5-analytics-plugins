@@ -329,6 +329,16 @@ if (!OO.Analytics.EVENTS)
      */
     AD_PLAYBACK_ERROR:               'ad_playback_error',
 
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#AD_SDK_IMPRESSION
+     * @description This message is sent when an impression is recorded 
+     * by the ad plugin SDK.
+     */
+    AD_SDK_IMPRESSION:                  'ad_sdk_impression',
+
+
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_BREAK_STARTED
@@ -922,16 +932,16 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {number} errorCode The error code if any
+   * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
    */
-  EVENT_DATA.AdRequestEmptyData = function(adPluginName, adPosition, adTagUrl, errorCode, errorMessage)
+  EVENT_DATA.AdRequestEmptyData = function(adPluginName, adPosition, adTagUrl, errorCodes, errorMessage)
   {
     var checkAdRequestEmptyData = OO._.bind(checkDataType, this, "AdRequestEmptyData");
     this.adPluginName = checkAdRequestEmptyData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestEmptyData(adPosition, "adPosition", ["number"]);
     this.adTagUrl = checkAdRequestEmptyData(adTagUrl, "adTagUrl", ["string"]);
-    this.errorCode = checkAdRequestEmptyData(errorCode, "errorCode", ["number"]);
+    this.errorCodes = checkAdRequestEmptyData(errorCodes, "errorCodes", ["object"]);
     this.errorMessage = checkAdRequestEmptyData(errorMessage, "errorMessage", ["string"]);
   };
 
@@ -942,18 +952,18 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {number} errorCode The error code if any
+   * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
    * @property {boolean} isTimeout If ad request timed out or not
    * @property {boolean} isBlocked If ad was blocked by an ad blocker
    */
-  EVENT_DATA.AdRequestErrorData = function(adPluginName, adPosition, adTagUrl, errorCode, errorMessage, isTimeout, isBlocked)
+  EVENT_DATA.AdRequestErrorData = function(adPluginName, adPosition, adTagUrl, errorCodes, errorMessage, isTimeout, isBlocked)
   {
     var checkAdRequestErrorData = OO._.bind(checkDataType, this, "AdRequestErrorData");
     this.adPluginName = checkAdRequestErrorData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestErrorData(adPosition, "adPosition", ["number"]);
     this.adTagUrl = checkAdRequestErrorData(adTagUrl, "adTagUrl", ["string"]);
-    this.errorCode = checkAdRequestErrorData(errorCode, "errorCode", ["number"]);
+    this.errorCodes = checkAdRequestErrorData(errorCodes, "errorCodes", ["object"]);
     this.errorMessage = checkAdRequestErrorData(errorMessage, "errorMessage", ["string"]);
     this.isTimeout = checkAdRequestErrorData(isTimeout, "isTimeout", ["boolean"]);
     this.isBlocked = checkAdRequestErrorData(isBlocked, "isBlocked", ["boolean"]);
@@ -966,27 +976,27 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {number} errorCode The error code if any
+   * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
-   * @property {string[]} videoPluginList List of all video plugins used
+   * @property {object} videoPluginList Object containing all video plugins used
    * @property {string} mediaFileUrl The url used to retrieve the ad media file
    */
-  EVENT_DATA.AdPlaybackErrorData = function(adPluginName, adPosition, adTagUrl, errorCode, errorMessage, videoPluginList, mediaFileUrl)
+  EVENT_DATA.AdPlaybackErrorData = function(adPluginName, adPosition, adTagUrl, errorCodes, errorMessage, videoPluginList, mediaFileUrl)
   {
     var checkAdPlaybackErrorData = OO._.bind(checkDataType, this, "AdPlaybackErrorData");
     this.adPluginName = checkAdPlaybackErrorData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdPlaybackErrorData(adPosition, "adPosition", ["number"]);
     this.adTagUrl = checkAdPlaybackErrorData(adTagUrl, "adTagUrl", ["string"]);
-    this.errorCode = checkAdPlaybackErrorData(errorCode, "errorCode", ["number"]);
+    this.errorCodes = checkAdPlaybackErrorData(errorCodes, "errorCodes", ["object"]);
     this.errorMessage = checkAdPlaybackErrorData(errorMessage, "errorMessage", ["string"]);
-    this.videoPluginList = checkAdPlaybackErrorData(videoPluginList, "videoPluginList", ["array"]);
+    this.videoPluginList = checkAdPlaybackErrorData(videoPluginList, "videoPluginList", ["object"]);
     this.mediaFileUrl = checkAdPlaybackErrorData(mediaFileUrl, "mediaFileUrl", ["string"]);
   };
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#AdImpressionData
-   * @classdesc Contains information about the ad impression event. 
+   * @class Analytics.EVENT_DATA#AdSdkImpressionData
+   * @classdesc Contains information about the ad sdk impression event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {number} adPosition The time the ad is scheduled to play
    * @property {number} adLoadTime The time in milliseconds between the ad request success and started
@@ -994,15 +1004,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adType The ad type (LinearOverlay, LinearVideo, NonLinearOverlay, NonLinearVideo)
    * @property {string} fallbackPosition The fallback position of the ad
    */
-  EVENT_DATA.AdImpressionData = function(adPluginName, adPosition, adLoadTime, adProtocol, adType, fallbackPosition)
+  EVENT_DATA.AdSdkImpressionData = function(adPluginName, adPosition, adLoadTime, adProtocol, adType, fallbackPosition)
   {
-    var checkAdImpressionData = OO._.bind(checkDataType, this, "AdImpressionData");
-    this.adPluginName = checkAdImpressionData(adPluginName, "adPluginName", ["string"]);
-    this.adPosition = checkAdImpressionData(adPosition, "adPosition", ["number"]);
-    this.adLoadTime = checkAdImpressionData(adLoadTime, "adLoadTime", ["number"]);
-    this.adProtocol = checkAdImpressionData(adProtocol, "adProtocol", ["string"]);
-    this.adType = checkAdImpressionData(adType, "adType", ["string"]);
-    this.fallbackPosition = checkAdImpressionData(fallbackPosition, "fallbackPosition", ["string"]);
+    var checkAdSdkImpressionData = OO._.bind(checkDataType, this, "AdSdkImpressionData");
+    this.adPluginName = checkAdSdkImpressionData(adPluginName, "adPluginName", ["string"]);
+    this.adPosition = checkAdSdkImpressionData(adPosition, "adPosition", ["number"]);
+    this.adLoadTime = checkAdSdkImpressionData(adLoadTime, "adLoadTime", ["number"]);
+    this.adProtocol = checkAdSdkImpressionData(adProtocol, "adProtocol", ["string"]);
+    this.adType = checkAdSdkImpressionData(adType, "adType", ["string"]);
+    this.fallbackPosition = checkAdSdkImpressionData(fallbackPosition, "fallbackPosition", ["string"]);
   };
 
   /**
