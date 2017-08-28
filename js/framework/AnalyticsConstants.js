@@ -892,14 +892,12 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the ad request event. 
    * @property {string} adPluginName The name of the ad plugin used
    * @property {number} adPosition The position the ad is scheduled to play
-   * @property {boolean} preloadingEnabled Boolean to determine if preloading is enabled or not
    */
-  EVENT_DATA.AdRequestData = function(adPluginName, adPosition, preloadingEnabled)
+  EVENT_DATA.AdRequestData = function(adPluginName, adPosition)
   {
     var checkAdRequestData = OO._.bind(checkDataType, this, "AdRequestData");
     this.adPluginName = checkAdRequestData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestData(adPosition, "adPosition", ["number"]);
-    this.preloadingEnabled = checkAdRequestData(preloadingEnabled, "preloadingEnabled", ["boolean"]);
   };
 
 
@@ -909,20 +907,14 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the ad request success event. 
    * @property {string} adPluginName The name of the ad plugin used
    * @property {number} adPosition The position the ad is scheduled to play
-   * @property {number} numberOfAds The number of ads returned
-   * @property {string} adProtocol The ad protocol: VAST or VPAID
    * @property {number} responseTime The time in milliseconds that it took to get a response for the ad request
-   * @property {boolean} isPlaylist if the ad response is a playlist or not
    */
-  EVENT_DATA.AdRequestSuccessData = function(adPluginName, adPosition, numberOfAds, adProtocol, responseTime, isPlaylist)
+  EVENT_DATA.AdRequestSuccessData = function(adPluginName, adPosition, responseTime)
   {
     var checkAdRequestSuccessData = OO._.bind(checkDataType, this, "AdRequestSuccessData");
     this.adPluginName = checkAdRequestSuccessData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestSuccessData(adPosition, "adPosition", ["number"]);
-    this.numberOfAds = checkAdRequestSuccessData(numberOfAds, "numberOfAds", ["number"]);
-    this.adProtocol = checkAdRequestSuccessData(adProtocol, "adProtocol", ["string"]);
     this.responseTime = checkAdRequestSuccessData(responseTime, "responseTime", ["number"]);
-    this.isPlaylist = checkAdRequestSuccessData(isPlaylist, "isPlaylist", ["boolean"]);
   };
 
   /**
@@ -955,9 +947,8 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
    * @property {boolean} isTimeout If ad request timed out or not
-   * @property {boolean} isBlocked If ad was blocked by an ad blocker
    */
-  EVENT_DATA.AdRequestErrorData = function(adPluginName, adPosition, adTagUrl, errorCodes, errorMessage, isTimeout, isBlocked)
+  EVENT_DATA.AdRequestErrorData = function(adPluginName, adPosition, adTagUrl, errorCodes, errorMessage, isTimeout)
   {
     var checkAdRequestErrorData = OO._.bind(checkDataType, this, "AdRequestErrorData");
     this.adPluginName = checkAdRequestErrorData(adPluginName, "adPluginName", ["string"]);
@@ -966,7 +957,6 @@ if (!OO.Analytics.EVENT_DATA)
     this.errorCodes = checkAdRequestErrorData(errorCodes, "errorCodes", ["object"]);
     this.errorMessage = checkAdRequestErrorData(errorMessage, "errorMessage", ["string"]);
     this.isTimeout = checkAdRequestErrorData(isTimeout, "isTimeout", ["boolean"]);
-    this.isBlocked = checkAdRequestErrorData(isBlocked, "isBlocked", ["boolean"]);
   };
 
   /**
@@ -1002,9 +992,8 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {number} adLoadTime The time in milliseconds between the ad request success and started
    * @property {string} adProtocol The ad protocol (VAST / VPAID)
    * @property {string} adType The ad type (LinearOverlay, LinearVideo, NonLinearOverlay, NonLinearVideo)
-   * @property {string} fallbackPosition The fallback position of the ad
    */
-  EVENT_DATA.AdSdkImpressionData = function(adPluginName, adPosition, adLoadTime, adProtocol, adType, fallbackPosition)
+  EVENT_DATA.AdSdkImpressionData = function(adPluginName, adPosition, adLoadTime, adProtocol, adType)
   {
     var checkAdSdkImpressionData = OO._.bind(checkDataType, this, "AdSdkImpressionData");
     this.adPluginName = checkAdSdkImpressionData(adPluginName, "adPluginName", ["string"]);
@@ -1012,7 +1001,6 @@ if (!OO.Analytics.EVENT_DATA)
     this.adLoadTime = checkAdSdkImpressionData(adLoadTime, "adLoadTime", ["number"]);
     this.adProtocol = checkAdSdkImpressionData(adProtocol, "adProtocol", ["string"]);
     this.adType = checkAdSdkImpressionData(adType, "adType", ["string"]);
-    this.fallbackPosition = checkAdSdkImpressionData(fallbackPosition, "fallbackPosition", ["string"]);
   };
 
   /**
@@ -1052,15 +1040,13 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin that sent this event
    * @property {string} playerCoreVersion The player core version
    * @property {string} errorMessage The error message associated with the ad sdk load failure
-   * @property {boolean} adBlocked True if the SDK load event was caused by an ad blocker.
    */
-  EVENT_DATA.LoadAdSdkFailureData = function(adPluginName, playerCoreVersion, errorMessage, adBlocked)
+  EVENT_DATA.LoadAdSdkFailureData = function(adPluginName, playerCoreVersion, errorMessage)
   {
     var checkLoadAdSdkFailureData = OO._.bind(checkDataType, this, "LoadAdSdkFailureData");
     this.adPluginName = checkLoadAdSdkFailureData(adPluginName, "adPluginName", ["string"]);
     this.playerCoreVersion = checkLoadAdSdkFailureData(playerCoreVersion, "playerCoreVersion", ["string"]);
     this.errorMessage = checkLoadAdSdkFailureData(errorMessage, "errorMessage", ["string"]);
-    this.adBlocked = checkLoadAdSdkFailureData(adBlocked, "adBlocked", ["boolean"]);
   };
 
   /**
