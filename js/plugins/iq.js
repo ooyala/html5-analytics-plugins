@@ -276,7 +276,7 @@ var IqPlugin= function (framework)
         {
           eventMetadata.adEventName = eventName;
         }
-        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         break;
       default:

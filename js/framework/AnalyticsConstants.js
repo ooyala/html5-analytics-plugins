@@ -970,7 +970,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adTagUrl The ad tag url post macro substitution
    * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
-   * @property {object} videoPluginList Object containing all video plugins used
+   * @property {array} videoPluginList Array containing names of all video plugins registered
    * @property {string} mediaFileUrl The url used to retrieve the ad media file
    */
   EVENT_DATA.AdPlaybackErrorData = function(adPluginName, adPosition, adTagUrl, errorCodes, errorMessage, videoPluginList, mediaFileUrl)
@@ -981,7 +981,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.adTagUrl = checkAdPlaybackErrorData(adTagUrl, "adTagUrl", ["string"]);
     this.errorCodes = checkAdPlaybackErrorData(errorCodes, "errorCodes", ["object"]);
     this.errorMessage = checkAdPlaybackErrorData(errorMessage, "errorMessage", ["string"]);
-    this.videoPluginList = checkAdPlaybackErrorData(videoPluginList, "videoPluginList", ["object"]);
+    this.videoPluginList = checkAdPlaybackErrorData(videoPluginList, "videoPluginList", ["array"]);
     this.mediaFileUrl = checkAdPlaybackErrorData(mediaFileUrl, "mediaFileUrl", ["string"]);
   };
 
