@@ -100,7 +100,7 @@ var IqPlugin= function (framework)
     {
       trySetupAnalytics();
     }
-    else
+    else if (!window.Ooyala)
     {
       OO.loadScriptOnce("https://analytics.ooyala.com/static/v3/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
