@@ -908,13 +908,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} adPluginName The name of the ad plugin used
    * @property {number} adPosition The position the ad is scheduled to play
    * @property {number} responseTime The time in milliseconds that it took to get a response for the ad request
+   * @property {number} timeSinceInitialPlay The time in milliseconds from the initial play request time to ad request success
    */
-  EVENT_DATA.AdRequestSuccessData = function(adPluginName, adPosition, responseTime)
+  EVENT_DATA.AdRequestSuccessData = function(adPluginName, adPosition, responseTime, timeSinceInitialPlay)
   {
     var checkAdRequestSuccessData = OO._.bind(checkDataType, this, "AdRequestSuccessData");
     this.adPluginName = checkAdRequestSuccessData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestSuccessData(adPosition, "adPosition", ["number"]);
     this.responseTime = checkAdRequestSuccessData(responseTime, "responseTime", ["number"]);
+    this.timeSinceInitialPlay = checkAdRequestSuccessData(timeSinceInitialPlay, "timeSinceInitialPlay", ["number"]);
   };
 
   /**

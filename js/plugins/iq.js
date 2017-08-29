@@ -261,22 +261,21 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_SDK_IMPRESSION:
       case OO.Analytics.EVENTS.AD_COMPLETED:
       case OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED:
-        var eventMetadata = params[0];
-        if(eventMetadata == null)
-        {
-          eventMetadata = {};
-        }
-        eventMetadata.adEventName = eventName;
-        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
-        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-        break;
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
         var eventMetadata = params[0];
-        if(eventMetadata == null)
+        if(!eventMetadata)
         {
           eventMetadata = {};
         }
-        eventMetadata.adEventName = "" + eventName + " : " + eventMetadata.adEventName;
+
+        if (eventMetadata.adEventName)
+        {
+          eventMetadata.adEventName = eventName + ":" + eventMetadata.adEventName;
+        }
+        else
+        {
+          eventMetadata.adEventName = eventName;
+        }
         //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         break;
