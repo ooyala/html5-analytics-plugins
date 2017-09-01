@@ -3,7 +3,7 @@ require("../../html5-common/js/utils/utils.js");
 
 /**
  * @class IqPlugin
- * @classdesc This is an example class of a plugin that works with the Ooyala Analytics Framework.
+ * @classdesc Ooyala IQ analytics.js plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
 var IqPlugin= function (framework)
@@ -129,6 +129,7 @@ var IqPlugin= function (framework)
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
+      //OO.EVENTS.AUTHORIZATION_FETCHED -> OO.Analytics.STREAM_TYPE_UPDATED
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
         if (params && params[0])
         {
@@ -137,7 +138,7 @@ var IqPlugin= function (framework)
           var streamType = params[0].streamType;
         }
         break;
-
+      //OO.EVENTS.CONTENT_TREE_FETCHED -> OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED.
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
@@ -156,15 +157,15 @@ var IqPlugin= function (framework)
           }
         }
         break;
-
+      //OO.EVENTS.EMBED_CODE_CHANGED -> OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED.
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
-        if (params && params[0])
+        if (params && params[0] && params[0].metadata)
         {
           autoPlay = params[0].metadata.autoPlay;
           currentEmbedCode = params[0].embedCode;
         }
         break;
-
+      //OO.EVENTS.PLAYER_CREATED -> OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         if (params && params[0])
         {
@@ -173,6 +174,7 @@ var IqPlugin= function (framework)
           if (this.ooyalaReporter)
           {
             this.ooyalaReporter._base.pcode = pcode;
+            /* TODO: disable later as this is already reported by reporter.js in core */
             this.ooyalaReporter.reportPlayerLoad();
             OO.log("IQ: Reported: reportPlayerLoad()");
           }
@@ -183,12 +185,13 @@ var IqPlugin= function (framework)
           }
         }
         break;
-
+      //OO.EVENTS.INITIAL_PLAY -> OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED.
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
+        /* TODO: disable later as this is already reported by reporter.js in core */
         OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
         this.ooyalaReporter.reportPlayRequested(autoPlay);
         break;
-
+      //OO.EVENTS.PLAYHEAD_TIME_CHANGED -> OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED.
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0])
         {
@@ -197,6 +200,7 @@ var IqPlugin= function (framework)
           {
             if (this.ooyalaReporter)
             {
+              /* TODO: disable later as this is already reported by reporter.js in core */
               var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
               this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
               OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
@@ -209,18 +213,18 @@ var IqPlugin= function (framework)
           }
         }
         break;
-
+      //OO.EVENTS.PAUSED -> OO.Analytics.EVENTS.VIDEO_PAUSED.
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
         this.ooyalaReporter.reportPause();
         OO.log("IQ: Reported: reportPause()");
         break;
-
       // TODO: use for resume?
+      //OO.EVENTS.PLAYING -> OO.Analytics.EVENTS.VIDEO_PLAYING.
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         this.ooyalaReporter.reportResume();
         OO.log("IQ: Reported: reportResume()");
         break;
-
+      //OO.EVENTS.SEEKED -> OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED.
       case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
         if (params && params[0])
         {
@@ -231,12 +235,12 @@ var IqPlugin= function (framework)
           OO.log("IQ: Reported: reportSeek() with args: " + currentPlayheadPositionMilli + ", " + seekedPlayheadPositionMilli);
         }
         break;
-
+      //OO.EVENTS.PLAYED -> OO.Analytics.EVENTS.PLAYBACK_COMPLETED.
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         this.ooyalaReporter.reportComplete();
         OO.log("IQ: Reported: reportComplete()");
         break;
-
+      //OO.EVENTS.REPLAY -> OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED.
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         this.ooyalaReporter.reportReplay();
         OO.log("IQ: Reported: reportReplay()");
@@ -330,7 +334,7 @@ var IqPlugin= function (framework)
       // TODO: setup
       var deviceInfo = {};
       var playerName = "Ooyala Player";
-      var playerVersion = "v4"; // TODO: need a mechanism in core to get this
+      var playerVersion = OO.VERSION.core.releaseVersion;  // TODO: need a mechanism in core to get this
       this.ooyalaReporter.setDeviceInfo();
       this.ooyalaReporter.setPlayerInfo(playerId, playerName, playerVersion);
     }

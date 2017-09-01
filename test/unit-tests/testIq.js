@@ -19,6 +19,7 @@ describe('Analytics Framework Template Unit Tests', function()
     framework = new Analytics.Framework();
     //mute the logging becuase there will be lots of error messages
     OO.log = function(){};
+    OO.VERSION = { core : { releaseVersion : "v4"} };
 
     window.Ooyala = {
       Analytics : {
