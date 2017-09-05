@@ -102,7 +102,7 @@ var IqPlugin= function (framework)
     }
     else if (!window.Ooyala)
     {
-      OO.loadScriptOnce("https://analytics.ooyala.com/static/v3/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
+      OO.loadScriptOnce("//analytics.ooyala.com/static/v3/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
   };
 
@@ -129,15 +129,6 @@ var IqPlugin= function (framework)
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
-      //OO.EVENTS.AUTHORIZATION_FETCHED -> OO.Analytics.STREAM_TYPE_UPDATED
-      case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
-        if (params && params[0])
-        {
-          //Retrieve the stream type here.
-          //Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
-          var streamType = params[0].streamType;
-        }
-        break;
       //OO.EVENTS.CONTENT_TREE_FETCHED -> OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED.
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])

@@ -285,49 +285,49 @@ if (!OO.Analytics.EVENTS)
      * @event OO.Analytics.EVENTS#AD_SDK_LOADED
      * @description This message is sent when ad sdk has loaded successfully.
      */
-    AD_SDK_LOADED:               'ad_sdk_loaded',
+    AD_SDK_LOADED:               'adSdkLoaded',
 
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_SDK_LOAD_FAILURE
      * @description This message is sent when ad sdk has failed to load.
      */
-    AD_SDK_LOAD_FAILURE:               'ad_sdk_load_failure',
+    AD_SDK_LOAD_FAILURE:               'adSdkLoadFailed',
 
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_REQUEST
      * @description This message is sent when an ad request is sent to the ad sdk.
      */
-    AD_REQUEST:               'ad_request',
+    AD_REQUEST:               'adRequest',
 
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_REQUEST_SUCCESS
      * @description This event is sent when an ad request successfully returns and ad or playlist of ads.
      */
-    AD_REQUEST_SUCCESS:               'ad_request_success',
+    AD_REQUEST_SUCCESS:               'adRequestSuccess',
 
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_REQUEST_ERROR
      * @description This event is sent when an ad request fails due to an error.
      */
-    AD_REQUEST_ERROR:               'ad_request_error',
+    AD_REQUEST_ERROR:               'adRequestError',
 
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_REQUEST_EMPTY
      * @description This event is sent when an ad request returns but contains no ads.
      */
-    AD_REQUEST_EMPTY:               'ad_request_empty',
+    AD_REQUEST_EMPTY:               'adRequestEmpty',
 
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_PLAYBACK_ERROR
      * @description This event is sent when an ad playback fails due to an error.
      */
-    AD_PLAYBACK_ERROR:               'ad_playback_error',
+    AD_PLAYBACK_ERROR:               'adPlaybackError',
 
 
     /**
@@ -336,7 +336,7 @@ if (!OO.Analytics.EVENTS)
      * @description This message is sent when an impression is recorded 
      * by the ad plugin SDK.
      */
-    AD_SDK_IMPRESSION:                  'ad_sdk_impression',
+    AD_SDK_IMPRESSION:                  'adSdkImpression',
 
 
     /**
@@ -418,7 +418,7 @@ if (!OO.Analytics.EVENTS)
      * @event OO.Analytics.EVENTS#AD_COMPLETED
      * @description This message is sent when the ad playback is completed.
      */
-    AD_COMPLETED:                   'ad_completed',
+    AD_COMPLETED:                   'adCompleted',
 
     /**
      * @public
