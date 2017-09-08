@@ -165,9 +165,9 @@ var IqPlugin= function (framework)
           if (this.ooyalaReporter)
           {
             this.ooyalaReporter._base.pcode = pcode;
-            /* TODO: disable later as this is already reported by reporter.js in core */
-            this.ooyalaReporter.reportPlayerLoad();
-            OO.log("IQ: Reported: reportPlayerLoad()");
+            /* TODO: disable for now as this is already reported by reporter.js in core */
+            //this.ooyalaReporter.reportPlayerLoad();
+            //OO.log("IQ: Reported: reportPlayerLoad()");
           }
           else
           {
@@ -178,9 +178,9 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.INITIAL_PLAY -> OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED.
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        /* TODO: disable later as this is already reported by reporter.js in core */
-        OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
-        this.ooyalaReporter.reportPlayRequested(autoPlay);
+        /* TODO: disable for now as this is already reported by reporter.js in core */
+        //OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
+        //this.ooyalaReporter.reportPlayRequested(autoPlay);
         break;
       //OO.EVENTS.PLAYHEAD_TIME_CHANGED -> OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED.
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
@@ -191,10 +191,10 @@ var IqPlugin= function (framework)
           {
             if (this.ooyalaReporter)
             {
-              /* TODO: disable later as this is already reported by reporter.js in core */
-              var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
-              this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
-              OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
+              /* TODO: disable for now as this is already reported by reporter.js in core */
+              //var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
+              //this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
+              //OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
             }
             else
             {

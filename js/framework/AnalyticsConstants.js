@@ -304,7 +304,7 @@ if (!OO.Analytics.EVENTS)
     /**
      * @public
      * @event OO.Analytics.EVENTS#AD_REQUEST_SUCCESS
-     * @description This event is sent when an ad request successfully returns and ad or playlist of ads.
+     * @description This event is sent when an ad request successfully returns an ad or playlist of ads.
      */
     AD_REQUEST_SUCCESS:               'adRequestSuccess',
 
@@ -891,7 +891,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdRequestData
    * @classdesc Contains information about the ad request event. 
    * @property {string} adPluginName The name of the ad plugin used
-   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
    */
   EVENT_DATA.AdRequestData = function(adPluginName, adPosition)
   {
@@ -906,7 +906,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdRequestSuccssData
    * @classdesc Contains information about the ad request success event. 
    * @property {string} adPluginName The name of the ad plugin used
-   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
    * @property {number} responseTime The time in milliseconds that it took to get a response for the ad request
    * @property {number} timeSinceInitialPlay The time in milliseconds from the initial play request time to ad request success
    */
@@ -924,7 +924,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdRequestEmptyData
    * @classdesc Contains information about the ad request empty event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
    * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
@@ -944,7 +944,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdRequestErrorData
    * @classdesc Contains information about the ad request error event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
    * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
@@ -966,7 +966,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdPlaybackErrorData
    * @classdesc Contains information about the ad playback error event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The position the ad is scheduled to play
+   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
    * @property {string} adTagUrl The ad tag url post macro substitution
    * @property {object} errorCodes Object containing all error codes received
    * @property {string} errorMessage The error message
@@ -990,7 +990,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#AdSdkImpressionData
    * @classdesc Contains information about the ad sdk impression event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The time the ad is scheduled to play
+   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
    * @property {number} adLoadTime The time in milliseconds between the ad request success and started
    * @property {string} adProtocol The ad protocol (VAST / VPAID)
    * @property {string} adType The ad type (LinearOverlay, LinearVideo, NonLinearOverlay, NonLinearVideo)
