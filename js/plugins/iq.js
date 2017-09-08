@@ -152,7 +152,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         if (params && params[0] && params[0].metadata)
         {
-          autoPlay = params[0].metadata.autoPlay;
+          //autoPlay = params[0].metadata.autoPlay;
           currentEmbedCode = params[0].embedCode;
         }
         break;
