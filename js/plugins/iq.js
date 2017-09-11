@@ -100,7 +100,7 @@ var IqPlugin= function (framework)
     {
       trySetupAnalytics();
     }
-    else if (!window.Ooyala)
+    else if (!this.ooyalaReporter)
     {
       OO.loadScriptOnce("//analytics.ooyala.com/static/v3/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
@@ -257,22 +257,29 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_COMPLETED:
       case OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED:
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
-        var eventMetadata = params[0];
-        if(!eventMetadata)
+        if (this.ooyalaReporter)
         {
-          eventMetadata = {};
-        }
+          var eventMetadata = params[0];
+          if(!eventMetadata)
+          {
+            eventMetadata = {};
+          }
 
-        if (eventMetadata.adEventName)
-        {
-          eventMetadata.adEventName = eventName + ":" + eventMetadata.adEventName;
+          if (eventMetadata.adEventName)
+          {
+            eventMetadata.adEventName = eventName + ":" + eventMetadata.adEventName;
+          }
+          else
+          {
+            eventMetadata.adEventName = eventName;
+          }
+          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         }
         else
         {
-          eventMetadata.adEventName = eventName;
+          OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
         }
-        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
-        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         break;
       default:
         break;
