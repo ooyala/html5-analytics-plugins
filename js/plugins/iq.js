@@ -160,11 +160,20 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         if (params && params[0])
         {
-          pcode = params[0].pcode;
-          playerId = params[0].playerBrandingId;
+          eventParams = params[0];
+          pcode = eventParams.params.pcode;
+          playerId = eventParams.params.playerBrandingId;
+          eventMetadata = {};
+          eventMetadata.playerCoreVersion = eventParams.playerCoreVersion;
+          eventMetadata.pcode = pcode;
+          eventMetadata.params = eventParams.params;
+          eventMetadata.embedCode = eventParams.embedCode;
+
           if (this.ooyalaReporter)
           {
             this.ooyalaReporter._base.pcode = pcode;
+            OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+            //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
             /* TODO: disable for now as this is already reported by reporter.js in core */
             //this.ooyalaReporter.reportPlayerLoad();
             //OO.log("IQ: Reported: reportPlayerLoad()");
@@ -236,7 +245,28 @@ var IqPlugin= function (framework)
         this.ooyalaReporter.reportReplay();
         OO.log("IQ: Reported: reportReplay()");
         break;
-
+      //OO.EVENTS.BUFFERING -> OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED.
+      case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED: 
+        eventParams = params[0];
+        eventMetadata = {};
+        eventMetadata.qosEventName = eventName;
+        eventMetadata.position = eventParams.position;
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        break;
+      case OO.Analytics.EVENTS.INITIAL_PLAY_STARTING:
+      case OO.Analytics.EVENTS.PLAYBACK_READY:
+      case OO.Analytics.EVENTS.API_ERROR:
+      case OO.Analytics.EVENTS.BITRATE_INITIAL:
+      case OO.Analytics.EVENTS.BITRATE_FIVE_SEC:
+      case OO.Analytics.EVENTS.BITRATE_STABLE:
+      case OO.Analytics.EVENTS.PLAYBACK_START_ERROR:
+      case OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR:
+        eventMetadata = params[0];
+        eventMetadata.qosEventName = eventName;
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        break;
       case OO.Analytics.EVENTS.AD_REQUEST:
       case OO.Analytics.EVENTS.AD_REQUEST_SUCCESS:
       case OO.Analytics.EVENTS.AD_SDK_LOADED:
@@ -273,7 +303,7 @@ var IqPlugin= function (framework)
           {
             eventMetadata.adEventName = eventName;
           }
-          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
           OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         }
         else

@@ -282,6 +282,69 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#INITIAL_PLAY_STARTING
+     * @description This message is sent when the player has begun playback for the first time, first frame has been received.
+     */
+    INITIAL_PLAY_STARTING:                    'initialPlayStarting',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#PLAYBACK_READY
+     * @description This message is sent when the player has indicated that it is in a playback-ready state.
+     */
+    PLAYBACK_READY:                    'playbackReady',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#API_ERROR
+     * @description This message is sent if an api related error has occurred.
+     */
+    API_ERROR:                      'apiError',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#BITRATE_INITIAL
+     * @description This message contains the bitrate used at the start of playback.
+     */
+    BITRATE_INITIAL:                      'bitrateInitial',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#BITRATE_FIVE_SEC
+     * @description This message contains the bitrate used five seconds into playback.
+     */
+    BITRATE_FIVE_SEC:                      'bitrateFiveSec',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#BITRATE_STABLE
+     * @description This message contains the bitrate used thirty seconds into playback.
+     */
+    BITRATE_STABLE:                      'bitrateStable',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#PLAYBACK_START_ERROR
+     * @description This message is sent when a playback error has occurred before the video start.
+     */
+    PLAYBACK_START_ERROR:                      'playbackStartError',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#PLAYBACK_MIDSTREAM_ERROR
+     * @description This message is sent when a playback error has occurred midstream.
+     */
+    PLAYBACK_MIDSTREAM_ERROR:                      'playbackMidstreamError',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#VC_PLUGIN_ERROR
+     * @description This message is sent when the video plugin has reported an error message.
+     */
+    VC_PLUGIN_ERROR:                      'videoPluginError',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_SDK_LOADED
      * @description This message is sent when ad sdk has loaded successfully.
      */
@@ -601,11 +664,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#VideoBufferingStartedData
    * @classdesc Contains information about the stream that has started buffering.
    * @property {string} streamUrl The url of the stream that is buffering
+   * @property {string} videoId The video Id (main, etc.)
+   * @property {number} position The playhead position buffering started
    */
-  EVENT_DATA.VideoBufferingStartedData = function(streamUrl)
+  EVENT_DATA.VideoBufferingStartedData = function(streamUrl, videoId, position)
   {
     var checkBufferingStartedData = OO._.bind(checkDataType, this, "VideoBufferingStartedData");
     this.streamUrl = checkBufferingStartedData(streamUrl, "streamUrl", ["string"]);
+    this.videoId = checkBufferingStartedData(videoId, "videoId", ["string"]);
+    this.position = checkBufferingStartedData(position, "position", ["number"]);
   };
 
   /**
@@ -885,6 +952,175 @@ if (!OO.Analytics.EVENT_DATA)
     var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
   };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#VideoPlayerCreatedData
+   * @classdesc Contains information about the player created event
+   * @property {string} playerCoreVersion The player core version
+   * @property {string} elementId The id of the DOM element that contains the player
+   * @property {object} params The configuration metadata associated with the player
+   * (i.e. pcode, playerBrandingId, skin configuration, player configuration parameters)
+   * @property {object} persistentSettings An object containing player persistent settings
+   * @property {string} embedCode The embed code of the asset attempting to play
+   * @property {number} createdTime The timestamp the player was created
+   */
+  EVENT_DATA.VideoPlayerCreatedData = function(playerCoreVersion, elementId, params, persistentSettings, embedCode, createdTime)
+  {
+    var checkVideoPlayerCreatedData = OO._.bind(checkDataType, this, "VideoPlayerCreatedData");
+    this.playerCoreVersion = checkVideoPlayerCreatedData(playerCoreVersion, "playerCoreVersion", ["string"]);
+    this.elementId = checkVideoPlayerCreatedData(elementId, "elementId", ["string"]);
+    this.params = checkVideoPlayerCreatedData(params, "params", ["object"]);
+    this.persistentSettings = checkVideoPlayerCreatedData(persistentSettings, "persistentSettings", ["object"]);
+    this.embedCode = checkVideoPlayerCreatedData(embedCode, "embedCode", ["string"]);
+    this.createdTime = checkVideoPlayerCreatedData(createdTime, "createdTime", ["number"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#InitialPlayStartingData
+   * @classdesc Contains the information about the initial play starting event.
+   * @property {string} playerCoreVersion The player core version
+   * @property {number} timeSinceInitialPlay The time since the initial play request was made
+   * @property {boolean} autoplayed Boolean for if the video was autoplayed or not
+   * @property {boolean} hadPreroll Boolean for if the video had an ad play before it started
+   * @property {number} position The initial position of the playhead upon playback start. This includes 
+   *   midrolls that play before content due to an initial playhead time > 0
+   * @property {string} plugin The video plugin used for playback
+   * @property {string} technology The browser technology used - HTML5, Flash, Mixed, or Other
+   * @property {string} encoding The stream encoding type, i.e. MP4, HLS, Dash, etc.
+   * @property {string} streamUrl The URL of the content being played
+   * @property {string} drm The DRM being used, none if there is no DRM
+   * @property {boolean} isLive Boolean that is true if a live stream is playing. If false it is VOD.
+   */
+  EVENT_DATA.InitialPlayStartingData = function(playerCoreVersion, timeSinceInitialPlay, 
+        autoplayed, hadPreroll, position, plugin, technology, encoding, streamUrl, drm, isLive)
+  {
+    var checkInitialPlayStartingData = OO._.bind(checkDataType, this, "VideoPlayerCreatedData");
+    this.playerCoreVersion = checkInitialPlayStartingData(playerCoreVersion, "playerCoreVersion", ["string"]);
+    this.timeSinceInitialPlay = checkInitialPlayStartingData(timeSinceInitialPlay, "timeSinceInitialPlay", ["number"]);
+    this.autoplayed = checkInitialPlayStartingData(autoplayed, "autoplayed", ["boolean"]);
+    this.hadPreroll = checkInitialPlayStartingData(hadPreroll, "hadPreroll", ["boolean"]);
+    this.position = checkInitialPlayStartingData(position, "position", ["number"]);
+    this.plugin = checkInitialPlayStartingData(plugin, "plugin", ["string"]);
+    this.technology = checkInitialPlayStartingData(technology, "technology", ["string"]);
+    this.encoding = checkInitialPlayStartingData(encoding, "encoding", ["object"]);
+    this.streamUrl = checkInitialPlayStartingData(streamUrl, "streamUrl", ["string"]);
+    this.drm = checkInitialPlayStartingData(drm, "drm", ["string"]);
+    this.isLive = checkInitialPlayStartingData(isLive, "isLive", ["boolean"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#PlaybackReadyData
+   * @classdesc Contains the information about the playback ready event
+   * @property {string} playerCoreVersion The player core version
+   * @property {number} timeSincePlayerCreated The time between player creation and playback ready state
+   * @property {array} pluginList List of plugins loaded
+   */
+  EVENT_DATA.PlaybackReadyData = function(playerCoreVersion, timeSincePlayerCreated, pluginList)
+  {
+    var checkPlaybackReadyData = OO._.bind(checkDataType, this, "PlaybackReadyData");
+    this.playerCoreVersion = checkPlaybackReadyData(playerCoreVersion, "playerCoreVersion", ["string"]);
+    this.timeSincePlayerCreated = checkPlaybackReadyData(timeSincePlayerCreated, "timeSincePlayerCreated", ["number"]);
+    this.pluginList = checkPlaybackReadyData(pluginList, "pluginList", ["array"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#ApiErrorData
+   * @classdesc Contains information about the api error.
+   * @property {object} errorCode The error code if any
+   * @property {string} errorMessage The error message
+   * @property {string} url The ad tag url post macro substitution
+   */
+  EVENT_DATA.ApiErrorData = function(error, errorCode, errorMessage, url)
+  {
+    var checkApiErrorData = OO._.bind(checkDataType, this, "ApiErrorData");
+    this.errorCode = checkApiErrorData(errorCode, "errorCode", ["number"]);
+    this.errorMessage = checkApiErrorData(errorMessage, "errorMessage", ["string"]);
+    this.url = checkApiErrorData(url, "url", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#BitrateInitialData
+   * @classdesc Contains the information about the bitrate initial event
+   * @property {number} The bitrate at the start of playback
+   */
+  EVENT_DATA.BitrateInitialData = function(bitrate)
+  {
+    var checkBitrateInitialData = OO._.bind(checkDataType, this, "BitrateInitialData");
+    this.bitrate = checkBitrateInitialData(bitrate, "bitrate", ["number"]);
+  };
+
+    /**
+   * @public
+   * @class Analytics.EVENT_DATA#BitrateFiveSecData
+   * @classdesc  Contains the information about the bitrate five sec event
+   * @property {number} The bitrate at five seconds into the video
+   */
+  EVENT_DATA.BitrateFiveSecData = function(bitrate)
+  {
+    var checkBitrateFiveSecData = OO._.bind(checkDataType, this, "BitrateFiveSecData");
+    this.bitrate = checkBitrateFiveSecData(bitrate, "bitrate", ["number"]);
+  };
+
+    /**
+   * @public
+   * @class Analytics.EVENT_DATA#BitrateStableData
+   * @classdesc  Contains the information about the bitrate stable event
+   * @property {number} The bitrate at thirty seconds into the video
+   */
+  EVENT_DATA.BitrateStableData = function(bitrate)
+  {
+    var checkBitrateStableData = OO._.bind(checkDataType, this, "BitrateStableData");
+    this.bitrate = checkBitrateStableData(bitrate, "bitrate", ["number"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#PlaybackStartErrorData
+   * @classdesc Contains information about the playback start error.
+   * @property {number} errorCode The error code if any
+   * @property {string} errorMessage The error message
+   * @property {object} drm The DRM information, if relevant and available
+   */
+  EVENT_DATA.PlaybackStartErrorData = function(error, errorCode, errorMessage, drm)
+  {
+    var checkPlaybackStartErrorData = OO._.bind(checkDataType, this, "PlaybackStartErrorData");
+    this.errorCode = checkPlaybackStartErrorData(errorCode, "errorCode", ["number"]);
+    this.errorMessage = checkPlaybackStartErrorData(errorMessage, "errorMessage", ["string"]);
+    this.drm = checkPlaybackStartErrorData(drm, "drm", ["object"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#PlaybackMidstreamErrorData
+   * @classdesc Contains information about the playback midstream error.
+   * @property {number} errorCode The error code if any
+   * @property {string} errorMessage The error message
+   * @property {number} position The playhead position the error occurred at
+   */
+  EVENT_DATA.PlaybackMidstreamErrorData = function(error, errorCode, errorMessage, position)
+  {
+    var checkPlaybackMidstreamErrorData = OO._.bind(checkDataType, this, "PlaybackMidstreamErrorData");
+    this.errorCode = checkPlaybackMidstreamErrorData(errorCode, "errorCode", ["number"]);
+    this.errorMessage = checkPlaybackMidstreamErrorData(errorMessage, "errorMessage", ["string"]);
+    this.position = checkPlaybackMidstreamErrorData(position, "position", ["number"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdErrorData
+   * @classdesc Contains information about the ad error.
+   * @property {object|string} The error object or string
+   */
+  EVENT_DATA.AdErrorData = function(error)
+  {
+    var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
+    this.error = checkAdErrorData(error, "error", ["string", "object"]);
+  };
   
   /**
    * @public
@@ -899,7 +1135,6 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPluginName = checkAdRequestData(adPluginName, "adPluginName", ["string"]);
     this.adPosition = checkAdRequestData(adPosition, "adPosition", ["number"]);
   };
-
 
   /**
    * @public
@@ -1022,11 +1257,12 @@ if (!OO.Analytics.EVENT_DATA)
     this.skipped = checkAdCompletedData(skipped, "skipped", ["boolean"]);
   };
 
- /**
+  /**
    * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadedData
    * @classdesc Contains information about the ad SDK loaded event. 
    * @property {string} adPluginName The name of the ad plugin that sent this event
+   * @property {string} playerCoreVersion The player core version
    */
   EVENT_DATA.LoadAdSdkData = function(adPluginName, playerCoreVersion)
   {
@@ -1035,7 +1271,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.playerCoreVersion = checkLoadAdSdkData(playerCoreVersion, "playerCoreVersion", ["string"]);
   };
 
-   /**
+  /**
    * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadFailureData
    * @classdesc Contains information about the ad SDK load failure event. 
