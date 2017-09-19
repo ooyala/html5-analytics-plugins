@@ -353,6 +353,11 @@ var OmnitureAnalyticsPlugin = function (framework)
           }
         }
         break;
+      case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
+        if (params && params[0])
+        {
+          playerDelegate.onStreamTypeUpdated(params[0].streamType);
+        }
       default:
         break;
     }
@@ -647,10 +652,14 @@ var OoyalaPlayerDelegate = function()
     videoInfo.id = id;
     videoInfo.name = name;
     videoInfo.length = length;
-    //TODO: StreamType and update unit test
-    //The type of the video asset, one of the following: AssetType.ASSET_TYPE_LIVE,
-    //AssetType.ASSET_TYPE_LINEAR, AssetType.ASSET_TYPE_VOD
-    videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
+    if (streamType === OO.Analytics.STREAM_TYPE.LIVE_STREAM) {
+      videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_LIVE;
+    } else if (streamType === OO.Analytics.STREAM_TYPE.VOD) {
+      videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
+    }else{
+   	//default streamType 
+      videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
+    }
     videoInfo.playerName = playerName;
     videoInfo.playhead = streamPlayhead;
     return videoInfo;
@@ -725,6 +734,10 @@ var OoyalaPlayerDelegate = function()
   {
     //TODO: QOS info if/when available
    return null;
+  };
+  this.onStreamTypeUpdated = function(type)
+  {
+    streamType = type;
   };
 };
 

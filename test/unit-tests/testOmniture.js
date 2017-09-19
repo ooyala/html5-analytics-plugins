@@ -264,6 +264,72 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(videoInfo.playerName).toBe(playerName);
     expect(videoInfo.playhead).toBe(10);
   });
+it('Delegate can provide Video Info with VOD as the default streamType', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
+      title : "testTitle",
+      duration : 20000
+    });
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
+    var delegate = plugin.getPlayerDelegate();
+    var videoInfo = delegate.getVideoInfo();
+    expect(videoInfo.id).toBe("abcde");
+    expect(videoInfo.name).toBe("testTitle");
+    expect(videoInfo.streamType).toBe(ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD);
+    expect(videoInfo.length).toBe(20);
+    expect(videoInfo.playerName).toBe(playerName);
+    expect(videoInfo.playhead).toBe(10);
+  });
+it('Delegate can provide Video Info with VOD as the streamType', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
+      title : "testTitle",
+      streamType : OO.Analytics.STREAM_TYPE.VOD,
+      duration : 20000
+    });
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
+    var delegate = plugin.getPlayerDelegate();
+    var videoInfo = delegate.getVideoInfo();
+    expect(videoInfo.id).toBe("abcde");
+    expect(videoInfo.name).toBe("testTitle");
+    expect(videoInfo.streamType).toBe(ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD);
+    expect(videoInfo.length).toBe(20);
+    expect(videoInfo.playerName).toBe(playerName);
+    expect(videoInfo.playhead).toBe(10);
+  });
+
+it('Delegate can provide Video Info with VOD as the default streamType', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
+      title : "testTitle",
+      streamType:OO.Analytics.STREAM_TYPE.LIVE_STREAM,
+      duration : 20000
+    });
+    simulator.simulateVideoProgress({
+      playheads: [10]
+    });
+    var delegate = plugin.getPlayerDelegate();
+    var videoInfo = delegate.getVideoInfo();
+    expect(videoInfo.id).toBe("abcde");
+    expect(videoInfo.name).toBe("testTitle");
+    expect(videoInfo.streamType).toBe(ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_LIVE);
+    expect(videoInfo.length).toBe(20);
+    expect(videoInfo.playerName).toBe(playerName);
+    expect(videoInfo.playhead).toBe(10);
+  });
 
   it('Delegate can provide valid Ad Break Info', function()
   {
