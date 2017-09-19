@@ -308,7 +308,7 @@ it('Delegate can provide Video Info with VOD as the streamType', function()
     expect(videoInfo.playhead).toBe(10);
   });
 
-it('Delegate can provide Video Info with VOD as the default streamType', function()
+it('Delegate can provide Video Info with LIVE as the streamType', function()
   {
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
