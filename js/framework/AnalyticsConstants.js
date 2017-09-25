@@ -958,22 +958,19 @@ if (!OO.Analytics.EVENT_DATA)
    * @class Analytics.EVENT_DATA#VideoPlayerCreatedData
    * @classdesc Contains information about the player created event
    * @property {string} playerCoreVersion The player core version
-   * @property {string} elementId The id of the DOM element that contains the player
    * @property {object} params The configuration metadata associated with the player
    * (i.e. pcode, playerBrandingId, skin configuration, player configuration parameters)
-   * @property {object} persistentSettings An object containing player persistent settings
    * @property {string} embedCode The embed code of the asset attempting to play
-   * @property {number} createdTime The timestamp the player was created
+   * @property {string} playerUrl The url of the page containing the player
    */
-  EVENT_DATA.VideoPlayerCreatedData = function(playerCoreVersion, elementId, params, persistentSettings, embedCode, createdTime)
+  EVENT_DATA.VideoPlayerCreatedData = function(playerCoreVersion, params, embedCode, playerUrl)
   {
     var checkVideoPlayerCreatedData = OO._.bind(checkDataType, this, "VideoPlayerCreatedData");
     this.playerCoreVersion = checkVideoPlayerCreatedData(playerCoreVersion, "playerCoreVersion", ["string"]);
-    this.elementId = checkVideoPlayerCreatedData(elementId, "elementId", ["string"]);
     this.params = checkVideoPlayerCreatedData(params, "params", ["object"]);
-    this.persistentSettings = checkVideoPlayerCreatedData(persistentSettings, "persistentSettings", ["object"]);
     this.embedCode = checkVideoPlayerCreatedData(embedCode, "embedCode", ["string"]);
-    this.createdTime = checkVideoPlayerCreatedData(createdTime, "createdTime", ["number"]);
+    this.playerUrl = checkVideoPlayerCreatedData(playerUrl, "playerUrl", ["string"]);
+    this.pcode = checkVideoPlayerCreatedData(this.params.pcode, "pcode", ["string"]);
   };
 
   /**
@@ -1082,15 +1079,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#PlaybackStartErrorData
    * @classdesc Contains information about the playback start error.
-   * @property {number} errorCode The error code if any
-   * @property {string} errorMessage The error message
+   * @property {object} errorCodes Object containing all error codes associated with the error
+   * @property {object} errorMessages Object containing error messages associated with the error
    * @property {object} drm The DRM information, if relevant and available
    */
-  EVENT_DATA.PlaybackStartErrorData = function(error, errorCode, errorMessage, drm)
+  EVENT_DATA.PlaybackStartErrorData = function(error, errorCodes, errorMessages, drm)
   {
     var checkPlaybackStartErrorData = OO._.bind(checkDataType, this, "PlaybackStartErrorData");
-    this.errorCode = checkPlaybackStartErrorData(errorCode, "errorCode", ["number"]);
-    this.errorMessage = checkPlaybackStartErrorData(errorMessage, "errorMessage", ["string"]);
+    this.errorCodes = checkPlaybackStartErrorData(errorCodes, "errorCodes", ["object"]);
+    this.errorMessages = checkPlaybackStartErrorData(errorMessages, "errorMessages", ["object"]);
     this.drm = checkPlaybackStartErrorData(drm, "drm", ["object"]);
   };
 
@@ -1098,15 +1095,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#PlaybackMidstreamErrorData
    * @classdesc Contains information about the playback midstream error.
-   * @property {number} errorCode The error code if any
-   * @property {string} errorMessage The error message
+   * @property {object} errorCodes Object containing all error codes associated with the error
+   * @property {object} errorMessages Object containing error messages associated with the error
    * @property {number} position The playhead position the error occurred at
    */
-  EVENT_DATA.PlaybackMidstreamErrorData = function(error, errorCode, errorMessage, position)
+  EVENT_DATA.PlaybackMidstreamErrorData = function(error, errorCodes, errorMessages, position)
   {
     var checkPlaybackMidstreamErrorData = OO._.bind(checkDataType, this, "PlaybackMidstreamErrorData");
-    this.errorCode = checkPlaybackMidstreamErrorData(errorCode, "errorCode", ["number"]);
-    this.errorMessage = checkPlaybackMidstreamErrorData(errorMessage, "errorMessage", ["string"]);
+    this.errorCodes = checkPlaybackMidstreamErrorData(errorCodes, "errorCodes", ["object"]);
+    this.errorMessages = checkPlaybackMidstreamErrorData(errorMessages, "errorMessages", ["object"]);
     this.position = checkPlaybackMidstreamErrorData(position, "position", ["number"]);
   };
 

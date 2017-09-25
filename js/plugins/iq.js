@@ -168,6 +168,7 @@ var IqPlugin= function (framework)
           eventMetadata.pcode = pcode;
           eventMetadata.params = eventParams.params;
           eventMetadata.embedCode = eventParams.embedCode;
+          eventMetadata.playerUrl = eventParams.playerUrl;
 
           if (this.ooyalaReporter)
           {
