@@ -174,7 +174,7 @@ var IqPlugin= function (framework)
           {
             this.ooyalaReporter._base.pcode = pcode;
             OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-            //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+            this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
             /* TODO: disable for now as this is already reported by reporter.js in core */
             //this.ooyalaReporter.reportPlayerLoad();
             //OO.log("IQ: Reported: reportPlayerLoad()");
@@ -253,7 +253,7 @@ var IqPlugin= function (framework)
         eventMetadata.qosEventName = eventName;
         eventMetadata.position = eventParams.position;
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         break;
       case OO.Analytics.EVENTS.INITIAL_PLAY_STARTING:
       case OO.Analytics.EVENTS.PLAYBACK_READY:
@@ -267,7 +267,7 @@ var IqPlugin= function (framework)
         eventMetadata = params[0];
         eventMetadata.qosEventName = eventName;
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-        //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         break;
       case OO.Analytics.EVENTS.AD_REQUEST:
       case OO.Analytics.EVENTS.AD_REQUEST_SUCCESS:
@@ -305,7 +305,7 @@ var IqPlugin= function (framework)
           {
             eventMetadata.adEventName = eventName;
           }
-          //this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
           OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         }
         else
