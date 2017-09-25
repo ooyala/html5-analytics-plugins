@@ -338,6 +338,13 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#PLUGIN_LOADED
+     * @description This message is sent when a plugin is loaded in core.
+     */
+    PLUGIN_LOADED:                      'pluginLoaded',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#VC_PLUGIN_ERROR
      * @description This message is sent when the video plugin has reported an error message.
      */
@@ -1105,6 +1112,24 @@ if (!OO.Analytics.EVENT_DATA)
     this.errorCodes = checkPlaybackMidstreamErrorData(errorCodes, "errorCodes", ["object"]);
     this.errorMessages = checkPlaybackMidstreamErrorData(errorMessages, "errorMessages", ["object"]);
     this.position = checkPlaybackMidstreamErrorData(position, "position", ["number"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#PluginLoadedData
+   * @classdesc Contains information about the plugin loaded event.
+   * @property {string} playerCoreVersion The player core version
+   * @property {string} pluginType Type of the loaded plugin - ads, playback, analytics, playlist, or skin
+   * @property {string} pluginName The name of the plugin loaded
+   * @property {number} loadTime The time it took for the plugin to reach the ready state
+   */
+  EVENT_DATA.PluginLoadedData = function(error, playerCoreVersion, pluginType, pluginName, loadTime)
+  {
+    var checkPluginLoadedData = OO._.bind(checkDataType, this, "PluginLoadedData");
+    this.playerCoreVersion = checkPluginLoadedData(playerCoreVersion, "playerCoreVersion", ["string"]);
+    this.pluginType = checkPluginLoadedData(pluginType, "pluginType", ["string"]);
+    this.pluginName = checkPluginLoadedData(pluginName, "pluginName", ["string"]);
+    this.loadTime = checkPluginLoadedData(loadTime, "loadTime", ["number"]);
   };
 
   /**

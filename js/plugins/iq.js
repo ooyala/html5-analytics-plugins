@@ -263,6 +263,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.BITRATE_STABLE:
       case OO.Analytics.EVENTS.PLAYBACK_START_ERROR:
       case OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR:
+      case OO.Analytics.EVENTS.PLUGIN_LOADED:
         eventMetadata = params[0];
         eventMetadata.qosEventName = eventName;
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
