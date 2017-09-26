@@ -84,6 +84,9 @@ describe('Analytics Framework Template Unit Tests', function()
             reportReplay: function() {
               this.unitTestState.reportReplayCalled++;
             },
+            reportCustomEvent: function() {
+              this.unitTestState.reportCustomEventCalled++;
+            },
           };
         }
       }
@@ -305,6 +308,7 @@ describe('Analytics Framework Template Unit Tests', function()
       title: "testTitle",
       duration: 60000,
       contentType: "Video",
+      playerUrl: "http://ooyala.com/test",
       pcode: "testPcode",
       playerBrandingId: "testPlayerBrandingId",
       metadata: {

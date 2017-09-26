@@ -211,9 +211,14 @@ if (!OO.Analytics.Utils)
           autoPlay = innerMetadata.autoPlay;
         }
 
-        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED, [{
-          pcode: metadata.pcode,
-          playerBrandingId: metadata.playerBrandingId
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED, [{ 
+          params:{
+            pcode: metadata.pcode,
+            playerBrandingId: metadata.playerBrandingId
+          },
+          embedCode: metadata.embedCode,
+          playerUrl: metadata.playerUrl,
+          playerCoreVersion : "v4"
         }]);
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
           embedCode: metadata.embedCode,
