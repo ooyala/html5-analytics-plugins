@@ -115,12 +115,12 @@ var IqPlugin= function (framework)
    */
   this.setMetadata = function(metadata)
   {
-      if (metadata && metadata.metadata){
-        if(metadata.metadata.enabled != null){
-          iqEnabled = metadata.metadata.enabled;
-        }
+    if (metadata && metadata.metadata){
+      if(metadata.metadata.enabled != null){
+        iqEnabled = metadata.metadata.enabled;
       }
-      OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
+    }
+    OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
   };
 
   /**
@@ -132,10 +132,26 @@ var IqPlugin= function (framework)
    */
   this.processEvent = function(eventName, params)
   {
+    //Need to always check this event to see if we can enable analytics.js reporting. 
+    //OO.EVENTS.METADATA_FETCHED -> OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED.
+    if (eventName === OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED)
+    {
+      if (params && params[0]){
+        modules = params[0].modules;
+        if(modules && modules.iq && modules.iq.metadata && modules.iq.metadata.enabled != null)
+        {
+          iqEnabled = modules.iq.metadata.enabled;
+        }
+      }
+      OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
+      return;
+    }
+
     if (!iqEnabled)
     {
       return;
     }
+
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
