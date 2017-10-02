@@ -1038,7 +1038,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} errorMessage The error message
    * @property {string} url The ad tag url post macro substitution
    */
-  EVENT_DATA.ApiErrorData = function(error, errorCode, errorMessage, url)
+  EVENT_DATA.ApiErrorData = function(errorCode, errorMessage, url)
   {
     var checkApiErrorData = OO._.bind(checkDataType, this, "ApiErrorData");
     this.errorCode = checkApiErrorData(errorCode, "errorCode", ["number"]);
@@ -1090,7 +1090,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {object} errorMessages Object containing error messages associated with the error
    * @property {object} drm The DRM information, if relevant and available
    */
-  EVENT_DATA.PlaybackStartErrorData = function(error, errorCodes, errorMessages, drm)
+  EVENT_DATA.PlaybackStartErrorData = function(errorCodes, errorMessages, drm)
   {
     var checkPlaybackStartErrorData = OO._.bind(checkDataType, this, "PlaybackStartErrorData");
     this.errorCodes = checkPlaybackStartErrorData(errorCodes, "errorCodes", ["object"]);
@@ -1106,7 +1106,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {object} errorMessages Object containing error messages associated with the error
    * @property {number} position The playhead position the error occurred at
    */
-  EVENT_DATA.PlaybackMidstreamErrorData = function(error, errorCodes, errorMessages, position)
+  EVENT_DATA.PlaybackMidstreamErrorData = function(errorCodes, errorMessages, position)
   {
     var checkPlaybackMidstreamErrorData = OO._.bind(checkDataType, this, "PlaybackMidstreamErrorData");
     this.errorCodes = checkPlaybackMidstreamErrorData(errorCodes, "errorCodes", ["object"]);
@@ -1123,7 +1123,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} pluginName The name of the plugin loaded
    * @property {number} loadTime The time it took for the plugin to reach the ready state
    */
-  EVENT_DATA.PluginLoadedData = function(error, playerCoreVersion, pluginType, pluginName, loadTime)
+  EVENT_DATA.PluginLoadedData = function(playerCoreVersion, pluginType, pluginName, loadTime)
   {
     var checkPluginLoadedData = OO._.bind(checkDataType, this, "PluginLoadedData");
     this.playerCoreVersion = checkPluginLoadedData(playerCoreVersion, "playerCoreVersion", ["string"]);
