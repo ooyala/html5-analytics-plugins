@@ -60,6 +60,17 @@ var IqPlugin= function (framework)
   };
 
   /**
+   * Return the iqEnabled value.
+   * @public
+   * @method IqPlugin@getIqEnabled
+   * @return {boolean} The value of iqEnabled.
+   */
+  this.getIqEnabled = function()
+  {
+    return iqEnabled;
+  };
+
+  /**
    * [Required Function] Set the plugin id given by the Analytics Framework when
    * this plugin is registered.
    * @public
@@ -138,9 +149,9 @@ var IqPlugin= function (framework)
     {
       if (params && params[0]){
         modules = params[0].modules;
-        if(modules && modules.iq && modules.iq.metadata && modules.iq.metadata.enabled != null)
+        if (modules)
         {
-          iqEnabled = modules.iq.metadata.enabled;
+          this.setMetadata(modules.iq);
         }
       }
       OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
