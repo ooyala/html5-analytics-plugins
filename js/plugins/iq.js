@@ -158,7 +158,7 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.PLAYER_CREATED -> OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
-        if (params && params[0])
+        if (params && params[0] && params[0].params)
         {
           eventParams = params[0];
           pcode = eventParams.params.pcode;
@@ -248,12 +248,15 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.BUFFERING -> OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED.
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED: 
-        eventParams = params[0];
-        eventMetadata = {};
-        eventMetadata.qosEventName = eventName;
-        eventMetadata.position = eventParams.position;
-        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        if (params && params[0])
+        {
+          eventParams = params[0];
+          eventMetadata = {};
+          eventMetadata.qosEventName = eventName;
+          eventMetadata.position = eventParams.position;
+          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        }
         break;
       case OO.Analytics.EVENTS.INITIAL_PLAY_STARTING:
       case OO.Analytics.EVENTS.PLAYBACK_READY:
@@ -264,10 +267,13 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.PLAYBACK_START_ERROR:
       case OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR:
       case OO.Analytics.EVENTS.PLUGIN_LOADED:
-        eventMetadata = params[0];
-        eventMetadata.qosEventName = eventName;
-        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        if (params && params[0])
+        {
+          eventMetadata = params[0];
+          eventMetadata.qosEventName = eventName;
+          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        }
         break;
       case OO.Analytics.EVENTS.AD_REQUEST:
       case OO.Analytics.EVENTS.AD_REQUEST_SUCCESS:

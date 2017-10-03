@@ -1008,7 +1008,7 @@ if (!OO.Analytics.EVENT_DATA)
     this.position = checkInitialPlayStartingData(position, "position", ["number"]);
     this.plugin = checkInitialPlayStartingData(plugin, "plugin", ["string"]);
     this.technology = checkInitialPlayStartingData(technology, "technology", ["string"]);
-    this.encoding = checkInitialPlayStartingData(encoding, "encoding", ["object"]);
+    this.encoding = checkInitialPlayStartingData(encoding, "encoding", ["string"]);
     this.streamUrl = checkInitialPlayStartingData(streamUrl, "streamUrl", ["string"]);
     this.drm = checkInitialPlayStartingData(drm, "drm", ["string"]);
     this.isLive = checkInitialPlayStartingData(isLive, "isLive", ["boolean"]);
@@ -1034,7 +1034,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#ApiErrorData
    * @classdesc Contains information about the api error.
-   * @property {object} errorCode The error code if any
+   * @property {number} errorCode The error code if any
    * @property {string} errorMessage The error message
    * @property {string} url The ad tag url post macro substitution
    */
