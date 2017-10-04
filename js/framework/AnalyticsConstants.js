@@ -969,6 +969,7 @@ if (!OO.Analytics.EVENT_DATA)
    * (i.e. pcode, playerBrandingId, skin configuration, player configuration parameters)
    * @property {string} embedCode The embed code of the asset attempting to play
    * @property {string} playerUrl The url of the page containing the player
+   * @property {string} pcode The provider pcode
    */
   EVENT_DATA.VideoPlayerCreatedData = function(playerCoreVersion, params, embedCode, playerUrl)
   {
