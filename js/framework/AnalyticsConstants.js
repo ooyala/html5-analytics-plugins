@@ -1035,13 +1035,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @public
    * @class Analytics.EVENT_DATA#ApiErrorData
    * @classdesc Contains information about the api error.
+   * @property {string} playerCoreVersion The player core version
    * @property {number} errorCode The error code if any
    * @property {string} errorMessage The error message
    * @property {string} url The ad tag url post macro substitution
    */
-  EVENT_DATA.ApiErrorData = function(errorCode, errorMessage, url)
+  EVENT_DATA.ApiErrorData = function(playerCoreVersion, errorCode, errorMessage, url)
   {
     var checkApiErrorData = OO._.bind(checkDataType, this, "ApiErrorData");
+    this.playerCoreVersion = checkApiErrorData(playerCoreVersion, "playerCoreVersion", ["string"]);
     this.errorCode = checkApiErrorData(errorCode, "errorCode", ["number"]);
     this.errorMessage = checkApiErrorData(errorMessage, "errorMessage", ["string"]);
     this.url = checkApiErrorData(url, "url", ["string"]);
