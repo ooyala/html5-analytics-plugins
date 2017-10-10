@@ -88,14 +88,6 @@ var IqPlugin= function (framework)
    */
   this.init = function()
   {
-    var missedEvents;
-    //if you need to process missed events, here is an example
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
-    {
-      missedEvents = _framework.getRecordedEvents();
-    }
-    //use recorded events.
-
     if (this.testMode)
     {
       trySetupAnalytics();
@@ -126,7 +118,7 @@ var IqPlugin= function (framework)
    */
   this.processEvent = function(eventName, params)
   {
-    OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
+    OO.log( "IQ: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
     switch(eventName)
     {
       //OO.EVENTS.CONTENT_TREE_FETCHED -> OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED.
@@ -216,46 +208,88 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.PAUSED -> OO.Analytics.EVENTS.VIDEO_PAUSED.
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        this.ooyalaReporter.reportPause();
-        OO.log("IQ: Reported: reportPause()");
+        if (this.ooyalaReporter) 
+        {
+          this.ooyalaReporter.reportPause();
+          OO.log("IQ: Reported: reportPause()");
+        }
+        else
+        {
+          OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+        }  
         break;
       // TODO: use for resume?
       //OO.EVENTS.PLAYING -> OO.Analytics.EVENTS.VIDEO_PLAYING.
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
-        this.ooyalaReporter.reportResume();
-        OO.log("IQ: Reported: reportResume()");
+        if (this.ooyalaReporter) 
+        {
+          this.ooyalaReporter.reportResume();
+          OO.log("IQ: Reported: reportResume()");
+        }
+        else
+        {
+          OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+        }
         break;
       //OO.EVENTS.SEEKED -> OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED.
       case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
         if (params && params[0])
         {
-          var seekedPlayheadPosition = params[0].timeSeekedTo;
-          var seekedPlayheadPositionMilli = seekedPlayheadPosition * 1000;
-          var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
-          this.ooyalaReporter.reportSeek(currentPlayheadPositionMilli, seekedPlayheadPositionMilli);
-          OO.log("IQ: Reported: reportSeek() with args: " + currentPlayheadPositionMilli + ", " + seekedPlayheadPositionMilli);
+          if (this.ooyalaReporter) 
+          {
+            var seekedPlayheadPosition = params[0].timeSeekedTo;
+            var seekedPlayheadPositionMilli = seekedPlayheadPosition * 1000;
+            var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
+            this.ooyalaReporter.reportSeek(currentPlayheadPositionMilli, seekedPlayheadPositionMilli);
+            OO.log("IQ: Reported: reportSeek() with args: " + currentPlayheadPositionMilli + ", " + seekedPlayheadPositionMilli);
+          } 
+          else
+          {
+            OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+          }
         }
         break;
       //OO.EVENTS.PLAYED -> OO.Analytics.EVENTS.PLAYBACK_COMPLETED.
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
-        this.ooyalaReporter.reportComplete();
-        OO.log("IQ: Reported: reportComplete()");
+        if (this.ooyalaReporter) 
+        {
+          this.ooyalaReporter.reportComplete();
+          OO.log("IQ: Reported: reportComplete()");
+        }
+        else
+        {
+          OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+        }
         break;
       //OO.EVENTS.REPLAY -> OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED.
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        this.ooyalaReporter.reportReplay();
-        OO.log("IQ: Reported: reportReplay()");
+        if (this.ooyalaReporter) 
+        {
+          this.ooyalaReporter.reportReplay();
+          OO.log("IQ: Reported: reportReplay()");
+        }
+        else
+        {
+          OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+        }
         break;
       //OO.EVENTS.BUFFERING -> OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED.
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED: 
-        if (params && params[0])
+        if (params && params[0] )
         {
-          eventParams = params[0];
-          eventMetadata = {};
-          eventMetadata.qosEventName = eventName;
-          eventMetadata.position = eventParams.position;
-          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          if (this.ooyalaReporter) 
+          {
+            eventParams = params[0];
+            eventMetadata = {};
+            eventMetadata.qosEventName = eventName;
+            eventMetadata.position = eventParams.position;
+            OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+            this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          }
+          else
+          {
+            OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+          }
         }
         break;
       case OO.Analytics.EVENTS.INITIAL_PLAY_STARTING:
@@ -269,10 +303,17 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.PLUGIN_LOADED:
         if (params && params[0])
         {
-          eventMetadata = params[0];
-          eventMetadata.qosEventName = eventName;
-          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          if (this.ooyalaReporter)
+          {
+            eventMetadata = params[0];
+            eventMetadata.qosEventName = eventName;
+            OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+            this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          }
+          else
+          {
+            OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+          }
         }
         break;
       case OO.Analytics.EVENTS.AD_REQUEST:
@@ -295,28 +336,31 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_COMPLETED:
       case OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED:
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
-        if (this.ooyalaReporter)
+        if (params && params[0])
         {
-          var eventMetadata = params[0];
-          if(!eventMetadata)
+          if (this.ooyalaReporter)
           {
-            eventMetadata = {};
-          }
+            var eventMetadata = params[0];
+            if(!eventMetadata)
+            {
+              eventMetadata = {};
+            }
 
-          if (eventMetadata.adEventName)
-          {
-            eventMetadata.adEventName = eventName + ":" + eventMetadata.adEventName;
+            if (eventMetadata.adEventName)
+            {
+              eventMetadata.adEventName = eventName + ":" + eventMetadata.adEventName;
+            }
+            else
+            {
+              eventMetadata.adEventName = eventName;
+            }
+            this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+            OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
           }
           else
           {
-            eventMetadata.adEventName = eventName;
+            OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
           }
-          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
-          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-        }
-        else
-        {
-          OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
         }
         break;
       default:
