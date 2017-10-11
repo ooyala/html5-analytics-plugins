@@ -21,6 +21,7 @@ var IqPlugin= function (framework)
   var currentEmbedCode = null;
   var contentType = "ooyala";
   var currentPlayheadPosition = null;
+  var iqEnabled = false;
   
   this.ooyalaReporter = null;
   this.testMode = false;
@@ -56,6 +57,17 @@ var IqPlugin= function (framework)
   this.getAutoPlay = function()
   {
     return autoPlay;
+  };
+
+  /**
+   * Return the iqEnabled value.
+   * @public
+   * @method IqPlugin@getIqEnabled
+   * @return {boolean} The value of iqEnabled.
+   */
+  this.getIqEnabled = function()
+  {
+    return iqEnabled;
   };
 
   /**
@@ -106,7 +118,12 @@ var IqPlugin= function (framework)
    */
   this.setMetadata = function(metadata)
   {
-      OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
+    if (metadata && metadata.metadata){
+      if(metadata.metadata.enabled != null){
+        iqEnabled = metadata.metadata.enabled;
+      }
+    }
+    OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
   };
 
   /**
@@ -119,6 +136,26 @@ var IqPlugin= function (framework)
   this.processEvent = function(eventName, params)
   {
     OO.log( "IQ: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
+    //Need to always check this event to see if we can enable analytics.js reporting. 
+    //OO.EVENTS.METADATA_FETCHED -> OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED.
+    if (eventName === OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED)
+    {
+      if (params && params[0]){
+        modules = params[0].modules;
+        if (modules)
+        {
+          this.setMetadata(modules.iq);
+        }
+      }
+      OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
+      return;
+    }
+
+    if (!iqEnabled)
+    {
+      return;
+    }
+
     switch(eventName)
     {
       //OO.EVENTS.CONTENT_TREE_FETCHED -> OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED.

@@ -107,9 +107,18 @@ describe('Analytics Framework Template Unit Tests', function()
   {
     var iqPluginFactory = require(SRC_ROOT + "plugins/iq.js");
     var plugin = new iqPluginFactory(framework);
+
+    //enable iq reporting in plugin for testing
+    var metadata = {
+      "metadata":
+      {
+        "enabled": true
+      }
+    };
+
     plugin.testMode = true;
     plugin.init();
-    //plugin.setMetadata({});
+    plugin.setMetadata(metadata);
     return plugin;
   };
 
@@ -420,4 +429,51 @@ describe('Analytics Framework Template Unit Tests', function()
     //expect(plugin.getAutoPlay()).toBe(false);
   });
 
+  it('IQ Plugin should enable iq reporting when provider metadata is received', function()
+  {
+    var oldMetadata = {
+      "metadata":
+      {
+        "enabled": false
+      }
+    };
+    var newMetadata = {
+      "modules": 
+      {
+        "iq": 
+        {
+          "metadata": 
+          {
+            "enabled" : true
+          }
+        }
+      }
+    };
+
+    var plugin = createPlugin(framework);
+    plugin.setMetadata(oldMetadata);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    expect(plugin.getIqEnabled()).toBe(false);
+    simulator.simulateStreamMetadataUpdated(newMetadata);
+    expect(plugin.getIqEnabled()).toBe(true);
+  });
+
+  it('IQ Plugin should not report events if disabled', function()
+  {
+    var metadata = {
+      "metadata":
+      {
+        "enabled": false
+      }
+    };
+    var plugin = createPlugin(framework);
+    plugin.setMetadata(metadata);
+    expect(plugin.getIqEnabled()).toBe(false);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateVideoPause();
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportPauseCalled).toBe(0);
+  });
 });
