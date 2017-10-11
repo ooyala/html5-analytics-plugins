@@ -1273,13 +1273,15 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {number} timeSinceImpression The time passed since the ad impression 
    *                                          was recorded in milliseconds
    * @property {boolean} skipped True if ad was skipped by user.
+   * @property {string} adTagUrl The ad tag url post macro substitution
    */
-  EVENT_DATA.AdCompletedData = function(adPluginName, timeSinceImpression, skipped)
+  EVENT_DATA.AdCompletedData = function(adPluginName, timeSinceImpression, skipped, adTagUrl)
   {
     var checkAdCompletedData = OO._.bind(checkDataType, this, "AdCompletedData");
     this.adPluginName = checkAdCompletedData(adPluginName, "adPluginName", ["string"]);
     this.timeSinceImpression = checkAdCompletedData(timeSinceImpression, "timeSinceImpression", ["number"]);
     this.skipped = checkAdCompletedData(skipped, "skipped", ["boolean"]);
+    this.adTagUrl = checkAdCompletedData(adTagUrl, "adTagUrl", ["string"]);
   };
 
   /**
