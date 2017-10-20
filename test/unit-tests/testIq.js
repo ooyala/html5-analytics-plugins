@@ -44,6 +44,7 @@ describe('Analytics Framework Template Unit Tests', function()
               reportSeekCalled: 0,
               reportCompleteCalled: 0,
               reportReplayCalled: 0,
+              reportCustomEventCalled:0
             },
 
             setDeviceInfo: function() {
@@ -84,7 +85,9 @@ describe('Analytics Framework Template Unit Tests', function()
             reportReplay: function() {
               this.unitTestState.reportReplayCalled++;
             },
-            reportCustomEvent: function() {
+            reportCustomEvent: function(eventName, eventMetadata) {
+              this.unitTestState.eventName = eventName;
+              this.unitTestState.eventMetadata = eventMetadata;
               this.unitTestState.reportCustomEventCalled++;
             },
           };
@@ -381,6 +384,203 @@ describe('Analytics Framework Template Unit Tests', function()
     // Temporarily disable this check
     //expect(unitTestState.reportPlayHeadUpdateCalled).toBe(7);
   });
+
+  it ('IQ Plugin should report video buffering started updates', function()
+  {
+    var eventName = OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    var testPosition = 0;
+    simulator.simulateVideoBufferingStarted({position : testPosition});
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.position).toBe(testPosition);
+  });
+
+  // TODO: send actual params and check eventMetadata to ensure they are sent
+  it ('IQ Plugin should report initial play starting updates', function()
+  {
+    var eventName = OO.Analytics.EVENTS.INITIAL_PLAY_STARTING;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      playerCoreVersion : "v4", 
+      timeSinceInitialPlay : 200, 
+      autoplayed: false,
+      hadPreroll: false,
+      position: 0,
+      plugin: "TestVideoPlugin",
+      technology: "html5",
+      encoding: "hls",
+      streamUrl: "http://ooyala.test_stream_url.com",
+      drm: "none",
+      isLive: false,
+    };
+    simulator.simulateInitialPlayStarting(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.playerCoreVersion).toBe(metadata.playerCoreVersion);
+    expect(unitTestState.eventMetadata.timeSinceInitialPlay).toBe(metadata.timeSinceInitialPlay);
+    expect(unitTestState.eventMetadata.autoplayed).toBe(metadata.autoplayed);
+    expect(unitTestState.eventMetadata.hadPreroll).toBe(metadata.hadPreroll);
+    expect(unitTestState.eventMetadata.position).toBe(metadata.position);
+    expect(unitTestState.eventMetadata.plugin).toBe(metadata.plugin);
+    expect(unitTestState.eventMetadata.technology).toBe(metadata.technology);
+    expect(unitTestState.eventMetadata.encoding).toBe(metadata.encoding);
+    expect(unitTestState.eventMetadata.streamUrl).toBe(metadata.streamUrl);
+    expect(unitTestState.eventMetadata.drm).toBe(metadata.drm);
+    expect(unitTestState.eventMetadata.isLive).toBe(metadata.isLive);
+  });
+
+  it ('IQ Plugin should report playback ready updates', function()
+  {
+    var eventName = OO.Analytics.EVENTS.PLAYBACK_READY;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      playerCoreVersion : "v4", 
+      timeSincePlayerCreated : 100, 
+      pluginList: ["Plugin1", "Plugin2"]};
+    simulator.simulatePlaybackReady(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.playerCoreVersion).toBe(metadata.playerCoreVersion);
+    expect(unitTestState.eventMetadata.timeSincePlayerCreated).toBe(metadata.timeSincePlayerCreated);
+    expect(unitTestState.eventMetadata.pluginList).toBe(metadata.pluginList);
+  });
+
+  it ('IQ Plugin should report api rerrors', function()
+  {
+    var eventName = OO.Analytics.EVENTS.API_ERROR;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      playerCoreVersion : "v4", 
+      errorCode : 100, 
+      errorMessage: "Api Error Message",
+      url : "http://ooyala.test"};
+    simulator.simulateApiError(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.playerCoreVersion).toBe(metadata.playerCoreVersion);
+    expect(unitTestState.eventMetadata.errorCode).toBe(metadata.errorCode);
+    expect(unitTestState.eventMetadata.errorMessage).toBe(metadata.errorMessage);
+    expect(unitTestState.eventMetadata.url).toBe(metadata.url);
+  });
+
+  it ('IQ Plugin should report initial bitrate update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.BITRATE_INITIAL;
+    var testBitrate = 1000;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateBitrateInitial({bitrate : testBitrate});
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.bitrate).toBe(testBitrate);
+  });
+
+  it ('IQ Plugin should report five second bitrate update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.BITRATE_FIVE_SEC;
+    var testBitrate = 2000;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateBitrateFiveSec({bitrate : testBitrate});
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.bitrate).toBe(testBitrate);
+  });
+
+  it ('IQ Plugin should report stable bitrate update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.BITRATE_STABLE;
+    var testBitrate = 4000;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateBitrateStable({bitrate : testBitrate});
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.bitrate).toBe(testBitrate);
+  });
+
+  it ('IQ Plugin should report playback start errors', function()
+  {
+    var eventName = OO.Analytics.EVENTS.PLAYBACK_START_ERROR;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      errorCodes : { ooyalaErrorCode: 1}, 
+      errorMessages : { ooyalaErrorMessage: "ErrorMessage"}, 
+      drm: {}
+    };
+    simulator.simulatePlaybackStartError(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.errorCodes).toBe(metadata.errorCodes);
+    expect(unitTestState.eventMetadata.errorMessages).toBe(metadata.errorMessages);
+    expect(unitTestState.eventMetadata.drm).toBe(metadata.drm);
+  });
+
+    it ('IQ Plugin should report playback midstream errors', function()
+  {
+    var eventName = OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      errorCodes : { ooyalaErrorCode: 1}, 
+      errorMessages : { ooyalaErrorMessage: "ErrorMessage"}, 
+      position: 20
+    };
+    simulator.simulatePlaybackMidstreamError(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.errorCodes).toBe(metadata.errorCodes);
+    expect(unitTestState.eventMetadata.errorMessages).toBe(metadata.errorMessages);
+    expect(unitTestState.eventMetadata.position).toBe(metadata.position);
+  });
+
+  it ('IQ Plugin should report plugin loaded update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.PLUGIN_LOADED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      playerCoreVersion : "v4", 
+      pluginType : "Video", 
+      pluginName: "TestPlugin",
+      loadTime : 120};
+    simulator.simulatePluginLoaded(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.playerCoreVersion).toBe(metadata.playerCoreVersion);
+    expect(unitTestState.eventMetadata.pluginType).toBe(metadata.pluginType);
+    expect(unitTestState.eventMetadata.pluginName).toBe(metadata.pluginName);
+    expect(unitTestState.eventMetadata.loadTime).toBe(metadata.loadTime);
+  });
+
 
   it ('IQ Plugin should report seek', function()
   {

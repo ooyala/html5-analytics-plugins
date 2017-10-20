@@ -270,10 +270,72 @@ if (!OO.Analytics.Utils)
       plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
     };
 
-    this.simulateVideoBufferingStarted = function()
+    this.simulateVideoBufferingStarted = function(metadata)
     {
       preSimulate();
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED);
+      var params = null;
+      if (metadata)
+      {
+        params = [{
+          position: metadata.position
+        }];
+      }
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED, params);
+    };
+
+
+    this.simulateInitialPlayStarting = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAY_STARTING, [metadata]);
+    };
+
+    this.simulatePlaybackReady = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_READY, [metadata]);
+    };
+
+    this.simulateApiError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.API_ERROR, [metadata]);
+    };
+
+    this.simulateBitrateInitial = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.BITRATE_INITIAL, [metadata]);
+    };
+
+    this.simulateBitrateFiveSec = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.BITRATE_FIVE_SEC, [metadata]);
+    };
+
+    this.simulateBitrateStable = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.BITRATE_STABLE, [metadata]);
+    };
+
+    this.simulatePlaybackStartError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_START_ERROR, [metadata]);
+    };
+
+    this.simulatePlaybackMidstreamError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR, [metadata]);
+    };
+
+    this.simulatePluginLoaded = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLUGIN_LOADED, [metadata]);
     };
 
     this.simulateVideoBufferingEnded = function()
