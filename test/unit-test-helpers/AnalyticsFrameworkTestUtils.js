@@ -338,6 +338,96 @@ if (!OO.Analytics.Utils)
       plugin.processEvent(OO.Analytics.EVENTS.PLUGIN_LOADED, [metadata]);
     };
 
+    this.simulateAdRequest = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST, [metadata]);
+    };
+
+    this.simulateAdRequestSuccess = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST_SUCCESS, [metadata]);
+    };
+
+    this.simulateAdSdkLoaded = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SDK_LOADED, [metadata]);
+    };
+
+    this.simulateAdSdkLoadFailure = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SDK_LOAD_FAILURE, [metadata]);
+    };
+
+    this.simulateAdPodStarted = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_POD_STARTED, [metadata]);
+    };
+
+    this.simulateAdPodEnded = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_POD_ENDED, [metadata]);
+    };
+
+    this.simulateAdSkipped = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SKIPPED, [metadata]);
+    };
+
+    this.simulateAdRequestEmpty = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST_EMPTY, [metadata]);
+    };
+
+    this.simulateAdRequestError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST_ERROR, [metadata]);
+    };
+
+    this.simulateAdPlayBackError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_PLAYBACK_ERROR, [metadata]);
+    };
+
+    this.simulateAdImpression = function()
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_IMPRESSION);
+    };
+
+    this.simulateAdSdkImpression = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SDK_IMPRESSION, [metadata]);
+    };
+
+    this.simulateAdCompleted = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_COMPLETED, [metadata]);
+    };
+
+    this.simulateAdClickthroughOpened = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED, [metadata]);
+    };
+
+    this.simulateSdkAdEvent = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.SDK_AD_EVENT, [metadata]);
+    };
+
     this.simulateVideoBufferingEnded = function()
     {
       preSimulate();

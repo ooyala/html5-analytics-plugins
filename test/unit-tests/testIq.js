@@ -377,7 +377,7 @@ describe('Analytics Framework Template Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
 
     simulator.simulateVideoProgress({
-      playheads: [1, 2, 3, 4, 5, 7.5, 10]
+      playheads : [1, 2, 3, 4, 5, 7.5, 10]
     });
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
@@ -410,15 +410,15 @@ describe('Analytics Framework Template Unit Tests', function()
     var metadata = {
       playerCoreVersion : "v4", 
       timeSinceInitialPlay : 200, 
-      autoplayed: false,
-      hadPreroll: false,
-      position: 0,
-      plugin: "TestVideoPlugin",
-      technology: "html5",
-      encoding: "hls",
-      streamUrl: "http://ooyala.test_stream_url.com",
-      drm: "none",
-      isLive: false,
+      autoplayed : false,
+      hadPreroll : false,
+      position : 0,
+      plugin : "TestVideoPlugin",
+      technology : "html5",
+      encoding : "hls",
+      streamUrl : "http://ooyala.test_stream_url.com",
+      drm : "none",
+      isLive : false
     };
     simulator.simulateInitialPlayStarting(metadata);
     var unitTestState = plugin.ooyalaReporter.unitTestState;
@@ -446,7 +446,8 @@ describe('Analytics Framework Template Unit Tests', function()
     var metadata = {
       playerCoreVersion : "v4", 
       timeSincePlayerCreated : 100, 
-      pluginList: ["Plugin1", "Plugin2"]};
+      pluginList : ["Plugin1", "Plugin2"]
+    };
     simulator.simulatePlaybackReady(metadata);
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportCustomEventCalled).toBe(1);
@@ -465,8 +466,9 @@ describe('Analytics Framework Template Unit Tests', function()
     var metadata = {
       playerCoreVersion : "v4", 
       errorCode : 100, 
-      errorMessage: "Api Error Message",
-      url : "http://ooyala.test"};
+      errorMessage : "Api Error Message",
+      url : "http://ooyala.test"
+    };
     simulator.simulateApiError(metadata);
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportCustomEventCalled).toBe(1);
@@ -527,7 +529,7 @@ describe('Analytics Framework Template Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
     var metadata = {
       errorCodes : { ooyalaErrorCode: 1}, 
-      errorMessages : { ooyalaErrorMessage: "ErrorMessage"}, 
+      errorMessages : { ooyalaErrorMessage : "ErrorMessage"}, 
       drm: {}
     };
     simulator.simulatePlaybackStartError(metadata);
@@ -548,7 +550,7 @@ describe('Analytics Framework Template Unit Tests', function()
     var metadata = {
       errorCodes : { ooyalaErrorCode: 1}, 
       errorMessages : { ooyalaErrorMessage: "ErrorMessage"}, 
-      position: 20
+      position : 20
     };
     simulator.simulatePlaybackMidstreamError(metadata);
     var unitTestState = plugin.ooyalaReporter.unitTestState;
@@ -568,8 +570,9 @@ describe('Analytics Framework Template Unit Tests', function()
     var metadata = {
       playerCoreVersion : "v4", 
       pluginType : "Video", 
-      pluginName: "TestPlugin",
-      loadTime : 120};
+      pluginName : "TestPlugin",
+      loadTime : 120
+    };
     simulator.simulatePluginLoaded(metadata);
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportCustomEventCalled).toBe(1);
@@ -581,6 +584,384 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(unitTestState.eventMetadata.loadTime).toBe(metadata.loadTime);
   });
 
+  it ('IQ Plugin should report ad request update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_REQUEST;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adPosition : 0, 
+      adPluginName : "google-ima"
+    };
+    simulator.simulateAdRequest(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adPosition).toBe(metadata.adPosition);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+  });
+
+  it ('IQ Plugin should report ad request success update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_REQUEST_SUCCESS;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adPosition : 0, 
+      adPluginName : "google-ima",
+      responseTime : 100,
+      timeSinceInitialPlay : 200
+    };
+    simulator.simulateAdRequestSuccess(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adPosition).toBe(metadata.adPosition);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.responseTime).toBe(metadata.responseTime);
+    expect(unitTestState.eventMetadata.timeSinceInitialPlay).toBe(metadata.timeSinceInitialPlay);
+  });
+
+  it ('IQ Plugin should report ad sdk loaded update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_SDK_LOADED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      playerCoreVersion : "v4", 
+      adPluginName : "google-ima"
+    };
+    simulator.simulateAdSdkLoaded(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.playerCoreVersion).toBe(metadata.playerCoreVersion);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+  });
+
+  it ('IQ Plugin should report ad sdk load error', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_SDK_LOAD_FAILURE;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      playerCoreVersion : "v4", 
+      adPluginName : "google-ima",
+      errorMessage : "Test Errror"
+    };
+    simulator.simulateAdSdkLoadFailure(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.playerCoreVersion).toBe(metadata.playerCoreVersion);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.errorMessage).toBe(metadata.errorMessage);
+  });
+
+  it ('IQ Plugin should report ad break started update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_BREAK_STARTED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateAdBreakStarted();
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+  });
+
+  it ('IQ Plugin should report ad break ended update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_BREAK_ENDED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateAdBreakEnded();
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+  });
+
+  it ('IQ Plugin should report ad pod started update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_POD_STARTED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      numberOfAds : 3
+    };
+    simulator.simulateAdPodStarted(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.numberOfAds).toBe(metadata.numberOfAds);
+  });
+
+  it ('IQ Plugin should report ad pod ended update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_POD_ENDED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adId : "Google IMA"
+    };
+    simulator.simulateAdPodEnded(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adId).toBe(metadata.adId);
+  });
+
+  it ('IQ Plugin should report ad started update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_STARTED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = 
+                  { adType : "linearOverlay", 
+                    adMetadata : 
+                    { adId : "Google IMA",
+                      adDuration : 30,
+                      adPodPosition : 0
+                    } 
+                  };
+    simulator.simulateAdPlayback(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adType).toBe(metadata.adType);
+    expect(unitTestState.eventMetadata.adMetadata.adId).toBe(metadata.adMetadata.adId);
+    expect(unitTestState.eventMetadata.adMetadata.adDuration).toBe(metadata.adMetadata.adDuration);
+    expect(unitTestState.eventMetadata.adMetadata.adPodPosition).toBe(metadata.adMetadata.adPodPosition);
+  });
+
+  it ('IQ Plugin should report ad ended update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_ENDED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = { adType : "linearOverlay", 
+                     adId : "Google IMA"
+                   };
+    simulator.simulateAdComplete(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adType).toBe(metadata.adType);
+    expect(unitTestState.eventMetadata.adId).toBe(metadata.adId);
+  });
+
+  it ('IQ Plugin should report ad skipped update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_SKIPPED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {};
+    simulator.simulateAdSkipped(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+  });
+
+  it ('IQ Plugin should report ad error', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_ERROR;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {error : "Test Error"};
+    simulator.simulateAdError(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.error.error).toBe(metadata.error);
+  });
+
+  it ('IQ Plugin should report ad request empty', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_REQUEST_EMPTY;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adPosition : 0, 
+      adPluginName : "google-ima",
+      adTagUrl : "http://test_ad_tag_url.com",
+      errorCodes : {vastErrorCode : 1000,
+                    errorCode : 400
+                   },
+      errorMessage : "Test Error"
+    };
+    simulator.simulateAdRequestEmpty(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adPosition).toBe(metadata.adPosition);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.adTagUrl).toBe(metadata.adTagUrl);
+    expect(unitTestState.eventMetadata.errorCodes.errorCode).toBe(metadata.errorCodes.errorCode);
+    expect(unitTestState.eventMetadata.errorCodes.vastErrorCode).toBe(metadata.errorCodes.vastErrorCode);
+    expect(unitTestState.eventMetadata.errorMessage).toBe(metadata.errorMessage);
+  });
+
+  it ('IQ Plugin should report ad request error', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_REQUEST_ERROR;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adPosition : 0, 
+      adPluginName : "google-ima",
+      adTagUrl : "http://test_ad_tag_url.com",
+      errorCodes : {vastErrorCode : 1000,
+                    errorCode : 400
+                   },
+      errorMessage : "Test Error",
+      isTimeout : false
+    };
+    simulator.simulateAdRequestError(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adPosition).toBe(metadata.adPosition);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.adTagUrl).toBe(metadata.adTagUrl);
+    expect(unitTestState.eventMetadata.errorCodes.errorCode).toBe(metadata.errorCodes.errorCode);
+    expect(unitTestState.eventMetadata.errorCodes.vastErrorCode).toBe(metadata.errorCodes.vastErrorCode);
+    expect(unitTestState.eventMetadata.errorMessage).toBe(metadata.errorMessage);
+    expect(unitTestState.eventMetadata.isTimeout).toBe(metadata.isTimeout);
+  });
+
+  it ('IQ Plugin should report ad playback error', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_PLAYBACK_ERROR;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adPosition : 0, 
+      adPluginName : "google-ima",
+      adTagUrl : "http://test_ad_tag_url.com",
+      errorCodes : {vastErrorCode : 1000,
+                    errorCode : 400
+                   },
+      errorMessage : "Test Error",
+      videoPluginList : ["bitwrapper", "main"],
+      mediaFileUrl : "http://test_media_url.com"
+    };
+    simulator.simulateAdPlayBackError(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adPosition).toBe(metadata.adPosition);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.adTagUrl).toBe(metadata.adTagUrl);
+    expect(unitTestState.eventMetadata.errorCodes.errorCode).toBe(metadata.errorCodes.errorCode);
+    expect(unitTestState.eventMetadata.errorCodes.vastErrorCode).toBe(metadata.errorCodes.vastErrorCode);
+    expect(unitTestState.eventMetadata.errorMessage).toBe(metadata.errorMessage);
+    expect(unitTestState.eventMetadata.videoPluginList).toBe(metadata.videoPluginList);
+    expect(unitTestState.eventMetadata.mediaFileUrl).toBe(metadata.mediaFileUrl);
+  });
+
+  it ('IQ Plugin should report ad impression update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_IMPRESSION;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateAdImpression();
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+  });
+
+  it ('IQ Plugin should report ad sdk impression update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_SDK_IMPRESSION;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adPosition : 0, 
+      adPluginName : "google-ima",
+      adLoadTime : 100,
+      adProtocol : "VAST",
+      adType : "linearOverlay"
+    };
+    simulator.simulateAdSdkImpression(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adPosition).toBe(metadata.adPosition);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.adLoadTime).toBe(metadata.adLoadTime);
+    expect(unitTestState.eventMetadata.adProtocol).toBe(metadata.adProtocol);
+    expect(unitTestState.eventMetadata.adType).toBe(metadata.adType);
+  });
+
+  it ('IQ Plugin should report ad completed update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_COMPLETED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      adPluginName : "google-ima",
+      timeSinceImpression : 100,
+      skipped : false,
+      adTagUrl : "http://test_ad_tag_url.com"
+    };
+    simulator.simulateAdCompleted(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.timeSinceImpression).toBe(metadata.timeSinceImpression);
+    expect(unitTestState.eventMetadata.skipped).toBe(metadata.skipped);
+    expect(unitTestState.eventMetadata.adTagUrl).toBe(metadata.adTagUrl);
+  });
+
+  it ('IQ Plugin should report ad clickthrough opened update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateAdClickthroughOpened();
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+  });
+
+  it ('IQ Plugin should report sdk ad event update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.SDK_AD_EVENT;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var imaEvent = "ima-event";
+    var metadata = {
+      adPluginName : "google-ima",
+      adEventName : imaEvent,
+      adEventData : { adId : "1234567"},
+    };
+    simulator.simulateSdkAdEvent(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName + ":" + imaEvent);
+    expect(unitTestState.eventMetadata.adPluginName).toBe(metadata.adPluginName);
+    expect(unitTestState.eventMetadata.adEventData.adId).toBe(metadata.adEventData.adId);
+  });
 
   it ('IQ Plugin should report seek', function()
   {
