@@ -211,9 +211,14 @@ if (!OO.Analytics.Utils)
           autoPlay = innerMetadata.autoPlay;
         }
 
-        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED, [{
-          pcode: metadata.pcode,
-          playerBrandingId: metadata.playerBrandingId
+        plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED, [{ 
+          params:{
+            pcode: metadata.pcode,
+            playerBrandingId: metadata.playerBrandingId
+          },
+          embedCode: metadata.embedCode,
+          playerUrl: metadata.playerUrl,
+          playerCoreVersion : "v4"
         }]);
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
           embedCode: metadata.embedCode,
@@ -265,10 +270,162 @@ if (!OO.Analytics.Utils)
       plugin.processEvent(OO.Analytics.EVENTS.VIDEO_PAUSED);
     };
 
-    this.simulateVideoBufferingStarted = function()
+    this.simulateVideoBufferingStarted = function(metadata)
     {
       preSimulate();
-      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED);
+      var params = null;
+      if (metadata)
+      {
+        params = [{
+          position: metadata.position
+        }];
+      }
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED, params);
+    };
+
+
+    this.simulateInitialPlayStarting = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.INITIAL_PLAY_STARTING, [metadata]);
+    };
+
+    this.simulatePlaybackReady = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_READY, [metadata]);
+    };
+
+    this.simulateApiError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.API_ERROR, [metadata]);
+    };
+
+    this.simulateBitrateInitial = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.BITRATE_INITIAL, [metadata]);
+    };
+
+    this.simulateBitrateFiveSec = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.BITRATE_FIVE_SEC, [metadata]);
+    };
+
+    this.simulateBitrateStable = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.BITRATE_STABLE, [metadata]);
+    };
+
+    this.simulatePlaybackStartError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_START_ERROR, [metadata]);
+    };
+
+    this.simulatePlaybackMidstreamError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR, [metadata]);
+    };
+
+    this.simulatePluginLoaded = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.PLUGIN_LOADED, [metadata]);
+    };
+
+    this.simulateAdRequest = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST, [metadata]);
+    };
+
+    this.simulateAdRequestSuccess = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST_SUCCESS, [metadata]);
+    };
+
+    this.simulateAdSdkLoaded = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SDK_LOADED, [metadata]);
+    };
+
+    this.simulateAdSdkLoadFailure = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SDK_LOAD_FAILURE, [metadata]);
+    };
+
+    this.simulateAdPodStarted = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_POD_STARTED, [metadata]);
+    };
+
+    this.simulateAdPodEnded = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_POD_ENDED, [metadata]);
+    };
+
+    this.simulateAdSkipped = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SKIPPED, [metadata]);
+    };
+
+    this.simulateAdRequestEmpty = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST_EMPTY, [metadata]);
+    };
+
+    this.simulateAdRequestError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_REQUEST_ERROR, [metadata]);
+    };
+
+    this.simulateAdPlayBackError = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_PLAYBACK_ERROR, [metadata]);
+    };
+
+    this.simulateAdImpression = function()
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_IMPRESSION);
+    };
+
+    this.simulateAdSdkImpression = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_SDK_IMPRESSION, [metadata]);
+    };
+
+    this.simulateAdCompleted = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_COMPLETED, [metadata]);
+    };
+
+    this.simulateAdClickthroughOpened = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED, [metadata]);
+    };
+
+    this.simulateSdkAdEvent = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.SDK_AD_EVENT, [metadata]);
     };
 
     this.simulateVideoBufferingEnded = function()
