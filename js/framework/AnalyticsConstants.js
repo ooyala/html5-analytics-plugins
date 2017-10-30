@@ -282,6 +282,14 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#WILL_PLAY_FROM_BEGINNING
+     * @description This message is sent whenever player plays the video from the video start. 
+     * Different from initial play as it can be a replay
+     */
+    WILL_PLAY_FROM_BEGINNING:         "willPlayFromBeginning", 
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#INITIAL_PLAY_STARTING
      * @description This message is sent when the player has begun playback for the first time, first frame has been received.
      */

@@ -21,7 +21,9 @@ var IqPlugin= function (framework)
   var currentEmbedCode = null;
   var contentType = "ooyala";
   var currentPlayheadPosition = null;
+  var playingInstreamAd = false;
   var iqEnabled = false;
+  var lastEmbedCode = "";
   
   this.ooyalaReporter = null;
   this.testMode = false;
@@ -182,6 +184,11 @@ var IqPlugin= function (framework)
         if (params && params[0] && params[0].metadata)
         {
           //autoPlay = params[0].metadata.autoPlay;
+          if (params[0].embedCode != currentEmbedcode) {
+            lastEmbedCode = currentEmbedcode;
+          } else {
+            lastEmbedCode = "";
+          }
           currentEmbedCode = params[0].embedCode;
         }
         break;
@@ -205,8 +212,8 @@ var IqPlugin= function (framework)
             OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
             this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
             /* TODO: disable for now as this is already reported by reporter.js in core */
-            //this.ooyalaReporter.reportPlayerLoad();
-            //OO.log("IQ: Reported: reportPlayerLoad()");
+            this.ooyalaReporter.reportPlayerLoad();
+            OO.log("IQ: Reported: reportPlayerLoad()");
           }
           else
           {
@@ -218,8 +225,8 @@ var IqPlugin= function (framework)
       //OO.EVENTS.INITIAL_PLAY -> OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED.
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
         /* TODO: disable for now as this is already reported by reporter.js in core */
-        //OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
-        //this.ooyalaReporter.reportPlayRequested(autoPlay);
+        OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
+        this.ooyalaReporter.reportPlayRequested(autoPlay);
         break;
       //OO.EVENTS.PLAYHEAD_TIME_CHANGED -> OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED.
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
@@ -231,9 +238,9 @@ var IqPlugin= function (framework)
             if (this.ooyalaReporter)
             {
               /* TODO: disable for now as this is already reported by reporter.js in core */
-              //var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
-              //this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
-              //OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
+              var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
+              this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
+              OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
             }
             else
             {
@@ -329,6 +336,14 @@ var IqPlugin= function (framework)
           {
             OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
           }
+        }
+        break;
+      case OO.EVENTS.WILL_PLAY_FROM_BEGINNING:
+        if (lastEmbedCode === currentEmbedcode) {
+          this.ooyalaReporter.reportReplay();
+        } else {
+          this.ooyalaReporter.reportVideoStarted();
+          lastEmbedCode = currentEmbedcode;
         }
         break;
       case OO.Analytics.EVENTS.INITIAL_PLAY_STARTING:
