@@ -184,8 +184,8 @@ var IqPlugin= function (framework)
         if (params && params[0] && params[0].metadata)
         {
           //autoPlay = params[0].metadata.autoPlay;
-          if (params[0].embedCode != currentEmbedcode) {
-            lastEmbedCode = currentEmbedcode;
+          if (params[0].embedCode != currentEmbedCode) {
+            lastEmbedCode = currentEmbedCode;
           } else {
             lastEmbedCode = "";
           }
@@ -339,11 +339,29 @@ var IqPlugin= function (framework)
         }
         break;
       case OO.EVENTS.WILL_PLAY_FROM_BEGINNING:
-        if (lastEmbedCode === currentEmbedcode) {
+        if (lastEmbedCode === currentEmbedCode) {
           this.ooyalaReporter.reportReplay();
         } else {
-          this.ooyalaReporter.reportVideoStarted();
-          lastEmbedCode = currentEmbedcode;
+          this.ooyalaReporter.reportPlaybackStarted();
+          lastEmbedCode = currentEmbedCode;
+        }
+        break;
+      // OO.EVENTS.WILL_PLAY_ADS -> OO.Analytics.EVENTS.AD_BREAK_STARTED
+      case OO.Analytics.EVENTS.AD_BREAK_STARTED:
+        playingInstreamAd = true;
+        if (this.ooyalaReporter)
+        {
+          eventMetadata = {adEventName: eventName};
+          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        }
+        break;
+      // OO.EVENTS.ADS_PLAYED -> OO.Analytics.EVENTS.AD_BREAK_ENDED
+      case OO.Analytics.EVENTS.AD_BREAK_ENDED:
+        playingInstreamAd = false;
+        if (this.ooyalaReporter)
+        {
+          eventMetadata = {adEventName: eventName};
+          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         }
         break;
       case OO.Analytics.EVENTS.INITIAL_PLAY_STARTING:
@@ -374,8 +392,6 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_REQUEST_SUCCESS:
       case OO.Analytics.EVENTS.AD_SDK_LOADED:
       case OO.Analytics.EVENTS.AD_SDK_LOAD_FAILURE:
-      case OO.Analytics.EVENTS.AD_BREAK_STARTED:
-      case OO.Analytics.EVENTS.AD_BREAK_ENDED:
       case OO.Analytics.EVENTS.AD_POD_STARTED:
       case OO.Analytics.EVENTS.AD_POD_ENDED:
       case OO.Analytics.EVENTS.AD_STARTED:
