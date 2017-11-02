@@ -513,6 +513,20 @@ if (!OO.Analytics.EVENTS)
     SDK_AD_EVENT:                   'sdkAdEvent',
 
     /**
+     * @private
+     * @event OO.Analytics.EVENTS#REPORT_DISCOVERY_CLICK
+     * @description This message is sent when a discovery asset is clicked or autoplayed
+     */
+    REPORT_DISCOVERY_CLICK:            'reportDiscoveryClick',
+
+    /**
+     * @private
+     * @event OO.Analytics.EVENTS#REPORT_DISCOVERY_IMPRESSION
+     * @description This message is sent when an asset found by discovery is shown on the player.
+     */
+
+    REPORT_DISCOVERY_IMPRESSION:            'reportDiscoveryImpression',
+    /**
      * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
      * @description This message is sent when the player enters and exits fullscreen.
@@ -1320,6 +1334,34 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPluginName = checkLoadAdSdkFailureData(adPluginName, "adPluginName", ["string"]);
     this.playerCoreVersion = checkLoadAdSdkFailureData(playerCoreVersion, "playerCoreVersion", ["string"]);
     this.errorMessage = checkLoadAdSdkFailureData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @private
+   * @class Analytics.EVENT_DATA#ReportDiscoveryImpressionEventData
+   * @classdesc Contains information about report discovery impression event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {object} metadata An object containing details of the ad event. This may vary
+   *                               between ad plugin to ad plugin.
+   */
+  EVENT_DATA.ReportDiscoveryImpressionEventData = function(metadata)
+  {
+    var checkReportDiscoveryImpressionEventData = OO._.bind(checkDataType, this, "ReportDiscoveryImpressionEventData");
+    this.metadata = checkReportDiscoveryImpressionEventData(metadata, "metadata", ["object"]);
+  };
+
+  /**
+   * @private
+   * @class Analytics.EVENT_DATA#ReportDiscoveryClickEventData
+   * @classdesc Contains information about report discovery click event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {object} metadata An object containing details of the ad event. This may vary
+   *                               between ad plugin to ad plugin.
+   */
+  EVENT_DATA.ReportDiscoveryClickEventData = function(metadata)
+  {
+    var checkReportDiscoveryClickEventData = OO._.bind(checkDataType, this, "ReportDiscoveryClickEventData");
+    this.metadata = checkReportDiscoveryClickEventData(metadata, "metadata", ["object"]);
   };
 
   /**
