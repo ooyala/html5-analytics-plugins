@@ -405,6 +405,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_SDK_IMPRESSION:
       case OO.Analytics.EVENTS.AD_COMPLETED:
       case OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED:
+      case OO.Analytics.EVENTS.AD_CLICKED:
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
         if (!params || !params[0])
         {
@@ -432,6 +433,50 @@ var IqPlugin= function (framework)
         else
         {
           OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+        }
+        break;
+      case OO.Analytics.EVENTS.REPORT_DISCOVERY_IMPRESSION: 
+        if (params && params[0] && params[0].metadata)
+        {
+          if (this.ooyalaReporter)
+          {
+            try
+            {
+              eventMetadata = params[0].metadata;
+              OO.log("IQ: Reported: reportAssetImpression() with args: " + JSON.stringify(params[0]));
+              this.ooyalaReporter.reportAssetImpression(eventMetadata.asset, eventMetadata.customData, eventMetadata.uiTag, eventMetadata.contentSource, eventMetadata.pageSize, eventMetadata.assetPosition);
+            } 
+            catch(e) 
+            {
+              OO.log("IQ: Tried reporting event: " + eventName + " but received error: " + e);
+            }
+          }
+          else
+          {
+            OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.REPORT_DISCOVERY_CLICK: 
+        if (params && params[0] && params[0].metadata)
+        {
+          if (this.ooyalaReporter)
+          {
+            try
+            {
+              eventMetadata = params[0].metadata;
+              OO.log("IQ: Reported: reportAssetClick() with args: " + JSON.stringify(params[0]));
+              this.ooyalaReporter.reportAssetClick(eventMetadata.asset, eventMetadata.customData, eventMetadata.uiTag, eventMetadata.contentSource, eventMetadata.pageSize, eventMetadata.assetPosition);
+            } 
+            catch(e) 
+            {
+              OO.log("IQ: Tried reporting event: " + eventName + " but received error: " + e);
+            }
+          }
+          else
+          {
+            OO.log("IQ: Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
+          }
         }
         break;
       default:

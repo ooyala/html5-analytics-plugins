@@ -486,6 +486,15 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_CLICKED
+     * @description This message is sent when the skin reports an ads clicked event.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdClickedData
+     */
+    AD_CLICKED:                       'ad_error',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_IMPRESSION
      * @description This message is sent when the ad video element first plays.
      */
@@ -524,8 +533,8 @@ if (!OO.Analytics.EVENTS)
      * @event OO.Analytics.EVENTS#REPORT_DISCOVERY_IMPRESSION
      * @description This message is sent when an asset found by discovery is shown on the player.
      */
-
     REPORT_DISCOVERY_IMPRESSION:            'reportDiscoveryImpression',
+
     /**
      * @public
      * @event OO.Analytics.EVENTS#FULLSCREEN_CHANGED
@@ -980,6 +989,18 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkAdErrorData = OO._.bind(checkDataType, this, "AdErrorData");
     this.error = checkAdErrorData(error, "error", ["string", "object"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#AdClickedData
+   * @classdesc Contains information about the ad clicked event.
+   * @property {object} The metadata sent with the event
+   */
+  EVENT_DATA.AdClickedData = function(error)
+  {
+    var checkAdClickedData = OO._.bind(checkDataType, this, "AdClickedData");
+    this.metadata = checkAdClickedData(metadata, "metadata", ["object"]);
   };
 
   /**
