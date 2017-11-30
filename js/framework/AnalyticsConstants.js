@@ -103,7 +103,7 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_PLAY_REQUESTED
      * @description This message is sent every time there is a request to try and
-     * initiate video playback (except the first time. See VIDEO_FIRST_PLAY_REQUESTED).
+     * initiate video playback (except the first time. See INITIAL_PLAYBACK_REQUESTED).
      * This is only the request, not when video playback has actually started.
      */
     VIDEO_PLAY_REQUESTED:           'video_play_requested',
