@@ -103,7 +103,7 @@ if (!OO.Analytics.EVENTS)
      * @public
      * @event OO.Analytics.EVENTS#VIDEO_PLAY_REQUESTED
      * @description This message is sent every time there is a request to try and
-     * initiate video playback (except the first time. See INITIAL_PLAYBACK_REQUESTED).
+     * initiate video playback (except the first time. See VIDEO_FIRST_PLAY_REQUESTED).
      * This is only the request, not when video playback has actually started.
      */
     VIDEO_PLAY_REQUESTED:           'video_play_requested',
@@ -491,7 +491,7 @@ if (!OO.Analytics.EVENTS)
      * @param {Array} paramArray Array of length 1, contains an instance of
      * OO.Analytics.EVENT_DATA.AdClickedData
      */
-    AD_CLICKED:                       'ad_error',
+    AD_CLICKED:                       'ad_clicked',
 
     /**
      * @public
@@ -997,7 +997,7 @@ if (!OO.Analytics.EVENT_DATA)
    * @classdesc Contains information about the ad clicked event.
    * @property {object} The metadata sent with the event
    */
-  EVENT_DATA.AdClickedData = function(error)
+  EVENT_DATA.AdClickedData = function(metadata)
   {
     var checkAdClickedData = OO._.bind(checkDataType, this, "AdClickedData");
     this.metadata = checkAdClickedData(metadata, "metadata", ["object"]);

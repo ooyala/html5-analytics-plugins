@@ -325,7 +325,6 @@ var IqPlugin= function (framework)
           this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         }
         break;
-
       // OO.EVENTS.WILL_PLAY_ADS -> OO.Analytics.EVENTS.AD_BREAK_STARTED
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
         playingInstreamAd = true;
