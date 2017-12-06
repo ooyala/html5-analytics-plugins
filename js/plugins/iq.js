@@ -15,7 +15,7 @@ var IqPlugin= function (framework)
 
   var SDK_LOAD_TIMEOUT = 3000;
 
-  var autoPlay = null;
+  var autoPlay = false;
   var pcode = null;
   var playerId = null;
   var currentEmbedCode = null;
@@ -126,7 +126,7 @@ var IqPlugin= function (framework)
   this.setMetadata = function(metadata)
   {
     if (metadata && metadata.metadata){
-      if(metadata.metadata.enabled != null){
+      if (metadata.metadata.enabled != null){
         iqEnabled = metadata.metadata.enabled;
       }
     }
@@ -158,10 +158,10 @@ var IqPlugin= function (framework)
       return;
     }
     //OO.EVENTS.EMBED_CODE_CHANGED -> OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED.
-    if(eventName === OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED){ 
+    if (eventName === OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED){ 
       if (params && params[0] && params[0].metadata)
       {
-        //autoPlay = params[0].metadata.autoPlay;
+        autoPlay = params[0].metadata.autoPlay;
         if (params[0].embedCode != currentEmbedCode) 
         {
           lastEmbedCode = currentEmbedCode;
@@ -263,7 +263,7 @@ var IqPlugin= function (framework)
           {
             var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
             this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
-            OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPosition * 1000));
+            OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPositionMilli));
           }
         }
         break;
@@ -358,12 +358,14 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED:
       case OO.Analytics.EVENTS.AD_CLICKED:
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
-        if (!params || !params[0]) params = [];
+        if (!params || !params[0]) 
+          params = [];
 
         var eventMetadata = params[0];
-        if(!eventMetadata) eventMetadata = {};
+        if (!eventMetadata)
+          eventMetadata = {};
 
-        if (eventMetadata.adEventName)
+        if(eventMetadata.adEventName)
         {
           eventMetadata.adEventName = eventName + ":" + eventMetadata.adEventName;
         }
