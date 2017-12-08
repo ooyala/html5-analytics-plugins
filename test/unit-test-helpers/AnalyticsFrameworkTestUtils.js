@@ -283,6 +283,12 @@ if (!OO.Analytics.Utils)
       plugin.processEvent(OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED, params);
     };
 
+    this.simulateWillPlayFromBeginning = function()
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.WILL_PLAY_FROM_BEGINNING);
+    };
+
 
     this.simulateInitialPlayStarting = function(metadata)
     {
@@ -422,10 +428,28 @@ if (!OO.Analytics.Utils)
       plugin.processEvent(OO.Analytics.EVENTS.AD_CLICKTHROUGH_OPENED, [metadata]);
     };
 
+    this.simulateAdClicked = function()
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.AD_CLICKED);
+    };
+
     this.simulateSdkAdEvent = function(metadata)
     {
       preSimulate();
       plugin.processEvent(OO.Analytics.EVENTS.SDK_AD_EVENT, [metadata]);
+    };
+
+    this.simulateDiscoveryAssetImpression = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.REPORT_DISCOVERY_IMPRESSION, [{"metadata": metadata}]);
+    };
+
+    this.simulateDiscoveryAssetClick = function(metadata)
+    {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.REPORT_DISCOVERY_CLICK, [{"metadata": metadata}]);
     };
 
     this.simulateVideoBufferingEnded = function()

@@ -40,11 +40,15 @@ describe('Analytics Framework Template Unit Tests', function()
               reportPlayerLoadCalled: 0,
               reportPlayRequestedCalled: 0,
               reportPauseCalled: 0,
+              reportResumeCalled: 0,
               reportPlayHeadUpdateCalled: 0,
               reportSeekCalled: 0,
               reportCompleteCalled: 0,
               reportReplayCalled: 0,
-              reportCustomEventCalled:0
+              reportPlaybackStartedCalled: 0,
+              reportCustomEventCalled: 0,
+              reportAssetImpressionCalled: 0,
+              reportAssetClickCalled: 0
             },
 
             setDeviceInfo: function() {
@@ -65,11 +69,17 @@ describe('Analytics Framework Template Unit Tests', function()
             reportPlayerLoad: function() {
               this.unitTestState.reportPlayerLoadCalled++;
             },
+            reportPlaybackStarted: function() {
+              this.unitTestState.reportPlaybackStartedCalled++;
+            },
             reportPlayRequested: function() {
               this.unitTestState.reportPlayRequestedCalled++;
             },
             reportPause: function() {
               this.unitTestState.reportPauseCalled++;
+            },
+            reportResume: function() {
+              this.unitTestState.reportResumeCalled++;
             },
             reportPlayHeadUpdate: function(currentPlayheadPosition) {
               this.unitTestState.currentPlayheadPosition = currentPlayheadPosition;
@@ -89,6 +99,24 @@ describe('Analytics Framework Template Unit Tests', function()
               this.unitTestState.eventName = eventName;
               this.unitTestState.eventMetadata = eventMetadata;
               this.unitTestState.reportCustomEventCalled++;
+            },
+            reportAssetImpression: function(asset, customData, uiTag, contentSource, pageSize, assetPosition) {
+              this.unitTestState.asset = asset;
+              this.unitTestState.customData = customData;
+              this.unitTestState.uiTag = uiTag;
+              this.unitTestState.contentSource = contentSource;
+              this.unitTestState.pageSize = pageSize;
+              this.unitTestState.assetPosition = assetPosition;
+              this.unitTestState.reportAssetImpressionCalled++;
+            },
+            reportAssetClick: function(asset, customData, uiTag, contentSource, pageSize, assetPosition) {
+              this.unitTestState.asset = asset;
+              this.unitTestState.customData = customData;
+              this.unitTestState.uiTag = uiTag;
+              this.unitTestState.contentSource = contentSource;
+              this.unitTestState.pageSize = pageSize;
+              this.unitTestState.assetPosition = assetPosition;
+              this.unitTestState.reportAssetClickCalled++;
             },
           };
         }
@@ -329,7 +357,8 @@ describe('Analytics Framework Template Unit Tests', function()
     });
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
-    //expect(unitTestState.reportPlayerLoadCalled).toBe(1);
+    expect(unitTestState.reportPlayerLoadCalled).toBe(1);
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
     expect(unitTestState.initializeMediaCalled).toBe(1);
     expect(unitTestState.setMediaDurationCalled).toBe(1);
     expect(unitTestState.mediaId).toBe("testEmbedCode");
@@ -347,6 +376,17 @@ describe('Analytics Framework Template Unit Tests', function()
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportPauseCalled).toBe(1);
+  });
+
+  it ('IQ Plugin should report resume', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateContentPlayback();
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportResumeCalled).toBe(1);
   });
 
   it ('IQ Plugin should report playback completed', function()
@@ -381,8 +421,52 @@ describe('Analytics Framework Template Unit Tests', function()
     });
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
-    // Temporarily disable this check
-    //expect(unitTestState.reportPlayHeadUpdateCalled).toBe(7);
+    expect(unitTestState.reportPlayHeadUpdateCalled).toBe(7);
+  });
+
+  it ('IQ Plugin should report ad quartiles', function()
+  {
+    var plugin = createPlugin(framework);
+  
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateAdBreakStarted();
+    simulator.simulateVideoProgress({
+      playheads : [15], totalStreamDuration: 60
+    });
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.eventMetadata.percent).toBe(0.25);
+    expect(unitTestState.reportCustomEventCalled).toBe(2);
+
+    simulator.simulateVideoProgress({
+      playheads : [30], totalStreamDuration: 60
+    });
+    expect(unitTestState.eventMetadata.percent).toBe(0.50);
+    expect(unitTestState.reportCustomEventCalled).toBe(3);
+
+    simulator.simulateVideoProgress({
+      playheads : [45], totalStreamDuration: 60
+    });    
+    expect(unitTestState.eventMetadata.percent).toBe(0.75);
+    expect(unitTestState.reportCustomEventCalled).toBe(4);
+
+    simulator.simulateVideoProgress({
+      playheads : [60], totalStreamDuration: 60
+    });
+    expect(unitTestState.eventMetadata.percent).toBe(1.00);
+    expect(unitTestState.reportCustomEventCalled).toBe(5);
+  });
+
+  it ('IQ Plugin should report plyback started updates', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateWillPlayFromBeginning();
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportPlaybackStartedCalled).toBe(1);
   });
 
   it ('IQ Plugin should report video buffering started updates', function()
@@ -401,7 +485,6 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(unitTestState.eventMetadata.position).toBe(testPosition);
   });
 
-  // TODO: send actual params and check eventMetadata to ensure they are sent
   it ('IQ Plugin should report initial play starting updates', function()
   {
     var eventName = OO.Analytics.EVENTS.INITIAL_PLAY_STARTING;
@@ -943,6 +1026,18 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
   });
 
+  it ('IQ Plugin should report ad clicked update', function()
+  {
+    var eventName = OO.Analytics.EVENTS.AD_CLICKED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulateAdClicked();
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.adEventName).toBe(eventName);
+  });
+
   it ('IQ Plugin should report sdk ad event update', function()
   {
     var eventName = OO.Analytics.EVENTS.SDK_AD_EVENT;
@@ -963,6 +1058,54 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(unitTestState.eventMetadata.adEventData.adId).toBe(metadata.adEventData.adId);
   });
 
+  it ('IQ Plugin should report discovery asset impression update', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      "asset" : {"id" : "abcd", "idType": "ooyala", "ooyalaDiscoveryContext":"/abcdefg/"},
+      "pageSize" : 1,
+      "assetPosition" : 1,
+      "uiTag" : "test",
+      "contentSource" : "discovery",
+      "customData": {}
+    };
+    simulator.simulateDiscoveryAssetImpression(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+
+    expect(unitTestState.reportAssetImpressionCalled).toBe(1);
+    expect(unitTestState.asset).toBe(metadata.asset);
+    expect(unitTestState.pageSize).toBe(metadata.pageSize);
+    expect(unitTestState.assetPosition).toBe(metadata.assetPosition);
+    expect(unitTestState.uiTag).toBe(metadata.uiTag);
+    expect(unitTestState.contentSource).toBe(metadata.contentSource);
+    expect(unitTestState.customData).toBe(metadata.customData);
+  });
+
+  it ('IQ Plugin should report discovery asset click update', function()
+  {
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    var metadata = {
+      "asset" : {"id" : "abcd", "idType": "ooyala", "ooyalaDiscoveryContext":"/abcdefg/"},
+      "pageSize" : 1,
+      "assetPosition" : 1,
+      "uiTag" : "test",
+      "contentSource" : "discovery",
+      "customData": {"autoplay":false}
+    };
+    simulator.simulateDiscoveryAssetClick(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+
+    expect(unitTestState.reportAssetClickCalled).toBe(1);
+    expect(unitTestState.asset).toBe(metadata.asset);
+    expect(unitTestState.pageSize).toBe(metadata.pageSize);
+    expect(unitTestState.assetPosition).toBe(metadata.assetPosition);
+    expect(unitTestState.uiTag).toBe(metadata.uiTag);
+    expect(unitTestState.contentSource).toBe(metadata.contentSource);
+    expect(unitTestState.customData).toBe(metadata.customData);
+  });
+
   it ('IQ Plugin should report seek', function()
   {
     var plugin = createPlugin(framework);
@@ -977,11 +1120,9 @@ describe('Analytics Framework Template Unit Tests', function()
     });
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
-    // Temporarily disable this check
-    //expect(unitTestState.reportPlayHeadUpdateCalled).toBe(1);
+    expect(unitTestState.reportPlayHeadUpdateCalled).toBe(1);
     expect(unitTestState.reportSeekCalled).toBe(1);
-    // Temporarily disable this check
-    //expect(unitTestState.currentPlayheadPosition).toBe(1000);
+    expect(unitTestState.currentPlayheadPosition).toBe(1000);
     expect(unitTestState.seekedPlayheadPosition).toBe(10000);
   });
 
@@ -1004,10 +1145,8 @@ describe('Analytics Framework Template Unit Tests', function()
     simulator.simulatePlayerStart();
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
-    // Temporarily disable this check
-    //expect(unitTestState.reportPlayRequestedCalled).toBe(1);
-    // Temporarily disable this check until we resolve autoplay
-    //expect(plugin.getAutoPlay()).toBe(false);
+    expect(unitTestState.reportPlayRequestedCalled).toBe(1);
+    expect(plugin.getAutoPlay()).toBe(false);
   });
 
   it('IQ Plugin should enable iq reporting when provider metadata is received', function()
