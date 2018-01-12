@@ -282,6 +282,14 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#WILL_PLAY_FROM_BEGINNING
+     * @description This message is sent whenever player plays the video from the video start. 
+     * Different from initial play as it can be a replay
+     */
+    WILL_PLAY_FROM_BEGINNING:         "willPlayFromBeginning", 
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#INITIAL_PLAY_STARTING
      * @description This message is sent when the player has begun playback for the first time, first frame has been received.
      */
@@ -478,6 +486,15 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#AD_CLICKED
+     * @description This message is sent when the skin reports an ads clicked event.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.AdClickedData
+     */
+    AD_CLICKED:                       'ad_clicked',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#AD_IMPRESSION
      * @description This message is sent when the ad video element first plays.
      */
@@ -503,6 +520,20 @@ if (!OO.Analytics.EVENTS)
      * @description This message is sent when an SDK Ad Event has occurred.
      */
     SDK_AD_EVENT:                   'sdkAdEvent',
+
+    /**
+     * @private
+     * @event OO.Analytics.EVENTS#REPORT_DISCOVERY_CLICK
+     * @description This message is sent when a discovery asset is clicked or autoplayed
+     */
+    REPORT_DISCOVERY_CLICK:            'reportDiscoveryClick',
+
+    /**
+     * @private
+     * @event OO.Analytics.EVENTS#REPORT_DISCOVERY_IMPRESSION
+     * @description This message is sent when an asset found by discovery is shown on the player.
+     */
+    REPORT_DISCOVERY_IMPRESSION:            'reportDiscoveryImpression',
 
     /**
      * @public
@@ -962,6 +993,18 @@ if (!OO.Analytics.EVENT_DATA)
 
   /**
    * @public
+   * @class Analytics.EVENT_DATA#AdClickedData
+   * @classdesc Contains information about the ad clicked event.
+   * @property {object} The metadata sent with the event
+   */
+  EVENT_DATA.AdClickedData = function(metadata)
+  {
+    var checkAdClickedData = OO._.bind(checkDataType, this, "AdClickedData");
+    this.metadata = checkAdClickedData(metadata, "metadata", ["object"]);
+  };
+
+  /**
+   * @public
    * @class Analytics.EVENT_DATA#VideoPlayerCreatedData
    * @classdesc Contains information about the player created event
    * @property {string} playerCoreVersion The player core version
@@ -1312,6 +1355,34 @@ if (!OO.Analytics.EVENT_DATA)
     this.adPluginName = checkLoadAdSdkFailureData(adPluginName, "adPluginName", ["string"]);
     this.playerCoreVersion = checkLoadAdSdkFailureData(playerCoreVersion, "playerCoreVersion", ["string"]);
     this.errorMessage = checkLoadAdSdkFailureData(errorMessage, "errorMessage", ["string"]);
+  };
+
+  /**
+   * @private
+   * @class Analytics.EVENT_DATA#ReportDiscoveryImpressionEventData
+   * @classdesc Contains information about report discovery impression event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {object} metadata An object containing details of the ad event. This may vary
+   *                               between ad plugin to ad plugin.
+   */
+  EVENT_DATA.ReportDiscoveryImpressionEventData = function(metadata)
+  {
+    var checkReportDiscoveryImpressionEventData = OO._.bind(checkDataType, this, "ReportDiscoveryImpressionEventData");
+    this.metadata = checkReportDiscoveryImpressionEventData(metadata, "metadata", ["object"]);
+  };
+
+  /**
+   * @private
+   * @class Analytics.EVENT_DATA#ReportDiscoveryClickEventData
+   * @classdesc Contains information about report discovery click event. This has been marked private because
+   * we do not want to expose this as a public event.
+   * @property {object} metadata An object containing details of the ad event. This may vary
+   *                               between ad plugin to ad plugin.
+   */
+  EVENT_DATA.ReportDiscoveryClickEventData = function(metadata)
+  {
+    var checkReportDiscoveryClickEventData = OO._.bind(checkDataType, this, "ReportDiscoveryClickEventData");
+    this.metadata = checkReportDiscoveryClickEventData(metadata, "metadata", ["object"]);
   };
 
   /**
