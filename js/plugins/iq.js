@@ -23,6 +23,7 @@ var IqPlugin= function (framework)
   var currentPlayheadPosition = null;
   var playingInstreamAd = false;
   var iqEnabled = false;
+  var allowThrift = false;
   var lastEmbedCode = "";
 
   var adFirstQuartile = false;
@@ -129,6 +130,13 @@ var IqPlugin= function (framework)
       if (metadata.metadata.enabled != null){
         iqEnabled = metadata.metadata.enabled;
       }
+      // Are we possibly sending thrift events as well? If so we do not want to send
+      // any duplicate events with analytics.js here, only new events not reported by
+      // thrift in core with ooyala_analytics.js 
+      if (metadata.metadata.allowThrift != null){
+        allowThrift = metadata.metadata.allowThrift;
+      }
+
     }
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
   };
@@ -208,14 +216,20 @@ var IqPlugin= function (framework)
           this.ooyalaReporter._base.pcode = pcode;
           this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
           OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-          this.ooyalaReporter.reportPlayerLoad();
-          OO.log("IQ: Reported: reportPlayerLoad()");
+          if(!allowThrift)
+          {          
+            this.ooyalaReporter.reportPlayerLoad();
+            OO.log("IQ: Reported: reportPlayerLoad()");
+          }
         }
         break;
       //OO.EVENTS.INITIAL_PLAY -> OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED.
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
-        this.ooyalaReporter.reportPlayRequested(autoPlay);
+        if(!allowThrift)
+        {
+          OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
+          this.ooyalaReporter.reportPlayRequested(autoPlay);
+        }
         break;
       //OO.EVENTS.PLAYHEAD_TIME_CHANGED -> OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED.
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
@@ -261,9 +275,11 @@ var IqPlugin= function (framework)
           } 
           else 
           {
-            var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
-            this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
-            OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPositionMilli));
+            if(!allowThrift){
+              var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
+              this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
+              OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPositionMilli));
+            }
           }
         }
         break;
@@ -296,13 +312,18 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.REPLAY -> OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED.
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        this.ooyalaReporter.reportReplay();
-        OO.log("IQ: Reported: reportReplay()");
+        if(!allowThrift){}
+          this.ooyalaReporter.reportReplay();
+          OO.log("IQ: Reported: reportReplay()");
+        }
         break;
       case OO.EVENTS.WILL_PLAY_FROM_BEGINNING:
         if (lastEmbedCode != currentEmbedCode) 
         {
-          this.ooyalaReporter.reportPlaybackStarted();
+          if(!allowThrift){
+            this.ooyalaReporter.reportPlaybackStarted();
+            OO.log("IQ: Reported: reportPlaybackStarted()");
+          }
           lastEmbedCode = currentEmbedCode;
         }
         break;
@@ -377,7 +398,7 @@ var IqPlugin= function (framework)
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_IMPRESSION: 
-        if (params && params[0] && params[0].metadata)
+        if (!allowThrift && params && params[0] && params[0].metadata)
         {
           try
           {
@@ -392,7 +413,7 @@ var IqPlugin= function (framework)
         }
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_CLICK: 
-        if (params && params[0] && params[0].metadata)
+        if (!allowThrift && params && params[0] && params[0].metadata)
         {
           try
           {
