@@ -1196,4 +1196,57 @@ describe('Analytics Framework Template Unit Tests', function()
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportPauseCalled).toBe(0);
   });
+
+  it('IQ Plugin should not report duplicate events if allowThrift is true', function()
+  {
+    var metadata = {
+      "metadata":
+      {
+        "allowThrift" : true,
+        "enabled" : true
+      }
+    };
+    var plugin = createPlugin(framework);
+    plugin.setMetadata(metadata);
+    expect(plugin.getIqEnabled()).toBe(true);
+    expect(plugin.getAllowThrift()).toBe(true);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateReplay();
+    simulator.simulatePlayerLoad({
+      embedCode: "testEmbedCode",
+      title: "testTitle",
+      duration: 60000,
+      contentType: "Video",
+      pcode: "testPcode",
+      playerBrandingId: "testPlayerBrandingId",
+      metadata: {
+        autoPlay: false
+      }
+    });
+    simulator.simulateWillPlayFromBeginning();
+    simulator.simulatePlayerStart();
+    simulator.simulateVideoProgress({
+      playheads : [1, 2, 3, 4, 5, 7.5, 10]
+    });
+    var metadata = {
+      "asset" : {"id" : "abcd", "idType": "ooyala", "ooyalaDiscoveryContext":"/abcdefg/"},
+      "pageSize" : 1,
+      "assetPosition" : 1,
+      "uiTag" : "test",
+      "contentSource" : "discovery",
+      "customData": {"autoplay":false}
+    };
+
+    simulator.simulateDiscoveryAssetClick(metadata);
+    simulator.simulateDiscoveryAssetImpression(metadata);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportReplayCalled).toBe(0);
+    expect(unitTestState.reportPlayerLoadCalled).toBe(0);
+    expect(unitTestState.reportPlayRequestedCalled).toBe(0);
+    expect(unitTestState.reportPlaybackStartedCalled).toBe(0);
+    expect(unitTestState.reportPlayHeadUpdateCalled).toBe(0);
+    expect(unitTestState.reportAssetImpressionCalled).toBe(0);
+    expect(unitTestState.reportAssetClickCalled).toBe(0);
+  });
 });

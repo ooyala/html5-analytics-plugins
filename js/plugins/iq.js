@@ -79,6 +79,17 @@ var IqPlugin= function (framework)
   };
 
   /**
+   * Return the allowThrift value.
+   * @public
+   * @method IqPlugin@getAllowThrift
+   * @return {boolean} The value of allowThrift.
+   */
+  this.getAllowThrift = function()
+  {
+    return allowThrift;
+  };
+
+  /**
    * [Required Function] Set the plugin id given by the Analytics Framework when
    * this plugin is registered.
    * @public
