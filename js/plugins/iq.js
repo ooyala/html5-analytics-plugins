@@ -312,7 +312,7 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.REPLAY -> OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED.
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        if(!allowThrift){}
+        if(!allowThrift){
           this.ooyalaReporter.reportReplay();
           OO.log("IQ: Reported: reportReplay()");
         }
