@@ -138,13 +138,13 @@ var IqPlugin= function (framework)
   this.setMetadata = function(metadata)
   {
     if (metadata && metadata.metadata){
-      if (metadata.metadata.enabled != null){
+      if (metadata.metadata.enabled != undefined && metadata.metadata.enabled != null){
         iqEnabled = metadata.metadata.enabled;
       }
       // Are we possibly sending thrift events as well? If so we do not want to send
       // any duplicate events with analytics.js here, only new events not reported by
       // thrift in core with ooyala_analytics.js 
-      if (metadata.metadata.allowThrift != null){
+      if (metadata.metadata.allowThrift != undefined && metadata.metadata.allowThrift != null){
         allowThrift = metadata.metadata.allowThrift;
       }
 
