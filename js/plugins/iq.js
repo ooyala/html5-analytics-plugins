@@ -22,6 +22,7 @@ var IqPlugin= function (framework)
   var contentType = "ooyala";
   var currentPlayheadPosition = null;
   var iqEnabled = false;
+  var lastEmbedCode = "";
   
   this.ooyalaReporter = null;
   this.testMode = false;
@@ -119,8 +120,8 @@ var IqPlugin= function (framework)
   this.setMetadata = function(metadata)
   {
     if (metadata && metadata.metadata){
-      if(metadata.metadata.enabled != null){
-        iqEnabled = metadata.metadata.enabled;
+      if (metadata.metadata.enabled != null && (metadata.metadata.enabled == true || metadata.metadata.enabled === "true")){
+        iqEnabled = true;
       }
     }
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
@@ -136,7 +137,8 @@ var IqPlugin= function (framework)
   this.processEvent = function(eventName, params)
   {
     OO.log( "IQ: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
-    //Need to always check this event to see if we can enable analytics.js reporting. 
+    // First check the events that do not actually report to analytics
+    // Need to always check this event to see if we can enable analytics.js reporting. 
     //OO.EVENTS.METADATA_FETCHED -> OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED.
     if (eventName === OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED)
     {
@@ -147,12 +149,31 @@ var IqPlugin= function (framework)
           this.setMetadata(modules.iq);
         }
       }
-      OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
+      return;
+    }
+    //OO.EVENTS.EMBED_CODE_CHANGED -> OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED.
+    if (eventName === OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED){ 
+      if (params && params[0] && params[0].metadata)
+      {
+        autoPlay = params[0].metadata.autoPlay;
+        if (params[0].embedCode != currentEmbedCode) 
+        {
+          lastEmbedCode = currentEmbedCode;
+        } 
+        else 
+        {
+          lastEmbedCode = "";
+        }
+        currentEmbedCode = params[0].embedCode;
+      }
       return;
     }
 
-    if (!iqEnabled)
-    {
+    if (!iqEnabled) return;
+
+    // Any other event requires analytics to be loaded, return otherwise
+    if (!this.ooyalaReporter){
+      OO.log("Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
       return;
     }
 
@@ -163,28 +184,14 @@ var IqPlugin= function (framework)
         if (params && params[0])
         {
           duration = params[0].duration;
-          if (this.ooyalaReporter)
-          {
-            this.ooyalaReporter.initializeMedia(currentEmbedCode, contentType);
-            OO.log("IQ: Reported: initializeMedia() with args: " + currentEmbedCode + ", " + contentType);
-            this.ooyalaReporter.setMediaDuration(duration);
-            OO.log("IQ: Reported: setMediaDuration() with args: " + duration);
-          }
-          else
-          {
-            OO.log("Tried reporting event: " + OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED +
-                   " but ooyalaReporter is: " + this.ooyalaReporter);
-          }
+          this.ooyalaReporter.initializeMedia(currentEmbedCode, contentType);
+          OO.log("IQ: Reported: initializeMedia() with args: " + currentEmbedCode + ", " + contentType);
+          this.ooyalaReporter.setMediaDuration(duration);
+          OO.log("IQ: Reported: setMediaDuration() with args: " + duration);
         }
         break;
-      //OO.EVENTS.EMBED_CODE_CHANGED -> OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED.
-      case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
-        if (params && params[0] && params[0].metadata)
-        {
-          //autoPlay = params[0].metadata.autoPlay;
-          currentEmbedCode = params[0].embedCode;
-        }
-        break;
+
+
       //OO.EVENTS.PLAYER_CREATED -> OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         if (params && params[0] && params[0].params)
