@@ -122,6 +122,10 @@ var IqPlugin= function (framework)
     if (metadata && metadata.metadata){
       if (metadata.metadata.enabled != null && (metadata.metadata.enabled == true || metadata.metadata.enabled === "true")){
         iqEnabled = true;
+      } 
+      else
+      {
+        iqEnabled = false;
       }
     }
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
