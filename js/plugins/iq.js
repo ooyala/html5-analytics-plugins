@@ -200,7 +200,9 @@ var IqPlugin= function (framework)
       return;
     }
 
-    if (!iqEnabled) return;
+    if (!iqEnabled){
+      return;
+    } 
 
     // Any other event requires analytics to be loaded, return otherwise
     if (!this.ooyalaReporter){
@@ -367,11 +369,13 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
         playingInstreamAd = true;
         this.ooyalaReporter.reportCustomEvent(eventName, {adEventName: eventName});
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(params));
         break;
       // OO.EVENTS.ADS_PLAYED -> OO.Analytics.EVENTS.AD_BREAK_ENDED
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
         playingInstreamAd = false;
         this.ooyalaReporter.reportCustomEvent(eventName, {adEventName: eventName});
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(params));
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
         adFirstQuartile = false;
