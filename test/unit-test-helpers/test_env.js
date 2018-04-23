@@ -29,6 +29,5 @@ OO.log = console.log;
 // In a browser environment, all of the properties of "window" (like navigator) are in the global scope:
 OO._.extend(global, window);
 
-require.requireActual(COMMON_SRC_ROOT + "utils/InitModules/InitOOJQuery.js"); //this needs to come after the extend(global, window) line above otherwise $ gets set to undefined.
 require.requireActual(COMMON_SRC_ROOT + "utils/InitModules/InitOOHazmat.js");
 require.requireActual(COMMON_SRC_ROOT + "utils/InitModules/InitOOPlayerParamsDefault.js");
