@@ -25,6 +25,7 @@ var IqPlugin= function (framework)
   var iqEnabled = false;
   var allowThrift = false;
   var thriftPcode = null;
+  var jsonPcode = null;
   var lastEmbedCode = "";
 
   var adFirstQuartile = false;
@@ -102,6 +103,17 @@ var IqPlugin= function (framework)
   };
 
   /**
+   * Return the jsonPcode value.
+   * @public
+   * @method IqPlugin@jsonPcode
+   * @return {boolean} The value of jsonPcode.
+   */
+  this.getJsonPcode = function()
+  {
+    return jsonPcode;
+  };
+
+  /**
    * [Required Function] Set the plugin id given by the Analytics Framework when
    * this plugin is registered.
    * @public
@@ -161,6 +173,10 @@ var IqPlugin= function (framework)
       }
       if (metadata.metadata.thriftPcode != null) {
          thriftPcode = metadata.metadata.thriftPcode;
+      }
+      if (metadata.metadata.jsonPcode != null) {
+         jsonPcode = metadata.metadata.jsonPcode; 
+         pcode = jsonPcode;
       }
     }
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
@@ -235,13 +251,17 @@ var IqPlugin= function (framework)
         {
           eventParams = params[0];
           pcode = eventParams.params.pcode;
+          if (jsonPcode != null) {
+          	pcode = jsonPcode;
+          }
           playerId = eventParams.params.playerBrandingId;
           eventMetadata = params[0];
           eventMetadata.qosEventName = eventName;
           this.ooyalaReporter._base.pcode = pcode;
+
           this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
           OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-          if(!allowThrift || thriftPcode != null)
+          if(!allowThrift || thriftPcode != null || jsonPcode != null)
           {          
             this.ooyalaReporter.reportPlayerLoad();
             OO.log("IQ: Reported: reportPlayerLoad()");
@@ -250,7 +270,7 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.INITIAL_PLAY -> OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED.
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        if(!allowThrift || thriftPcode != null)
+        if(!allowThrift || thriftPcode != null || jsonPcode != null)
         {
           OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
           this.ooyalaReporter.reportPlayRequested(autoPlay);
@@ -300,7 +320,7 @@ var IqPlugin= function (framework)
           } 
           else 
           {
-            if(!allowThrift || thriftPcode != null) {
+            if(!allowThrift || thriftPcode != null || jsonPcode != null) {
               var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
               this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
               OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPositionMilli));
@@ -337,7 +357,7 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.REPLAY -> OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED.
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        if(!allowThrift || thriftPcode != null) {
+        if(!allowThrift || thriftPcode != null || jsonPcode != null) {
           this.ooyalaReporter.reportReplay();
           OO.log("IQ: Reported: reportReplay()");
         }
@@ -345,7 +365,7 @@ var IqPlugin= function (framework)
       case OO.EVENTS.WILL_PLAY_FROM_BEGINNING:
         if (lastEmbedCode != currentEmbedCode) 
         {
-          if(!allowThrift || thriftPcode != null) {
+          if(!allowThrift || thriftPcode != null || jsonPcode != null) {
             this.ooyalaReporter.reportPlaybackStarted();
             OO.log("IQ: Reported: reportPlaybackStarted()");
           }
@@ -423,7 +443,8 @@ var IqPlugin= function (framework)
         OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_IMPRESSION: 
-        if ((!allowThrift || thriftPcode != null) && params && params[0] && params[0].metadata) {
+        if ((!allowThrift || thriftPcode != null || jsonPcode != null) && 
+        	params && params[0] && params[0].metadata) {
           try
           {
             eventMetadata = params[0].metadata;
@@ -437,7 +458,8 @@ var IqPlugin= function (framework)
         }
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_CLICK: 
-        if ((!allowThrift || thriftPcode != null) && params && params[0] && params[0].metadata) {
+        if ((!allowThrift || thriftPcode != null || jsonPcode != null) && 
+        	params && params[0] && params[0].metadata) {
           try
           {
             eventMetadata = params[0].metadata;
