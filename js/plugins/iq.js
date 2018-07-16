@@ -34,6 +34,7 @@ var IqPlugin= function (framework)
   var adLastQuartile = false;
   
   this.ooyalaReporter = null;
+  this.videoStartSent = false;
   this.testMode = false;
 
   /**
@@ -336,8 +337,23 @@ var IqPlugin= function (framework)
       // TODO: use for resume?
       //OO.EVENTS.PLAYING -> OO.Analytics.EVENTS.VIDEO_PLAYING.
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
-        this.ooyalaReporter.reportResume();
-        OO.log("IQ: Reported: reportResume()");
+        if(!allowThrift || thriftPcode != null || jsonPcode != null) {
+          if(!this.videoStartSent) {
+            if (lastEmbedCode != currentEmbedCode) 
+            {
+              this.ooyalaReporter.reportPlaybackStarted();
+              OO.log("IQ: Reported: reportPlaybackStarted()");
+            } else {
+              this.ooyalaReporter.reportReplay();
+              OO.log("IQ: Reported: reportReplay()");
+            }
+            lastEmbedCode = currentEmbedCode;
+            this.videoStartSent = true;
+          } else {
+          	this.ooyalaReporter.reportResume();
+            OO.log("IQ: Reported: reportResume()");
+          }
+        } 
         break;
       //OO.EVENTS.SEEKED -> OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED.
       case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
@@ -357,20 +373,11 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.REPLAY -> OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED.
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        if(!allowThrift || thriftPcode != null || jsonPcode != null) {
-          this.ooyalaReporter.reportReplay();
-          OO.log("IQ: Reported: reportReplay()");
-        }
+        // TODO: although we don't need to use this for replay now, 
+        // we will want to use the event to reset some variables for SSAI support
         break;
       case OO.EVENTS.WILL_PLAY_FROM_BEGINNING:
-        if (lastEmbedCode != currentEmbedCode) 
-        {
-          if(!allowThrift || thriftPcode != null || jsonPcode != null) {
-            this.ooyalaReporter.reportPlaybackStarted();
-            OO.log("IQ: Reported: reportPlaybackStarted()");
-          }
-          lastEmbedCode = currentEmbedCode;
-        }
+        this.videoStartSent = false;
         break;
       //OO.EVENTS.BUFFERING -> OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED.
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED: 
