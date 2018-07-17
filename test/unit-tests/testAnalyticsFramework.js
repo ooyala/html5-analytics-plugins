@@ -1839,17 +1839,17 @@ describe('Analytics Framework Unit Tests', function()
 
       metadataOut =
       {
-        country: undefined,
-        region: undefined,
-        state: undefined,
-        city: undefined,
-        latitude: undefined,
-        longitude: undefined,
-        dma: undefined
       };
 
       data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
       expect(data).toEqual(metadataOut);
+      expect(data.hasOwnProperty("country")).toEqual(false);
+      expect(data.hasOwnProperty("region")).toEqual(false);
+      expect(data.hasOwnProperty("state")).toEqual(false);
+      expect(data.hasOwnProperty("city")).toEqual(false);
+      expect(data.hasOwnProperty("latitude")).toEqual(false);
+      expect(data.hasOwnProperty("longitude")).toEqual(false);
+      expect(data.hasOwnProperty("dma")).toEqual(false);
     });
 
     // [DEPRECATED]

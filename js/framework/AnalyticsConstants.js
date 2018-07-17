@@ -690,13 +690,42 @@ if (!OO.Analytics.EVENT_DATA)
     {
       userGeoData = {};
     }
-    this.country = checkUserGeoData(userGeoData.country, "country", ["string"]);
-    this.region = checkUserGeoData(userGeoData.region, "region", ["string"]);
-    this.state = checkUserGeoData(userGeoData.state, "state", ["string"]);
-    this.city = checkUserGeoData(userGeoData.city, "city", ["string"]);
-    this.latitude = checkUserGeoData(userGeoData.latitude, "latitude", ["number"]);
-    this.longitude = checkUserGeoData(userGeoData.longitude, "longitude", ["number"]);
-    this.dma = checkUserGeoData(userGeoData.dma, "dma", ["string"]);
+
+    //only populate the fields if they exist in the incoming userGeoData
+    if (userGeoData.country)
+    {
+      this.country = checkUserGeoData(userGeoData.country, "country", ["string"]);
+    }
+
+    if (userGeoData.region)
+    {
+      this.region = checkUserGeoData(userGeoData.region, "region", ["string"]);
+    }
+
+    if (userGeoData.state)
+    {
+      this.state = checkUserGeoData(userGeoData.state, "state", ["string"]);
+    }
+
+    if (userGeoData.city)
+    {
+      this.city = checkUserGeoData(userGeoData.city, "city", ["string"]);
+    }
+
+    if (userGeoData.latitude)
+    {
+      this.latitude = checkUserGeoData(userGeoData.latitude, "latitude", ["number"]);
+    }
+
+    if (userGeoData.longitude)
+    {
+      this.longitude = checkUserGeoData(userGeoData.longitude, "longitude", ["number"]);
+    }
+
+    if (userGeoData.dma)
+    {
+      this.dma = checkUserGeoData(userGeoData.dma, "dma", ["string"]);
+    }
   };
 
   /**
