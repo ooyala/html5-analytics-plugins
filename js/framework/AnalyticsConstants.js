@@ -666,7 +666,7 @@ if (!OO.Analytics.EVENT_DATA)
   };
 
   /**
-   * public
+   * @public
    * @class Analytics.EVENT_DATA#StreamTypeMetadata
    * @classdesc Contains information about the content stream type
    * @property {string} streamType OO.Analytics.STREAM_TYPE of the stream.
@@ -675,6 +675,24 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkStreamTypeData = OO._.bind(checkDataType, this, "StreamTypeMetadata");
     this.streamType         = checkStreamTypeData(streamType, "streamType", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#GeoMetadata
+   * @classdesc Contains information the user's geo location based on ip
+   * @property {object} userGeoData The resolved geo data from the user's ip
+   */
+  EVENT_DATA.GeoMetadata = function(userGeoData)
+  {
+    var checkUserGeoData = OO._.bind(checkDataType, this, "GeoMetadata");
+    this.country = checkUserGeoData(userGeoData.country, "country", ["string"]);
+    this.region = checkUserGeoData(userGeoData.region, "region", ["string"]);
+    this.state = checkUserGeoData(userGeoData.state, "state", ["string"]);
+    this.city = checkUserGeoData(userGeoData.city, "city", ["string"]);
+    this.latitude = checkUserGeoData(userGeoData.latitude, "latitude", ["number"]);
+    this.longitude = checkUserGeoData(userGeoData.longitude, "longitude", ["number"]);
+    this.dma = checkUserGeoData(userGeoData.dma, "dma", ["string"]);
   };
 
   /**
