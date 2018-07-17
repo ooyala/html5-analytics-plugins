@@ -686,6 +686,10 @@ if (!OO.Analytics.EVENT_DATA)
   EVENT_DATA.GeoMetadata = function(userGeoData)
   {
     var checkUserGeoData = OO._.bind(checkDataType, this, "GeoMetadata");
+    if (userGeoData === undefined || userGeoData === null)
+    {
+      userGeoData = {};
+    }
     this.country = checkUserGeoData(userGeoData.country, "country", ["string"]);
     this.region = checkUserGeoData(userGeoData.region, "region", ["string"]);
     this.state = checkUserGeoData(userGeoData.state, "state", ["string"]);
