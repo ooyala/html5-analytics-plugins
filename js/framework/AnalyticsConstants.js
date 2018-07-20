@@ -546,6 +546,33 @@ if (!OO.Analytics.EVENTS)
 
     /**
      * @public
+     * @event OO.Analytics.EVENTS#SSAI_PLAY_SINGLE_AD
+     * @description This message is sent when an SSAI ad starts playing.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.SsaiPlaySingleAd
+     */
+    SSAI_PLAY_SINGLE_AD:                 'ssai_play_single_ad',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#SSAI_SINGLE_AD_PLAYED
+     * @description This message is sent when the an SSAI ad has finished playing.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.SsaiSingleAdPlayed
+     */
+    SSAI_SINGLE_AD_PLAYED:                 'ssai_single_ad_played',
+
+    /**
+     * @public
+     * @event OO.Analytics.EVENTS#SSAI_AD_TIMELINE_RECEIVED
+     * @description This message is sent when a timeline of SSAI ads for vod is received.
+     * @param {Array} paramArray Array of length 1, contains an instance of
+     * OO.Analytics.EVENT_DATA.SsaiAdTimelineReceived 
+     */
+    SSAI_AD_TIMELINE_RECEIVED:                 'ssai_ad_timeline_received',
+
+    /**
+     * @public
      * @event OO.Analytics.EVENTS#VOLUME_CHANGED
      * @description This message is sent when the player volume has changed.
      * @param {Array} paramArray Array of length 1, contains an instance of
@@ -815,12 +842,13 @@ if (!OO.Analytics.EVENT_DATA)
    * @property {string} videoId Id used to differentiate between various streams (such as ad vs content playback).
    *                            Possible values are defined in OO.VIDEO.
    */
-  EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration, videoId)
+  EVENT_DATA.VideoStreamPositionChangedData = function(streamPosition, totalStreamDuration, videoId, currentLiveTime)
   {
     var checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, "VideoStreamPositionChangedData");
     this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, "streamPosition", ["number"]);
     this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, "totalStreamDuration", ["number"]);
     this.videoId = checkVideoStreamPositionChangedData(videoId, "videoId", ["string"]);
+    this.currentLiveTime = checkVideoStreamPositionChangedData(currentLiveTime, "currentLiveTime", ["number"]);
   };
 
   /**
@@ -1415,6 +1443,28 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkFullscreenChangedData = OO._.bind(checkDataType, this, "FullscreenChangedData");
     this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, "changingToFullscreen", ["boolean"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#SsaiPlaySingleAdData
+   * @param {object} ad Object containing the ssai ad data
+   */
+  EVENT_DATA.SsaiPlaySingleAdData = function(ad)
+  {
+    var checkSsaiPlaySingleAdData = OO._.bind(checkDataType, this, "SsaiPlaySingleAdData");
+    this.ad = checkSsaiPlaySingleAdData(ad, "ad", ["object"]);
+  };
+
+ /**
+   * @public
+   * @class Analytics.EVENT_DATA#SsaiAdTimelineReceivedData
+   * @param {array} timeline Array of ssai ad objects. Ordered by ad start time
+   */
+  EVENT_DATA.SsaiAdTimelineReceivedData = function(timeline)
+  {
+    var checkSsaiAdTimelineReceivedData = OO._.bind(checkDataType, this, "SsaiAdTimelineReceivedData");
+    this.timeline = checkSsaiAdTimelineReceivedData(timeline, "timeline", ["array"]);
   };
 
   /**

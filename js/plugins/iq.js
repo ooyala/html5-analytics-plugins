@@ -18,20 +18,27 @@ var IqPlugin= function (framework)
   var autoPlay = false;
   var pcode = null;
   var playerId = null;
+  var lastEmbedCode = "";
   var currentEmbedCode = null;
   var contentType = "ooyala";
-  var currentPlayheadPosition = null;
   var playingInstreamAd = false;
   var iqEnabled = false;
   var allowThrift = false;
   var thriftPcode = null;
   var jsonPcode = null;
-  var lastEmbedCode = "";
 
   var adFirstQuartile = false;
   var adSecondQuartile = false;
   var adThirdQuartile = false;
   var adLastQuartile = false;
+
+  var currentPlayhead = 0;
+  var lastReportedPlayhead = 0;
+  var adOffset = 0;
+  var adTimeline = [];
+
+  var playingSsaiAd = false;
+  var ssaiAdTransition = false;
   
   this.ooyalaReporter = null;
   this.videoStartSent = false;
@@ -162,25 +169,150 @@ var IqPlugin= function (framework)
    */
   this.setMetadata = function(metadata)
   {
-    if (metadata && metadata.metadata){
-      if (metadata.metadata.enabled != null){
+    if (metadata && metadata.metadata)
+    {
+      if (metadata.metadata.enabled != null)
+      {
         iqEnabled = (metadata.metadata.enabled == true || metadata.metadata.enabled === "true");
       }
       // Are we possibly sending thrift events as well? If so we do not want to send
       // any duplicate events with analytics.js here, only new events not reported by
       // thrift in core with ooyala_analytics.js 
-      if (metadata.metadata.allowThrift != null){
+      if (metadata.metadata.allowThrift != null)
+      {
         allowThrift = (metadata.metadata.allowThrift == true || metadata.metadata.allowThrift === "true");
       }
-      if (metadata.metadata.thriftPcode != null) {
-         thriftPcode = metadata.metadata.thriftPcode;
+      if (metadata.metadata.thriftPcode != null) 
+      {
+        thriftPcode = metadata.metadata.thriftPcode;
       }
-      if (metadata.metadata.jsonPcode != null) {
-         jsonPcode = metadata.metadata.jsonPcode; 
-         pcode = jsonPcode;
+      if (metadata.metadata.jsonPcode != null) 
+      {
+        jsonPcode = metadata.metadata.jsonPcode; 
+        pcode = jsonPcode;
       }
     }
     OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
+  };
+
+ /**
+   * Processes the timeline of ads received by the SSAI server metadata call.
+   * Converts an array of ads to have an end time and offset, and cleans up unused values.
+   * It is assumed that the timeline is ordered by ad start time
+   * @private
+   * @method IqPlugin#processAdTimeline
+   * @param {array} timeline The raw array of ads returned by the SSAI server
+   */
+  this.processAdTimeline = function(timeline)
+  {
+    if (timeline === null)
+    {
+      return [];
+    }
+    var processedTimeline = [];
+    var totalOffset = 0;
+    for (var index = 0; index < timeline.length; index++) 
+    {
+      var durationMillis = Math.floor(timeline[index].duration * 1000);
+      var startTimeMillis = Math.floor(timeline[index].start * 1000);
+      totalOffset += durationMillis;
+      var adData = { "adId":timeline[index].id,
+                        "start":startTimeMillis,
+                        "end":startTimeMillis + durationMillis,
+                        "duration":durationMillis,
+                        "offset":totalOffset };
+      processedTimeline.push(adData);
+    }
+    return processedTimeline;
+  };
+
+  /**
+    * Updates the ad offset for calculating the correct playhead for videos
+    * with SSAI ads embedded after a seek has been performed.
+    * @private
+    * @method IqPlugin#updateAdOffset
+    * @param {number} playhead The raw playhead returned by the video plugin (in seconds)
+    */
+  this.updateAdOffset = function(playhead) 
+  {
+    if (adTimeline !== null) 
+    {
+      adOffset = 0;
+      for (var index = 0; index < adTimeline.length; index++) 
+      {
+        if (adTimeline[index].start <= playhead) 
+        {
+          adOffset += adTimeline[index].duration;
+        }
+      }
+    }
+  };
+
+  /**
+    * Checks the player is inside an SSAI ad block.
+	* Checks the passed playhead against the ad timeline and returns true
+	* if it is inside an SSAI ad block, false otherwise
+    * @private
+    * @method IqPlugin#isSSAIAdPlaying
+    * @param {number} playhead the playhead time to check (in seconds)
+    */
+  this.isSSAIAdPlaying = function(playhead) 
+  {
+    for (var index = 0; index < adTimeline.length; index++) 
+    {
+      if (playhead >= adTimeline[index].start && playhead < adTimeline[index].end) 
+      {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  /**
+    * Convenience function for reporting the custom ad playthrough percent event to IQ
+    * @private
+    * @method IqPlugin#reportAdPlaythrough
+    * @param {number} playhead the playhead time to check (in seconds)
+    * @param {number} duration the stream total duration (in seconds)
+    */
+  this.reportAdPlaythrough = function(eventName, playhead, duration)
+  {
+    var percentPlayed = 0;
+    var reportQuartile = false;
+    if (OO._.isFinite(playhead) && playhead >= 0 && OO._.isFinite(duration) && duration > 0) 
+    {
+      var playheadMillis = Math.floor(playhead * 1000);
+      var durationMillis = Math.floor(duration * 1000);
+      if (playheadMillis >= 0.25 * durationMillis && !adFirstQuartile) 
+      {
+        percentPlayed = 0.25;
+        adFirstQuartile = true;
+        reportQuartile = true;
+      } 
+      else if (playheadMillis >= 0.50 * durationMillis && !adSecondQuartile) 
+      {
+        percentPlayed = 0.50;
+        adSecondQuartile = true;
+        reportQuartile = true;
+      } 
+      else if (playheadMillis >= 0.75 * durationMillis && !adThirdQuartile) 
+      {
+        percentPlayed = 0.75;
+        adThirdQuartile = true;
+        reportQuartile = true;
+      } 
+      else if (playheadMillis >= 1.0 * durationMillis && !adLastQuartile) 
+      {
+        percentPlayed = 1.00;
+        adLastQuartile = true;
+        reportQuartile = true;
+      }
+      if (reportQuartile) 
+      {
+        OO.log("IQ: Reported: reportCustomEvent() for event: adPlaythrough with args:" + JSON.stringify(percentPlayed));
+        this.ooyalaReporter.reportCustomEvent(eventName, {"adEventName": "adPlaythrough", "percent": percentPlayed });
+      }
+    }
   };
 
   /**
@@ -190,55 +322,97 @@ var IqPlugin= function (framework)
    * @param  {string} eventName Name of the event
    * @param  {Array} params     Array of parameters sent with the event
    */
-  this.processEvent = function(eventName, params)
+  this.processEvent = function(eventName, params) 
   {
     OO.log( "IQ: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
-    // First check the events that do not actually report to analytics
-    // Need to always check this event to see if we can enable analytics.js reporting. 
-    //OO.EVENTS.METADATA_FETCHED -> OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED.
-    if (eventName === OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED)
+    
+    // This first switch is for non IQ reporting events that require changes to the internal plugin state
+    switch(eventName) 
     {
-      if (params && params[0]){
-        modules = params[0].modules;
-        if (modules)
+      // First check the events that do not actually report to analytics
+      // Need to always check this event to see if we can enable analytics.js reporting. 
+      //OO.EVENTS.METADATA_FETCHED -> OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED.
+      case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
+        if (params && params[0])
         {
-          this.setMetadata(modules.iq);
+          modules = params[0].modules;
+          if (modules)
+          {
+            this.setMetadata(modules.iq);
+          }
         }
-      }
-      return;
-    }
-    //OO.EVENTS.EMBED_CODE_CHANGED -> OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED.
-    if (eventName === OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED){ 
-      if (params && params[0] && params[0].metadata)
-      {
-        autoPlay = params[0].metadata.autoPlay;
-        if (params[0].embedCode != currentEmbedCode) 
-        {
-          lastEmbedCode = currentEmbedCode;
-        } 
-        else 
-        {
-          lastEmbedCode = "";
+        break; 
+      //OO.EVENTS.EMBED_CODE_CHANGED -> OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED.
+      case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
+        if (params && params[0] && params[0].metadata) {
+          autoPlay = params[0].metadata.autoPlay;
+          if (params[0].embedCode != currentEmbedCode) {
+            lastEmbedCode = currentEmbedCode;
+          } else {
+            lastEmbedCode = "";
+          }
+          currentEmbedCode = params[0].embedCode;
         }
-        currentEmbedCode = params[0].embedCode;
-      }
-      return;
+        break; 
+      case OO.Analytics.EVENTS.SSAI_AD_TIMELINE_RECEIVED:
+        if (params && params[0] && params[0].timeline) 
+        {
+          adTimeline = this.processAdTimeline(params[0].timeline);
+        }
+        this.updateAdOffset(currentPlayhead);
+        break; 
+      case OO.Analytics.EVENTS.SSAI_PLAY_SINGLE_AD:
+        var foundAd = false;
+        for (var index = 0; index < adTimeline.length; index++) 
+        {
+          if (adTimeline[index].adId === params[0].ad.adId) 
+          {
+            foundAd = true;
+          }
+        }
+        if (!foundAd) 
+        {
+          var durationMillis = Math.floor(params[0].ad.duration * 1000);
+          var adData =  { "adId": params[0].ad.adId,
+                          "start":currentPlayhead,
+                          "end":currentPlayhead + durationMillis,
+                          "duration": durationMillis,
+                          "offset":0 };
+          adTimeline.push(adData);
+        }
+        playingSsaiAd = true;
+        break;
+      case OO.Analytics.EVENTS.SSAI_SINGLE_AD_PLAYED:
+        playingSsaiAd = false;
+        ssaiAdTransition = true;
+        break;
     }
 
-    if (!iqEnabled) return;
+    if (!iqEnabled) 
+    {
+      return;
+    }
 
     // Any other event requires analytics to be loaded, return otherwise
-    if (!this.ooyalaReporter){
+    if (!this.ooyalaReporter) 
+    {
       OO.log("Tried reporting event: " + eventName + " but ooyalaReporter is: " + this.ooyalaReporter);
       return;
     }
 
-    switch(eventName)
+    // This switch is for IQ reporting events only
+    switch(eventName) 
     {
       //OO.EVENTS.CONTENT_TREE_FETCHED -> OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED.
-      case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
+      case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED: 
         if (params && params[0])
         {
+          ssaiAdTransition = false;
+          playingSsaiAd = false;
+          currentPlayhead = 0;
+          lastReportedPlayhead = 0;
+          adOffset = 0;
+          adTimeline = [];
           duration = params[0].duration;
           this.ooyalaReporter.initializeMedia(currentEmbedCode, contentType);
           OO.log("IQ: Reported: initializeMedia() with args: " + currentEmbedCode + ", " + contentType);
@@ -248,13 +422,15 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.PLAYER_CREATED -> OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
-        if (params && params[0] && params[0].params)
+        if (params && params[0] && params[0].params) 
         {
           eventParams = params[0];
           pcode = eventParams.params.pcode;
-          if (jsonPcode != null) {
-          	pcode = jsonPcode;
+          if (jsonPcode != null) 
+          {
+            pcode = jsonPcode;
           }
+
           playerId = eventParams.params.playerBrandingId;
           eventMetadata = params[0];
           eventMetadata.qosEventName = eventName;
@@ -262,7 +438,7 @@ var IqPlugin= function (framework)
 
           this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
           OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-          if(!allowThrift || thriftPcode != null || jsonPcode != null)
+          if (!allowThrift || thriftPcode != null || jsonPcode != null) 
           {          
             this.ooyalaReporter.reportPlayerLoad();
             OO.log("IQ: Reported: reportPlayerLoad()");
@@ -271,7 +447,7 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.INITIAL_PLAY -> OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED.
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        if(!allowThrift || thriftPcode != null || jsonPcode != null)
+        if (!allowThrift || thriftPcode != null || jsonPcode != null) 
         {
           OO.log("IQ: Reported: reportPlayRequested() with args: " + autoPlay);
           this.ooyalaReporter.reportPlayRequested(autoPlay);
@@ -281,50 +457,49 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
         if (params && params[0] && params[0].streamPosition > 0)
         {            
-          currentPlayheadPosition = params[0].streamPosition;
-          if (playingInstreamAd)
+          if (playingInstreamAd || playingSsaiAd) 
           {
-            var totalTime = params[0].totalStreamDuration;
-            var percentPlayed = 0;
-            var reportQuartile = false;
-            if (totalTime != null && totalTime > 0 )
+            if (playingInstreamAd) 
             {
-              if (currentPlayheadPosition >= 0.25 * totalTime && !adFirstQuartile){
-                percentPlayed = 0.25;
-                adFirstQuartile = true;
-                reportQuartile = true;
-              } 
-              else if (currentPlayheadPosition >= 0.50 * totalTime && !adSecondQuartile)
-              {
-                percentPlayed = 0.50;
-                adSecondQuartile = true;
-                reportQuartile = true;
-              } 
-              else if (currentPlayheadPosition >= 0.75 * totalTime && !adThirdQuartile)
-              {
-                percentPlayed = 0.75;
-                adThirdQuartile = true;
-                reportQuartile = true;
-              } 
-              else if (currentPlayheadPosition >= 1.0 * totalTime && !adLastQuartile)
-              {
-                percentPlayed = 1.00;
-                adLastQuartile = true;
-                reportQuartile = true;
-              }
-
-              if (reportQuartile){
-                OO.log("IQ: Reported: reportCustomEvent() for event: adPlaythrough with args:" + JSON.stringify(percentPlayed));
-                this.ooyalaReporter.reportCustomEvent(eventName, {"adEventName": "adPlaythrough", "percent": percentPlayed });
-              }
+              this.reportAdPlaythrough(eventName, params[0].streamPosition, params[0].totalStreamDuration);
             }
           } 
-          else 
-          {
-            if(!allowThrift || thriftPcode != null || jsonPcode != null) {
-              var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
-              this.ooyalaReporter.reportPlayHeadUpdate(currentPlayheadPositionMilli);
-              OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + Math.floor(currentPlayheadPositionMilli));
+          else if (!allowThrift || thriftPcode != null || jsonPcode != null) 
+          { 
+            // When present, currentLiveTime should override currentTime for analytics purposes.
+            var currentTime = params[0].streamPosition;                       
+            if ( OO._.isFinite(params[0].currentLiveTime) && params[0].currentLiveTime > 0) 
+            {
+              currentTime = params[0].currentLiveTime;
+              adOffset = 0;
+            }
+
+            var currentTimeMillis = Math.floor(currentTime * 1000);
+            if (OO._.isFinite(currentTime) && currentTime > 0) 
+            {
+              if (ssaiAdTransition) 
+              {
+                if (this.isSSAIAdPlaying(currentTimeMillis)) 
+                {
+                  break;
+                } 
+                else 
+                {
+                  // Update the ad offset as soon as the ad break is done to ensure correct offest
+                  // for playhead reporting
+                  this.updateAdOffset(currentTimeMillis);
+                  ssaiAdTransition = false;
+                }
+              }
+              currentPlayhead = currentTimeMillis;
+              var offsetPlayhead = currentPlayhead - adOffset;
+              // Fix for PLAYER-3592. Never report a playhead smaller than the previous reported playhead unless a seek event happens
+              if (offsetPlayhead >= 0 && offsetPlayhead > lastReportedPlayhead)
+              {
+                lastReportedPlayhead = offsetPlayhead;
+                this.ooyalaReporter.reportPlayHeadUpdate(offsetPlayhead);
+                OO.log("IQ: Reported: reportPlayHeadUpdate() with args: " + offsetPlayhead);
+              }
             }
           }
         }
@@ -334,36 +509,43 @@ var IqPlugin= function (framework)
         this.ooyalaReporter.reportPause();
         OO.log("IQ: Reported: reportPause()");
         break;
-      // TODO: use for resume?
       //OO.EVENTS.PLAYING -> OO.Analytics.EVENTS.VIDEO_PLAYING.
-      case OO.Analytics.EVENTS.VIDEO_PLAYING:
-        if(!allowThrift || thriftPcode != null || jsonPcode != null) {
-          if(!this.videoStartSent) {
+      case OO.Analytics.EVENTS.VIDEO_PLAYING: 
+        if (!allowThrift || thriftPcode != null || jsonPcode != null) 
+        {
+          if (!this.videoStartSent) 
+          {
             if (lastEmbedCode != currentEmbedCode) 
             {
               this.ooyalaReporter.reportPlaybackStarted();
               OO.log("IQ: Reported: reportPlaybackStarted()");
-            } else {
+            } 
+            else 
+            {
               this.ooyalaReporter.reportReplay();
               OO.log("IQ: Reported: reportReplay()");
             }
             lastEmbedCode = currentEmbedCode;
             this.videoStartSent = true;
-          } else {
-          	this.ooyalaReporter.reportResume();
+          } 
+          else 
+          {
+            this.ooyalaReporter.reportResume();
             OO.log("IQ: Reported: reportResume()");
           }
         } 
         break;
       //OO.EVENTS.SEEKED -> OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED.
-      case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-        if (params && params[0])
+      case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED: 
+        lastReportedPlayhead = 0; 
+        if (params && params[0]) 
         {
-          var seekedPlayheadPosition = params[0].timeSeekedTo;
-          var seekedPlayheadPositionMilli = seekedPlayheadPosition * 1000;
-          var currentPlayheadPositionMilli = currentPlayheadPosition * 1000;
-          this.ooyalaReporter.reportSeek(currentPlayheadPositionMilli, seekedPlayheadPositionMilli);
-          OO.log("IQ: Reported: reportSeek() with args: " + currentPlayheadPositionMilli + ", " + seekedPlayheadPositionMilli);
+          var newPlayhead = Math.floor(params[0].timeSeekedTo * 1000);
+          playingSsaiAd = this.isSSAIAdPlaying(newPlayhead);
+          this.updateAdOffset(newPlayhead);
+          this.ooyalaReporter.reportSeek(currentPlayhead, newPlayhead);
+          OO.log("IQ: Reported: reportSeek() with args: " + currentPlayhead + ", " + newPlayhead);
+          currentPlayhead = seekedPlayhead;
         }
         break;
       //OO.EVENTS.PLAYED -> OO.Analytics.EVENTS.PLAYBACK_COMPLETED.
@@ -373,8 +555,10 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.REPLAY -> OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED.
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        // TODO: although we don't need to use this for replay now, 
-        // we will want to use the event to reset some variables for SSAI support
+        lastReportedPlayhead = 0;
+        // SSAI: Check for preroll and update ad offset if present
+        playingSsaiAd = this.isSSAIAdPlaying(0);
+        this.updateAdOffset(0);
         break;
       case OO.EVENTS.WILL_PLAY_FROM_BEGINNING:
         this.videoStartSent = false;
@@ -390,7 +574,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.PLAYBACK_START_ERROR:
       case OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR:
       case OO.Analytics.EVENTS.PLUGIN_LOADED:
-        if (params && params[0])
+        if (params && params[0]) 
         {
           eventMetadata = params[0];
           eventMetadata.qosEventName = eventName;
@@ -432,17 +616,21 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.AD_CLICKED:
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
         if (!params || !params[0]) 
+        {
           params = [];
+        }
 
         var eventMetadata = params[0];
-        if (!eventMetadata)
+        if (!eventMetadata) 
+        {
           eventMetadata = {};
+        }
 
-        if(eventMetadata.adEventName)
+        if (eventMetadata.adEventName) 
         {
           eventMetadata.adEventName = eventName + ":" + eventMetadata.adEventName;
-        }
-        else
+        } 
+        else 
         {
           eventMetadata.adEventName = eventName;
         }
@@ -451,8 +639,9 @@ var IqPlugin= function (framework)
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_IMPRESSION: 
         if ((!allowThrift || thriftPcode != null || jsonPcode != null) && 
-        	params && params[0] && params[0].metadata) {
-          try
+        	params && params[0] && params[0].metadata) 
+        {
+          try 
           {
             eventMetadata = params[0].metadata;
             OO.log("IQ: Reported: reportAssetImpression() with args: " + JSON.stringify(params[0]));
@@ -466,8 +655,9 @@ var IqPlugin= function (framework)
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_CLICK: 
         if ((!allowThrift || thriftPcode != null || jsonPcode != null) && 
-        	params && params[0] && params[0].metadata) {
-          try
+        	params && params[0] && params[0].metadata) 
+        {
+          try 
           {
             eventMetadata = params[0].metadata;
             OO.log("IQ: Reported: reportAssetClick() with args: " + JSON.stringify(params[0]));
@@ -502,7 +692,7 @@ var IqPlugin= function (framework)
   var sdkLoadError = function()
   {
     //Destroy and unregister
-    if (_.isString(id))
+    if (OO._.isString(id))
     {
       framework.unregisterPlugin(id);
     }
@@ -546,3 +736,4 @@ var IqPlugin= function (framework)
 OO.Analytics.RegisterPluginFactory(IqPlugin);
 
 module.exports = IqPlugin;
+  
