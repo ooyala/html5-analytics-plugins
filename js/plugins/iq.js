@@ -202,7 +202,7 @@ var IqPlugin= function (framework)
       if (params && params[1])
       {
         geoMetadata = params[1];
-        this.ooyala.setUserInfo(null, null, null, geoMetadata);
+        this.ooyalaReporter.setUserInfo(null, null, null, geoMetadata);
       }
       return;
     }
