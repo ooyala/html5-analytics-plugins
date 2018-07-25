@@ -616,6 +616,14 @@ if (!OO.Analytics.Utils)
         errorMessage: errorMessage
       }]);
     };
+
+    this.simulateVideoSourceChanged = function(embedCode, metadata) {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
+        embedCode: embedCode,
+        metadata: metadata || {}
+      }]);
+    };
   };
 
   Utils.createPlaybackSimulator = function(plugin)
