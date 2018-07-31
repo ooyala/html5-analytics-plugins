@@ -202,6 +202,10 @@ var IqPlugin= function (framework)
       if (params && params[1])
       {
         geoMetadata = params[1];
+        geoMetadata.countryCode = geoMetadata.country;
+        delete geoMetadata.country;
+        geoMetadata.geoVendor = geoMetadata.dma;
+        delete geoMetadata.dma;
         this.ooyalaReporter.setUserInfo(null, null, null, geoMetadata);
       }
       return;
