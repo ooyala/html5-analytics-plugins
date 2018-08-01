@@ -202,6 +202,8 @@ var IqPlugin= function (framework)
       if (params && params[1])
       {
         geoMetadata = params[1];
+        //we have to change country and dma to countryCode and geoVendor because
+        //analytics.js throws errors if there are incorrect params in the object.
         geoMetadata.countryCode = geoMetadata.country;
         delete geoMetadata.country;
         geoMetadata.geoVendor = geoMetadata.dma;
