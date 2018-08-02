@@ -30,7 +30,9 @@ var IqPlugin= function (framework)
   var adSecondQuartile = false;
   var adThirdQuartile = false;
   var adLastQuartile = false;
-  
+
+  var geoMetadata = null;
+
   this.ooyalaReporter = null;
   this.testMode = false;
 
@@ -190,6 +192,23 @@ var IqPlugin= function (framework)
           lastEmbedCode = "";
         }
         currentEmbedCode = params[0].embedCode;
+      }
+      return;
+    }
+
+    //OO.EVENTS.AUTHORAZATION_FETCHED -> OO.Analytics.EVENTS.STREAM_TYPE_UPDATED
+    if (eventName === OO.Analytics.EVENTS.STREAM_TYPE_UPDATED) {
+      //we don't need the auth data but we do need the geo data and that is the second param
+      if (params && params[1])
+      {
+        geoMetadata = params[1];
+        //we have to change country and dma to countryCode and geoVendor because
+        //analytics.js throws errors if there are incorrect params in the object.
+        geoMetadata.countryCode = geoMetadata.country;
+        delete geoMetadata.country;
+        geoMetadata.geoVendor = geoMetadata.dma;
+        delete geoMetadata.dma;
+        this.ooyalaReporter.setUserInfo(null, null, null, geoMetadata);
       }
       return;
     }
