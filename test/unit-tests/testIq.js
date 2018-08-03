@@ -32,6 +32,7 @@ describe('Analytics Framework Template Unit Tests', function()
               mediaId: null,
               contentType: null,
               setDeviceInfoCalled: 0,
+              doNotTrack: null,
               setPlayerInfoCalled: 0,
               seekedPlayheadPosition: null,
               currentPlayheadPosition: null,
@@ -51,8 +52,9 @@ describe('Analytics Framework Template Unit Tests', function()
               reportAssetClickCalled: 0
             },
 
-            setDeviceInfo: function() {
+            setDeviceInfo: function(deviceId, deviceInfo, userAgent, doNotTrack) {
               this.unitTestState.setDeviceInfoCalled++;
+              this.unitTestState.doNotTrack = doNotTrack;
             },
             setPlayerInfo: function() {
               this.unitTestState.setPlayerInfoCalled++;
@@ -335,6 +337,27 @@ describe('Analytics Framework Template Unit Tests', function()
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.setDeviceInfoCalled).toBe(1);
     expect(unitTestState.setPlayerInfoCalled).toBe(1);
+    expect(unitTestState.doNotTrack).toBe(false);
+  });
+
+  it('IQ Plugin can initialize and set device and player info when tracking level is set to ANONYMOUS', function()
+  {
+    OO.trackingLevel = OO.TRACKING_LEVEL.ANONYMOUS;
+    var plugin = createPlugin(framework);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.setDeviceInfoCalled).toBe(1);
+    expect(unitTestState.setPlayerInfoCalled).toBe(1);
+    expect(unitTestState.doNotTrack).toBe(true);
+  });
+
+  it('IQ Plugin can initialize and set device and player info when tracking level is set to DISABLED', function()
+  {
+    OO.trackingLevel = OO.TRACKING_LEVEL.DISABLED;
+    var plugin = createPlugin(framework);
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.setDeviceInfoCalled).toBe(1);
+    expect(unitTestState.setPlayerInfoCalled).toBe(1);
+    expect(unitTestState.doNotTrack).toBe(true);
   });
 
   it('IQ Plugin should initialize media metadata and report player loaded', function()

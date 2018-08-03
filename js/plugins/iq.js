@@ -509,7 +509,17 @@ var IqPlugin= function (framework)
       var deviceInfo = {};
       var playerName = "Ooyala Player";
       var playerVersion = OO.VERSION.core.releaseVersion;  // TODO: need a mechanism in core to get this
-      this.ooyalaReporter.setDeviceInfo();
+      var doNotTrack = false;
+      switch (OO.trackingLevel) {
+        case OO.TRACKING_LEVEL.DISABLED:
+        case OO.TRACKING_LEVEL.ANONYMOUS:
+          doNotTrack = true;
+          break;
+        case OO.TRACKING_LEVEL.DEFAULT:
+        default:
+          break;
+      }
+      this.ooyalaReporter.setDeviceInfo(null, null, null, doNotTrack);
       this.ooyalaReporter.setPlayerInfo(playerId, playerName, playerVersion);
     }
     else
