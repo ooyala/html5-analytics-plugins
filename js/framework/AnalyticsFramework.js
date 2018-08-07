@@ -80,7 +80,7 @@ OO.Analytics.Framework = function()
     if (_.isObject(pluginMetadata))
     {
       //set the metadata and then set it on any plugin that is already registered
-      _pluginMetadata = pluginMetadata
+      _pluginMetadata = pluginMetadata;
       var pluginList = this.getPluginIDList();
       for (var i = 0; i < pluginList.length; i++)
       {
@@ -96,7 +96,7 @@ OO.Analytics.Framework = function()
     }
 
     return success;
-  }
+  };
 
   /**
    * Destructor/cleanup for OO.Analytics.Framework.

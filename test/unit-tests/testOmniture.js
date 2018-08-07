@@ -993,27 +993,81 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   {
     var plugin = createPlugin(framework,
     {
-        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-        "reportSuiteId":"ovppooyala",
-        "pageName":"Test Page Name",
-        "visitorId":"test-vid",
-        "debug":true,
-        "channel":"Test Heartbeat Channel",//optional
-        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-        "publisherId":"ooyalatester",
-        "props":{
-          "prop2":"testProp2",
-          "prop15":"testProp15"
-        },
-        "eVars":{
-          "eVar10":"testEVar10"
-        }
+      "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+      "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+      "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+      "reportSuiteId":"ovppooyala",
+      "pageName":"Test Page Name",
+      "visitorId":"test-vid",
+      "debug":true,
+      "channel":"Test Heartbeat Channel",//optional
+      "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+      "publisherId":"ooyalatester",
+      "props":{
+        "prop2":"testProp2",
+        "prop15":"testProp15"
+      },
+      "eVars":{
+        "eVar10":"testEVar10",
+        "eVar20":"testEVar20"
+      }
     });
     expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
     expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
     expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
+    expect(ADB.OO.AppMeasurement["eVar20"]).toBe("testEVar20");
+  });
+
+  it('Omniture can update eVars and props on video source change', function() {
+    var plugin = createPlugin(framework,
+    {
+      "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+      "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+      "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+      "reportSuiteId":"ovppooyala",
+      "pageName":"Test Page Name",
+      "visitorId":"test-vid",
+      "debug":true,
+      "channel":"Test Heartbeat Channel",//optional
+      "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+      "publisherId":"ooyalatester",
+      "props":{
+        "prop2":"testProp2",
+        "prop15":"testProp15"
+      },
+      "eVars":{
+        "eVar10":"testEVar10",
+        "eVar20":"testEVar20"
+      }
+    });
+
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
+      title : "testTitle",
+      duration : 20000
+    });
+
+    expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
+    expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
+    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
+    expect(ADB.OO.AppMeasurement["eVar20"]).toBe("testEVar20");
+
+    simulator.simulateVideoSourceChanged('newEmbedCode', {
+      "omniture": {
+        "props":{
+          "prop2":"newTestProp2"
+        },
+        "eVars":{
+          "eVar10":"newTestEVar10"
+        }
+      }
+    });
+
+    expect(ADB.OO.AppMeasurement["prop2"]).toBe("newTestProp2");
+    expect(typeof ADB.OO.AppMeasurement["prop15"]).toBe("undefined");
+    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("newTestEVar10");
+    expect(typeof ADB.OO.AppMeasurement["eVar20"]).toBe("undefined");
   });
 
   //Adobe Plugin Setup

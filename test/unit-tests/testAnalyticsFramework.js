@@ -1779,6 +1779,78 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
+    it('Test GeoMetadata', function() {
+      var metadataIn =
+      {
+        country: "testCountry",
+        region: "testRegion",
+        state: "testState",
+        city: "testCity",
+        latitude: 5.0,
+        longitude: -10.3,
+        dma: "testDma"
+      };
+
+      var metadataOut =
+      {
+        country: "testCountry",
+        region: "testRegion",
+        state: "testState",
+        city: "testCity",
+        latitude: 5.0,
+        longitude: -10.3,
+        dma: "testDma"
+      };
+
+      var data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
+      expect(data).toEqual(metadataOut);
+
+      //test that numbers can come in as strings but get converted.
+      metadataIn =
+      {
+        country: "testCountry",
+        region: "testRegion",
+        state: "testState",
+        city: "testCity",
+        latitude: "5.0",
+        longitude: "-10.3",
+        dma: "testDma"
+      };
+
+      metadataOut =
+      {
+        country: "testCountry",
+        region: "testRegion",
+        state: "testState",
+        city: "testCity",
+        latitude: 5.0,
+        longitude: -10.3,
+        dma: "testDma"
+      };
+
+      data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
+      expect(data).toEqual(metadataOut);
+
+      //test that all params are optional
+      metadataIn =
+      {
+      };
+
+      metadataOut =
+      {
+      };
+
+      data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
+      expect(data).toEqual(metadataOut);
+      expect(data.hasOwnProperty("country")).toEqual(false);
+      expect(data.hasOwnProperty("region")).toEqual(false);
+      expect(data.hasOwnProperty("state")).toEqual(false);
+      expect(data.hasOwnProperty("city")).toEqual(false);
+      expect(data.hasOwnProperty("latitude")).toEqual(false);
+      expect(data.hasOwnProperty("longitude")).toEqual(false);
+      expect(data.hasOwnProperty("dma")).toEqual(false);
+    });
+
     // [DEPRECATED]
     it('Test VideoErrorData', function()
     {
