@@ -1,13 +1,11 @@
 describe('Analytics Framework Conviva Plugin Unit Tests', function()
 {
   jest.autoMockOff();
-  //this file is the file that defines TEST_ROOT and SRC_ROOT
-  require("../unit-test-helpers/test_env.js");
   require("../unit-test-helpers/mock_conviva.js");
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
 //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
-  require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
+
 
   var Analytics = OO.Analytics;
   var Utils = OO.Analytics.Utils;
@@ -20,7 +18,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
   var testSetup = function()
   {
     framework = new Analytics.Framework();
-    //mute the logging becuase there will be lots of error messages
+    //mute the logging because there will be lots of error messages
     OO.log = function() {};
   };
 
@@ -124,6 +122,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
   it('Test Framework Destroy With Template', function()
   {
     var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
+    OO.Analytics.RegisterPluginFactory(convivaPluginFactory);
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -636,14 +635,14 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     //there is no session to clean up, so this will remain at 1
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
     var secondSessionId = Conviva.currentClient.sessionId;
-    expect(secondSessionId).toNotBe(firstSessionId);
+    expect(secondSessionId).not.toBe(firstSessionId);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
     simulator.simulateReplay();
-    expect(Conviva.currentClient.sessionId).toNotBe(firstSessionId);
-    expect(Conviva.currentClient.sessionId).toNotBe(secondSessionId);
+    expect(Conviva.currentClient.sessionId).not.toBe(firstSessionId);
+    expect(Conviva.currentClient.sessionId).not.toBe(secondSessionId);
   });
 
   it('Conviva Plugin can start new session on embed code change',function()
@@ -675,7 +674,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     //there is no session to clean up, so this will remain at 1
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
     var secondSessionId = Conviva.currentClient.sessionId;
-    expect(secondSessionId).toNotBe(firstSessionId);
+    expect(secondSessionId).not.toBe(firstSessionId);
     simulator.simulateContentPlayback();
     expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
 
@@ -689,8 +688,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     startPlayer(simulator, "http://testStreamUrlThree");
     expect(Conviva.currentContentMetadata.streamUrl).toBe("http://testStreamUrlThree");
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(2);
-    expect(Conviva.currentClient.sessionId).toNotBe(firstSessionId);
-    expect(Conviva.currentClient.sessionId).toNotBe(secondSessionId);
+    expect(Conviva.currentClient.sessionId).not.toBe(firstSessionId);
+    expect(Conviva.currentClient.sessionId).not.toBe(secondSessionId);
   });
   
   //destroy
@@ -798,7 +797,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     expect(Conviva.currentClient.sessionId).toBe(Conviva.Client.NO_SESSION_KEY);
     //INITIAL_PLAYBACK_REQUESTED
     simulator.simulatePlayerStart();
-    expect(Conviva.currentClient.sessionId).toNotBe(Conviva.Client.NO_SESSION_KEY);
+    expect(Conviva.currentClient.sessionId).not.toBe(Conviva.Client.NO_SESSION_KEY);
   });
 
   //custom metadata
