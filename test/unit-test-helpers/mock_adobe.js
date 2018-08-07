@@ -1,4 +1,4 @@
-ADB = {
+global.ADB = {
   va: {
     plugins: {
       videoplayer: {
@@ -132,17 +132,17 @@ ADB.OO = {
 
 };
 
-Visitor = function()
+global.Visitor = function()
 {
   ADB.OO.Visitor = this;
 };
 
-AppMeasurement = function()
+global.AppMeasurement = function()
 {
   ADB.OO.AppMeasurement = this;
 };
 
-resetGlobalInstances = function()
+global.resetGlobalInstances = function()
 {
   ADB.OO = {};
 };

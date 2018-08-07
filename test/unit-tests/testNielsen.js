@@ -1,12 +1,11 @@
 describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 {
   jest.autoMockOff();
-  //this file is the file that defines TEST_ROOT and SRC_ROOT
-  require("../unit-test-helpers/test_env.js");
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
 //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
   require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
+  var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
 
   var Analytics = OO.Analytics;
   var Utils = OO.Analytics.Utils;
@@ -39,7 +38,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
       }
     };
 
-    //mute the logging becuase there will be lots of error messages
+    //mute the logging because there will be lots of error messages
     OO.log = function(){};
   };
 
@@ -56,7 +55,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   var createPlugin = function(framework)
   {
-    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
     var plugin = new nielsenPluginFactory(framework);
     plugin.testMode = true;
     plugin.init();
@@ -79,7 +77,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   it('Test Nielsen Plugin Validity', function()
   {
-    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
     expect(nielsenPluginFactory).not.toBeNull();
     var plugin = new nielsenPluginFactory();
     expect(framework.validatePlugin(plugin)).toBe(true);
@@ -109,7 +106,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
   //
   it('Test Nielsen Plugin Validity', function()
   {
-    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
     var pluginID = framework.registerPlugin(nielsenPluginFactory);
     expect(pluginID).toBeDefined();
     var pluginList = framework.getPluginIDList();
@@ -156,10 +152,9 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
   //
   it('Test Setting Metadata and Processing An Event', function()
   {
-    var metadataRecieved;
+    var metadataReceived;
     var eventProcessed;
     var paramsReceived;
-    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
     var newFactoryWithFunctionTracing = function()
     {
       var factory = new nielsenPluginFactory();
@@ -191,7 +186,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   it('Test Framework Destroy With Template', function()
   {
-    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
+    OO.Analytics.RegisterPluginFactory(nielsenPluginFactory);
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -229,7 +224,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', function()
 
   it('Test all functions', function()
   {
-    var nielsenPluginFactory = require(SRC_ROOT + "plugins/Nielsen.js");
     var plugin = new nielsenPluginFactory(framework);
     var errorOccured = false;
     try

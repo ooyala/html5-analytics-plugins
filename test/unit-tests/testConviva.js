@@ -5,6 +5,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
 //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
+  var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
 
 
   var Analytics = OO.Analytics;
@@ -41,7 +42,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
   //helpers
   var createPlugin = function(framework, metadata)
   {
-    var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
     var plugin = new convivaPluginFactory(framework);
     plugin.init();
     metadata = metadata ? metadata : {
@@ -66,7 +66,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
 
   it('Test Conviva Plugin Validity', function()
   {
-    var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
     expect(convivaPluginFactory).not.toBeNull();
     expect(convivaPluginFactory).toBeDefined();
     var plugin = new convivaPluginFactory(framework);
@@ -75,7 +74,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
 
   it('Test Conviva Plugin Validity', function()
   {
-    var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
     var pluginID = framework.registerPlugin(convivaPluginFactory);
     expect(pluginID).toBeDefined();
     var pluginList = framework.getPluginIDList();
@@ -89,7 +87,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
     var metadataReceived = null;
     var eventProcessed = null;
     var paramsReceived = null;
-    var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
     var newFactoryWithFunctionTracing = function()
     {
       var factory = new convivaPluginFactory();
@@ -121,7 +118,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', function()
 
   it('Test Framework Destroy With Template', function()
   {
-    var convivaPluginFactory = require(SRC_ROOT + "plugins/conviva.js");
     OO.Analytics.RegisterPluginFactory(convivaPluginFactory);
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
