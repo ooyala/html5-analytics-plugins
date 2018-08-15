@@ -170,7 +170,7 @@ var IqPlugin= function (framework)
     if (eventName === OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED)
     {
       if (params && params[0]){
-        modules = params[0].modules;
+        var modules = params[0].modules;
         if (modules)
         {
           this.setMetadata(modules.iq);
@@ -227,7 +227,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0])
         {
-          duration = params[0].duration;
+          var duration = params[0].duration;
           this.ooyalaReporter.initializeMedia(currentEmbedCode, contentType);
           OO.log("IQ: Reported: initializeMedia() with args: " + currentEmbedCode + ", " + contentType);
           this.ooyalaReporter.setMediaDuration(duration);
@@ -238,7 +238,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         if (params && params[0] && params[0].params)
         {
-          eventParams = params[0];
+          var eventParams = params[0];
           pcode = eventParams.params.pcode;
           playerId = eventParams.params.playerBrandingId;
           eventMetadata = params[0];

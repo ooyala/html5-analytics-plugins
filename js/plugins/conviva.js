@@ -90,7 +90,7 @@ var ConvivaAnalyticsPlugin = function(framework)
   this.init = function()
   {
     var missedEvents;
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
+    if (_framework && _.isFunction(_framework.getRecordedEvents))
     {
       missedEvents = _framework.getRecordedEvents();
       _.each(missedEvents, _.bind(function(recordedEvent)

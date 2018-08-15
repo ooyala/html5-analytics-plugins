@@ -1,13 +1,12 @@
 describe('Analytics Framework Omniture Plugin Unit Tests', function()
 {
   jest.autoMockOff();
-  //this file is the file that defines TEST_ROOT and SRC_ROOT
-  require("../unit-test-helpers/test_env.js");
   require("../unit-test-helpers/mock_adobe.js");
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
 //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
   require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
+  var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
 
   var Analytics = OO.Analytics;
   var Utils = OO.Analytics.Utils;
@@ -22,7 +21,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   var testSetup = function()
   {
     framework = new Analytics.Framework();
-    //mute the logging becuase there will be lots of error messages
+    //mute the logging because there will be lots of error messages
     OO.log = function(){};
   };
 
@@ -64,7 +63,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
         }
       };
     }
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var plugin = new omniturePluginFactory(framework);
     plugin.init();
     plugin.setMetadata(metadata);
@@ -73,7 +71,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     expect(omniturePluginFactory).not.toBeNull();
     var plugin = new omniturePluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
@@ -103,7 +100,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var pluginID = framework.registerPlugin(omniturePluginFactory);
     expect(pluginID).toBeDefined();
     var pluginList = framework.getPluginIDList();
@@ -153,7 +149,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     var metadataReceived = null;
     var eventProcessed = null;
     var paramsReceived = null;
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var newFactoryWithFunctionTracing = function()
     {
       var factory = new omniturePluginFactory();
@@ -185,7 +180,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test Framework Destroy With Template', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
+    OO.Analytics.RegisterPluginFactory(omniturePluginFactory);
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -197,7 +192,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
-  //
+
   //it('Test Framework Destroy With Template And Multi Frameworks', function()
   //{
   //  var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");

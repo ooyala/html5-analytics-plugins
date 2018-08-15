@@ -2,12 +2,10 @@
 describe('Analytics Framework Unit Tests', function()
 {
   jest.autoMockOff();
-  //this file is the file that defines TEST_ROOT and SRC_ROOT
-  require("../unit-test-helpers/test_env.js");
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
-//  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
   require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
+  var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
 
   var Analytics = OO.Analytics;
   var EVENTS = OO.Analytics.EVENTS;
@@ -565,12 +563,13 @@ describe('Analytics Framework Unit Tests', function()
 
       recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(msgSentObj.count);
-    }
+    };
 
     var badParamsHelper = function(framework, params, msgSentObj)
     {
       var msgName;
-      var events = framework.flattenEvents(OO.Analytics.EVENTS); 
+      var events = framework.flattenEvents(OO.Analytics.EVENTS);
+      var recordedEvents;
       for(var i = 0; i < events.length; i++)
       {
         msgName = events[i];
@@ -1107,7 +1106,7 @@ describe('Analytics Framework Unit Tests', function()
 
   it('Test Framework Destroy', function()
   {
-    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    OO.Analytics.RegisterPluginFactory(templatePluginFactory);
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -1122,7 +1121,7 @@ describe('Analytics Framework Unit Tests', function()
 
   it('Test Framework Destroy With Multi Frameworks', function()
   {
-    var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+    OO.Analytics.RegisterPluginFactory(templatePluginFactory);
     var framework2 = new OO.Analytics.Framework();
     var pluginList = framework.getPluginIDList();
     var pluginList2 = framework2.getPluginIDList();
@@ -1994,7 +1993,7 @@ describe('Analytics Framework Unit Tests', function()
         errorMessage: 456
       };
 
-      metadataOut =
+      var metadataOut =
       {
         errorCode: undefined,
         errorMessage: undefined
@@ -2036,7 +2035,7 @@ describe('Analytics Framework Unit Tests', function()
         errorMessage: 456
       };
 
-      metadataOut =
+      var metadataOut =
       {
         errorCode: undefined,
         errorMessage: undefined
@@ -2078,7 +2077,7 @@ describe('Analytics Framework Unit Tests', function()
         errorMessage: 456
       };
 
-      metadataOut =
+      var metadataOut =
       {
         errorCode: undefined,
         errorMessage: undefined
