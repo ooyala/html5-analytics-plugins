@@ -1102,6 +1102,42 @@ describe('Analytics Framework Unit Tests', function()
       expect(errorOccured).toBe(false);
       expect(framework.getPluginIDList().length).toEqual(0);
     });
+
+    it("Test publishing events can be turned off and on", function()
+    {
+      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      var pluginID = framework.registerPlugin(factory);
+      var plugin = OO.Analytics.Framework.TEST[0];
+      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
+      var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
+
+      framework.stopPublishingEvents();
+      expect(framework.publishEvent(msg1)).toBe(false);
+      expect(plugin.msgReceivedList.length).toEqual(0);
+
+      expect(framework.publishEvent(msg1)).toBe(false);
+      expect(plugin.msgReceivedList.length).toEqual(0);
+
+      expect(framework.publishEvent(msg2)).toBe(false);
+      expect(plugin.msgReceivedList.length).toEqual(0);
+      //double check that we aren't recording the messages either.
+      expect(framework.getRecordedEvents().length).toEqual(0);
+
+      framework.resumePublishingEvents();
+      expect(framework.publishEvent(msg1)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(1);
+      expect(plugin.msgReceivedList[0]).toEqual(msg1);
+
+      expect(framework.publishEvent(msg1)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(2);
+      expect(plugin.msgReceivedList[1]).toEqual(msg1);
+
+      expect(framework.publishEvent(msg2)).toBe(true);
+      expect(plugin.msgReceivedList.length).toEqual(3);
+      expect(plugin.msgReceivedList[2]).toEqual(msg2);
+      //make sure we resume recording events.
+      expect(framework.getRecordedEvents().length).toEqual(3);
+    });
   });
 
   it('Test Framework Destroy', function()

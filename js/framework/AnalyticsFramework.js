@@ -37,6 +37,7 @@ OO.Analytics.Framework = function()
   var _pluginMetadata;
   var _eventExistenceLookup = {};
   var _uniquePluginId = 0;
+  var _isPublishingEvents = true;
   var MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
   var MAX_EVENTS_RECORDED = 500;
 
@@ -541,6 +542,27 @@ OO.Analytics.Framework = function()
 
   _eventExistenceLookup = this.createEventDictionary();
 
+   /**
+    * The analytics framework will stop publishing events to registered plugins
+    * when the publishEvent() method is called. The events will also not be recorded.
+    * @public
+    * @method OO.Analytics.Framework#stopPublishingEvents
+    */
+   this.stopPublishingEvents = function()
+   {
+     _isPublishingEvents = false;
+   };
+
+   /**
+    * The analytics framework will resume publishing events to registered plugins
+    * and recording events can resume.
+    * @public
+    * @method OO.Analytics.Framework#resumePublishingEvents
+    */
+   this.resumePublishingEvents = function()
+   {
+     _isPublishingEvents = true;
+   };
   /**
    * Publish an event to all registered and active plugins.
    * @public
@@ -551,6 +573,11 @@ OO.Analytics.Framework = function()
    */
   this.publishEvent = function(eventName, params)
   {
+    if (!_isPublishingEvents)
+    {
+      return false;
+    }
+
     var eventPublished = false;
     if (_eventExistenceLookup[eventName])
     {
