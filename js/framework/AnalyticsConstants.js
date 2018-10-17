@@ -1,3 +1,5 @@
+import OO from 'OO';
+
 require("./InitAnalyticsNamespace.js");
 
 /**

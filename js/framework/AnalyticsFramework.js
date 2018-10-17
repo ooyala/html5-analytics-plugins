@@ -1,3 +1,5 @@
+import OO from 'OO';
+
 require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js")
 require("./InitAnalyticsNamespace.js");
 require("./AnalyticsConstants.js");
