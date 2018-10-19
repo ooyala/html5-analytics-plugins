@@ -1,5 +1,3 @@
-import OO from 'OO';
-
 require("../framework/InitAnalyticsNamespace.js");
 require("../../html5-common/js/utils/utils.js");
 
@@ -535,4 +533,4 @@ var IqPlugin= function (framework)
 //and register the template with all current instance of the framework.
 OO.Analytics.RegisterPluginFactory(IqPlugin);
 
-export default IqPlugin;
+module.exports = IqPlugin;
