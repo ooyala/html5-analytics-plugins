@@ -1,7 +1,7 @@
 //https://developers.google.com/analytics/devguides/collection/analyticsjs/command-queue-reference#method-details
 
 //unit test helpers
-MockGa = {
+global.MockGa = {
   gaCommand: null,
   gaHitType: null,
   gaEventFields: {
@@ -13,7 +13,7 @@ MockGa = {
 };
 
 
-ga = function(command)
+global.ga = function(command)
 {
   var eventHitTypeOrder = ['eventCategory', 'eventAction', 'eventLabel', 'eventValue'];
   if (command)
@@ -55,7 +55,7 @@ ga = function(command)
   }
 };
 
-resetMockGa = function()
+global.resetMockGa = function()
 {
   MockGa.gaCommand = null;
   MockGa.gaHitType = null;

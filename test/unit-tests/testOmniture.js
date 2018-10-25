@@ -1,13 +1,12 @@
 describe('Analytics Framework Omniture Plugin Unit Tests', function()
 {
   jest.autoMockOff();
-  //this file is the file that defines TEST_ROOT and SRC_ROOT
-  require("../unit-test-helpers/test_env.js");
   require("../unit-test-helpers/mock_adobe.js");
   require(SRC_ROOT + "framework/AnalyticsFramework.js");
 //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
   require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
+  var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
 
   var Analytics = OO.Analytics;
   var Utils = OO.Analytics.Utils;
@@ -22,7 +21,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   var testSetup = function()
   {
     framework = new Analytics.Framework();
-    //mute the logging becuase there will be lots of error messages
+    //mute the logging because there will be lots of error messages
     OO.log = function(){};
   };
 
@@ -64,7 +63,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
         }
       };
     }
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var plugin = new omniturePluginFactory(framework);
     plugin.init();
     plugin.setMetadata(metadata);
@@ -73,7 +71,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     expect(omniturePluginFactory).not.toBeNull();
     var plugin = new omniturePluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
@@ -103,7 +100,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //
   it('Test Omniture Plugin Validity', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var pluginID = framework.registerPlugin(omniturePluginFactory);
     expect(pluginID).toBeDefined();
     var pluginList = framework.getPluginIDList();
@@ -153,7 +149,6 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     var metadataReceived = null;
     var eventProcessed = null;
     var paramsReceived = null;
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
     var newFactoryWithFunctionTracing = function()
     {
       var factory = new omniturePluginFactory();
@@ -185,7 +180,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
   it('Test Framework Destroy With Template', function()
   {
-    var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
+    OO.Analytics.RegisterPluginFactory(omniturePluginFactory);
     var pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -197,7 +192,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
-  //
+
   //it('Test Framework Destroy With Template And Multi Frameworks', function()
   //{
   //  var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
@@ -998,27 +993,81 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   {
     var plugin = createPlugin(framework,
     {
-        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-        "reportSuiteId":"ovppooyala",
-        "pageName":"Test Page Name",
-        "visitorId":"test-vid",
-        "debug":true,
-        "channel":"Test Heartbeat Channel",//optional
-        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-        "publisherId":"ooyalatester",
-        "props":{
-          "prop2":"testProp2",
-          "prop15":"testProp15"
-        },
-        "eVars":{
-          "eVar10":"testEVar10"
-        }
+      "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+      "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+      "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+      "reportSuiteId":"ovppooyala",
+      "pageName":"Test Page Name",
+      "visitorId":"test-vid",
+      "debug":true,
+      "channel":"Test Heartbeat Channel",//optional
+      "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+      "publisherId":"ooyalatester",
+      "props":{
+        "prop2":"testProp2",
+        "prop15":"testProp15"
+      },
+      "eVars":{
+        "eVar10":"testEVar10",
+        "eVar20":"testEVar20"
+      }
     });
     expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
     expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
     expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
+    expect(ADB.OO.AppMeasurement["eVar20"]).toBe("testEVar20");
+  });
+
+  it('Omniture can update eVars and props on video source change', function() {
+    var plugin = createPlugin(framework,
+    {
+      "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
+      "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
+      "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
+      "reportSuiteId":"ovppooyala",
+      "pageName":"Test Page Name",
+      "visitorId":"test-vid",
+      "debug":true,
+      "channel":"Test Heartbeat Channel",//optional
+      "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
+      "publisherId":"ooyalatester",
+      "props":{
+        "prop2":"testProp2",
+        "prop15":"testProp15"
+      },
+      "eVars":{
+        "eVar10":"testEVar10",
+        "eVar20":"testEVar20"
+      }
+    });
+
+    var simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode : "abcde",
+      title : "testTitle",
+      duration : 20000
+    });
+
+    expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
+    expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
+    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
+    expect(ADB.OO.AppMeasurement["eVar20"]).toBe("testEVar20");
+
+    simulator.simulateVideoSourceChanged('newEmbedCode', {
+      "omniture": {
+        "props":{
+          "prop2":"newTestProp2"
+        },
+        "eVars":{
+          "eVar10":"newTestEVar10"
+        }
+      }
+    });
+
+    expect(ADB.OO.AppMeasurement["prop2"]).toBe("newTestProp2");
+    expect(typeof ADB.OO.AppMeasurement["prop15"]).toBe("undefined");
+    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("newTestEVar10");
+    expect(typeof ADB.OO.AppMeasurement["eVar20"]).toBe("undefined");
   });
 
   //Adobe Plugin Setup

@@ -19,10 +19,12 @@ var OmnitureAnalyticsPlugin = function (framework)
   var OOYALA_PLAYER_VERSION = "";
 
   var playerDelegate = new OoyalaPlayerDelegate();
+  var appMeasurement = null;
   var vpPlugin = null;
   var aaPlugin = null;
   var heartbeat = null;
 
+  var currentEmbedCode = null;
   var currentPlayhead = 0;
   var mainContentStarted = false;
   var inAdBreak = false;
@@ -113,7 +115,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       visitor.trackingServer = metadata.visitorTrackingServer;
 
       // Set-up the AppMeasurement component.
-      var appMeasurement = new AppMeasurement();
+      appMeasurement = new AppMeasurement();
       appMeasurement.visitor = visitor;
       appMeasurement.trackingServer = metadata.appMeasurementTrackingServer;
       appMeasurement.account = metadata.reportSuiteId;
@@ -121,25 +123,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       appMeasurement.charSet = "UTF-8";
       appMeasurement.visitorID = metadata.visitorId;
 
-      //add in props
-      if (!_.isEmpty(metadata.props))
-      {
-        _.each(metadata.props, function(value, key)
-        {
-          //TODO: Validate keys (are of form prop#)
-          appMeasurement[key] = value;
-        });
-      }
-
-      //add in eVars
-      if (!_.isEmpty(metadata.eVars))
-      {
-        _.each(metadata.eVars, function(value, key)
-        {
-          //TODO: Validate keys (are of form eVar#)
-          appMeasurement[key] = value;
-        });
-      }
+      updateEvarsAndProps(metadata.props, metadata.eVars);
 
       // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
       vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
@@ -178,6 +162,51 @@ var OmnitureAnalyticsPlugin = function (framework)
       var configData = new ADB.va.HeartbeatConfig();
       configData.debugLogging = metadata.debug; // set this to false for production apps.
       heartbeat.configure(configData);
+    }
+  };
+
+  /**
+   * Clears the vars from the AppMeasurement object and updates the AppMeasurement object with new props and eVars.
+   * @protected
+   * @method OmnitureAnalyticsPlugin#updateMetadata
+   * @param props The updated props
+   * @param eVars The updated eVars
+   */
+  this.updateMetadata = function(props, eVars) {
+    if (appMeasurement) {
+      appMeasurement.clearVars();
+      updateEvarsAndProps(props, eVars);
+    }
+  };
+
+  /**
+   * Adds eVars and props to the AppMeasurement object
+   * @private
+   * @method OmnitureAnalyticsPlugin#updateEvarsAndProps
+   * @param props The props to add to the AppMeasurement object
+   * @param eVars The eVars to add to the AppMeasurement object
+   */
+  var updateEvarsAndProps = function(props, eVars) {
+    if (appMeasurement) {
+      //add in props
+      if (!_.isEmpty(props))
+      {
+        _.each(props, function(value, key)
+        {
+          //TODO: Validate keys (are of form prop#)
+          appMeasurement[key] = value;
+        });
+      }
+
+      //add in eVars
+      if (!_.isEmpty(eVars))
+      {
+        _.each(eVars, function(value, key)
+        {
+          //TODO: Validate keys (are of form eVar#)
+          appMeasurement[key] = value;
+        });
+      }
     }
   };
 
@@ -277,6 +306,11 @@ var OmnitureAnalyticsPlugin = function (framework)
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         if (params && params[0] && params[0].embedCode)
         {
+          if (currentEmbedCode && params[0].embedCode !== currentEmbedCode) {
+            var metadata = params[0].metadata["omniture"] || {};
+            this.updateMetadata(metadata.props, metadata.eVars);
+          }
+          currentEmbedCode = params[0].embedCode;
           playerDelegate.onEmbedCodeChanged(params[0].embedCode);
         }
         resetPlaybackState();

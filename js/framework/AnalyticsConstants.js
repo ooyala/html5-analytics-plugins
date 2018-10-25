@@ -693,7 +693,7 @@ if (!OO.Analytics.EVENT_DATA)
   };
 
   /**
-   * public
+   * @public
    * @class Analytics.EVENT_DATA#StreamTypeMetadata
    * @classdesc Contains information about the content stream type
    * @property {string} streamType OO.Analytics.STREAM_TYPE of the stream.
@@ -702,6 +702,57 @@ if (!OO.Analytics.EVENT_DATA)
   {
     var checkStreamTypeData = OO._.bind(checkDataType, this, "StreamTypeMetadata");
     this.streamType         = checkStreamTypeData(streamType, "streamType", ["string"]);
+  };
+
+  /**
+   * @public
+   * @class Analytics.EVENT_DATA#GeoMetadata
+   * @classdesc Contains information the user's geo location based on ip
+   * @property {object} userGeoData The resolved geo data from the user's ip
+   */
+  EVENT_DATA.GeoMetadata = function(userGeoData)
+  {
+    var checkUserGeoData = OO._.bind(checkDataType, this, "GeoMetadata");
+    if (userGeoData === undefined || userGeoData === null)
+    {
+      userGeoData = {};
+    }
+
+    //only populate the fields if they exist in the incoming userGeoData
+    if (userGeoData.country)
+    {
+      this.country = checkUserGeoData(userGeoData.country, "country", ["string"]);
+    }
+
+    if (userGeoData.region)
+    {
+      this.region = checkUserGeoData(userGeoData.region, "region", ["string"]);
+    }
+
+    if (userGeoData.state)
+    {
+      this.state = checkUserGeoData(userGeoData.state, "state", ["string"]);
+    }
+
+    if (userGeoData.city)
+    {
+      this.city = checkUserGeoData(userGeoData.city, "city", ["string"]);
+    }
+
+    if (userGeoData.latitude)
+    {
+      this.latitude = checkUserGeoData(userGeoData.latitude, "latitude", ["number"]);
+    }
+
+    if (userGeoData.longitude)
+    {
+      this.longitude = checkUserGeoData(userGeoData.longitude, "longitude", ["number"]);
+    }
+
+    if (userGeoData.dma)
+    {
+      this.dma = checkUserGeoData(userGeoData.dma, "dma", ["string"]);
+    }
   };
 
   /**

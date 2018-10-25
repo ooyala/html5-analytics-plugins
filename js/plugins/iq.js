@@ -39,7 +39,9 @@ var IqPlugin= function (framework)
 
   var playingSsaiAd = false;
   var ssaiAdTransition = false;
-  
+
+  var geoMetadata = null;
+
   this.ooyalaReporter = null;
   this.videoStartSent = false;
   this.testMode = false;
@@ -205,7 +207,7 @@ var IqPlugin= function (framework)
    */
   this.processAdTimeline = function(timeline)
   {
-    if (timeline === null)
+    if (timeline === null || typeof(timeline) !== "array" )
     {
       return [];
     }
@@ -334,8 +336,8 @@ var IqPlugin= function (framework)
       //OO.EVENTS.METADATA_FETCHED -> OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED.
       case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
         if (params && params[0])
-        {
-          modules = params[0].modules;
+       	{
+          var modules = params[0].modules;
           if (modules)
           {
             this.setMetadata(modules.iq);
@@ -388,10 +390,24 @@ var IqPlugin= function (framework)
         break;
     }
 
-    if (!iqEnabled) 
-    {
+    //OO.EVENTS.AUTHORAZATION_FETCHED -> OO.Analytics.EVENTS.STREAM_TYPE_UPDATED
+    if (eventName === OO.Analytics.EVENTS.STREAM_TYPE_UPDATED) {
+      //we don't need the auth data but we do need the geo data and that is the second param
+      if (params && params[1])
+      {
+        geoMetadata = params[1];
+        //we have to change country and dma to countryCode and geoVendor because
+        //analytics.js throws errors if there are incorrect params in the object.
+        geoMetadata.countryCode = geoMetadata.country;
+        delete geoMetadata.country;
+        geoMetadata.geoVendor = geoMetadata.dma;
+        delete geoMetadata.dma;
+        this.ooyalaReporter.setUserInfo(null, null, null, geoMetadata);
+      }
       return;
     }
+
+    if (!iqEnabled) return;
 
     // Any other event requires analytics to be loaded, return otherwise
     if (!this.ooyalaReporter) 
@@ -413,7 +429,8 @@ var IqPlugin= function (framework)
           lastReportedPlayhead = 0;
           adOffset = 0;
           adTimeline = [];
-          duration = params[0].duration;
+          var duration = params[0].duration;
+
           this.ooyalaReporter.initializeMedia(currentEmbedCode, contentType);
           OO.log("IQ: Reported: initializeMedia() with args: " + currentEmbedCode + ", " + contentType);
           this.ooyalaReporter.setMediaDuration(duration);
@@ -424,7 +441,7 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         if (params && params[0] && params[0].params) 
         {
-          eventParams = params[0];
+          var eventParams = params[0];
           pcode = eventParams.params.pcode;
           if (jsonPcode != null) 
           {
@@ -545,7 +562,7 @@ var IqPlugin= function (framework)
           this.updateAdOffset(newPlayhead);
           this.ooyalaReporter.reportSeek(currentPlayhead, newPlayhead);
           OO.log("IQ: Reported: reportSeek() with args: " + currentPlayhead + ", " + newPlayhead);
-          currentPlayhead = seekedPlayhead;
+          currentPlayhead = newPlayhead;
         }
         break;
       //OO.EVENTS.PLAYED -> OO.Analytics.EVENTS.PLAYBACK_COMPLETED.
@@ -721,7 +738,17 @@ var IqPlugin= function (framework)
       var deviceInfo = {};
       var playerName = "Ooyala Player";
       var playerVersion = OO.VERSION.core.releaseVersion;  // TODO: need a mechanism in core to get this
-      this.ooyalaReporter.setDeviceInfo();
+      var doNotTrack = false;
+      switch (OO.trackingLevel) {
+        case OO.TRACKING_LEVEL.DISABLED:
+        case OO.TRACKING_LEVEL.ANONYMOUS:
+          doNotTrack = true;
+          break;
+        case OO.TRACKING_LEVEL.DEFAULT:
+        default:
+          break;
+      }
+      this.ooyalaReporter.setDeviceInfo(null, null, null, doNotTrack);
       this.ooyalaReporter.setPlayerInfo(playerId, playerName, playerVersion);
     }
     else

@@ -15,7 +15,7 @@ if (!OO.Analytics.Utils)
     {
       var myPlugin = {};
       var pluginID;
-      for (i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
+      for (var i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
       {
         myPlugin[OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]] = function() {};
       }
@@ -614,6 +614,14 @@ if (!OO.Analytics.Utils)
       plugin.processEvent(OO.Analytics.EVENTS.ERROR.AUTHORIZATION, [{
         errorCode: errorCode,
         errorMessage: errorMessage
+      }]);
+    };
+
+    this.simulateVideoSourceChanged = function(embedCode, metadata) {
+      preSimulate();
+      plugin.processEvent(OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED, [{
+        embedCode: embedCode,
+        metadata: metadata || {}
       }]);
     };
   };

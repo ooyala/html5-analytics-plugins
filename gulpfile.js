@@ -12,6 +12,7 @@ var gulp = require('gulp'),
     rename = require('gulp-rename');
     _ = require('underscore');
     listFiles = require('file-lister');
+var babelify = require('babelify');
 
 var path = {
   originalJs: ['./js/framework','./js/plugins'],
@@ -49,6 +50,7 @@ gulp.task('browserify', function() {
       var b = browserify({
         entries: sourceFile,
         debug: false,
+        transform: [babelify]
       });
 
       b.bundle()
