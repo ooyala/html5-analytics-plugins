@@ -407,6 +407,23 @@ var IqPlugin= function (framework)
       return;
     }
 
+    //OO.EVENTS.AUTHORAZATION_FETCHED -> OO.Analytics.EVENTS.STREAM_TYPE_UPDATED
+    if (eventName === OO.Analytics.EVENTS.STREAM_TYPE_UPDATED) {
+      //we don't need the auth data but we do need the geo data and that is the second param
+      if (params && params[1])
+      {
+        geoMetadata = params[1];
+        //we have to change country and dma to countryCode and geoVendor because
+        //analytics.js throws errors if there are incorrect params in the object.
+        geoMetadata.countryCode = geoMetadata.country;
+        delete geoMetadata.country;
+        geoMetadata.geoVendor = geoMetadata.dma;
+        delete geoMetadata.dma;
+        this.ooyalaReporter.setUserInfo(null, null, null, geoMetadata);
+      }
+      return;
+    }
+
     if (!iqEnabled) return;
 
     // Any other event requires analytics to be loaded, return otherwise
