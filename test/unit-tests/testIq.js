@@ -403,6 +403,8 @@ describe('Analytics Framework Template Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
 
     simulator.simulateContentPlayback();
+    simulator.simulateVideoPause();
+    simulator.simulateContentPlayback();
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportResumeCalled).toBe(1);
@@ -424,7 +426,10 @@ describe('Analytics Framework Template Unit Tests', function()
     var plugin = createPlugin(framework);
     var simulator = Utils.createPlaybackSimulator(plugin);
 
+    simulator.simulateContentPlayback();
     simulator.simulateReplay();
+    simulator.simulateWillPlayFromBeginning();
+    simulator.simulateContentPlayback();
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportReplayCalled).toBe(1);
@@ -483,6 +488,7 @@ describe('Analytics Framework Template Unit Tests', function()
     var simulator = Utils.createPlaybackSimulator(plugin);
 
     simulator.simulateWillPlayFromBeginning();
+    simulator.simulateContentPlayback();
 
     var unitTestState = plugin.ooyalaReporter.unitTestState;
     expect(unitTestState.reportPlaybackStartedCalled).toBe(1);
