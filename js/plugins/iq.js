@@ -609,13 +609,10 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.PLAYBACK_START_ERROR:
       case OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR:
       case OO.Analytics.EVENTS.PLUGIN_LOADED:
-        if (params && params[0]) 
-        {
-          eventMetadata = params[0];
-          eventMetadata.qosEventName = eventName;
-          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
-          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
-        }
+        eventMetadata = params && params[0] ? params[0] : {};
+        eventMetadata.qosEventName = eventName;
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
         break;
       // OO.EVENTS.WILL_PLAY_ADS -> OO.Analytics.EVENTS.AD_BREAK_STARTED
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
