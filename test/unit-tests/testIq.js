@@ -510,6 +510,20 @@ describe('Analytics Framework Template Unit Tests', function()
     expect(unitTestState.eventMetadata.position).toBe(testPosition);
   });
 
+  it ('IQ Plugin should report video buffering ended', function()
+  {
+    var eventName = OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED;
+    var plugin = createPlugin(framework);
+    var simulator = Utils.createPlaybackSimulator(plugin);
+
+    simulator.simulateVideoBufferingEnded();
+
+    var unitTestState = plugin.ooyalaReporter.unitTestState;
+    expect(unitTestState.reportCustomEventCalled).toBe(1);
+    expect(unitTestState.eventName).toBe(eventName);
+    expect(unitTestState.eventMetadata.qosEventName).toBe(eventName);
+  });
+
   it ('IQ Plugin should report initial play starting updates', function()
   {
     var eventName = OO.Analytics.EVENTS.INITIAL_PLAY_STARTING;
