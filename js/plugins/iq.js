@@ -599,6 +599,7 @@ var IqPlugin= function (framework)
         break;
       //OO.EVENTS.BUFFERING -> OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED.
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED: 
+      case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
       case OO.Analytics.EVENTS.INITIAL_PLAY_STARTING:
       case OO.Analytics.EVENTS.PLAYBACK_READY:
       case OO.Analytics.EVENTS.API_ERROR:
