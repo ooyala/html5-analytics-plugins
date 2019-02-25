@@ -153,12 +153,8 @@ var IqPlugin= function (framework)
    */
   this.init = function()
   {
-    if (this.testMode)
-    {
-      trySetupAnalytics();
-    }
-    else if (!this.ooyalaReporter)
-    {
+    trySetupAnalytics();
+    if (!this.ooyalaReporter) {
       OO.loadScriptOnce("//analytics.ooyala.com/static/v3/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
   };
