@@ -15,9 +15,10 @@ describe('Analytics Framework Template Unit Tests', function()
   //setup for individual tests
   var testSetup = function()
   {
+    // mute the logging becuase there will be lots of error messages
+    // @TODO: muting errors is inacceptable; errors throwing strategy should be reconsidered
+    OO.log = () => {};
     framework = new Analytics.Framework();
-    //mute the logging becuase there will be lots of error messages
-    OO.log = function(){};
     OO.VERSION = { core : { releaseVersion : "v4"} };
 
     window.Ooyala = {
