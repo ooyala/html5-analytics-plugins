@@ -725,7 +725,8 @@ OO.Analytics.Framework = function()
       {
         if (plugin && _.isFunction(plugin.getName))
         {
-          OO.log(createErrorString("Error occurred during call to function \'" + funcName + "\' on plugin \'" + plugin.getName() + "\'\n", err));
+          OO.log(createErrorString("Error occurred during call to function \'" + funcName + "\' on plugin \'" + plugin.getName() + "\'\n"));
+          OO.log(err);
         }
       }
       catch(e)
