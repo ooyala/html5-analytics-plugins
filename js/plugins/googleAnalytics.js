@@ -330,7 +330,7 @@ const GAAnalyticsPlugin = function (framework) {
    * @param  {object} data The stream duration and current stream position
    */
   this.onPositionChanged = function (params) {
-    if (this.currentPlaybackType != 'content' || !params || !params.length) {
+    if (this.currentPlaybackType !== 'content' || !params || !params.length) {
       return false;
     }
 
@@ -343,7 +343,7 @@ const GAAnalyticsPlugin = function (framework) {
     this.currentPlayheadPosition = params.streamPosition;
 
     _.each(this.playbackMilestones, function (milestone) {
-      if ((this.currentPlayheadPosition / this.duration) >= milestone[0] && this.lastReportedPlaybackMilestone != milestone[0] && milestone[0] > this.lastReportedPlaybackMilestone) {
+      if ((this.currentPlayheadPosition / this.duration) >= milestone[0] && this.lastReportedPlaybackMilestone !== milestone[0] && milestone[0] > this.lastReportedPlaybackMilestone) {
         this.reportToGA(milestone[1]);
         this.lastReportedPlaybackMilestone = milestone[0];
         this.log(`onPositionChanged (${this.currentPlayheadPosition}, ${milestone[1]})`);
@@ -359,7 +359,7 @@ const GAAnalyticsPlugin = function (framework) {
   this.onPlay = function () {
     this.playing = true;
 
-    if (this.currentPlaybackType == 'content') {
+    if (this.currentPlaybackType === 'content') {
       this.reportToGA('playbackStarted');
     } else {
       this.reportToGA('adPlaybackStarted');
@@ -383,7 +383,7 @@ const GAAnalyticsPlugin = function (framework) {
    * @method GAAnalyticsPlugin#onPaused
    */
   this.onPaused = function () {
-    if (this.currentPlaybackType != 'content') {
+    if (this.currentPlaybackType !== 'content') {
       return false;
     }
 
@@ -452,7 +452,7 @@ const GAAnalyticsPlugin = function (framework) {
    * @method GAAnalyticsPlugin#reportToGA
    */
   this.reportToGA = function (event) {
-    if (this.lastEventReported != event) {
+    if (this.lastEventReported !== event) {
       // Ooyala event subscriptions result in duplicate triggers; we'll filter them out here
       this.lastEventReported = event;
 

@@ -68,7 +68,6 @@ module.exports = {
     "no-sequences": "warn",
     "no-void": "warn",
     "camelcase": "warn",
-    "eqeqeq": "warn",
     "prefer-const": "warn",
     "no-bitwise": "warn",
     "no-continue": "warn",

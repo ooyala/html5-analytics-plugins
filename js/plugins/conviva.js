@@ -692,7 +692,7 @@ function Html5Http() {
     xmlHttpReq.onreadystatechange = function () {
       if (xmlHttpReq.readyState === 4) {
         xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
-        if (xmlHttpReq.status == 200) {
+        if (xmlHttpReq.status === 200) {
           if (callback) callback(true, xmlHttpReq.responseText);
         } else
         if (callback) callback(false, `http status ${xmlHttpReq.status}`);

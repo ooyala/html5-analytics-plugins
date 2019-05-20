@@ -158,13 +158,13 @@ const IqPlugin = function (framework) {
   this.setMetadata = function (metadata) {
     if (metadata && metadata.metadata) {
       if (metadata.metadata.enabled != null) {
-        iqEnabled = (metadata.metadata.enabled == true || metadata.metadata.enabled === 'true');
+        iqEnabled = (metadata.metadata.enabled === true || metadata.metadata.enabled === 'true');
       }
       // Are we possibly sending thrift events as well? If so we do not want to send
       // any duplicate events with analytics.js here, only new events not reported by
       // thrift in core with ooyala_analytics.js
       if (metadata.metadata.allowThrift != null) {
-        allowThrift = (metadata.metadata.allowThrift == true || metadata.metadata.allowThrift === 'true');
+        allowThrift = (metadata.metadata.allowThrift === true || metadata.metadata.allowThrift === 'true');
       }
       if (metadata.metadata.thriftPcode != null) {
         thriftPcode = metadata.metadata.thriftPcode;
@@ -306,7 +306,7 @@ const IqPlugin = function (framework) {
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         if (params && params[0] && params[0].metadata) {
           autoPlay = params[0].metadata.autoPlay;
-          if (params[0].embedCode != currentEmbedCode) {
+          if (params[0].embedCode !== currentEmbedCode) {
             lastEmbedCode = currentEmbedCode;
           } else {
             lastEmbedCode = '';
@@ -482,7 +482,7 @@ const IqPlugin = function (framework) {
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         if (!allowThrift || thriftPcode != null || jsonPcode != null) {
           if (!this.videoStartSent) {
-            if (lastEmbedCode != currentEmbedCode) {
+            if (lastEmbedCode !== currentEmbedCode) {
               this.ooyalaReporter.reportPlaybackStarted();
               OO.log('IQ: Reported: reportPlaybackStarted()');
             } else {
