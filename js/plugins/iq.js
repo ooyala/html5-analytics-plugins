@@ -604,8 +604,25 @@ var IqPlugin= function (framework)
       case OO.Analytics.EVENTS.PLAYBACK_READY:
       case OO.Analytics.EVENTS.API_ERROR:
       case OO.Analytics.EVENTS.BITRATE_INITIAL:
+        eventMetadata = params && params[0] ? params[0] : {};
+        eventMetadata.qosEventName = eventName;
+        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+        break;
       case OO.Analytics.EVENTS.BITRATE_FIVE_SEC:
+        eventMetadata = params && params[0] ? params[0] : {};
+        eventMetadata.qosEventName = eventName;
+        this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+        OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+        break;
       case OO.Analytics.EVENTS.BITRATE_STABLE:
+        if (!allowThrift || thriftPcode != null || jsonPcode != null) {
+          eventMetadata = params && params[0] ? params[0] : {};
+          eventMetadata.qosEventName = eventName;
+          this.ooyalaReporter.reportCustomEvent(eventName, eventMetadata);
+          OO.log("IQ: Reported: reportCustomEvent() for event: " + eventName + " with args:" + JSON.stringify(eventMetadata));
+          break;
+        }
       case OO.Analytics.EVENTS.PLAYBACK_START_ERROR:
       case OO.Analytics.EVENTS.PLAYBACK_MIDSTREAM_ERROR:
       case OO.Analytics.EVENTS.PLUGIN_LOADED:
