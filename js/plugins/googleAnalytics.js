@@ -1,23 +1,22 @@
-require("../framework/InitAnalyticsNamespace.js");
+require('../framework/InitAnalyticsNamespace.js');
 
 /**
  * @class GAAnalyticsPlugin
  * @classdesc This is an example class of a plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
-var GAAnalyticsPlugin = function(framework)
-{
-  var _framework = framework;
-  var name = "googleAnalytics";
-  var version = "v1";
-  var id;
-  var _active = true;
-  var _cachedEvents = [];
-  var _cacheEvents = true;
-  
-  var gaFunction = window.GoogleAnalyticsObject || 'ga';
+const GAAnalyticsPlugin = function (framework) {
+  let _framework = framework;
+  const name = 'googleAnalytics';
+  const version = 'v1';
+  let id;
+  const _active = true;
+  const _cachedEvents = [];
+  let _cacheEvents = true;
 
-  var trackerName = null;
+  const gaFunction = window.GoogleAnalyticsObject || 'ga';
+
+  let trackerName = null;
 
   this.gtm = false;
   this.gaPageviewFormat = 'ooyala-event/:event/:title';
@@ -28,7 +27,7 @@ var GAAnalyticsPlugin = function(framework)
     [0.25, 'playProgressQuarter'],
     [0.5, 'playProgressHalf'],
     [0.75, 'playProgressThreeQuarters'],
-    [1.00, 'playProgressEnd']
+    [1.00, 'playProgressEnd'],
   ];
 
   this.playing = false;
@@ -44,9 +43,8 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#log
    */
-  this.log = function(what)
-  {
-    if (!this.verboseLogging || typeof console == 'undefined') return;
+  this.log = function (what) {
+    if (!this.verboseLogging || typeof console === 'undefined') return;
     console.log(what);
   };
 
@@ -54,10 +52,9 @@ var GAAnalyticsPlugin = function(framework)
    * [Required Function] Return the name of the plugin.
    * @public
    * @method GAAnalyticsPlugin#getName
-   * @return {string} The name of the plugin.
+   * @returns {string} The name of the plugin.
    */
-  this.getName = function()
-  {
+  this.getName = function () {
     return name;
   };
 
@@ -65,10 +62,9 @@ var GAAnalyticsPlugin = function(framework)
    * [Required Function] Return the version string of the plugin.
    * @public
    * @method GAAnalyticsPlugin#getVersion
-   * @return {string} The version of the plugin.
+   * @returns {string} The version of the plugin.
    */
-  this.getVersion = function()
-  {
+  this.getVersion = function () {
     return version;
   };
 
@@ -79,8 +75,7 @@ var GAAnalyticsPlugin = function(framework)
    * @method GAAnalyticsPlugin#setPluginID
    * @param  {string} newID The plugin id
    */
-  this.setPluginID = function(newID)
-  {
+  this.setPluginID = function (newID) {
     id = newID;
   };
 
@@ -88,10 +83,9 @@ var GAAnalyticsPlugin = function(framework)
    * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
    * @public
    * @method GAAnalyticsPlugin#setPluginID
-   * @return  {string} The pluginID assigned to this instance from the Analytics Framework.
+   * @returns  {string} The pluginID assigned to this instance from the Analytics Framework.
    */
-  this.getPluginID = function()
-  {
+  this.getPluginID = function () {
     return id;
   };
 
@@ -100,10 +94,9 @@ var GAAnalyticsPlugin = function(framework)
    * @private
    * @method GAAnalyticsPlugin#displayError
    */
-  this.displayError = function()
-  {
+  this.displayError = function () {
     this.gaTrackingEnabled = false;
-    console.error("The Ooyala Google Analytics Tracking module is installed, but no valid Google Analytics code block is detected.");
+    console.error('The Ooyala Google Analytics Tracking module is installed, but no valid Google Analytics code block is detected.');
   };
 
   /**
@@ -111,9 +104,8 @@ var GAAnalyticsPlugin = function(framework)
    * @private
    * @method GAAnalyticsPlugin#importUserSettings
    */
-  this.importUserSettings = function()
-  {
-    //TODO: What does this do?
+  this.importUserSettings = function () {
+    // TODO: What does this do?
     // if (typeof window.ooyalaGASettings != 'undefined')
     // {
     //   var GA = this;
@@ -129,21 +121,16 @@ var GAAnalyticsPlugin = function(framework)
    * @private
    * @method GAAnalyticsPlugin#initGA
    */
-  this.initGA = function()
-  {
+  this.initGA = function () {
     // If dataLayer is present, GTM is being used; force events
-    if (typeof window["dataLayer"] != 'undefined')
-    {
+    if (typeof window.dataLayer !== 'undefined') {
       this.gtm = true;
     }
 
-    //Check if any of the Google Analytics SDKs are loaded
-    if (typeof _gaq != 'undefined' || typeof window[gaFunction] != 'undefined' || this.gtm)
-    {
+    // Check if any of the Google Analytics SDKs are loaded
+    if (typeof _gaq !== 'undefined' || typeof window[gaFunction] !== 'undefined' || this.gtm) {
       this.gaTrackingEnabled = true;
-    }
-    else
-    {
+    } else {
       this.displayError();
     }
   };
@@ -153,14 +140,11 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#init
    */
-  this.init = function()
-  {
-    var missedEvents;
-    if (_framework && _.isFunction(_framework.getRecordedEvents))
-    {
+  this.init = function () {
+    let missedEvents;
+    if (_framework && _.isFunction(_framework.getRecordedEvents)) {
       missedEvents = _framework.getRecordedEvents();
-      _.each(missedEvents, _.bind(function(recordedEvent)
-      {
+      _.each(missedEvents, _.bind(function (recordedEvent) {
         this.processEvent(recordedEvent.eventName, recordedEvent.params);
       }, this));
     }
@@ -172,19 +156,14 @@ var GAAnalyticsPlugin = function(framework)
    * @method GAAnalyticsPlugin#setMetadata
    * @param  {object} metadata The metadata for this plugin
    */
-  this.setMetadata = function(metadata)
-  {
-    if (metadata)
-    {
-      this.log("GA: PluginID \'" + id + "\' received this metadata:", metadata);
-      //Grab the tracker name if available and valid
-      if (validateTrackerName(metadata.trackerName))
-      {
+  this.setMetadata = function (metadata) {
+    if (metadata) {
+      this.log(`GA: PluginID \'${id}\' received this metadata:`, metadata);
+      // Grab the tracker name if available and valid
+      if (validateTrackerName(metadata.trackerName)) {
         trackerName = metadata.trackerName;
-        this.log("GA: Using tracker name:", trackerName);
-      }
-      else
-      {
+        this.log('GA: Using tracker name:', trackerName);
+      } else {
         trackerName = null;
       }
     }
@@ -197,10 +176,8 @@ var GAAnalyticsPlugin = function(framework)
    * @param  {string} eventName Name of the event
    * @param  {Array} params     Array of parameters sent with the event
    */
-  this.processEvent = function(eventName, params)
-  {
-    switch (eventName)
-    {
+  this.processEvent = function (eventName, params) {
+    switch (eventName) {
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         this.onPlayerCreated();
         break;
@@ -244,8 +221,7 @@ var GAAnalyticsPlugin = function(framework)
    * @private
    * @method GAAnalyticsPlugin#resetPlaybackState
    */
-  var resetPlaybackState = _.bind(function()
-  {
+  var resetPlaybackState = _.bind(function () {
     this.playing = false;
     this.lastEventReported = null;
     this.lastReportedPlaybackMilestone = -1;
@@ -257,8 +233,7 @@ var GAAnalyticsPlugin = function(framework)
    * @private
    * @method GAAnalyticsPlugin#resetContent
    */
-  var resetContent = _.bind(function()
-  {
+  var resetContent = _.bind(function () {
     this.duration = null;
     this.content = null;
   }, this);
@@ -268,8 +243,7 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#destroy
    */
-  this.destroy = function()
-  {
+  this.destroy = function () {
     _framework = null;
   };
 
@@ -278,8 +252,7 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onPlayerCreated
    */
-  this.onPlayerCreated = function()
-  {
+  this.onPlayerCreated = function () {
     this.log('onPlayerCreated');
     this.importUserSettings();
     this.initGA();
@@ -290,12 +263,11 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onWillPlayAds
    */
-  this.onWillPlayAds = function()
-  {
+  this.onWillPlayAds = function () {
     this.currentPlaybackType = 'ad';
 
     this.reportToGA('adPlaybackStarted');
-    this.log("onWillPlayAds");
+    this.log('onWillPlayAds');
   };
 
   /**
@@ -303,12 +275,11 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onAdsPlayed
    */
-  this.onAdsPlayed = function()
-  {
+  this.onAdsPlayed = function () {
     this.currentPlaybackType = 'content';
 
     this.reportToGA('adPlaybackFinished');
-    this.log("onAdsPlayed");
+    this.log('onAdsPlayed');
   };
 
   /**
@@ -317,29 +288,24 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onStreamMetadataUpdated
    */
-  this.onStreamMetadataUpdated = function(metadata)
-  {
+  this.onStreamMetadataUpdated = function (metadata) {
     if (metadata.length) metadata = metadata[0];
-    this.log("onStreamMetadataUpdated");
+    this.log('onStreamMetadataUpdated');
 
-    if (!!metadata)
-    {
+    if (metadata) {
       _cacheEvents = false;
-      if (!!metadata.base)
-      {
-        var data = metadata.base;
+      if (metadata.base) {
+        const data = metadata.base;
         this.createdAt = data.created_at || data.CreationDate;
-        //TODO: How do we test createAd and customDimension?
-        if (!!this.createdAt && !!ga && !!ooyalaGaTrackSettings.customDimension)
-        {
-          var command = getGACommand('set');
+        // TODO: How do we test createAd and customDimension?
+        if (!!this.createdAt && !!ga && !!ooyalaGaTrackSettings.customDimension) {
+          const command = getGACommand('set');
           ga(command, ooyalaGaTrackSettings.customDimension, this.createdAt);
         }
       }
     }
 
-    while (_cachedEvents.length > 0)
-    {
+    while (_cachedEvents.length > 0) {
       this.sendToGA(_cachedEvents.shift());
     }
   };
@@ -350,12 +316,11 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onContentReady
    */
-  this.onContentReady = function(content)
-  {
+  this.onContentReady = function (content) {
     this.content = content;
     if (content.length) this.content = content[0];
     this.reportToGA('contentReady');
-    this.log("onContentReady");
+    this.log('onContentReady');
   };
 
   /**
@@ -364,29 +329,24 @@ var GAAnalyticsPlugin = function(framework)
    * @method GAAnalyticsPlugin#onPositionChanged
    * @param  {object} data The stream duration and current stream position
    */
-  this.onPositionChanged = function(params)
-  {
-    if (this.currentPlaybackType != 'content' || !params || !params.length)
-    {
+  this.onPositionChanged = function (params) {
+    if (this.currentPlaybackType != 'content' || !params || !params.length) {
       return false;
     }
 
     params = params[0];
 
-    if (params.totalStreamDuration > 0)
-    {
+    if (params.totalStreamDuration > 0) {
       this.duration = params.totalStreamDuration;
     }
 
     this.currentPlayheadPosition = params.streamPosition;
 
-    _.each(this.playbackMilestones, function(milestone)
-    {
-      if ((this.currentPlayheadPosition / this.duration) >= milestone[0] && this.lastReportedPlaybackMilestone != milestone[0] && milestone[0] > this.lastReportedPlaybackMilestone)
-      {
+    _.each(this.playbackMilestones, function (milestone) {
+      if ((this.currentPlayheadPosition / this.duration) >= milestone[0] && this.lastReportedPlaybackMilestone != milestone[0] && milestone[0] > this.lastReportedPlaybackMilestone) {
         this.reportToGA(milestone[1]);
         this.lastReportedPlaybackMilestone = milestone[0];
-        this.log("onPositionChanged (" + this.currentPlayheadPosition + ", " + milestone[1] + ")");
+        this.log(`onPositionChanged (${this.currentPlayheadPosition}, ${milestone[1]})`);
       }
     }, this);
   };
@@ -396,19 +356,15 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onPlay
    */
-  this.onPlay = function()
-  {
+  this.onPlay = function () {
     this.playing = true;
 
-    if (this.currentPlaybackType == 'content')
-    {
+    if (this.currentPlaybackType == 'content') {
       this.reportToGA('playbackStarted');
-    }
-    else
-    {
+    } else {
       this.reportToGA('adPlaybackStarted');
     }
-    this.log("onPlay");
+    this.log('onPlay');
   };
 
   /**
@@ -416,10 +372,9 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onEnd
    */
-  this.onEnd = function()
-  {
+  this.onEnd = function () {
     this.reportToGA('playbackFinished');
-    this.log("onEnd");
+    this.log('onEnd');
   };
 
   /**
@@ -427,10 +382,8 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#onPaused
    */
-  this.onPaused = function()
-  {
-    if (this.currentPlaybackType != 'content')
-    {
+  this.onPaused = function () {
+    if (this.currentPlaybackType != 'content') {
       return false;
     }
 
@@ -438,13 +391,12 @@ var GAAnalyticsPlugin = function(framework)
 
     // The Ooyala event subscription triggers an "onpause" on playback; we'll filter it here
     // It also triggers an "onpause" when playback finishes; we'll filter that, too
-    if (typeof this.currentPlayheadPosition == 'undefined' || this.currentPlayheadPosition > (this.duration - 2))
-    {
+    if (typeof this.currentPlayheadPosition === 'undefined' || this.currentPlayheadPosition > (this.duration - 2)) {
       return false;
     }
 
     this.reportToGA('playbackPaused');
-    this.log("onPaused");
+    this.log('onPaused');
   };
 
   /**
@@ -452,51 +404,43 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#sendToGA
    */
-  this.sendToGA = function(event)
-  {
-    if (this.gaTrackingEnabled)
-    {
-      var title = this.content ? this.content.title : "";
-      var param = null;
+  this.sendToGA = function (event) {
+    if (this.gaTrackingEnabled) {
+      const title = this.content ? this.content.title : '';
+      let param = null;
 
       // Google Tag Manager support
-      if (this.gtm)
-      {
+      if (this.gtm) {
         param = {
-          'event': 'OoyalaVideoEvent',
-          'category': this.gaEventCategory,
-          'action': event,
-          'label': title
+          event: 'OoyalaVideoEvent',
+          category: this.gaEventCategory,
+          action: event,
+          label: title,
         };
-        if (this.createdAt)
-        {
-          param['value'] = this.createdAt;
+        if (this.createdAt) {
+          param.value = this.createdAt;
         }
         window.dataLayer.push(param);
       }
       // Legacy GA code block support
-      else if (typeof _gaq != 'undefined')
-      {
+      else if (typeof _gaq !== 'undefined') {
         param = ['_trackEvent', this.gaEventCategory, event, title];
-        if (this.createdAt)
-        {
+        if (this.createdAt) {
           param.push(this.createdAt);
         }
         _gaq.push(param);
       }
       // Current GA code block support
-      else if (typeof window[gaFunction] != 'undefined')
-      {
+      else if (typeof window[gaFunction] !== 'undefined') {
         param = {
-          'eventCategory': this.gaEventCategory,
-          'eventAction': event,
-          'eventLabel': title
+          eventCategory: this.gaEventCategory,
+          eventAction: event,
+          eventLabel: title,
         };
-        if (this.createdAt)
-        {
-          param['eventValue'] = this.createdAt;
+        if (this.createdAt) {
+          param.eventValue = this.createdAt;
         }
-        var command = getGACommand('send');
+        const command = getGACommand('send');
         window[gaFunction](command, 'event', param);
       }
     }
@@ -507,19 +451,14 @@ var GAAnalyticsPlugin = function(framework)
    * @public
    * @method GAAnalyticsPlugin#reportToGA
    */
-  this.reportToGA = function(event)
-  {
-    if (this.lastEventReported != event)
-    {
+  this.reportToGA = function (event) {
+    if (this.lastEventReported != event) {
       // Ooyala event subscriptions result in duplicate triggers; we'll filter them out here
       this.lastEventReported = event;
 
-      if (_cacheEvents)
-      {
+      if (_cacheEvents) {
         _cachedEvents.push(event);
-      }
-      else
-      {
+      } else {
         this.sendToGA(event);
       }
     }
@@ -535,16 +474,12 @@ var GAAnalyticsPlugin = function(framework)
    * @param {string} commandName the name of the ga() command
    * @returns {string} the final command to provide to the ga() method
    */
-  var getGACommand = function(commandName)
-  {
-    if (commandName)
-    {
-      return trackerName ? trackerName + '.' + commandName : commandName;
+  var getGACommand = function (commandName) {
+    if (commandName) {
+      return trackerName ? `${trackerName}.${commandName}` : commandName;
     }
-    else
-    {
-      return null;
-    }
+
+    return null;
   };
 
   /**
@@ -555,14 +490,13 @@ var GAAnalyticsPlugin = function(framework)
    * @param {string} name the tracker name to validate
    * @returns {boolean} true if the tracker name is valid, false otherwise
    */
-  var validateTrackerName = function(name)
-  {
+  var validateTrackerName = function (name) {
     return _.isString(name) && !_.isEmpty(name);
   };
 };
 
-//Add the template to the global list of factories for all new instances of the framework
-//and register the template with all current instance of the framework.
+// Add the template to the global list of factories for all new instances of the framework
+// and register the template with all current instance of the framework.
 OO.Analytics.RegisterPluginFactory(GAAnalyticsPlugin);
 
 module.exports = GAAnalyticsPlugin;

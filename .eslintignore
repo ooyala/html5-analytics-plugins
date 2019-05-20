@@ -1,0 +1,10 @@
+node_modules
+html5-common
+plugin-dependencies
+utils
+build
+coverage
+tmp
+.idea
+.DS_Store
+npm-debug.log

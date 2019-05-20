@@ -1,25 +1,23 @@
-require("../framework/InitAnalyticsNamespace.js");
+require('../framework/InitAnalyticsNamespace.js');
 
 /**
  * @class AnalyticsPluginTemplate
  * @classdesc This is an example class of a plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
-var AnalyticsPluginTemplate = function (framework)
-{
-  var _framework = framework;
-  var name = "template";
-  var version = "v1";
-  var id;
+const AnalyticsPluginTemplate = function (framework) {
+  let _framework = framework;
+  const name = 'template';
+  const version = 'v1';
+  let id;
 
   /**
    * [Required Function] Return the name of the plugin.
    * @public
    * @method AnalyticsPluginTemplate#getName
-   * @return {string} The name of the plugin.
+   * @returns {string} The name of the plugin.
    */
-  this.getName = function ()
-  {
+  this.getName = function () {
     return name;
   };
 
@@ -27,10 +25,9 @@ var AnalyticsPluginTemplate = function (framework)
    * [Required Function] Return the version string of the plugin.
    * @public
    * @method AnalyticsPluginTemplate#getVersion
-   * @return {string} The version of the plugin.
+   * @returns {string} The version of the plugin.
    */
-  this.getVersion = function ()
-  {
+  this.getVersion = function () {
     return version;
   };
 
@@ -41,8 +38,7 @@ var AnalyticsPluginTemplate = function (framework)
    * @method AnalyticsPluginTemplate#setPluginID
    * @param  {string} newID The plugin id
    */
-  this.setPluginID = function(newID)
-  {
+  this.setPluginID = function (newID) {
     id = newID;
   };
 
@@ -50,10 +46,9 @@ var AnalyticsPluginTemplate = function (framework)
    * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
    * @public
    * @method AnalyticsPluginTemplate#setPluginID
-   * @return  {string} The pluginID assigned to this instance from the Analytics Framework.
+   * @returns  {string} The pluginID assigned to this instance from the Analytics Framework.
    */
-  this.getPluginID = function()
-  {
+  this.getPluginID = function () {
     return id;
   };
 
@@ -62,15 +57,13 @@ var AnalyticsPluginTemplate = function (framework)
    * @public
    * @method AnalyticsPluginTemplate#init
    */
-  this.init = function()
-  {
-    var missedEvents;
-    //if you need to process missed events, here is an example
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
-    {
+  this.init = function () {
+    let missedEvents;
+    // if you need to process missed events, here is an example
+    if (_framework && OO._.isFunction(_framework.getRecordedEvents)) {
       missedEvents = _framework.getRecordedEvents();
     }
-    //use recorded events.
+    // use recorded events.
   };
 
   /**
@@ -79,9 +72,8 @@ var AnalyticsPluginTemplate = function (framework)
    * @method AnalyticsPluginTemplate#setMetadata
    * @param  {object} metadata The metadata for this plugin
    */
-  this.setMetadata = function(metadata)
-  {
-      OO.log( "Analytics Template: PluginID \'" + id + "\' received this metadata:", metadata);
+  this.setMetadata = function (metadata) {
+    OO.log(`Analytics Template: PluginID \'${id}\' received this metadata:`, metadata);
   };
 
   /**
@@ -91,17 +83,14 @@ var AnalyticsPluginTemplate = function (framework)
    * @param  {string} eventName Name of the event
    * @param  {Array} params     Array of parameters sent with the event
    */
-  this.processEvent = function(eventName, params)
-  {
-    OO.log( "Analytics Template: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
-    switch(eventName)
-    {
+  this.processEvent = function (eventName, params) {
+    OO.log(`Analytics Template: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    switch (eventName) {
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
-        if (params && params[0])
-        {
-          //Retrieve the stream type here.
-          //Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
-          var streamType = params[0].streamType;
+        if (params && params[0]) {
+          // Retrieve the stream type here.
+          // Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
+          const { streamType } = params[0];
         }
         break;
       default:
@@ -114,14 +103,13 @@ var AnalyticsPluginTemplate = function (framework)
    * @public
    * @method AnalyticsPluginTemplate#destroy
    */
-  this.destroy = function ()
-  {
+  this.destroy = function () {
     _framework = null;
-  }
+  };
 };
 
-//Add the template to the global list of factories for all new instances of the framework
-//and register the template with all current instance of the framework.
+// Add the template to the global list of factories for all new instances of the framework
+// and register the template with all current instance of the framework.
 OO.Analytics.RegisterPluginFactory(AnalyticsPluginTemplate);
 
 module.exports = AnalyticsPluginTemplate;

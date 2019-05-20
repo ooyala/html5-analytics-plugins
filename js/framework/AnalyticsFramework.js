@@ -1,8 +1,8 @@
-require("../../html5-common/js/utils/InitModules/InitOOUnderscore.js")
-require("./InitAnalyticsNamespace.js");
-require("./AnalyticsConstants.js");
+require('../../html5-common/js/utils/InitModules/InitOOUnderscore.js');
+require('./InitAnalyticsNamespace.js');
+require('./AnalyticsConstants.js');
 
- /**
+/**
   * @public
  * @class OO.Analytics.RecordedEvent
  * @classdesc Store the information for a published event, including the time
@@ -11,8 +11,7 @@ require("./AnalyticsConstants.js");
  * @param  {string} eventName The event name
  * @param  {Array}  params The parameters passed in with the event
  */
-OO.Analytics.RecordedEvent = function(timeStamp, eventName, params)
-{
+OO.Analytics.RecordedEvent = function (timeStamp, eventName, params) {
   this.timeStamp = timeStamp;
   this.eventName = eventName;
   this.params = params;
@@ -28,18 +27,17 @@ OO.Analytics.RecordedEvent = function(timeStamp, eventName, params)
  * currently supported are located in AnalyticsConstants.js.  That file also contains
  * all the methods that need to be implemented by a plugin for it to be considered valid.
  */
-OO.Analytics.Framework = function()
-{
-  var _ = OO._;
-  var _registeredPlugins = {};
-  var _recordedEventList = [];
-  var _recording = true;
-  var _pluginMetadata;
-  var _eventExistenceLookup = {};
-  var _uniquePluginId = 0;
-  var _isPublishingEvents = true;
-  var MAX_PLUGINS = 20; //this is an arbitrary limit but we shouldn't ever reach this (not even close).
-  var MAX_EVENTS_RECORDED = 500;
+OO.Analytics.Framework = function () {
+  let { _ } = OO;
+  let _registeredPlugins = {};
+  let _recordedEventList = [];
+  let _recording = true;
+  let _pluginMetadata;
+  let _eventExistenceLookup = {};
+  let _uniquePluginId = 0;
+  let _isPublishingEvents = true;
+  const MAX_PLUGINS = 20; // this is an arbitrary limit but we shouldn't ever reach this (not even close).
+  const MAX_EVENTS_RECORDED = 500;
 
   /**
    * Helper function for readability mainly. Binds private functions to 'this' instance
@@ -49,12 +47,9 @@ OO.Analytics.Framework = function()
    * @param  {function} functionVar The function to be bound to this instance of Framework
    * @return {function}             Bound function.
    */
-  var privateMember = _.bind(function(functionVar)
-  {
-    if (!_.isFunction(functionVar))
-    {
-      throw (createErrorString("Trying to make private function but " + functionVar + " is not a function."));
-      return;
+  const privateMember = _.bind(function (functionVar) {
+    if (!_.isFunction(functionVar)) {
+      throw (createErrorString(`Trying to make private function but ${functionVar} is not a function.`));
     }
     return _.bind(functionVar, this);
   }, this);
@@ -66,34 +61,28 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#setPluginMetadata
    * @param  {object}  pluginMetadata Object containing metadata for all plugins
-   * @return {boolean}                Return true if metadata is valid and has not been set before.
+   * @returns {boolean}                Return true if metadata is valid and has not been set before.
    */
-  this.setPluginMetadata = function(pluginMetadata)
-  {
-    var success = false;
-    //just a warning if we are setting the metadata multiple times. This may be valid
-    //if so, this can be removed.
-    if (_pluginMetadata)
-    {
-      OO.log(createErrorString("Trying to run setPluginMetadata more than once. Ignoring new data."));
+  this.setPluginMetadata = function (pluginMetadata) {
+    let success = false;
+    // just a warning if we are setting the metadata multiple times. This may be valid
+    // if so, this can be removed.
+    if (_pluginMetadata) {
+      OO.log(createErrorString('Trying to run setPluginMetadata more than once. Ignoring new data.'));
     }
 
-    if (_.isObject(pluginMetadata))
-    {
-      //set the metadata and then set it on any plugin that is already registered
+    if (_.isObject(pluginMetadata)) {
+      // set the metadata and then set it on any plugin that is already registered
       _pluginMetadata = pluginMetadata;
-      var pluginList = this.getPluginIDList();
-      for (var i = 0; i < pluginList.length; i++)
-      {
-          var plugin = getPluginInstance(pluginList[i]);
-          passMetadataToPlugin(plugin);
+      const pluginList = this.getPluginIDList();
+      for (let i = 0; i < pluginList.length; i++) {
+        const plugin = getPluginInstance(pluginList[i]);
+        passMetadataToPlugin(plugin);
       }
 
       success = true;
-    }
-    else
-    {
-      OO.log(createErrorString("Calling setPluginMetadata without valid metadata object. Defaulting to no metadata"));
+    } else {
+      OO.log(createErrorString('Calling setPluginMetadata without valid metadata object. Defaulting to no metadata'));
     }
 
     return success;
@@ -104,11 +93,9 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#destroy
    */
-  this.destroy = privateMember(function()
-  {
+  this.destroy = privateMember(function () {
     OO.Analytics.UnregisterFrameworkInstance(this);
-    for (var pluginID in _registeredPlugins)
-    {
+    for (const pluginID in _registeredPlugins) {
       this.unregisterPlugin(pluginID);
     }
     _ = null;
@@ -127,16 +114,12 @@ OO.Analytics.Framework = function()
    * @param  {string} eventName Event name to record
    * @param  {Array}  params    The params sent along with the event.
    */
-  var recordEvent = privateMember(function(eventName, params)
-  {
-    if (_recording && _recordedEventList.length < MAX_EVENTS_RECORDED)
-    {
-      var timeStamp = new Date().getTime();
-      var eventToRecord = new OO.Analytics.RecordedEvent(timeStamp, eventName, params);
+  const recordEvent = privateMember((eventName, params) => {
+    if (_recording && _recordedEventList.length < MAX_EVENTS_RECORDED) {
+      const timeStamp = new Date().getTime();
+      const eventToRecord = new OO.Analytics.RecordedEvent(timeStamp, eventName, params);
       _recordedEventList.push(eventToRecord);
-    }
-    else
-    {
+    } else {
       stopRecordingEvents();
     }
   });
@@ -146,8 +129,7 @@ OO.Analytics.Framework = function()
    * @private
    * @method OO.Analytics.Framework#clearRecordedEvents
    */
-  var clearRecordedEvents = privateMember(function()
-  {
+  const clearRecordedEvents = privateMember(() => {
     _recordedEventList = [];
   });
 
@@ -156,8 +138,7 @@ OO.Analytics.Framework = function()
    * @private
    * @method OO.Analytics.Framework#startRecordingEvents
    */
-  var startRecordingEvents = privateMember(function()
-  {
+  const startRecordingEvents = privateMember(() => {
     _recording = true;
   });
 
@@ -166,8 +147,7 @@ OO.Analytics.Framework = function()
    * @private
    * @method OO.Analytics.Framework#stopRecordingEvents
    */
-  var stopRecordingEvents = privateMember(function()
-  {
+  var stopRecordingEvents = privateMember(() => {
     _recording = false;
   });
 
@@ -176,12 +156,10 @@ OO.Analytics.Framework = function()
    * order.
    * @public
    * @method OO.Analytics.Framework#getRecordedEvents
-   * @return {Array} Shallow copy of recordedEvents in chronological order.
+   * @returns {Array} Shallow copy of recordedEvents in chronological order.
    */
-  this.getRecordedEvents = function()
-  {
-    if (_recordedEventList)
-    {
+  this.getRecordedEvents = function () {
+    if (_recordedEventList) {
       return _.clone(_recordedEventList);
     }
 
@@ -196,82 +174,60 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#registerPlugin
    * @param  {function} pluginFactory Plugin factory function
-   * @return {string}                 Returns a unique plugin id for this plugin factory.
+   * @returns {string}                 Returns a unique plugin id for this plugin factory.
    */
-  this.registerPlugin = function(pluginFactory)
-  {
-    var pluginID;
-    var plugin;
-    var errorOccured = false;
+  this.registerPlugin = function (pluginFactory) {
+    let pluginID;
+    let plugin;
+    let errorOccured = false;
 
-    //sanity check
-    if (!pluginFactory)
-    {
-      OO.log(createErrorString("Trying to register plugin class that is a falsy value."));
+    // sanity check
+    if (!pluginFactory) {
+      OO.log(createErrorString('Trying to register plugin class that is a falsy value.'));
       errorOccured = true;
     }
 
-    if (!errorOccured)
-    {
-      try
-      {
+    if (!errorOccured) {
+      try {
         plugin = new pluginFactory(this);
-      }
-      catch (error)
-      {
+      } catch (error) {
         OO.log(error);
-        OO.log(createErrorString("Error was thrown during plugin creation."))
+        OO.log(createErrorString('Error was thrown during plugin creation.'));
         errorOccured = true;
       }
     }
 
-    if (!errorOccured)
-    {
-      if (!this.validatePlugin(plugin))
-      {
+    if (!errorOccured) {
+      if (!this.validatePlugin(plugin)) {
         errorOccured = true;
-      }
-      else
-      {
-        //initialize the plugin. If we have metadata then give it to the plugin. Otherwise it will be sent in Analytics.Framework.setPluginMetadata;
-        safeFunctionCall(plugin, "init");
-        if (_pluginMetadata)
-        {
+      } else {
+        // initialize the plugin. If we have metadata then give it to the plugin. Otherwise it will be sent in Analytics.Framework.setPluginMetadata;
+        safeFunctionCall(plugin, 'init');
+        if (_pluginMetadata) {
           passMetadataToPlugin(plugin);
         }
       }
     }
 
-    if (!errorOccured)
-    {
+    if (!errorOccured) {
       pluginID = createPluginId(plugin);
-      if (!pluginID)
-      {
+      if (!pluginID) {
         errorOccured = true;
-      }
-      else if (!_registeredPlugins[pluginID])
-      {
-        _registeredPlugins[pluginID] = {factory:pluginFactory, instance:plugin, active:true};
-        safeFunctionCall(plugin, "setPluginID", [pluginID]);
+      } else if (!_registeredPlugins[pluginID]) {
+        _registeredPlugins[pluginID] = { factory: pluginFactory, instance: plugin, active: true };
+        safeFunctionCall(plugin, 'setPluginID', [pluginID]);
       }
     }
 
-    if (errorOccured)
-    {
-      if(pluginID)
-      {
-        OO.log(createErrorString("\'" + pluginID + "\' is not valid and was not registered."));
-      }
-      else
-      {
-        var pluginName = safeFunctionCall(plugin, "getName");
-        if (pluginName)
-        {
-          OO.log(createErrorString("\'" + pluginName + "\' is not valid and was not registered."));
-        }
-        else
-        {
-          OO.log(createErrorString("Plugin validation failed and was not registered."));
+    if (errorOccured) {
+      if (pluginID) {
+        OO.log(createErrorString(`\'${pluginID}\' is not valid and was not registered.`));
+      } else {
+        const pluginName = safeFunctionCall(plugin, 'getName');
+        if (pluginName) {
+          OO.log(createErrorString(`\'${pluginName}\' is not valid and was not registered.`));
+        } else {
+          OO.log(createErrorString('Plugin validation failed and was not registered.'));
         }
       }
     }
@@ -285,16 +241,14 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#unregisterPlugin
    * @param  {string}  pluginIDToRemove Plugin id to be removed
-   * @return {boolean}                  Return true if plugin was found and removed.
+   * @returns {boolean}                  Return true if plugin was found and removed.
    */
-  this.unregisterPlugin = function(pluginIDToRemove)
-  {
-    var removedSuccessfully = false;
+  this.unregisterPlugin = function (pluginIDToRemove) {
+    let removedSuccessfully = false;
 
-    if (pluginIDToRemove && _registeredPlugins && _registeredPlugins[pluginIDToRemove])
-    {
-      var plugin = getPluginInstance(pluginIDToRemove);
-      safeFunctionCall(plugin, "destroy");
+    if (pluginIDToRemove && _registeredPlugins && _registeredPlugins[pluginIDToRemove]) {
+      const plugin = getPluginInstance(pluginIDToRemove);
+      safeFunctionCall(plugin, 'destroy');
       delete _registeredPlugins[pluginIDToRemove];
       removedSuccessfully = true;
     }
@@ -307,86 +261,64 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#validatePlugin
    * @param  {object} plugin Plugin instance to be validated
-   * @return {boolean}       Return true if plugin contains all the correct functions.
+   * @returns {boolean}       Return true if plugin contains all the correct functions.
    */
-  this.validatePlugin = function(plugin)
-  {
-    var isValid = true;
-    if (!plugin)
-    {
+  this.validatePlugin = function (plugin) {
+    let isValid = true;
+    if (!plugin) {
       isValid = false;
-      OO.log(createErrorString("Plugin has falsy value and is not valid. Actual value: "), plugin);
+      OO.log(createErrorString('Plugin has falsy value and is not valid. Actual value: '), plugin);
     }
 
-    /////////////////////////////////////////////////////////////////////////////////////////////
-    ///IMPORTANT: This should be the only function to break the rule of using safeFunctionCall
-    ///           for calling plugin functions, since it's checking if the plugin is valid to
-    ///           begin with.
-    /////////////////////////////////////////////////////////////////////////////////////////////
+    // ///////////////////////////////////////////////////////////////////////////////////////////
+    // /IMPORTANT: This should be the only function to break the rule of using safeFunctionCall
+    // /           for calling plugin functions, since it's checking if the plugin is valid to
+    // /           begin with.
+    // ///////////////////////////////////////////////////////////////////////////////////////////
 
-    if (isValid)
-    {
-      //test if all required functions are in the plugin
-      for ( var i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++)
-      {
-        var reqFunc = OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i];
-        if(!plugin.hasOwnProperty(reqFunc) || typeof plugin[reqFunc] !== 'function')
-        {
+    if (isValid) {
+      // test if all required functions are in the plugin
+      for (let i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++) {
+        const reqFunc = OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i];
+        if (!plugin.hasOwnProperty(reqFunc) || typeof plugin[reqFunc] !== 'function') {
           isValid = false;
-          if(plugin.getName && typeof plugin.getName === 'function')
-          {
-            try
-            {
-              OO.log(createErrorString("Plugin \'" + plugin.getName() + "\' missing function: " + reqFunc));
+          if (plugin.getName && typeof plugin.getName === 'function') {
+            try {
+              OO.log(createErrorString(`Plugin \'${plugin.getName()}\' missing function: ${reqFunc}`));
+            } catch (e) {
+              OO.log(createErrorString(`Plugin missing function: ${reqFunc}`));
             }
-            catch(e)
-            {
-              OO.log(createErrorString("Plugin missing function: " + reqFunc));
-            }
-          }
-          else
-          {
-            OO.log(createErrorString("Plugin missing function: " + reqFunc));
+          } else {
+            OO.log(createErrorString(`Plugin missing function: ${reqFunc}`));
           }
           break;
         }
       }
 
-      //if it's still valid check whether the getName returns a non empty string
-      if (isValid)
-      {
-        try
-        {
-          var name = plugin.getName();
-          if (!name || !_.isString(name))
-          {
+      // if it's still valid check whether the getName returns a non empty string
+      if (isValid) {
+        try {
+          const name = plugin.getName();
+          if (!name || !_.isString(name)) {
             OO.log(createErrorString("Plugin does not have \'string\' as return type of getName() or is empty string"));
             isValid = false;
           }
-        }
-        catch (e)
-        {
-          OO.log(createErrorString("Plugin throws error on call to getName"));
+        } catch (e) {
+          OO.log(createErrorString('Plugin throws error on call to getName'));
           isValid = false;
         }
-
       }
 
-      //if it's still valid check whether the getVersion returns a non empty string
-      if (isValid)
-      {
-        try
-        {
-          var version = plugin.getVersion();
-          if (!version || !_.isString(version))
-          {
+      // if it's still valid check whether the getVersion returns a non empty string
+      if (isValid) {
+        try {
+          const version = plugin.getVersion();
+          if (!version || !_.isString(version)) {
             OO.log(createErrorString("Plugin does not have \'string\' as return type of getVersion() or is empty string"));
             isValid = false;
           }
-        }
-        catch(e)
-        {
-          OO.log(createErrorString("Plugin throws error on call to getVersion"));
+        } catch (e) {
+          OO.log(createErrorString('Plugin throws error on call to getVersion'));
           isValid = false;
         }
       }
@@ -398,15 +330,12 @@ OO.Analytics.Framework = function()
    * Get a list of plugin ids for the currently registered plugins.
    * @public
    * @method OO.Analytics.Framework#getPluginIDList
-   * @return {Array} An array of plugin IDs.
+   * @returns {Array} An array of plugin IDs.
    */
-  this.getPluginIDList = function()
-  {
-    var list = [];
-    if (_registeredPlugins)
-    {
-      for (var pluginID in _registeredPlugins)
-      {
+  this.getPluginIDList = function () {
+    const list = [];
+    if (_registeredPlugins) {
+      for (const pluginID in _registeredPlugins) {
         list.push(pluginID);
       }
     }
@@ -421,11 +350,9 @@ OO.Analytics.Framework = function()
    * @param  {string} pluginID The id of the plugin.
    * @return {object}          Returns the plugin instance.
    */
-  var getPluginInstance = privateMember(function(pluginID)
-  {
-    var toReturn;
-    if (_registeredPlugins && _registeredPlugins[pluginID])
-    {
+  var getPluginInstance = privateMember((pluginID) => {
+    let toReturn;
+    if (_registeredPlugins && _registeredPlugins[pluginID]) {
       toReturn = _registeredPlugins[pluginID].instance;
     }
     return toReturn;
@@ -436,15 +363,13 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#isPluginActive
    * @param {string}  pluginID Plugin id to check
-   * @return {boolean}         Returns true if plugin is active. If plugin isn't registered, it will return false.
+   * @returns {boolean}         Returns true if plugin is active. If plugin isn't registered, it will return false.
    */
-  this.isPluginActive = function(pluginID)
-  {
-    if (pluginID &&
-        _registeredPlugins &&
-        _registeredPlugins[pluginID] &&
-        _.isBoolean(_registeredPlugins[pluginID].active))
-    {
+  this.isPluginActive = function (pluginID) {
+    if (pluginID
+        && _registeredPlugins
+        && _registeredPlugins[pluginID]
+        && _.isBoolean(_registeredPlugins[pluginID].active)) {
       return _registeredPlugins[pluginID].active;
     }
     return false;
@@ -455,13 +380,11 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#makePluginActive
    * @param {string}   pluginID Plugin id to set to active
-   * @return {boolean}          Returns true if plugin found and was able to be activated.
+   * @returns {boolean}          Returns true if plugin found and was able to be activated.
    */
-  this.makePluginActive = function(pluginID)
-  {
-    var success = false;
-    if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
-    {
+  this.makePluginActive = function (pluginID) {
+    let success = false;
+    if (pluginID && _registeredPlugins && _registeredPlugins[pluginID]) {
       _registeredPlugins[pluginID].active = true;
       success = true;
     }
@@ -473,13 +396,11 @@ OO.Analytics.Framework = function()
    * @public
    * @method OO.Analytics.Framework#makePluginInactive
    * @param  {string}  pluginID Plugin id to set to inactive
-   * @return {boolean}          Returns true if plugin found and was able to be deactivated.
+   * @returns {boolean}          Returns true if plugin found and was able to be deactivated.
    */
-  this.makePluginInactive = function(pluginID)
-  {
-    var success = false;
-    if (pluginID && _registeredPlugins && _registeredPlugins[pluginID])
-    {
+  this.makePluginInactive = function (pluginID) {
+    let success = false;
+    if (pluginID && _registeredPlugins && _registeredPlugins[pluginID]) {
       _registeredPlugins[pluginID].active = false;
       success = true;
     }
@@ -493,25 +414,19 @@ OO.Analytics.Framework = function()
    * @param {object} eventObject The event key-value pair to flatten
    * @returns {string[]} An array of strings representing the flattened values of the object.
    */
-  this.flattenEvents = function(eventObject)
-  {
-    var eventArray = [];
-    var eventKeys = _.keys(eventObject);
-    for (var i = 0; i < eventKeys.length; i++)
-    {
-      var eventKey = eventKeys[i];
-      var eventValue = eventObject[eventKey];
-      if (typeof eventValue === "object")
-      {
-        var innerEvents = this.flattenEvents(eventValue);
-        for (var j = 0; j < innerEvents.length; j++)
-        {
-          var innerEvent = innerEvents[j];
+  this.flattenEvents = function (eventObject) {
+    const eventArray = [];
+    const eventKeys = _.keys(eventObject);
+    for (let i = 0; i < eventKeys.length; i++) {
+      const eventKey = eventKeys[i];
+      const eventValue = eventObject[eventKey];
+      if (typeof eventValue === 'object') {
+        const innerEvents = this.flattenEvents(eventValue);
+        for (let j = 0; j < innerEvents.length; j++) {
+          const innerEvent = innerEvents[j];
           eventArray.push(innerEvent);
         }
-      }
-      else
-      {
+      } else {
         eventArray.push(eventValue);
       }
     }
@@ -524,16 +439,13 @@ OO.Analytics.Framework = function()
    * @method OO.Analytics.Framework#createEventDictionary
    * @returns {object|null} The created events dictionary. Returns null if there are any errors.
    */
-  this.createEventDictionary = function()
-  {
-    var eventDictionary = null;
-    var eventArray = this.flattenEvents(OO.Analytics.EVENTS);
-    if (eventArray && eventArray instanceof Array)
-    {
+  this.createEventDictionary = function () {
+    let eventDictionary = null;
+    const eventArray = this.flattenEvents(OO.Analytics.EVENTS);
+    if (eventArray && eventArray instanceof Array) {
       eventDictionary = {};
-      for (var i = 0; i < eventArray.length; i++)
-      {
-        var eventName = eventArray[i];
+      for (let i = 0; i < eventArray.length; i++) {
+        const eventName = eventArray[i];
         eventDictionary[eventName] = true;
       }
     }
@@ -542,70 +454,59 @@ OO.Analytics.Framework = function()
 
   _eventExistenceLookup = this.createEventDictionary();
 
-   /**
+  /**
     * The analytics framework will stop publishing events to registered plugins
     * when the publishEvent() method is called. The events will also not be recorded.
     * @public
     * @method OO.Analytics.Framework#stopPublishingEvents
     */
-   this.stopPublishingEvents = function()
-   {
-     _isPublishingEvents = false;
-   };
+  this.stopPublishingEvents = function () {
+    _isPublishingEvents = false;
+  };
 
-   /**
+  /**
     * The analytics framework will resume publishing events to registered plugins
     * and recording events can resume.
     * @public
     * @method OO.Analytics.Framework#resumePublishingEvents
     */
-   this.resumePublishingEvents = function()
-   {
-     _isPublishingEvents = true;
-   };
+  this.resumePublishingEvents = function () {
+    _isPublishingEvents = true;
+  };
   /**
    * Publish an event to all registered and active plugins.
    * @public
    * @method OO.Analytics.Framework#publishEvent
    * @param  {string} eventName Name of event to publish
    * @param  {Array}  params    Parameters to pass along with the event.
-   * @return {boolean}          Return true if message is in OO.Analytics.EVENTS and was successfully published.
+   * @returns {boolean}          Return true if message is in OO.Analytics.EVENTS and was successfully published.
    */
-  this.publishEvent = function(eventName, params)
-  {
-    if (!_isPublishingEvents)
-    {
+  this.publishEvent = function (eventName, params) {
+    if (!_isPublishingEvents) {
       return false;
     }
 
-    var eventPublished = false;
-    if (_eventExistenceLookup[eventName])
-    {
-      //if the params don't come in as an Array then create an empty array to pass in for everything.
-      if (!_.isArray(params))
-      {
+    let eventPublished = false;
+    if (_eventExistenceLookup[eventName]) {
+      // if the params don't come in as an Array then create an empty array to pass in for everything.
+      if (!_.isArray(params)) {
         params = [];
       }
-      //record the message
-      if(_recording)
-      {
+      // record the message
+      if (_recording) {
         recordEvent(eventName, params);
       }
-      //propogate the message to all active plugins.
-      var pluginID;
-      for (pluginID in _registeredPlugins)
-      {
-        if (this.isPluginActive(pluginID))
-        {
-          var plugin = getPluginInstance(pluginID);
-          safeFunctionCall(plugin, "processEvent",[eventName, params]);
+      // propogate the message to all active plugins.
+      let pluginID;
+      for (pluginID in _registeredPlugins) {
+        if (this.isPluginActive(pluginID)) {
+          const plugin = getPluginInstance(pluginID);
+          safeFunctionCall(plugin, 'processEvent', [eventName, params]);
         }
       }
       eventPublished = true;
-    }
-    else
-    {
-      OO.log(createErrorString("Event \'" + eventName + "\' being published and it's not in the list of OO.Analytics.EVENTS"));
+    } else {
+      OO.log(createErrorString(`Event \'${eventName}\' being published and it's not in the list of OO.Analytics.EVENTS`));
     }
     return eventPublished;
   };
@@ -619,36 +520,29 @@ OO.Analytics.Framework = function()
    * @param  {object} plugin Instance of plugin to create id for.
    * @return {string}        The plugin id.
    */
-  var createPluginId = privateMember(function(plugin)
-  {
-    var id = null;
-    var error;
-    //Plugin ID's are create using sequential numbers. Nothing fancy but this
-    //way the framework can keep track of how many have been registered. There is
-    //a chance that someone could have an infinite loop where plugins get registered
-    //unregistered all the time, so this will output some error messages to help
-    //debug that.
-    if (plugin)
-    {
-      var name = safeFunctionCall(plugin, "getName");
-      var version = safeFunctionCall(plugin, "getVersion");
-      if (name && version)
-      {
-        id = _uniquePluginId + "_" + name + "_" + version;
-        //we shouldn't have any naming conflicts but just in case, throw an error
-        if (!_registeredPlugins[id])
-        {
+  var createPluginId = privateMember((plugin) => {
+    let id = null;
+    let error;
+    // Plugin ID's are create using sequential numbers. Nothing fancy but this
+    // way the framework can keep track of how many have been registered. There is
+    // a chance that someone could have an infinite loop where plugins get registered
+    // unregistered all the time, so this will output some error messages to help
+    // debug that.
+    if (plugin) {
+      const name = safeFunctionCall(plugin, 'getName');
+      const version = safeFunctionCall(plugin, 'getVersion');
+      if (name && version) {
+        id = `${_uniquePluginId}_${name}_${version}`;
+        // we shouldn't have any naming conflicts but just in case, throw an error
+        if (!_registeredPlugins[id]) {
           _uniquePluginId++;
-        }
-        else
-        {
-          OO.log(createErrorString("Failed to create a unique name for plugin " + name + "_" + version));
+        } else {
+          OO.log(createErrorString(`Failed to create a unique name for plugin ${name}_${version}`));
           id = null;
         }
 
-        if (_uniquePluginId > MAX_PLUGINS)
-        {
-          OO.log(createErrorString("You have tried to create more than " + MAX_PLUGINS + " unique plugin ids. There is probably an infinite loop or some other error."));
+        if (_uniquePluginId > MAX_PLUGINS) {
+          OO.log(createErrorString(`You have tried to create more than ${MAX_PLUGINS} unique plugin ids. There is probably an infinite loop or some other error.`));
         }
       }
     }
@@ -661,32 +555,28 @@ OO.Analytics.Framework = function()
    * @method OO.Analytics.Framework#passMetadataToPlugin
    * @param  {object} plugin The plugin instance to give the metadata to
    */
-  var passMetadataToPlugin = privateMember(function(plugin)
-  {
-    if (_pluginMetadata)
-    {
-      var pluginName = safeFunctionCall(plugin, "getName");
-      if (!pluginName)
-      {
-        OO.log(createErrorString("Trying to pass in metadata to plugin that does not have valid name"));
+  var passMetadataToPlugin = privateMember((plugin) => {
+    if (_pluginMetadata) {
+      const pluginName = safeFunctionCall(plugin, 'getName');
+      if (!pluginName) {
+        OO.log(createErrorString('Trying to pass in metadata to plugin that does not have valid name'));
         return;
       }
 
-      var metadataForThisPlugin = _pluginMetadata[pluginName];
-      safeFunctionCall(plugin, "setMetadata", [metadataForThisPlugin]);
+      const metadataForThisPlugin = _pluginMetadata[pluginName];
+      safeFunctionCall(plugin, 'setMetadata', [metadataForThisPlugin]);
     }
   });
 
- /**
+  /**
   * Helper function to create consistent error messages.
   * @private
   * @method OO.Analytics.Framework#createErrorString
   * @param  {string} errorDetails The error details.
-  * @return {string}              The new error message.
+  * @returns {string}              The new error message.
   */
-  var createErrorString = function(errorDetails)
-  {
-    return "ERROR Analytics Framework: " + errorDetails;
+  var createErrorString = function (errorDetails) {
+    return `ERROR Analytics Framework: ${errorDetails}`;
   };
 
   /**
@@ -705,33 +595,23 @@ OO.Analytics.Framework = function()
    * @param  {array}  params   The parameters to pass into the function.
    * @return {varies}          Returns the function's return value. If an error occurred, returns null.
    */
-  var safeFunctionCall = privateMember(function(plugin, funcName, params)
-  {
-    if (OO.DEBUG)
-    {
+  var safeFunctionCall = privateMember((plugin, funcName, params) => {
+    if (OO.DEBUG) {
       debugCheckFunctionIsInRequiredList(funcName);
     }
 
-    try
-    {
-      if (_.isFunction(plugin[funcName]))
-      {
+    try {
+      if (_.isFunction(plugin[funcName])) {
         return plugin[funcName].apply(plugin, params);
       }
-    }
-    catch (err)
-    {
-      try
-      {
-        if (plugin && _.isFunction(plugin.getName))
-        {
-          OO.log(createErrorString("Error occurred during call to function \'" + funcName + "\' on plugin \'" + plugin.getName() + "\'\n"));
+    } catch (err) {
+      try {
+        if (plugin && _.isFunction(plugin.getName)) {
+          OO.log(createErrorString(`Error occurred during call to function \'${funcName}\' on plugin \'${plugin.getName()}\'\n`));
           OO.log(err);
         }
-      }
-      catch(e)
-      {
-        OO.log(createErrorString("Error occurred during call to function \'" + funcName + "\' on plugin\n", err));
+      } catch (e) {
+        OO.log(createErrorString(`Error occurred during call to function \'${funcName}\' on plugin\n`, err));
       }
     }
 
@@ -745,14 +625,12 @@ OO.Analytics.Framework = function()
    * @method OO.Analytics.Framework#safeFunctionCall
    * @param  {string} funcName Name of the function to check.
    */
-  var debugCheckFunctionIsInRequiredList = privateMember(function(funcName)
-  {
-    if(!_.contains(OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS, funcName))
-    {
-      OO.log(createErrorString("Calling function \'" + funcName + "\' in framework code and it's not in the REQUIRED_PLUGIN_FUNCTIONS list."));
+  var debugCheckFunctionIsInRequiredList = privateMember((funcName) => {
+    if (!_.contains(OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS, funcName)) {
+      OO.log(createErrorString(`Calling function \'${funcName}\' in framework code and it's not in the REQUIRED_PLUGIN_FUNCTIONS list.`));
     }
   });
 
-  //Register this instance so it will register all the plugin factories currently loaded.
+  // Register this instance so it will register all the plugin factories currently loaded.
   OO.Analytics.RegisterFrameworkInstance(this);
 };

@@ -1,50 +1,48 @@
-require("../framework/InitAnalyticsNamespace.js");
-require("../../html5-common/js/utils/utils.js");
+require('../framework/InitAnalyticsNamespace.js');
+require('../../html5-common/js/utils/utils.js');
 
 /**
  * @class ConvivaAnalyticsPlugin
  * @classdesc Conviva SDK plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
-var ConvivaAnalyticsPlugin = function(framework)
-{
-  var _framework = framework;
-  var name = "conviva";
-  var version = "v1";
-  var id;
+const ConvivaAnalyticsPlugin = function (framework) {
+  let _framework = framework;
+  const name = 'conviva';
+  const version = 'v1';
+  let id;
 
-  var OOYALA_PLAYER_VENDOR = "Ooyala";
-  var OOYALA_PLAYER_VERSION = "";
+  const OOYALA_PLAYER_VENDOR = 'Ooyala';
+  const OOYALA_PLAYER_VERSION = '';
 
-  var currentConvivaSessionKey = null;
-  var streamUrl = null;
-  var streamType = null;
-  var embedCode = null;
-  var videoContentMetadata = null;
-  var convivaMetadata = null;
-  var systemFactory = null;
-  var convivaClient = null;
-  var playerStateManager = null;
+  let currentConvivaSessionKey = null;
+  let streamUrl = null;
+  let streamType = null;
+  let embedCode = null;
+  let videoContentMetadata = null;
+  let convivaMetadata = null;
+  let systemFactory = null;
+  let convivaClient = null;
+  let playerStateManager = null;
 
-  var currentPlayhead = -1;
-  var paused = false;
-  var buffering = false;
-  var inAdBreak = false;
-  var contentComplete = false;
-  var playRequested = false;
+  let currentPlayhead = -1;
+  let paused = false;
+  let buffering = false;
+  let inAdBreak = false;
+  let contentComplete = false;
+  let playRequested = false;
 
   // Below is used for reference only
-  var OOYALA_TOUCHSTONE_SERVICE_URL = "https://ooyala-test.testonly.conviva.com";
-  var CURRENT_CONVIVA_JS_SDK_VERSION = "Conviva_SDK_JavaScript_2.91.0.24548";
+  const OOYALA_TOUCHSTONE_SERVICE_URL = 'https://ooyala-test.testonly.conviva.com';
+  const CURRENT_CONVIVA_JS_SDK_VERSION = 'Conviva_SDK_JavaScript_2.91.0.24548';
 
   /**
    * [Required Function] Return the name of the plugin.
    * @public
    * @method ConvivaAnalyticsPlugin#getName
-   * @return {string} The name of the plugin.
+   * @returns {string} The name of the plugin.
    */
-  this.getName = function()
-  {
+  this.getName = function () {
     return name;
   };
 
@@ -52,10 +50,9 @@ var ConvivaAnalyticsPlugin = function(framework)
    * [Required Function] Return the version string of the plugin.
    * @public
    * @method ConvivaAnalyticsPlugin#getVersion
-   * @return {string} The version of the plugin.
+   * @returns {string} The version of the plugin.
    */
-  this.getVersion = function()
-  {
+  this.getVersion = function () {
     return version;
   };
 
@@ -66,8 +63,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @method ConvivaAnalyticsPlugin#setPluginID
    * @param  {string} newID The plugin id
    */
-  this.setPluginID = function(newID)
-  {
+  this.setPluginID = function (newID) {
     id = newID;
   };
 
@@ -75,10 +71,9 @@ var ConvivaAnalyticsPlugin = function(framework)
    * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
    * @public
    * @method ConvivaAnalyticsPlugin#setPluginID
-   * @return  {string} The pluginID assigned to this instance from the Analytics Framework.
+   * @returns  {string} The pluginID assigned to this instance from the Analytics Framework.
    */
-  this.getPluginID = function()
-  {
+  this.getPluginID = function () {
     return id;
   };
 
@@ -87,22 +82,19 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @public
    * @method ConvivaAnalyticsPlugin#init
    */
-  this.init = function()
-  {
-    var missedEvents;
-    if (_framework && _.isFunction(_framework.getRecordedEvents))
-    {
+  this.init = function () {
+    let missedEvents;
+    if (_framework && _.isFunction(_framework.getRecordedEvents)) {
       missedEvents = _framework.getRecordedEvents();
-      _.each(missedEvents, _.bind(function(recordedEvent)
-      {
-        //recordedEvent.timeStamp;
+      _.each(missedEvents, _.bind(function (recordedEvent) {
+        // recordedEvent.timeStamp;
         this.processEvent(recordedEvent.eventName, recordedEvent.params);
       }, this));
     }
 
-    //Conviva wants to know when sessions end when the page is closed
-    //Adding this beforeunload event listener as a failsafe
-    window.addEventListener('beforeunload', _.bind(function(){
+    // Conviva wants to know when sessions end when the page is closed
+    // Adding this beforeunload event listener as a failsafe
+    window.addEventListener('beforeunload', _.bind(function () {
       this.destroy();
     }, this));
   };
@@ -115,26 +107,23 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#trySetupConviva
    */
-  var trySetupConviva = function()
-  {
-    if (convivaMetadata && sdkLoaded())
-    {
-      if (!systemFactory)
-      {
-        var systemInterface = new Conviva.SystemInterface(
+  const trySetupConviva = function () {
+    if (convivaMetadata && sdkLoaded()) {
+      if (!systemFactory) {
+        const systemInterface = new Conviva.SystemInterface(
           new Html5Time(),
           new Html5Timer(),
           new Html5Http(),
           new Html5Storage(),
           new Html5Metadata(),
-          new Html5Logging()
+          new Html5Logging(),
         );
 
-        var systemSettings = getSystemSettings();
+        const systemSettings = getSystemSettings();
         systemFactory = new Conviva.SystemFactory(systemInterface, systemSettings);
       }
 
-      var clientSettings = getClientSettings();
+      const clientSettings = getClientSettings();
       convivaClient = new Conviva.Client(clientSettings, systemFactory);
 
       tryBuildConvivaContentMetadata();
@@ -147,9 +136,8 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @method ConvivaAnalyticsPlugin#getSystemSettings
    * @returns {object} An instance of Conviva's SystemSettings
    */
-  var getSystemSettings = function()
-  {
-    var systemSettings = new Conviva.SystemSettings();
+  var getSystemSettings = function () {
+    const systemSettings = new Conviva.SystemSettings();
     // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.ERROR; // default
     // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
     // systemSettings.allowUncaughtExceptions = false; // default
@@ -162,9 +150,8 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @method ConvivaAnalyticsPlugin#getClientSettings
    * @returns {object} An instance of Conviva's ClientSettings
    */
-  var getClientSettings = function()
-  {
-    var clientSettings = new Conviva.ClientSettings(convivaMetadata.customerKey);
+  var getClientSettings = function () {
+    const clientSettings = new Conviva.ClientSettings(convivaMetadata.customerKey);
     // clientSettings.heartbeatInterval = 20; // default
     // clientSettings.gatewayUrl = credentials.gatewayUrl; // default
     clientSettings.gatewayUrl = convivaMetadata.gatewayUrl;
@@ -177,16 +164,14 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#clearLastSession
    */
-  var clearLastSession = function()
-  {
-    if (validSession())
-    {
+  const clearLastSession = function () {
+    if (validSession()) {
       // convivaClient.detachPlayer(currentConvivaSessionKey);
       convivaClient.cleanupSession(currentConvivaSessionKey);
       currentConvivaSessionKey = Conviva.Client.NO_SESSION_KEY;
     }
 
-    //TODO: Find out when to release player state manager
+    // TODO: Find out when to release player state manager
     // if (playerStateManager)
     // {
     //   playerStateManager.release();
@@ -203,16 +188,14 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @method ConvivaAnalyticsPlugin#tryBuildConvivaContentMetadata
    * @returns {boolean} true if the Conviva Content Metadata and Session was created, false otherwise
    */
-  var tryBuildConvivaContentMetadata = function()
-  {
-    var success = false;
-    if (playRequested && videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession())
-    {
+  var tryBuildConvivaContentMetadata = function () {
+    let success = false;
+    if (playRequested && videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession()) {
       playerStateManager = convivaClient.getPlayerStateManager();
-      var contentMetadata = new Conviva.ContentMetadata();
+      const contentMetadata = new Conviva.ContentMetadata();
 
       // Recommended format for the assetName, using both the ID of the video content and its title
-      contentMetadata.assetName = "[" + embedCode + "] " + videoContentMetadata.title;
+      contentMetadata.assetName = `[${embedCode}] ${videoContentMetadata.title}`;
 
       // The stream url for this video content.
       // For manifest-based streaming protocols, it should point to the top-level manifest.
@@ -227,7 +210,7 @@ var ConvivaAnalyticsPlugin = function(framework)
       // If this information is available to your application from your Content Management System,
       // you can supply it here.
       // Otherwise, the PlayerInterface will have to extract it from the video player.
-      contentMetadata.duration = Math.round(videoContentMetadata.duration/1000); // in seconds
+      contentMetadata.duration = Math.round(videoContentMetadata.duration / 1000); // in seconds
 
       // Frame rate this particular video stream was encoded at.
       // If this information is available to your application from your Content Management System,
@@ -251,9 +234,8 @@ var ConvivaAnalyticsPlugin = function(framework)
       // A human-readable identifier for your application.
       // Very helpful to filter traffic and compare performance for different builds of
       // the video application.
-      var appName = convivaMetadata["applicationName"];
-      if (_.isString(appName))
-      {
+      const appName = convivaMetadata.applicationName;
+      if (_.isString(appName)) {
         contentMetadata.applicationName = appName;
       }
 
@@ -262,13 +244,12 @@ var ConvivaAnalyticsPlugin = function(framework)
       // video quality assessements/troubleshooting for that particular user.
       // contentMetadata.viewerId = userData.id;
 
-      var customMetadata = {};
+      let customMetadata = {};
       customMetadata.playerVendor = OOYALA_PLAYER_VENDOR;
       customMetadata.playerVersion = OOYALA_PLAYER_VERSION;
 
-      customMetadata = _.extend(customMetadata, convivaMetadata["customMetadata"]);
-      if (validateCustomMetadata(customMetadata))
-      {
+      customMetadata = _.extend(customMetadata, convivaMetadata.customMetadata);
+      if (validateCustomMetadata(customMetadata)) {
         contentMetadata.custom = customMetadata;
       }
 
@@ -283,7 +264,7 @@ var ConvivaAnalyticsPlugin = function(framework)
       currentConvivaSessionKey = convivaClient.createSession(contentMetadata);
       convivaClient.attachPlayer(currentConvivaSessionKey, playerStateManager);
 
-      //Track stop initially
+      // Track stop initially
       trackStop();
       success = true;
     }
@@ -296,8 +277,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @method ConvivaAnalyticsPlugin#sdkLoaded
    * @returns {boolean} True if the SDK is loaded, false otherwise
    */
-  var sdkLoaded = function()
-  {
+  var sdkLoaded = function () {
     return !!window.Conviva;
   };
 
@@ -308,8 +288,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @param  {object} metadata The Conviva custom metadata to validate
    * @returns {boolean} true if valid, false otherwise
    */
-  var validateCustomMetadata = function(metadata)
-  {
+  var validateCustomMetadata = function (metadata) {
     return _.isObject(metadata);
   };
 
@@ -321,37 +300,29 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @param  {object} metadata The Conviva page level metadata to validate
    * @returns true if valid, false otherwise
    */
-  var validateConvivaMetadata = function(metadata)
-  {
-    var valid = true;
-    var requiredKeys = ["gatewayUrl", "customerKey"];
+  const validateConvivaMetadata = function (metadata) {
+    let valid = true;
+    const requiredKeys = ['gatewayUrl', 'customerKey'];
 
-    var missingKeys = [];
+    let missingKeys = [];
 
-    if (metadata)
-    {
-      _.each(requiredKeys, function(key)
-      {
-        if (!_.has(metadata, key))
-        {
+    if (metadata) {
+      _.each(requiredKeys, (key) => {
+        if (!_.has(metadata, key)) {
           missingKeys.push(key);
           valid = false;
         }
       });
-    }
-    else
-    {
-      OO.log("Error: Missing Conviva Metadata!");
+    } else {
+      OO.log('Error: Missing Conviva Metadata!');
       missingKeys = requiredKeys;
       valid = false;
     }
 
 
-    if(!_.isEmpty(missingKeys))
-    {
-      _.each(missingKeys, function(key)
-      {
-        OO.log("Error: Missing Conviva Metadata Key: " + key);
+    if (!_.isEmpty(missingKeys)) {
+      _.each(missingKeys, (key) => {
+        OO.log(`Error: Missing Conviva Metadata Key: ${key}`);
       });
     }
 
@@ -364,15 +335,11 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @method ConvivaAnalyticsPlugin#setMetadata
    * @param  {object} metadata The metadata for this plugin
    */
-  this.setMetadata = function(metadata)
-  {
-    if (validateConvivaMetadata(metadata))
-    {
+  this.setMetadata = function (metadata) {
+    if (validateConvivaMetadata(metadata)) {
       convivaMetadata = metadata;
       trySetupConviva();
-    }
-    else
-    {
+    } else {
       this.destroy();
     }
   };
@@ -384,14 +351,11 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @param  {string} eventName Name of the event
    * @param  {Array} params     Array of parameters sent with the event
    */
-  this.processEvent = function(eventName, params)
-  {
-    OO.log( "Conviva: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
-    switch(eventName)
-    {
+  this.processEvent = function (eventName, params) {
+    OO.log(`Conviva: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    switch (eventName) {
       case OO.Analytics.EVENTS.VIDEO_ELEMENT_CREATED:
-        if (params && params[0] && params[0].streamUrl)
-        {
+        if (params && params[0] && params[0].streamUrl) {
           streamUrl = params[0].streamUrl;
           tryBuildConvivaContentMetadata();
         }
@@ -401,7 +365,7 @@ var ConvivaAnalyticsPlugin = function(framework)
         break;
       case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
         trackStop();
-        //Conviva docs say to end the session when the video has finished
+        // Conviva docs say to end the session when the video has finished
         clearLastSession();
         break;
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
@@ -421,15 +385,11 @@ var ConvivaAnalyticsPlugin = function(framework)
         trackBuffering();
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-        if (buffering)
-        {
+        if (buffering) {
           buffering = false;
-          if (paused)
-          {
+          if (paused) {
             trackPause();
-          }
-          else
-          {
+          } else {
             trackPlay();
           }
         }
@@ -446,25 +406,21 @@ var ConvivaAnalyticsPlugin = function(framework)
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         resetPlaybackState();
         clearLastSession();
-        if (params && params[0] && params[0].embedCode)
-        {
+        if (params && params[0] && params[0].embedCode) {
           resetContentState();
           embedCode = params[0].embedCode;
           tryBuildConvivaContentMetadata();
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
-        if (params && params[0])
-        {
+        if (params && params[0]) {
           videoContentMetadata = params[0];
           tryBuildConvivaContentMetadata();
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
-        if (params && params[0] && params[0].streamPosition)
-        {
-          if (!inAdBreak)
-          {
+        if (params && params[0] && params[0].streamPosition) {
+          if (!inAdBreak) {
             currentPlayhead = params[0].streamPosition;
           }
         }
@@ -482,29 +438,24 @@ var ConvivaAnalyticsPlugin = function(framework)
         trackAdEnd();
         break;
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
-        if (params && params[0])
-        {
-          //Retrieve the stream type here.
-          //Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
+        if (params && params[0]) {
+          // Retrieve the stream type here.
+          // Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
           streamType = params[0].streamType;
           tryBuildConvivaContentMetadata();
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_BITRATE_CHANGED:
-        if (params && params[0] && _.isNumber(params[0].bitrate))
-        {
-          if (!inAdBreak)
-          {
+        if (params && params[0] && _.isNumber(params[0].bitrate)) {
+          if (!inAdBreak) {
             trackBitrateChange(params[0].bitrate);
           }
         }
         break;
       case OO.Analytics.EVENTS.AD_ERROR:
-        if (params && params[0] && params[0].error)
-        {
-          var error = params[0].error;
-          if (playerStateManager)
-          {
+        if (params && params[0] && params[0].error) {
+          const { error } = params[0];
+          if (playerStateManager) {
             playerStateManager.sendError(error, Conviva.Client.ErrorSeverity.WARNING);
           }
         }
@@ -513,23 +464,18 @@ var ConvivaAnalyticsPlugin = function(framework)
       case OO.Analytics.EVENTS.ERROR.METADATA_LOADING:
       case OO.Analytics.EVENTS.ERROR.VIDEO_PLAYBACK:
       case OO.Analytics.EVENTS.ERROR.AUTHORIZATION:
-        if (params && params[0] && params[0].errorCode)
-        {
-          var errorCode = params[0].errorCode;
-          var errorMessage = params[0].errorMessage;
+        if (params && params[0] && params[0].errorCode) {
+          const { errorCode } = params[0];
+          const { errorMessage } = params[0];
 
-          var errorString = "";
-          if (errorMessage)
-          {
-            errorString = "Error Code: " + errorCode + ", Error Message: " + errorMessage;
-          }
-          else
-          {
-            errorString = "Error Code: " + errorCode;
+          let errorString = '';
+          if (errorMessage) {
+            errorString = `Error Code: ${errorCode}, Error Message: ${errorMessage}`;
+          } else {
+            errorString = `Error Code: ${errorCode}`;
           }
 
-          if (playerStateManager)
-          {
+          if (playerStateManager) {
             playerStateManager.sendError(errorString, Conviva.Client.ErrorSeverity.FATAL);
           }
         }
@@ -545,8 +491,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#resetPlaybackState
    */
-  var resetPlaybackState = function()
-  {
+  var resetPlaybackState = function () {
     currentPlayhead = -1;
     buffering = false;
     paused = false;
@@ -560,8 +505,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#resetContentState
    */
-  var resetContentState = function()
-  {
+  var resetContentState = function () {
     streamUrl = null;
     videoContentMetadata = null;
     embedCode = null;
@@ -572,26 +516,22 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @public
    * @method ConvivaAnalyticsPlugin#destroy
    */
-  this.destroy = function()
-  {
+  this.destroy = function () {
     _framework = null;
     resetPlaybackState();
     clearLastSession();
-    if (convivaClient)
-    {
+    if (convivaClient) {
       convivaClient.release();
       convivaClient = null;
     }
 
-    if (systemFactory)
-    {
+    if (systemFactory) {
       systemFactory.release();
       systemFactory = null;
     }
   };
 
-  var validSession = function()
-  {
+  var validSession = function () {
     return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null
            && typeof currentConvivaSessionKey !== 'undefined';
   };
@@ -601,8 +541,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#canTrack
    */
-  var canTrack = function()
-  {
+  const canTrack = function () {
     return playerStateManager && convivaClient && validSession();
   };
 
@@ -612,15 +551,11 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @method ConvivaAnalyticsPlugin#updatePlayerState
    * @param {string} state the Conviva.PlayerStateManager.PlayerState to update
    */
-  var updatePlayerState = function(state)
-  {
-    if (canTrack())
-    {
+  const updatePlayerState = function (state) {
+    if (canTrack()) {
       playerStateManager.setPlayerState(state);
-    }
-    else
-    {
-      OO.log("Conviva Plugin Error: trying to set player state when unable to with state " + state);
+    } else {
+      OO.log(`Conviva Plugin Error: trying to set player state when unable to with state ${state}`);
     }
   };
 
@@ -629,8 +564,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#trackPlay
    */
-  var trackPlay = function()
-  {
+  var trackPlay = function () {
     updatePlayerState(Conviva.PlayerStateManager.PlayerState.PLAYING);
   };
 
@@ -639,8 +573,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#trackPause
    */
-  var trackPause = function()
-  {
+  var trackPause = function () {
     updatePlayerState(Conviva.PlayerStateManager.PlayerState.PAUSED);
   };
 
@@ -649,8 +582,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#trackStop
    */
-  var trackStop = function()
-  {
+  var trackStop = function () {
     updatePlayerState(Conviva.PlayerStateManager.PlayerState.STOPPED);
   };
 
@@ -659,8 +591,7 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @ethod ConvivaAnalyticsPlugin#trackBuffering
    */
-  var trackBuffering = function()
-  {
+  var trackBuffering = function () {
     updatePlayerState(Conviva.PlayerStateManager.PlayerState.BUFFERING);
   };
 
@@ -670,11 +601,9 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @ethod ConvivaAnalyticsPlugin#trackBitrateChange
    * @param {number} bitrate The new bitrate of the main content in bps
    */
-  var trackBitrateChange = function(bitrate)
-  {
-    if (canTrack())
-    {
-      var kbpsBitrate = Math.round(bitrate/1000);
+  var trackBitrateChange = function (bitrate) {
+    if (canTrack()) {
+      const kbpsBitrate = Math.round(bitrate / 1000);
       playerStateManager.setBitrateKbps(kbpsBitrate);
     }
   };
@@ -684,31 +613,24 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#trackAdStart
    */
-  var trackAdStart = function()
-  {
-    if (canTrack())
-    {
-      var adPosition = null;
-      if (currentPlayhead <= 0)
-      {
-        OO.log("[Conviva-Ooyala] Playing preroll");
+  var trackAdStart = function () {
+    if (canTrack()) {
+      let adPosition = null;
+      if (currentPlayhead <= 0) {
+        OO.log('[Conviva-Ooyala] Playing preroll');
         adPosition = Conviva.Client.AdPosition.PREROLL;
-      }
-      else if (contentComplete)
-      {
-        OO.log("[Conviva-Ooyala] Playing postroll");
+      } else if (contentComplete) {
+        OO.log('[Conviva-Ooyala] Playing postroll');
         adPosition = Conviva.Client.AdPosition.POSTROLL;
-      }
-      else
-      {
-        OO.log("[Conviva-Ooyala] Playing midroll");
+      } else {
+        OO.log('[Conviva-Ooyala] Playing midroll');
         adPosition = Conviva.Client.AdPosition.MIDROLL;
       }
 
-      //TODO: If SSAI, use CONTENT instead of SEPARATE for adStream
-      var adStream = Conviva.Client.AdStream.SEPARATE;
-      //TODO: Determine when to use CONTENT instead of SEPARATE for adPlayer (iOS probably uses CONTENT because of singleElement)
-      var adPlayer = Conviva.Client.AdPlayer.SEPARATE;
+      // TODO: If SSAI, use CONTENT instead of SEPARATE for adStream
+      const adStream = Conviva.Client.AdStream.SEPARATE;
+      // TODO: Determine when to use CONTENT instead of SEPARATE for adPlayer (iOS probably uses CONTENT because of singleElement)
+      const adPlayer = Conviva.Client.AdPlayer.SEPARATE;
       convivaClient.adStart(currentConvivaSessionKey, adStream, adPlayer, adPosition);
     }
   };
@@ -718,32 +640,26 @@ var ConvivaAnalyticsPlugin = function(framework)
    * @private
    * @method ConvivaAnalyticsPlugin#trackAdEnd
    */
-  var trackAdEnd = function()
-  {
-    if (canTrack())
-    {
+  var trackAdEnd = function () {
+    if (canTrack()) {
       convivaClient.adEnd(currentConvivaSessionKey);
     }
   };
 };
 
-//Below implementations of system interface functions were pulled from the Conviva Sample App
+// Below implementations of system interface functions were pulled from the Conviva Sample App
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
 // Implements Conviva.HttpInterface for Chrome.
 
-function Html5Http()
-{
-
-  function _constr()
-  {
+function Html5Http() {
+  function _constr() {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.makeRequest = function(httpMethod, url, data, contentType, timeoutMs, callback)
-  {
+  this.makeRequest = function (httpMethod, url, data, contentType, timeoutMs, callback) {
     // XDomainRequest only exists in IE, and is IE8-IE9's way of making CORS requests.
     // It is present in IE10 but won't work right.
     // if (typeof XDomainRequest !== "undefined" && navigator.userAgent.indexOf('MSIE 10') === -1) {
@@ -752,45 +668,34 @@ function Html5Http()
     return this.makeRequestStandard.apply(this, arguments);
   };
 
-  this.makeRequestStandard = function(httpMethod, url, data, contentType, timeoutMs, callback)
-  {
-    var xmlHttpReq = new XMLHttpRequest();
+  this.makeRequestStandard = function (httpMethod, url, data, contentType, timeoutMs, callback) {
+    const xmlHttpReq = new XMLHttpRequest();
 
     xmlHttpReq.open(httpMethod, url, true);
 
-    if (contentType && xmlHttpReq.overrideMimeType)
-    {
+    if (contentType && xmlHttpReq.overrideMimeType) {
       xmlHttpReq.overrideMimeType = contentType;
     }
-    if (contentType && xmlHttpReq.setRequestHeader)
-    {
-      xmlHttpReq.setRequestHeader('Content-Type',  contentType);
+    if (contentType && xmlHttpReq.setRequestHeader) {
+      xmlHttpReq.setRequestHeader('Content-Type', contentType);
     }
-    if (timeoutMs > 0)
-    {
+    if (timeoutMs > 0) {
       xmlHttpReq.timeout = timeoutMs;
-      xmlHttpReq.ontimeout = function()
-      {
+      xmlHttpReq.ontimeout = function () {
         // Often this callback will be called after onreadystatechange.
         // The first callback called will cleanup the other to prevent duplicate responses.
         xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
-        if (callback) callback(false, "timeout after " + timeoutMs + " ms");
+        if (callback) callback(false, `timeout after ${timeoutMs} ms`);
       };
     }
 
-    xmlHttpReq.onreadystatechange = function()
-    {
-      if (xmlHttpReq.readyState === 4)
-      {
+    xmlHttpReq.onreadystatechange = function () {
+      if (xmlHttpReq.readyState === 4) {
         xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
-        if (xmlHttpReq.status == 200)
-        {
+        if (xmlHttpReq.status == 200) {
           if (callback) callback(true, xmlHttpReq.responseText);
-        }
-        else
-        {
-          if (callback) callback(false, "http status " + xmlHttpReq.status);
-        }
+        } else
+        if (callback) callback(false, `http status ${xmlHttpReq.status}`);
       }
     };
 
@@ -831,48 +736,37 @@ function Html5Http()
   //    return null; // no way to cancel the request
   //   };
 
-  this.release = function()
-  {
+  this.release = function () {
     // nothing to release
   };
-
 }
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
 // Implements Conviva.LoggingInterface for Chrome.
 
-function Html5Logging()
-{
-
-  function _constr()
-  {
+function Html5Logging() {
+  function _constr() {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.consoleLog = function(message, logLevel)
-  {
+  this.consoleLog = function (message, logLevel) {
     if (typeof console === 'undefined') return;
-    if (console.log && logLevel === Conviva.SystemSettings.LogLevel.DEBUG ||
-      logLevel === Conviva.SystemSettings.LogLevel.INFO)
-    {
+    if (console.log && logLevel === Conviva.SystemSettings.LogLevel.DEBUG
+      || logLevel === Conviva.SystemSettings.LogLevel.INFO) {
       console.log(message);
-    } else if (console.warn && logLevel === Conviva.SystemSettings.LogLevel.WARNING)
-    {
+    } else if (console.warn && logLevel === Conviva.SystemSettings.LogLevel.WARNING) {
       console.warn(message);
-    } else if (console.error && logLevel === Conviva.SystemSettings.LogLevel.ERROR)
-    {
+    } else if (console.error && logLevel === Conviva.SystemSettings.LogLevel.ERROR) {
       console.error(message);
     }
   };
 
-  this.release = function()
-  {
+  this.release = function () {
     // nothing to release
   };
-
 }
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
@@ -885,87 +779,71 @@ function Html5Logging()
 // If you wish you can maintain your own user agent string parsing on the client side
 // instead, and use it to supply the requested Conviva data.
 
-function Html5Metadata()
-{
-
-  function _constr()
-  {
+function Html5Metadata() {
+  function _constr() {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getBrowserName = function()
-  {
+  this.getBrowserName = function () {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getBrowserVersion = function()
-  {
+  this.getBrowserVersion = function () {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceBrand = function()
-  {
+  this.getDeviceBrand = function () {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceManufacturer = function()
-  {
+  this.getDeviceManufacturer = function () {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceModel = function()
-  {
+  this.getDeviceModel = function () {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getDeviceType = function()
-  {
+  this.getDeviceType = function () {
     return null;
   };
 
   // There is no value we can access that qualifies as the device version.
-  this.getDeviceVersion = function()
-  {
+  this.getDeviceVersion = function () {
     return null;
   };
 
   // HTML5 can qualify as an application framework of sorts.
-  this.getFrameworkName = function()
-  {
-    return "HTML5";
+  this.getFrameworkName = function () {
+    return 'HTML5';
   };
 
   // No convenient way to detect HTML5 version.
-  this.getFrameworkVersion = function()
-  {
+  this.getFrameworkVersion = function () {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getOperatingSystemName = function()
-  {
+  this.getOperatingSystemName = function () {
     return null;
   };
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
-  this.getOperatingSystemVersion = function()
-  {
+  this.getOperatingSystemVersion = function () {
     return null;
   };
 
-  this.release = function()
-  {
+  this.release = function () {
     // nothing to release
   };
-
 }
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
@@ -975,73 +853,55 @@ function Html5Metadata()
 // HTML5 localStorage relies on a single key to index items,
 // so we find a consistent way to combine storageSpace and storageKey.
 
-function Html5Storage()
-{
-
-  function _constr()
-  {
+function Html5Storage() {
+  function _constr() {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.saveData = function(storageSpace, storageKey, data, callback)
-  {
-    var localStorageKey = storageSpace + "." + storageKey;
-    try
-    {
+  this.saveData = function (storageSpace, storageKey, data, callback) {
+    const localStorageKey = `${storageSpace}.${storageKey}`;
+    try {
       localStorage.setItem(localStorageKey, data);
       callback(true, null);
-    }
-    catch (e)
-    {
+    } catch (e) {
       callback(false, e.toString());
     }
   };
 
-  this.loadData = function(storageSpace, storageKey, callback)
-  {
-    var localStorageKey = storageSpace + "." + storageKey;
-    try
-    {
-      var data = localStorage.getItem(localStorageKey);
+  this.loadData = function (storageSpace, storageKey, callback) {
+    const localStorageKey = `${storageSpace}.${storageKey}`;
+    try {
+      const data = localStorage.getItem(localStorageKey);
       callback(true, data);
-    }
-    catch (e)
-    {
+    } catch (e) {
       callback(false, e.toString());
     }
   };
 
-  this.release = function()
-  {
+  this.release = function () {
     // nothing to release
   };
-
 }
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
 // Implements Conviva.TimeInterface for Chrome.
 
-function Html5Time()
-{
-
-  function _constr()
-  {
+function Html5Time() {
+  function _constr() {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.getEpochTimeMs = function()
-  {
-    var d = new Date();
+  this.getEpochTimeMs = function () {
+    const d = new Date();
     return d.getTime();
   };
 
-  this.release = function()
-  {
+  this.release = function () {
     // nothing to release
   };
 }
@@ -1055,23 +915,17 @@ function Html5Time()
 // Some JavaScript implementations do not have setInterval, in which case
 // you may have to write it yourself using setTimeout.
 
-function Html5Timer()
-{
-
-  function _constr()
-  {
+function Html5Timer() {
+  function _constr() {
     // nothing to initialize
   }
 
   _constr.apply(this, arguments);
 
-  this.createTimer = function(timerAction, intervalMs, actionName)
-  {
-    var timerId = setInterval(timerAction, intervalMs);
-    var cancelTimerFunc = (function()
-    {
-      if (timerId !== -1)
-      {
+  this.createTimer = function (timerAction, intervalMs, actionName) {
+    let timerId = setInterval(timerAction, intervalMs);
+    const cancelTimerFunc = (function () {
+      if (timerId !== -1) {
         clearInterval(timerId);
         timerId = -1;
       }
@@ -1079,14 +933,13 @@ function Html5Timer()
     return cancelTimerFunc;
   };
 
-  this.release = function()
-  {
+  this.release = function () {
     // nothing to release
   };
 }
 
-//Add the template to the global list of factories for all new instances of the framework
-//and register the template with all current instance of the framework.
+// Add the template to the global list of factories for all new instances of the framework
+// and register the template with all current instance of the framework.
 OO.Analytics.RegisterPluginFactory(ConvivaAnalyticsPlugin);
 
 module.exports = ConvivaAnalyticsPlugin;

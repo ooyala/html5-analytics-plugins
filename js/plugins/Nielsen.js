@@ -1,57 +1,55 @@
-require("../framework/InitAnalyticsNamespace.js");
-require("../../html5-common/js/utils/utils.js");
+require('../framework/InitAnalyticsNamespace.js');
+require('../../html5-common/js/utils/utils.js');
 
 /**
  * @class NielsenAnalyticsPlugin
  * @classdesc Nielsen SDK plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
-var NielsenAnalyticsPlugin = function (framework)
-{
-  var _framework = framework;
-  var name = "Nielsen";
-  var version = "v1";
-  var id;
+const NielsenAnalyticsPlugin = function (framework) {
+  let _framework = framework;
+  const name = 'Nielsen';
+  const version = 'v1';
+  let id;
 
-  var contentDuration = -1;
-  var currentPlayhead = 0;
-  var currentAdPlayhead = 0;
-  var mainContentStarted = false;
-  var inAdBreak = false;
-  var adStarted = false;
-  var embedCode = null;
-  var lastPlayheadUpdate = -1;
-  var contentMetadata = {};
-  var contentComplete = false;
-  var loadContentMetadataAfterAd = false;
-  //TODO: ID3 tags
+  let contentDuration = -1;
+  let currentPlayhead = 0;
+  let currentAdPlayhead = 0;
+  let mainContentStarted = false;
+  let inAdBreak = false;
+  let adStarted = false;
+  const embedCode = null;
+  let lastPlayheadUpdate = -1;
+  const contentMetadata = {};
+  let contentComplete = false;
+  let loadContentMetadataAfterAd = false;
+  // TODO: ID3 tags
 
-  var nSdkInstance = null;
-  var nielsenMetadata = null;
+  let nSdkInstance = null;
+  let nielsenMetadata = null;
 
-  var storedEvents = [];
+  const storedEvents = [];
 
-  var DCR_EVENT = {
-    INITIAL_LOAD_METADATA: 3, //to be used for content before prerolls
+  const DCR_EVENT = {
+    INITIAL_LOAD_METADATA: 3, // to be used for content before prerolls
     STOP: 7,
     LOAD_METADATA: 15,
     SET_PLAYHEAD_POSITION: 49,
-    END: 57
+    END: 57,
   };
 
-  var PLAYHEAD_UPDATE_INTERVAL = 1000; //milliseconds
-  var SDK_LOAD_TIMEOUT = 3000;
-  
+  const PLAYHEAD_UPDATE_INTERVAL = 1000; // milliseconds
+  const SDK_LOAD_TIMEOUT = 3000;
+
   this.testMode = false;
 
   /**
    * [Required Function] Return the name of the plugin.
    * @public
    * @method NielsenAnalyticsPlugin#getName
-   * @return {string} The name of the plugin.
+   * @returns {string} The name of the plugin.
    */
-  this.getName = function ()
-  {
+  this.getName = function () {
     return name;
   };
 
@@ -59,10 +57,9 @@ var NielsenAnalyticsPlugin = function (framework)
    * [Required Function] Return the version string of the plugin.
    * @public
    * @method NielsenAnalyticsPlugin#getVersion
-   * @return {string} The version of the plugin.
+   * @returns {string} The version of the plugin.
    */
-  this.getVersion = function ()
-  {
+  this.getVersion = function () {
     return version;
   };
 
@@ -73,8 +70,7 @@ var NielsenAnalyticsPlugin = function (framework)
    * @method NielsenAnalyticsPlugin#setPluginID
    * @param  {string} newID The plugin id
    */
-  this.setPluginID = function(newID)
-  {
+  this.setPluginID = function (newID) {
     id = newID;
   };
 
@@ -82,10 +78,9 @@ var NielsenAnalyticsPlugin = function (framework)
    * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
    * @public
    * @method NielsenAnalyticsPlugin#setPluginID
-   * @return  {string} The pluginID assigned to this instance from the Analytics Framework.
+   * @returns  {string} The pluginID assigned to this instance from the Analytics Framework.
    */
-  this.getPluginID = function()
-  {
+  this.getPluginID = function () {
     return id;
   };
 
@@ -94,24 +89,20 @@ var NielsenAnalyticsPlugin = function (framework)
    * @public
    * @method NielsenAnalyticsPlugin#init
    */
-  this.init = function()
-  {
-    //TODO: Test Missed events
-    var missedEvents;
-    if (_framework && _.isFunction(_framework.getRecordedEvents))
-    {
-     missedEvents = _framework.getRecordedEvents();
-     _.each(missedEvents, _.bind(function (recordedEvent)
-     {
-       //recordedEvent.timeStamp;
-       this.processEvent(recordedEvent.eventName, recordedEvent.params);
-     }, this));
+  this.init = function () {
+    // TODO: Test Missed events
+    let missedEvents;
+    if (_framework && _.isFunction(_framework.getRecordedEvents)) {
+      missedEvents = _framework.getRecordedEvents();
+      _.each(missedEvents, _.bind(function (recordedEvent) {
+        // recordedEvent.timeStamp;
+        this.processEvent(recordedEvent.eventName, recordedEvent.params);
+      }, this));
     }
 
-    //If SDK is not loaded by now, load SDK
-    if (!window.NOLCMB)
-    {
-      OO.loadScriptOnce("//cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js", trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
+    // If SDK is not loaded by now, load SDK
+    if (!window.NOLCMB) {
+      OO.loadScriptOnce('//cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js', trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
   };
 
@@ -122,28 +113,25 @@ var NielsenAnalyticsPlugin = function (framework)
    * @method NielsenAnalyticsPlugin#trySetupNielsen
    * @returns {boolean} Whether or not the setup was a success
    */
-  var trySetupNielsen = function()
-  {
-    var setup = false;
+  var trySetupNielsen = function () {
+    let setup = false;
 
-    if (nielsenMetadata && window.NOLCMB)
-    {
+    if (nielsenMetadata && window.NOLCMB) {
       nSdkInstance = window.NOLCMB.getInstance(nielsenMetadata.apid);
 
-      //nsdkv of 511 should be provided to the SDK as per Nielsen's suggestion.
-      //We open the possibility to change this via page level parameters
-      var nsdkv = nielsenMetadata.nsdkv ? nielsenMetadata.nsdkv : "511";
+      // nsdkv of 511 should be provided to the SDK as per Nielsen's suggestion.
+      // We open the possibility to change this via page level parameters
+      const nsdkv = nielsenMetadata.nsdkv ? nielsenMetadata.nsdkv : '511';
 
-      var initMetadata = {
+      const initMetadata = {
         apid: nielsenMetadata.apid,
         sfcode: nielsenMetadata.sfcode,
         apn: nielsenMetadata.apn,
-        nsdkv: nsdkv
+        nsdkv,
         // nol_sdkDebug: "DEBUG"
       };
 
-      if (nielsenMetadata.nol_sdkDebug)
-      {
+      if (nielsenMetadata.nol_sdkDebug) {
         initMetadata.nol_sdkDebug = nielsenMetadata.nol_sdkDebug;
       }
 
@@ -160,11 +148,9 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#handleStoredEvents
    */
-  var handleStoredEvents = function()
-  {
-    var se;
-    while (storedEvents.length > 0)
-    {
+  var handleStoredEvents = function () {
+    let se;
+    while (storedEvents.length > 0) {
       se = storedEvents.shift();
       notifyNielsen(se.event, se.param);
     }
@@ -175,11 +161,9 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#sdkLoadError
    */
-  var sdkLoadError = function()
-  {
-    //Destroy and unregister
-    if (_.isString(id))
-    {
+  var sdkLoadError = function () {
+    // Destroy and unregister
+    if (_.isString(id)) {
       framework.unregisterPlugin(id);
     }
     this.destroy();
@@ -191,49 +175,42 @@ var NielsenAnalyticsPlugin = function (framework)
    * @method NielsenAnalyticsPlugin#setMetadata
    * @param  {object} metadata The metadata for this plugin
    */
-  this.setMetadata = function(metadata)
-  {
-    OO.log( "Nielsen: PluginID \'" + id + "\' received this metadata:", metadata);
-    //TODO: Validate metadata
-    if (metadata)
-    {
+  this.setMetadata = function (metadata) {
+    OO.log(`Nielsen: PluginID \'${id}\' received this metadata:`, metadata);
+    // TODO: Validate metadata
+    if (metadata) {
       nielsenMetadata = metadata;
 
-      //TODO: Metadata from backlot/backdoor as well
-      //See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
+      // TODO: Metadata from backlot/backdoor as well
+      // See https://engineeringforum.nielsen.com/sdk/developers/bsdk-product-dcr-metadata.php
       _.extend(contentMetadata, {
-        "type": "content",
-        "title": nielsenMetadata.title,
-        "program": nielsenMetadata.program,
-        "isfullepisode":nielsenMetadata.isfullepisode,
-        //Setting adloadtype to 2 per Nielsen's suggestion
-        "adloadtype":2
+        type: 'content',
+        title: nielsenMetadata.title,
+        program: nielsenMetadata.program,
+        isfullepisode: nielsenMetadata.isfullepisode,
+        // Setting adloadtype to 2 per Nielsen's suggestion
+        adloadtype: 2,
       });
 
-      //Optional Nielsen parameters
-      if (nielsenMetadata.segB)
-      {
-        contentMetadata["segB"] = nielsenMetadata.segB;
+      // Optional Nielsen parameters
+      if (nielsenMetadata.segB) {
+        contentMetadata.segB = nielsenMetadata.segB;
       }
 
-      if (nielsenMetadata.segC)
-      {
-        contentMetadata["segC"] = nielsenMetadata.segC;
+      if (nielsenMetadata.segC) {
+        contentMetadata.segC = nielsenMetadata.segC;
       }
 
-      if (nielsenMetadata.crossId1)
-      {
-        contentMetadata["crossId1"] = nielsenMetadata.crossId1;
+      if (nielsenMetadata.crossId1) {
+        contentMetadata.crossId1 = nielsenMetadata.crossId1;
       }
 
-      if (nielsenMetadata.crossId2)
-      {
-        contentMetadata["crossId2"] = nielsenMetadata.crossId2;
+      if (nielsenMetadata.crossId2) {
+        contentMetadata.crossId2 = nielsenMetadata.crossId2;
       }
 
-      if (nielsenMetadata.airdate)
-      {
-        contentMetadata["airdate"] = nielsenMetadata.airdate;
+      if (nielsenMetadata.airdate) {
+        contentMetadata.airdate = nielsenMetadata.airdate;
       }
     }
 
@@ -247,11 +224,9 @@ var NielsenAnalyticsPlugin = function (framework)
    * @param  {string} eventName Name of the event
    * @param  {Array} params     Array of parameters sent with the event
    */
-  this.processEvent = function(eventName, params)
-  {
-    OO.log( "Nielsen: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
-    switch(eventName)
-    {
+  this.processEvent = function (eventName, params) {
+    OO.log(`Nielsen: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    switch (eventName) {
       case OO.Analytics.EVENTS.VIDEO_CONTENT_COMPLETED:
         contentComplete = true;
         trackComplete();
@@ -261,120 +236,101 @@ var NielsenAnalyticsPlugin = function (framework)
         trackPlay();
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        if (!inAdBreak)
-        {
+        if (!inAdBreak) {
           trackContentPause();
-        }
-        else
-        {
+        } else {
           trackAdPause();
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
         resetPlaybackState();
-        //TODO: Unit test and dev test
+        // TODO: Unit test and dev test
         notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
-        if (params && params[0] && params[0].embedCode)
-        {
-          if (contentMetadata)
-          {
-            contentMetadata["assetid"] = params[0].embedCode;
+        if (params && params[0] && params[0].embedCode) {
+          if (contentMetadata) {
+            contentMetadata.assetid = params[0].embedCode;
           }
         }
         resetPlaybackState();
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
-        if (params && params[0])
-        {
-          var metadata = params[0];
-          if (metadata && contentMetadata && metadata.duration)
-          {
-            contentMetadata["length"] = Math.round(metadata.duration / 1000);
-            //only use Backlot metadata title if none was provided earlier
-            contentMetadata["title"] = metadata.title;
-            contentMetadata["assetName"] = metadata.title;
+        if (params && params[0]) {
+          const metadata = params[0];
+          if (metadata && contentMetadata && metadata.duration) {
+            contentMetadata.length = Math.round(metadata.duration / 1000);
+            // only use Backlot metadata title if none was provided earlier
+            contentMetadata.title = metadata.title;
+            contentMetadata.assetName = metadata.title;
           }
-          OO.log("Nielsen Tracking: initial loadMetadata from metadata updated with playhead " + currentPlayhead);
-          //TODO: Dev test
+          OO.log(`Nielsen Tracking: initial loadMetadata from metadata updated with playhead ${currentPlayhead}`);
+          // TODO: Dev test
           notifyNielsen(DCR_EVENT.INITIAL_LOAD_METADATA, contentMetadata);
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
-        //TODO: Update content metadata
+        // TODO: Update content metadata
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
-        if (params && params[0] && params[0].streamPosition)
-        {
-          var playhead = -1;
-          var log = false;
-          if (inAdBreak)
-          {
-            if (adStarted && params[0].videoId === OO.VIDEO.ADS)
-            {
+        if (params && params[0] && params[0].streamPosition) {
+          let playhead = -1;
+          let log = false;
+          if (inAdBreak) {
+            if (adStarted && params[0].videoId === OO.VIDEO.ADS) {
               currentAdPlayhead = params[0].streamPosition;
               playhead = currentAdPlayhead;
-              OO.log("Nielsen Tracking: ad playhead: " + playhead);
+              OO.log(`Nielsen Tracking: ad playhead: ${playhead}`);
               log = true;
             }
-          }
-          else
-          {
+          } else {
             currentPlayhead = params[0].streamPosition;
             playhead = currentPlayhead;
           }
-          //Playhead updates should occur every 1 second according to docs at:
-          //https://engineeringforum.nielsen.com/sdk/developers/product-dcr-implementation-av-bsdk.php;
-          var currentTime = new Date().getTime();
-          var sufficientDelay = currentTime >= lastPlayheadUpdate + PLAYHEAD_UPDATE_INTERVAL || this.testMode;
-          if (playhead >= 0 && sufficientDelay)
-          {
-            //TODO: receiving video_stream_position_changed immediately after ad_break_started
+          // Playhead updates should occur every 1 second according to docs at:
+          // https://engineeringforum.nielsen.com/sdk/developers/product-dcr-implementation-av-bsdk.php;
+          const currentTime = new Date().getTime();
+          const sufficientDelay = currentTime >= lastPlayheadUpdate + PLAYHEAD_UPDATE_INTERVAL || this.testMode;
+          if (playhead >= 0 && sufficientDelay) {
+            // TODO: receiving video_stream_position_changed immediately after ad_break_started
             lastPlayheadUpdate = currentTime;
             trackPlayhead();
           }
 
-          if(log)
-          {
-            OO.log("Nielsen Tracking: lastPlayheadUpdate: " + lastPlayheadUpdate);
+          if (log) {
+            OO.log(`Nielsen Tracking: lastPlayheadUpdate: ${lastPlayheadUpdate}`);
           }
         }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_STARTED:
         inAdBreak = true;
-        //We want to report the first playhead after this event
+        // We want to report the first playhead after this event
         lastPlayheadUpdate = -1;
-        if (!contentComplete && mainContentStarted)
-        {
+        if (!contentComplete && mainContentStarted) {
           trackAdBreakStart();
         }
         break;
       case OO.Analytics.EVENTS.AD_BREAK_ENDED:
         inAdBreak = false;
-        //We want to report the first playhead after this event
+        // We want to report the first playhead after this event
         lastPlayheadUpdate = -1;
         loadContentMetadataAfterAd = true;
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
-        if (params && params[0])
-        {
-          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
-          {
+        if (params && params[0]) {
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
             adStarted = true;
             trackAdStart(params[0].adMetadata);
           }
         }
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
-        if (params && params[0])
-        {
-          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
-          {
+        if (params && params[0]) {
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
             adStarted = false;
             trackAdEnd();
             currentAdPlayhead = 0;
-            //We want to report the first playhead after this event
+            // We want to report the first playhead after this event
             lastPlayheadUpdate = -1;
           }
         }
@@ -389,8 +345,7 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#resetPlaybackState
    */
-  var resetPlaybackState = function ()
-  {
+  var resetPlaybackState = function () {
     contentDuration = -1;
     currentPlayhead = 0;
     currentAdPlayhead = 0;
@@ -405,8 +360,7 @@ var NielsenAnalyticsPlugin = function (framework)
    * @public
    * @method NielsenAnalyticsPlugin#destroy
    */
-  this.destroy = function ()
-  {
+  this.destroy = function () {
     _framework = null;
     resetPlaybackState();
   };
@@ -418,12 +372,10 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#trackPlay
    */
-  var trackPlay = function()
-  {
-    if (loadContentMetadataAfterAd)
-    {
+  var trackPlay = function () {
+    if (loadContentMetadataAfterAd) {
       loadContentMetadataAfterAd = false;
-      OO.log("Nielsen Tracking: loadMetadata from content play with playhead " + currentPlayhead);
+      OO.log(`Nielsen Tracking: loadMetadata from content play with playhead ${currentPlayhead}`);
       notifyNielsen(DCR_EVENT.LOAD_METADATA, contentMetadata);
     }
   };
@@ -434,10 +386,9 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#trackContentPause
    */
-  var trackContentPause = function()
-  {
-    var reportedPlayhead = Math.floor(currentPlayhead);
-    OO.log("Nielsen Tracking: stop from content pause with playhead " + reportedPlayhead);
+  var trackContentPause = function () {
+    const reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log(`Nielsen Tracking: stop from content pause with playhead ${reportedPlayhead}`);
     notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
   };
 
@@ -447,10 +398,9 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#trackAdPause
    */
-  var trackAdPause = function()
-  {
-    var reportedAdPlayhead = Math.floor(currentAdPlayhead);
-    OO.log("Nielsen Tracking: stop from ad pause with ad playhead " + reportedAdPlayhead);
+  var trackAdPause = function () {
+    const reportedAdPlayhead = Math.floor(currentAdPlayhead);
+    OO.log(`Nielsen Tracking: stop from ad pause with ad playhead ${reportedAdPlayhead}`);
     notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
   };
 
@@ -460,12 +410,11 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#trackComplete
    */
-  var trackComplete = function()
-  {
-    var reportedPlayhead = Math.floor(currentPlayhead);
-    OO.log("Nielsen Tracking: end with playhead " + reportedPlayhead);
-    //Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
-    //the final second due to the 1 second intervals between reporting playheads)
+  var trackComplete = function () {
+    const reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log(`Nielsen Tracking: end with playhead ${reportedPlayhead}`);
+    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    // the final second due to the 1 second intervals between reporting playheads)
     notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
     notifyNielsen(DCR_EVENT.END, reportedPlayhead);
   };
@@ -476,20 +425,16 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#trackPlayhead
    */
-  var trackPlayhead = function()
-  {
-    //TODO: Add more checks to ensure we report the correct playhead
-    if (inAdBreak)
-    {
-      var reportedAdPlayhead = Math.floor(currentAdPlayhead);
-      OO.log("Nielsen Tracking: setPlayheadPosition with ad playhead " + reportedAdPlayhead);
+  var trackPlayhead = function () {
+    // TODO: Add more checks to ensure we report the correct playhead
+    if (inAdBreak) {
+      const reportedAdPlayhead = Math.floor(currentAdPlayhead);
+      OO.log(`Nielsen Tracking: setPlayheadPosition with ad playhead ${reportedAdPlayhead}`);
       notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
-    }
-    else
-    {
-      //TODO: Handle live streams
-      var reportedPlayhead = Math.floor(currentPlayhead);
-      OO.log("Nielsen Tracking: setPlayheadPosition with playhead " + reportedPlayhead);
+    } else {
+      // TODO: Handle live streams
+      const reportedPlayhead = Math.floor(currentPlayhead);
+      OO.log(`Nielsen Tracking: setPlayheadPosition with playhead ${reportedPlayhead}`);
       notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
     }
   };
@@ -499,12 +444,11 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#trackAdBreakStart
    */
-  var trackAdBreakStart = function()
-  {
-    var reportedPlayhead = Math.floor(currentPlayhead);
-    OO.log("Nielsen Tracking: stop from ad break with playhead " + reportedPlayhead);
-    //Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
-    //the final second due to the 1 second intervals between reporting playheads)
+  var trackAdBreakStart = function () {
+    const reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log(`Nielsen Tracking: stop from ad break with playhead ${reportedPlayhead}`);
+    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    // the final second due to the 1 second intervals between reporting playheads)
     notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
     notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
   };
@@ -520,27 +464,21 @@ var NielsenAnalyticsPlugin = function (framework)
    *   adDuration {number} The length of the ad<br />
    *   adId {string} The id of the ad<br />
    */
-  var trackAdStart = function(metadata)
-  {
-    var type = null;
-    if (currentPlayhead <= 0)
-    {
-      type = "preroll";
-    }
-    else if (contentComplete)
-    {
-      type = "postroll";
-    }
-    else
-    {
-      type = "midroll";
+  var trackAdStart = function (metadata) {
+    let type = null;
+    if (currentPlayhead <= 0) {
+      type = 'preroll';
+    } else if (contentComplete) {
+      type = 'postroll';
+    } else {
+      type = 'midroll';
     }
 
-    OO.log("Nielsen Tracking: loadMetadata for ad with type: " + type + " with ad playhead " + currentAdPlayhead);
+    OO.log(`Nielsen Tracking: loadMetadata for ad with type: ${type} with ad playhead ${currentAdPlayhead}`);
     notifyNielsen(DCR_EVENT.LOAD_METADATA, {
-      "type": type,
-      "length": metadata.adDuration,
-      "assetid": metadata.adId
+      type,
+      length: metadata.adDuration,
+      assetid: metadata.adId,
     });
   };
 
@@ -549,12 +487,11 @@ var NielsenAnalyticsPlugin = function (framework)
    * @private
    * @method NielsenAnalyticsPlugin#trackAdEnd
    */
-  var trackAdEnd = function()
-  {
-    var reportedAdPlayhead = Math.floor(currentAdPlayhead);
-    OO.log("Nielsen Tracking: stop with ad playhead " + reportedAdPlayhead);
-    //Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
-    //the final second due to the 1 second intervals between reporting playheads)
+  var trackAdEnd = function () {
+    const reportedAdPlayhead = Math.floor(currentAdPlayhead);
+    OO.log(`Nielsen Tracking: stop with ad playhead ${reportedAdPlayhead}`);
+    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    // the final second due to the 1 second intervals between reporting playheads)
     notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
     notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
   };
@@ -568,31 +505,26 @@ var NielsenAnalyticsPlugin = function (framework)
    *                       https://engineeringforum.nielsen.com/sdk/developers/bsdk-nielsen-browser-sdk-apis.php
    * @param {object|number} param The param associated with the reported event
    */
-  var notifyNielsen = function(event, param)
-  {
-    if (nSdkInstance)
-    {
-      OO.log("ggPM: " + event + " with param: " + param);
-      if ((event === 3 || event === 15) && _.isObject(param) && param.type)
-      {
-        OO.log("ggPM: loadMetadata type: " + param.type);
+  var notifyNielsen = function (event, param) {
+    if (nSdkInstance) {
+      OO.log(`ggPM: ${event} with param: ${param}`);
+      if ((event === 3 || event === 15) && _.isObject(param) && param.type) {
+        OO.log(`ggPM: loadMetadata type: ${param.type}`);
       }
       nSdkInstance.ggPM(event, param);
-    }
-    else
-    {
-      OO.log("ggPM: Storing event: " + event + " with param: " + param);
-      var storedParam = _.isObject(param) ? _.clone(param) : param;
+    } else {
+      OO.log(`ggPM: Storing event: ${event} with param: ${param}`);
+      const storedParam = _.isObject(param) ? _.clone(param) : param;
       storedEvents.push({
-        event: event,
-        param: storedParam
+        event,
+        param: storedParam,
       });
     }
   };
 };
 
-//Add the template to the global list of factories for all new instances of the framework
-//and register the template with all current instance of the framework.
+// Add the template to the global list of factories for all new instances of the framework
+// and register the template with all current instance of the framework.
 OO.Analytics.RegisterPluginFactory(NielsenAnalyticsPlugin);
 
 module.exports = NielsenAnalyticsPlugin;

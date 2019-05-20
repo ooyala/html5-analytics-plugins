@@ -1,4 +1,4 @@
-require("../framework/InitAnalyticsNamespace.js");
+require('../framework/InitAnalyticsNamespace.js');
 // require("./omniture/AppMeasurement.js");
 // require("./omniture/VideoHeartbeat.min.js");
 // require("./omniture/VisitorAPI.js");
@@ -8,38 +8,36 @@ require("../framework/InitAnalyticsNamespace.js");
  * @classdesc Omniture Analytics/Video Heartbeat plugin that works with the Ooyala Analytics Framework.
  * @param {object} framework The Analytics Framework instance
  */
-var OmnitureAnalyticsPlugin = function (framework)
-{
-  var _framework = framework;
-  var name = "omniture";
-  var version = "v1";
-  var id;
+const OmnitureAnalyticsPlugin = function (framework) {
+  let _framework = framework;
+  const name = 'omniture';
+  const version = 'v1';
+  let id;
 
-  var OOYALA_PLAYER_NAME = "Ooyala V4";
-  var OOYALA_PLAYER_VERSION = "";
+  const OOYALA_PLAYER_NAME = 'Ooyala V4';
+  const OOYALA_PLAYER_VERSION = '';
 
-  var playerDelegate = new OoyalaPlayerDelegate();
-  var appMeasurement = null;
-  var vpPlugin = null;
-  var aaPlugin = null;
-  var heartbeat = null;
+  const playerDelegate = new OoyalaPlayerDelegate();
+  let appMeasurement = null;
+  let vpPlugin = null;
+  let aaPlugin = null;
+  let heartbeat = null;
 
-  var currentEmbedCode = null;
-  var currentPlayhead = 0;
-  var mainContentStarted = false;
-  var inAdBreak = false;
-  var trackedPlayForPreroll = false;
-  var pauseRequested = false;
-  var seekStarted = false;
+  let currentEmbedCode = null;
+  let currentPlayhead = 0;
+  let mainContentStarted = false;
+  let inAdBreak = false;
+  let trackedPlayForPreroll = false;
+  let pauseRequested = false;
+  let seekStarted = false;
 
   /**
    * [Required Function] Return the name of the plugin.
    * @public
    * @method OmnitureAnalyticsPlugin#getName
-   * @return {string} The name of the plugin.
+   * @returns {string} The name of the plugin.
    */
-  this.getName = function ()
-  {
+  this.getName = function () {
     return name;
   };
 
@@ -47,10 +45,9 @@ var OmnitureAnalyticsPlugin = function (framework)
    * [Required Function] Return the version string of the plugin.
    * @public
    * @method OmnitureAnalyticsPlugin#getVersion
-   * @return {string} The version of the plugin.
+   * @returns {string} The version of the plugin.
    */
-  this.getVersion = function ()
-  {
+  this.getVersion = function () {
     return version;
   };
 
@@ -61,8 +58,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @method OmnitureAnalyticsPlugin#setPluginID
    * @param  {string} newID The plugin id
    */
-  this.setPluginID = function(newID)
-  {
+  this.setPluginID = function (newID) {
     id = newID;
   };
 
@@ -70,10 +66,9 @@ var OmnitureAnalyticsPlugin = function (framework)
    * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
    * @public
    * @method OmnitureAnalyticsPlugin#setPluginID
-   * @return  {string} The pluginID assigned to this instance from the Analytics Framework.
+   * @returns  {string} The pluginID assigned to this instance from the Analytics Framework.
    */
-  this.getPluginID = function()
-  {
+  this.getPluginID = function () {
     return id;
   };
 
@@ -82,17 +77,14 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @public
    * @method OmnitureAnalyticsPlugin#init
    */
-  this.init = function()
-  {
-    var missedEvents;
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents))
-    {
+  this.init = function () {
+    let missedEvents;
+    if (_framework && OO._.isFunction(_framework.getRecordedEvents)) {
       missedEvents = _framework.getRecordedEvents();
-      _.each(missedEvents, _.bind(function (recordedEvent)
-        {
-          //recordedEvent.timeStamp;
-          this.processEvent(recordedEvent.eventName, recordedEvent.params);
-        }, this));
+      _.each(missedEvents, _.bind(function (recordedEvent) {
+        // recordedEvent.timeStamp;
+        this.processEvent(recordedEvent.eventName, recordedEvent.params);
+      }, this));
     }
   };
 
@@ -102,16 +94,14 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @method OmnitureAnalyticsPlugin#setMetadata
    * @param  {object} metadata The metadata for this plugin
    */
-  this.setMetadata = function(metadata)
-  {
-    OO.log( "Omniture: PluginID \'" + id + "\' received this metadata:", metadata);
+  this.setMetadata = function (metadata) {
+    OO.log(`Omniture: PluginID \'${id}\' received this metadata:`, metadata);
     // Set-up the Visitor and AppMeasurement instances.
-    if (validateOmnitureMetadata(metadata))
-    {
-      //Doc: https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_as_configure.html
+    if (validateOmnitureMetadata(metadata)) {
+      // Doc: https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_as_configure.html
 
-      //TODO: Get metadata, props and evar from backdoor/backlot settings as well
-      var visitor = new Visitor(metadata.marketingCloudOrgId);
+      // TODO: Get metadata, props and evar from backdoor/backlot settings as well
+      const visitor = new Visitor(metadata.marketingCloudOrgId);
       visitor.trackingServer = metadata.visitorTrackingServer;
 
       // Set-up the AppMeasurement component.
@@ -120,7 +110,7 @@ var OmnitureAnalyticsPlugin = function (framework)
       appMeasurement.trackingServer = metadata.appMeasurementTrackingServer;
       appMeasurement.account = metadata.reportSuiteId;
       appMeasurement.pageName = metadata.pageName;
-      appMeasurement.charSet = "UTF-8";
+      appMeasurement.charSet = 'UTF-8';
       appMeasurement.visitorID = metadata.visitorId;
 
       updateEvarsAndProps(metadata.props, metadata.eVars);
@@ -128,38 +118,38 @@ var OmnitureAnalyticsPlugin = function (framework)
       // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
       vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
       this.omnitureVideoPlayerPlugin = vpPlugin;
-      var playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
+      const playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
       playerPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
       vpPlugin.configure(playerPluginConfig);
 
       // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
       aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new ADB.va.plugins.aa.AdobeAnalyticsPluginDelegate());
-      var aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
-      aaPluginConfig.channel = metadata.channel; //optional
+      const aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
+      aaPluginConfig.channel = metadata.channel; // optional
       aaPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
       aaPlugin.configure(aaPluginConfig);
 
       // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
-      var ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new ADB.va.plugins.ah.AdobeHeartbeatPluginDelegate());
-      var ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
+      const ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new ADB.va.plugins.ah.AdobeHeartbeatPluginDelegate());
+      const ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
         metadata.heartbeatTrackingServer,
-        metadata.publisherId);
+        metadata.publisherId,
+      );
       ahPluginConfig.ovp = OOYALA_PLAYER_NAME;
-      //TODO: Get Player version
+      // TODO: Get Player version
       ahPluginConfig.sdk = OOYALA_PLAYER_VERSION;
       ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
-      if (metadata.heartbeatSSL)
-      {
+      if (metadata.heartbeatSSL) {
         // set this to true to enable Heartbeat calls through HTTPS
         ahPluginConfig.ssl = metadata.heartbeatSSL;
       }
       ahPlugin.configure(ahPluginConfig);
 
-      var plugins = [vpPlugin, aaPlugin, ahPlugin];
+      const plugins = [vpPlugin, aaPlugin, ahPlugin];
 
       // Setup and configure the Heartbeat lib.
       heartbeat = new ADB.va.Heartbeat(new ADB.va.HeartbeatDelegate(), plugins);
-      var configData = new ADB.va.HeartbeatConfig();
+      const configData = new ADB.va.HeartbeatConfig();
       configData.debugLogging = metadata.debug; // set this to false for production apps.
       heartbeat.configure(configData);
     }
@@ -172,7 +162,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @param props The updated props
    * @param eVars The updated eVars
    */
-  this.updateMetadata = function(props, eVars) {
+  this.updateMetadata = function (props, eVars) {
     if (appMeasurement) {
       appMeasurement.clearVars();
       updateEvarsAndProps(props, eVars);
@@ -186,33 +176,28 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @param props The props to add to the AppMeasurement object
    * @param eVars The eVars to add to the AppMeasurement object
    */
-  var updateEvarsAndProps = function(props, eVars) {
+  var updateEvarsAndProps = function (props, eVars) {
     if (appMeasurement) {
-      //add in props
-      if (!_.isEmpty(props))
-      {
-        _.each(props, function(value, key)
-        {
-          //TODO: Validate keys (are of form prop#)
+      // add in props
+      if (!_.isEmpty(props)) {
+        _.each(props, (value, key) => {
+          // TODO: Validate keys (are of form prop#)
           appMeasurement[key] = value;
         });
       }
 
-      //add in eVars
-      if (!_.isEmpty(eVars))
-      {
-        _.each(eVars, function(value, key)
-        {
-          //TODO: Validate keys (are of form eVar#)
+      // add in eVars
+      if (!_.isEmpty(eVars)) {
+        _.each(eVars, (value, key) => {
+          // TODO: Validate keys (are of form eVar#)
           appMeasurement[key] = value;
         });
       }
     }
   };
 
-  var checkSdkLoaded = function()
-  {
-    //TODO: Check all the ADB objects exist
+  const checkSdkLoaded = function () {
+    // TODO: Check all the ADB objects exist
   };
 
   /**
@@ -228,38 +213,30 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @param  {object} metadata The Omniture metadata to validate
    * @returns true if valid, false otherwise
    */
-  var validateOmnitureMetadata = function(metadata)
-  {
-    var valid = true;
-    var requiredKeys = ["marketingCloudOrgId", "visitorTrackingServer", "appMeasurementTrackingServer",
-      "reportSuiteId", "pageName", "visitorId", "channel", "heartbeatTrackingServer", "publisherId"];
+  var validateOmnitureMetadata = function (metadata) {
+    let valid = true;
+    const requiredKeys = ['marketingCloudOrgId', 'visitorTrackingServer', 'appMeasurementTrackingServer',
+      'reportSuiteId', 'pageName', 'visitorId', 'channel', 'heartbeatTrackingServer', 'publisherId'];
 
-    var missingKeys = [];
+    let missingKeys = [];
 
-    if (metadata)
-    {
-      _.each(requiredKeys, function(key)
-      {
-        if (!_.has(metadata, key))
-        {
+    if (metadata) {
+      _.each(requiredKeys, (key) => {
+        if (!_.has(metadata, key)) {
           missingKeys.push(key);
           valid = false;
         }
       });
-    }
-    else
-    {
-      OO.log("Error: Missing Omniture Metadata!");
+    } else {
+      OO.log('Error: Missing Omniture Metadata!');
       missingKeys = requiredKeys;
       valid = false;
     }
 
 
-    if(!_.isEmpty(missingKeys))
-    {
-      _.each(missingKeys, function(key)
-      {
-        OO.log("Error: Missing Omniture Metadata Key: " + key);
+    if (!_.isEmpty(missingKeys)) {
+      _.each(missingKeys, (key) => {
+        OO.log(`Error: Missing Omniture Metadata Key: ${key}`);
       });
     }
 
@@ -273,11 +250,9 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @param  {string} eventName Name of the event
    * @param  {Array} params     Array of parameters sent with the event
    */
-  this.processEvent = function(eventName, params)
-  {
-    OO.log( "Omniture: PluginID \'" + id + "\' received this event \'" + eventName + "\' with these params:", params);
-    switch(eventName)
-    {
+  this.processEvent = function (eventName, params) {
+    OO.log(`Omniture: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    switch (eventName) {
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
         onContentStart();
         break;
@@ -286,15 +261,14 @@ var OmnitureAnalyticsPlugin = function (framework)
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
         pauseRequested = true;
-       break;
+        break;
       case OO.Analytics.EVENTS.VIDEO_PLAYING:
         trackPlay();
         break;
       case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        //According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
-        //we should not be tracking pauses when switching from main content to an ad
-        if (pauseRequested)
-        {
+        // According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
+        // we should not be tracking pauses when switching from main content to an ad
+        if (pauseRequested) {
           pauseRequested = false;
           trackPause();
         }
@@ -304,10 +278,9 @@ var OmnitureAnalyticsPlugin = function (framework)
         onContentStart();
         break;
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
-        if (params && params[0] && params[0].embedCode)
-        {
+        if (params && params[0] && params[0].embedCode) {
           if (currentEmbedCode && params[0].embedCode !== currentEmbedCode) {
-            var metadata = params[0].metadata["omniture"] || {};
+            const metadata = params[0].metadata.omniture || {};
             this.updateMetadata(metadata.props, metadata.eVars);
           }
           currentEmbedCode = params[0].embedCode;
@@ -316,36 +289,31 @@ var OmnitureAnalyticsPlugin = function (framework)
         resetPlaybackState();
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
-        if (params && params[0])
-        {
+        if (params && params[0]) {
           playerDelegate.onInitializeContent(params[0]);
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
-        //Note that we get a seek requested upon replay before main content playback starts
-        if (mainContentStarted && !inAdBreak)
-        {
+        // Note that we get a seek requested upon replay before main content playback starts
+        if (mainContentStarted && !inAdBreak) {
           trackSeekStart();
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-        //Only send seek completed if we sent a seek requested
-        if (mainContentStarted && !inAdBreak && seekStarted)
-        {
+        // Only send seek completed if we sent a seek requested
+        if (mainContentStarted && !inAdBreak && seekStarted) {
           trackSeekEnd();
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
-        //TODO: Ask about Buffer before play start
-        //TODO: Revisit buffering logic
+        // TODO: Ask about Buffer before play start
+        // TODO: Revisit buffering logic
         break;
       case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
         break;
       case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
-        if (params && params[0] && params[0].streamPosition)
-        {
-          if (!inAdBreak)
-          {
+        if (params && params[0] && params[0].streamPosition) {
+          if (!inAdBreak) {
             currentPlayhead = params[0].streamPosition;
             playerDelegate.onPlayheadChanged(currentPlayhead);
           }
@@ -360,36 +328,30 @@ var OmnitureAnalyticsPlugin = function (framework)
         playerDelegate.onAdBreakComplete();
         break;
       case OO.Analytics.EVENTS.AD_STARTED:
-        if (params && params[0])
-        {
-          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
-          {
+        if (params && params[0]) {
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
             playerDelegate.onAdPlayback(params[0].adMetadata);
             trackAdStart();
-            if(!mainContentStarted && !trackedPlayForPreroll)
-            {
+            if (!mainContentStarted && !trackedPlayForPreroll) {
               trackedPlayForPreroll = true;
-              //We need a special track play here for ads if main content has not started.
-              //Don't call the trackPlay() function of this plugin because that one
-              //is for the main content
+              // We need a special track play here for ads if main content has not started.
+              // Don't call the trackPlay() function of this plugin because that one
+              // is for the main content
               vpPlugin.trackPlay();
             }
           }
         }
         break;
       case OO.Analytics.EVENTS.AD_ENDED:
-        if (params && params[0])
-        {
-          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO)
-          {
+        if (params && params[0]) {
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
             trackAdEnd();
             playerDelegate.onAdPlaybackComplete();
           }
         }
         break;
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
-        if (params && params[0])
-        {
+        if (params && params[0]) {
           playerDelegate.onStreamTypeUpdated(params[0].streamType);
         }
       default:
@@ -402,8 +364,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#resetPlaybackState
    */
-  var resetPlaybackState = function ()
-  {
+  var resetPlaybackState = function () {
     currentPlayhead = 0;
     mainContentStarted = false;
     inAdBreak = false;
@@ -418,11 +379,9 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @public
    * @method OmnitureAnalyticsPlugin#destroy
    */
-  this.destroy = function ()
-  {
+  this.destroy = function () {
     _framework = null;
-    if (heartbeat)
-    {
+    if (heartbeat) {
       heartbeat.destroy();
       heartbeat = null;
     }
@@ -436,8 +395,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#onContentStart
    */
-  var onContentStart = function()
-  {
+  var onContentStart = function () {
     vpPlugin.trackVideoLoad();
     vpPlugin.trackSessionStart();
   };
@@ -448,15 +406,11 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#trackPlay
    */
-  var trackPlay = function()
-  {
-    if (!mainContentStarted)
-    {
+  var trackPlay = function () {
+    if (!mainContentStarted) {
       mainContentStarted = true;
       vpPlugin.trackPlay();
-    }
-    else
-    {
+    } else {
       vpPlugin.trackPlay();
     }
   };
@@ -468,8 +422,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#trackPause
    */
-  var trackPause = function()
-  {
+  var trackPause = function () {
     vpPlugin.trackPause();
   };
 
@@ -479,8 +432,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#trackSeekStart
    */
-  var trackSeekStart = function()
-  {
+  var trackSeekStart = function () {
     seekStarted = true;
     vpPlugin.trackSeekStart();
   };
@@ -491,8 +443,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#trackSeekEnd
    */
-  var trackSeekEnd = function()
-  {
+  var trackSeekEnd = function () {
     seekStarted = false;
     vpPlugin.trackSeekComplete();
   };
@@ -503,8 +454,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#trackComplete
    */
-  var trackComplete = function()
-  {
+  var trackComplete = function () {
     mainContentStarted = false;
     vpPlugin.trackComplete();
     vpPlugin.trackVideoUnload();
@@ -515,8 +465,7 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#trackAdStart
    */
-  var trackAdStart = function()
-  {
+  var trackAdStart = function () {
     vpPlugin.trackAdStart();
   };
 
@@ -525,15 +474,13 @@ var OmnitureAnalyticsPlugin = function (framework)
    * @private
    * @method OmnitureAnalyticsPlugin#trackAdEnd
    */
-  var trackAdEnd = function()
-  {
+  var trackAdEnd = function () {
     vpPlugin.trackAdComplete();
   };
 
-  //TODO: Find out how to expose the player delegate for unit tests
-  //convenience functions for unit testing
-  this.getPlayerDelegate = function()
-  {
+  // TODO: Find out how to expose the player delegate for unit tests
+  // convenience functions for unit testing
+  this.getPlayerDelegate = function () {
     return playerDelegate;
   };
 };
@@ -543,25 +490,24 @@ var OmnitureAnalyticsPlugin = function (framework)
  * @classdesc The video player delegate that the Omniture Heartbeat SDK requires. Omniture will use
  * this delegate to find out information about the currently playing video periodically.
  */
-var OoyalaPlayerDelegate = function()
-{
-  //video
-  var id = null;
-  var name = null;
-  var length = -1;
-  var streamType = null;
-  var playerName = "Ooyala V4";
-  var streamPlayhead = 0;
+var OoyalaPlayerDelegate = function () {
+  // video
+  let id = null;
+  let name = null;
+  let length = -1;
+  let streamType = null;
+  const playerName = 'Ooyala V4';
+  let streamPlayhead = 0;
 
-  //ad
-  var adId = null;
-  var adLength = -1;
-  var adPosition = 1;
-  var adName = null;
+  // ad
+  let adId = null;
+  let adLength = -1;
+  let adPosition = 1;
+  let adName = null;
 
-  var adBreakPosition = 0;
-  var inAdBreak = false;
-  var inAdPlayback = false;
+  let adBreakPosition = 0;
+  let inAdBreak = false;
+  let inAdPlayback = false;
 
   /**
    * To be called when the content has been initialized. The player delegate will store the metadata passed
@@ -573,10 +519,9 @@ var OoyalaPlayerDelegate = function()
    *   title {string} The title of the content<br />
    *   length {number} The length of the content
    */
-  this.onInitializeContent = function(metadata)
-  {
+  this.onInitializeContent = function (metadata) {
     name = metadata.title;
-    length = Math.round(metadata.duration/1000);
+    length = Math.round(metadata.duration / 1000);
   };
 
   /**
@@ -586,8 +531,7 @@ var OoyalaPlayerDelegate = function()
    * @method OoyalaPlayerDelegate#onEmbedCodeChanged
    * @param {string} embedCode the embed code of the content
    */
-  this.onEmbedCodeChanged = function(embedCode)
-  {
+  this.onEmbedCodeChanged = function (embedCode) {
     id = embedCode;
   };
 
@@ -598,8 +542,7 @@ var OoyalaPlayerDelegate = function()
    * @method OoyalaPlayerDelegate#onPlayheadChanged
    * @param {number} playhead The current playhead in seconds
    */
-  this.onPlayheadChanged = function(playhead)
-  {
+  this.onPlayheadChanged = function (playhead) {
     streamPlayhead = playhead;
   };
 
@@ -608,8 +551,7 @@ var OoyalaPlayerDelegate = function()
    * @public
    * @method OoyalaPlayerDelegate#onAdBreak
    */
-  this.onAdBreak = function()
-  {
+  this.onAdBreak = function () {
     adBreakPosition++;
     inAdBreak = true;
   };
@@ -619,8 +561,7 @@ var OoyalaPlayerDelegate = function()
    * @public
    * @method OoyalaPlayerDelegate#onAdBreakComplete
    */
-  this.onAdBreakComplete = function()
-  {
+  this.onAdBreakComplete = function () {
     inAdBreak = false;
   };
 
@@ -635,12 +576,11 @@ var OoyalaPlayerDelegate = function()
    *   adDuration {number} The length of the ad<br />
    *   adPodPosition {number} The ad pod position of the ad (ex: second ad in the pod would have ad pod position 2)
    */
-  this.onAdPlayback = function(metadata)
-  {
+  this.onAdPlayback = function (metadata) {
     adId = metadata.adId;
     adLength = metadata.adDuration;
     adPosition = metadata.adPodPosition;
-    //TODO: Maybe add ad name (optional)
+    // TODO: Maybe add ad name (optional)
     adName = metadata.adId;
     inAdPlayback = true;
   };
@@ -650,8 +590,7 @@ var OoyalaPlayerDelegate = function()
    * @public
    * @method OoyalaPlayerDelegate#onAdPlaybackComplete
    */
-  this.onAdPlaybackComplete = function()
-  {
+  this.onAdPlaybackComplete = function () {
     inAdPlayback = false;
   };
 
@@ -660,8 +599,7 @@ var OoyalaPlayerDelegate = function()
    * @public
    * @method OoyalaPlayerDelegate#onReplay
    */
-  this.onReplay = function()
-  {
+  this.onReplay = function () {
     streamPlayhead = 0;
     adId = null;
     adLength = -1;
@@ -672,7 +610,7 @@ var OoyalaPlayerDelegate = function()
     inAdPlayback = false;
   };
 
-  //Omniture required functions below
+  // Omniture required functions below
 
   /**
    * Required by Omniture. The Omniture SDK will call this function to retrieve various content metadata.
@@ -680,9 +618,8 @@ var OoyalaPlayerDelegate = function()
    * @method OoyalaPlayerDelegate#getVideoInfo
    * @returns {ADB.va.plugins.videoplayer.VideoInfo}
    */
-  this.getVideoInfo = function()
-  {
-    var videoInfo = new ADB.va.plugins.videoplayer.VideoInfo();
+  this.getVideoInfo = function () {
+    const videoInfo = new ADB.va.plugins.videoplayer.VideoInfo();
     videoInfo.id = id;
     videoInfo.name = name;
     videoInfo.length = length;
@@ -690,8 +627,8 @@ var OoyalaPlayerDelegate = function()
       videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_LIVE;
     } else if (streamType === OO.Analytics.STREAM_TYPE.VOD) {
       videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
-    }else{
-   	//default streamType 
+    } else {
+   	// default streamType
       videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
     }
     videoInfo.playerName = playerName;
@@ -705,17 +642,15 @@ var OoyalaPlayerDelegate = function()
    * @method OoyalaPlayerDelegate#getAdBreakInfo
    * @returns {ADB.va.plugins.videoplayer.AdBreakInfo}
    */
-  this.getAdBreakInfo = function()
-  {
-    //We do not want to provide ad break info if we are not in an ad break.
-    //The Heartbeat SDK uses the existence of this return value to determine if we are in an ad break.
-    if (!inAdBreak)
-    {
+  this.getAdBreakInfo = function () {
+    // We do not want to provide ad break info if we are not in an ad break.
+    // The Heartbeat SDK uses the existence of this return value to determine if we are in an ad break.
+    if (!inAdBreak) {
       return null;
     }
-    var adBreakInfo = new ADB.va.plugins.videoplayer.AdBreakInfo();
+    const adBreakInfo = new ADB.va.plugins.videoplayer.AdBreakInfo();
     adBreakInfo.playerName = playerName;
-    //TODO: Ad break position? How to ensure accuracy if an ad break is skipped via seeking
+    // TODO: Ad break position? How to ensure accuracy if an ad break is skipped via seeking
     adBreakInfo.position = adBreakPosition;
     adBreakInfo.startTime = streamPlayhead;
     return adBreakInfo;
@@ -727,19 +662,17 @@ var OoyalaPlayerDelegate = function()
    * @method OoyalaPlayerDelegate#getAdInfo
    * @returns {ADB.va.plugins.videoplayer.AdInfo}
    */
-  this.getAdInfo = function()
-  {
-    //We do not want to provide ad info if we are not in an ad.
-    //The Heartbeat SDK uses the existence of this return value to determine if we are in an ad.
-    if (!inAdPlayback)
-    {
+  this.getAdInfo = function () {
+    // We do not want to provide ad info if we are not in an ad.
+    // The Heartbeat SDK uses the existence of this return value to determine if we are in an ad.
+    if (!inAdPlayback) {
       return null;
     }
-    var adInfo = new ADB.va.plugins.videoplayer.AdInfo();
+    const adInfo = new ADB.va.plugins.videoplayer.AdInfo();
     adInfo.id = adId;
     adInfo.length = adLength;
     adInfo.position = adPosition;
-    //TODO: Maybe add ad name (optional)
+    // TODO: Maybe add ad name (optional)
     adInfo.name = adName;
     return adInfo;
   };
@@ -751,10 +684,9 @@ var OoyalaPlayerDelegate = function()
    * @method OoyalaPlayerDelegate#getChapterInfo
    * @returns {null}
    */
-  this.getChapterInfo = function()
-  {
-    //TODO: Chapter info if/when available
-   return null;
+  this.getChapterInfo = function () {
+    // TODO: Chapter info if/when available
+    return null;
   };
 
   /**
@@ -764,19 +696,17 @@ var OoyalaPlayerDelegate = function()
    * @method OoyalaPlayerDelegate#getQoSInfo
    * @returns {null}
    */
-  this.getQoSInfo = function()
-  {
-    //TODO: QOS info if/when available
-   return null;
+  this.getQoSInfo = function () {
+    // TODO: QOS info if/when available
+    return null;
   };
-  this.onStreamTypeUpdated = function(type)
-  {
+  this.onStreamTypeUpdated = function (type) {
     streamType = type;
   };
 };
 
-//Add the template to the global list of factories for all new instances of the framework
-//and register the template with all current instance of the framework.
+// Add the template to the global list of factories for all new instances of the framework
+// and register the template with all current instance of the framework.
 OO.Analytics.RegisterPluginFactory(OmnitureAnalyticsPlugin);
 
 module.exports = OmnitureAnalyticsPlugin;

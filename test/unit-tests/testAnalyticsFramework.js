@@ -1,68 +1,59 @@
 
-describe('Analytics Framework Unit Tests', function()
-{
+describe('Analytics Framework Unit Tests', () => {
   jest.autoMockOff();
-  require(SRC_ROOT + "framework/AnalyticsFramework.js");
-  require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
-  require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
-  var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+  require(`${SRC_ROOT}framework/AnalyticsFramework.js`);
+  require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
+  require(`${COMMON_SRC_ROOT}utils/InitModules/InitOOUnderscore.js`);
+  const templatePluginFactory = require(`${SRC_ROOT}plugins/AnalyticsPluginTemplate.js`);
 
-  var Analytics = OO.Analytics;
-  var EVENTS = OO.Analytics.EVENTS;
-  var Utils = OO.Analytics.Utils;
-  var _ = OO._;
-  var framework;
+  const { Analytics } = OO;
+  const { EVENTS } = OO.Analytics;
+  const { Utils } = OO.Analytics;
+  const { _ } = OO;
+  let framework;
   OO.DEBUG = true;
-  //setup for individual tests
-  var testSetup = function()
-  {
-    //mute the logging because there will be lots of error messages that are appearing for valid reasons.
-    OO.log = function(){};
+  // setup for individual tests
+  const testSetup = function () {
+    // mute the logging because there will be lots of error messages that are appearing for valid reasons.
+    OO.log = function () {};
     framework = new Analytics.Framework();
   };
 
-  //cleanup for individual tests
-  var testCleanup = function()
-  {
+  // cleanup for individual tests
+  const testCleanup = function () {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];
     OO.Analytics.Framework.TEST = undefined;
-    //return log back to normal
+    // return log back to normal
     OO.log = console.log;
   };
 
   beforeEach(testSetup);
   afterEach(testCleanup);
 
-  describe('Test Factory Registration and Unregistration', function()
-  {
-    it('Test Unregistering Bad Framework', function()
-    {
-      var errorOccured = false;
-      try
-      {
+  describe('Test Factory Registration and Unregistration', () => {
+    it('Test Unregistering Bad Framework', () => {
+      let errorOccured = false;
+      try {
         OO.Analytics.UnregisterFrameworkInstance(undefined);
         expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
         OO.Analytics.UnregisterFrameworkInstance(null);
         expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
-        OO.Analytics.UnregisterFrameworkInstance("");
+        OO.Analytics.UnregisterFrameworkInstance('');
         expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
         OO.Analytics.UnregisterFrameworkInstance({});
         expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
         OO.Analytics.UnregisterFrameworkInstance([]);
         expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
-      }
-      catch(e)
-      {
+      } catch (e) {
         errorOccured = true;
       }
 
       expect(errorOccured).toBe(false);
     });
 
-    it('Test Unregistering Valid Framework', function()
-    {
-      var framework2 = new Analytics.Framework();
+    it('Test Unregistering Valid Framework', () => {
+      const framework2 = new Analytics.Framework();
       expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
       OO.Analytics.UnregisterFrameworkInstance(framework);
       expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -71,178 +62,152 @@ describe('Analytics Framework Unit Tests', function()
     });
   });
 
-  describe("Test Plugin Validator", function()
-  {
-    it('Test Undefined Plugin', function()
-    {
-      var badPlugin;
+  describe('Test Plugin Validator', () => {
+    it('Test Undefined Plugin', () => {
+      let badPlugin;
       expect(framework.validatePlugin(badPlugin)).toBe(false);
     });
 
-    it('Test Null Plugin', function()
-    {
-      var nullPlugin = null;
+    it('Test Null Plugin', () => {
+      const nullPlugin = null;
       expect(framework.validatePlugin(nullPlugin)).toBe(false);
     });
 
-    it('Test Empty Plugin', function()
-    {
-      var emptyObjectPlugin = {};
+    it('Test Empty Plugin', () => {
+      const emptyObjectPlugin = {};
       expect(framework.validatePlugin(emptyObjectPlugin)).toBe(false);
     });
 
-    it('Test String As Plugin', function()
-    {
-      var stringPlugin = "test";
+    it('Test String As Plugin', () => {
+      const stringPlugin = 'test';
       expect(framework.validatePlugin(stringPlugin)).toBe(false);
     });
 
-    it('Test Factory Returns Plugin With Missing Required Function', function()
-    {
-      var i;
-      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
-      {
-        var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
-        var plugin = new missingFunctionFactory();
+    it('Test Factory Returns Plugin With Missing Required Function', () => {
+      let i;
+      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++) {
+        const missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
+        const plugin = new missingFunctionFactory();
         expect(framework.validatePlugin(plugin)).toBe(false);
       }
     });
 
-    it('Test Valid Factory', function()
-    {
-      var goodPluginFactory = Utils.createValidPluginFactory();
-      var plugin = new goodPluginFactory();
+    it('Test Valid Factory', () => {
+      const goodPluginFactory = Utils.createValidPluginFactory();
+      const plugin = new goodPluginFactory();
       expect(framework.validatePlugin(plugin)).toBe(true);
     });
 
-    it('Test Factory Returns Plugin With More Than Just Required Function', function()
-    {
-      var extraFunctionFactory = Utils.createExtraFunctionFactory("something");
-      var plugin = new extraFunctionFactory();
+    it('Test Factory Returns Plugin With More Than Just Required Function', () => {
+      const extraFunctionFactory = Utils.createExtraFunctionFactory('something');
+      const plugin = new extraFunctionFactory();
       expect(framework.validatePlugin(plugin)).toBe(true);
 
-      var extraFunctionFactory2 = Utils.createExtraFunctionFactory("somethingMore");
-      var plugin2 = new extraFunctionFactory2();
+      const extraFunctionFactory2 = Utils.createExtraFunctionFactory('somethingMore');
+      const plugin2 = new extraFunctionFactory2();
       expect(framework.validatePlugin(plugin2)).toBe(true);
 
-      //add a second extra function to the first plugin, as a sanity check.
-      plugin["anotherExtraFunction"] = function() {};
+      // add a second extra function to the first plugin, as a sanity check.
+      plugin.anotherExtraFunction = function () {};
       expect(framework.validatePlugin(plugin)).toBe(true);
     });
 
-    it('Test Bad Return Value Types For getName()', function()
-    {
-      var wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
-      var plugin = new wrongReturnPluginFactory();
+    it('Test Bad Return Value Types For getName()', () => {
+      const wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
+      const plugin = new wrongReturnPluginFactory();
       expect(framework.validatePlugin(plugin)).toBe(false);
     });
 
-    it('Test Bad Return Value Types For getVersion()', function()
-    {
-      var wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
-      var plugin = new wrongReturnPluginFactory();
+    it('Test Bad Return Value Types For getVersion()', () => {
+      const wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
+      const plugin = new wrongReturnPluginFactory();
       expect(framework.validatePlugin(plugin)).toBe(false);
     });
-
   });
 
-  //////////////////////////////////////////////
-  ///Registration Testing
-  //////////////////////////////////////////////
-  describe('Test Factory Registration', function()
-  {
-
-    it('Test No Plugins Registered', function()
-    {
-      var pluginList = framework.getPluginIDList();
+  // ////////////////////////////////////////////
+  // /Registration Testing
+  // ////////////////////////////////////////////
+  describe('Test Factory Registration', () => {
+    it('Test No Plugins Registered', () => {
+      const pluginList = framework.getPluginIDList();
       expect(Array.isArray(pluginList)).toBe(true);
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Undefined Factory', function()
-    {
-      var badPluginFactory;
+    it('Test Registering Undefined Factory', () => {
+      let badPluginFactory;
       expect(framework.registerPlugin(badPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Null Factory', function()
-    {
-      var nullPluginFactory = null;
+    it('Test Registering Null Factory', () => {
+      const nullPluginFactory = null;
       expect(framework.registerPlugin(nullPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Empty Object as Factory', function()
-    {
-      var emptyObjectPluginFactory = {};
+    it('Test Registering Empty Object as Factory', () => {
+      const emptyObjectPluginFactory = {};
       expect(framework.registerPlugin(emptyObjectPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Factory Returning Empty Object', function()
-    {
-      var badEmptyPluginFactory = function() {};
+    it('Test Registering Factory Returning Empty Object', () => {
+      const badEmptyPluginFactory = function () {};
       expect(framework.registerPlugin(badEmptyPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Factory With Missing Required Function', function()
-    {
-      var i;
-      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++ )
-      {
-        var missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
+    it('Test Registering Factory With Missing Required Function', () => {
+      let i;
+      for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++) {
+        const missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
         expect(framework.registerPlugin(missingFunctionFactory)).toBeFalsy();
       }
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Factory With Bad Return Value Types For getName()', function()
-    {
-      var wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
+    it('Test Registering Factory With Bad Return Value Types For getName()', () => {
+      const wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
       expect(framework.registerPlugin(wrongReturnPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Factory With Bad Return Value Types For getVersion()', function()
-    {
-      var wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
+    it('Test Registering Factory With Bad Return Value Types For getVersion()', () => {
+      const wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
       expect(framework.registerPlugin(wrongReturnPluginFactory)).toBeFalsy();
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Registering Good Factory', function()
-    {
-      var goodFactory = Utils.createValidPluginFactory();
-      var pluginID = framework.registerPlugin(goodFactory);
+    it('Test Registering Good Factory', () => {
+      const goodFactory = Utils.createValidPluginFactory();
+      const pluginID = framework.registerPlugin(goodFactory);
       expect(pluginID).not.toBeFalsy();
       expect(typeof pluginID === 'string').toBe(true);
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
     });
 
-    it('Test Factory Receives Framework Instance as param', function()
-    {
-      var goodFactory = Utils.createFactoryToTestConstructorParams();
-      var pluginID = framework.registerPlugin(goodFactory);
+    it('Test Factory Receives Framework Instance as param', () => {
+      const goodFactory = Utils.createFactoryToTestConstructorParams();
+      const pluginID = framework.registerPlugin(goodFactory);
       expect(OO.Analytics.Framework.TEST.frameworkParam).not.toBeNull();
       expect(OO.Analytics.Framework.TEST.frameworkParam.getRecordedEvents()).toEqual([]);
     });
 
-    it('Test Registering Same Good Factory Multiple Times', function()
-    {
-      var goodFactory = Utils.createValidPluginFactory();
-      var pluginID1 = framework.registerPlugin(goodFactory);
-      var pluginID2 = framework.registerPlugin(goodFactory);
-      var pluginID3 = framework.registerPlugin(goodFactory);
+    it('Test Registering Same Good Factory Multiple Times', () => {
+      const goodFactory = Utils.createValidPluginFactory();
+      const pluginID1 = framework.registerPlugin(goodFactory);
+      const pluginID2 = framework.registerPlugin(goodFactory);
+      const pluginID3 = framework.registerPlugin(goodFactory);
 
       expect(pluginID1).not.toBeFalsy();
       expect(_.isString(pluginID1)).toBe(true);
@@ -257,7 +222,7 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.isEqual(pluginID2, pluginID3)).not.toBe(true);
       expect(_.isEqual(pluginID3, pluginID1)).not.toBe(true);
 
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(3);
 
       expect(_.contains(pluginList, pluginID1)).toBe(true);
@@ -265,37 +230,12 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.contains(pluginList, pluginID3)).toBe(true);
     });
 
-    it('Test Registering Multiple Good Factories With The Same Name', function()
-    {
-      var goodFactory1 = Utils.createValidPluginFactory();
-      var goodFactory2 = Utils.createValidPluginFactory();
+    it('Test Registering Multiple Good Factories With The Same Name', () => {
+      const goodFactory1 = Utils.createValidPluginFactory();
+      const goodFactory2 = Utils.createValidPluginFactory();
 
-      var pluginID1 = framework.registerPlugin(goodFactory1);
-      var pluginID2 = framework.registerPlugin(goodFactory2);
-
-      expect(pluginID1).not.toBeFalsy();
-      expect(_.isString(pluginID1)).toBe(true);
-
-      expect(pluginID2).not.toBeFalsy();
-      expect(_.isString(pluginID2)).toBe(true);
-
-
-      expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
-
-      var pluginList = framework.getPluginIDList();
-      expect(pluginList.length).toEqual(2);
-
-      expect(_.contains(pluginList, pluginID1)).toBe(true);
-      expect(_.contains(pluginList, pluginID2)).toBe(true);
-    });
-
-    it('Test Registering Multiple Good Factories', function()
-    {
-      var goodFactory1 = Utils.createValidPluginFactory("test1");
-      var goodFactory2 = Utils.createValidPluginFactory("test2");
-
-      var pluginID1 = framework.registerPlugin(goodFactory1);
-      var pluginID2 = framework.registerPlugin(goodFactory2);
+      const pluginID1 = framework.registerPlugin(goodFactory1);
+      const pluginID2 = framework.registerPlugin(goodFactory2);
 
       expect(pluginID1).not.toBeFalsy();
       expect(_.isString(pluginID1)).toBe(true);
@@ -306,38 +246,60 @@ describe('Analytics Framework Unit Tests', function()
 
       expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
 
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
       expect(_.contains(pluginList, pluginID1)).toBe(true);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
     });
 
-    it('Test Unregistering Factories', function()
-    {
-      var goodFactory1 = Utils.createValidPluginFactory("test1");
-      var goodFactory2 = Utils.createValidPluginFactory("test2");
+    it('Test Registering Multiple Good Factories', () => {
+      const goodFactory1 = Utils.createValidPluginFactory('test1');
+      const goodFactory2 = Utils.createValidPluginFactory('test2');
 
-      var pluginID1 = framework.registerPlugin(goodFactory1);
-      var pluginID2 = framework.registerPlugin(goodFactory2);
-      var pluginList = framework.getPluginIDList();
+      const pluginID1 = framework.registerPlugin(goodFactory1);
+      const pluginID2 = framework.registerPlugin(goodFactory2);
+
+      expect(pluginID1).not.toBeFalsy();
+      expect(_.isString(pluginID1)).toBe(true);
+
+      expect(pluginID2).not.toBeFalsy();
+      expect(_.isString(pluginID2)).toBe(true);
+
+
+      expect(_.isEqual(pluginID1, pluginID2)).not.toBe(true);
+
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
-      //test removing plugin1
+      expect(_.contains(pluginList, pluginID1)).toBe(true);
+      expect(_.contains(pluginList, pluginID2)).toBe(true);
+    });
+
+    it('Test Unregistering Factories', () => {
+      const goodFactory1 = Utils.createValidPluginFactory('test1');
+      const goodFactory2 = Utils.createValidPluginFactory('test2');
+
+      const pluginID1 = framework.registerPlugin(goodFactory1);
+      const pluginID2 = framework.registerPlugin(goodFactory2);
+      let pluginList = framework.getPluginIDList();
+      expect(pluginList.length).toEqual(2);
+
+      // test removing plugin1
       expect(framework.unregisterPlugin(pluginID1)).toBe(true);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
 
-      //test removing plugin2
+      // test removing plugin2
       expect(framework.unregisterPlugin(pluginID2)).toBe(true);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(false);
 
-      //test removing plugin2 even though list is empty.
+      // test removing plugin2 even though list is empty.
       expect(framework.unregisterPlugin(pluginID2)).toBe(false);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
@@ -345,22 +307,20 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.contains(pluginList, pluginID2)).toBe(false);
     });
 
-    it('Test Unregistering Factory Without Registering First', function()
-    {
-      var pluginList = framework.getPluginIDList();
+    it('Test Unregistering Factory Without Registering First', () => {
+      let pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
-      //test removing plugin1
-      expect(framework.unregisterPlugin("badID")).toBe(false);
+      // test removing plugin1
+      expect(framework.unregisterPlugin('badID')).toBe(false);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Unregistering Factory Not using string', function()
-    {
-      var test;
+    it('Test Unregistering Factory Not using string', () => {
+      let test;
       expect(framework.unregisterPlugin(test)).toBe(false);
-      var pluginList = framework.getPluginIDList();
+      let pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
       test = {};
@@ -368,7 +328,7 @@ describe('Analytics Framework Unit Tests', function()
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
-      test = {test:"testdata"};
+      test = { test: 'testdata' };
       expect(framework.unregisterPlugin(test)).toBe(false);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
@@ -378,7 +338,7 @@ describe('Analytics Framework Unit Tests', function()
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
 
-      test = [1,2,3];
+      test = [1, 2, 3];
       expect(framework.unregisterPlugin(test)).toBe(false);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
@@ -389,18 +349,17 @@ describe('Analytics Framework Unit Tests', function()
       expect(pluginList.length).toEqual(0);
     });
 
-    it('Test Reregistering An Unregistered Factory', function()
-    {
-      var goodFactory1 = Utils.createValidPluginFactory("test1");
-      var goodFactory2 = Utils.createValidPluginFactory("test2");
-      var pluginID1 = framework.registerPlugin(goodFactory1);
-      var pluginID2 = framework.registerPlugin(goodFactory2);
+    it('Test Reregistering An Unregistered Factory', () => {
+      const goodFactory1 = Utils.createValidPluginFactory('test1');
+      const goodFactory2 = Utils.createValidPluginFactory('test2');
+      const pluginID1 = framework.registerPlugin(goodFactory1);
+      const pluginID2 = framework.registerPlugin(goodFactory2);
 
       expect(framework.unregisterPlugin(pluginID1)).toBe(true);
 
-      var pluginList = framework.getPluginIDList();
+      let pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1);
-      var pluginID3 = framework.registerPlugin(goodFactory1);
+      const pluginID3 = framework.registerPlugin(goodFactory1);
       expect(_.isEqual(pluginID1, pluginID3)).not.toBe(true);
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
@@ -410,17 +369,16 @@ describe('Analytics Framework Unit Tests', function()
     });
 
 
-    it('Test Registering and Unregistering Factories Mixed Test Cases', function()
-    {
-      var goodFactory1 = Utils.createValidPluginFactory("test1");
-      var goodFactory2 = Utils.createValidPluginFactory("test2");
+    it('Test Registering and Unregistering Factories Mixed Test Cases', () => {
+      const goodFactory1 = Utils.createValidPluginFactory('test1');
+      const goodFactory2 = Utils.createValidPluginFactory('test2');
 
-      var pluginID1 = framework.registerPlugin(goodFactory1);
-      var pluginID2 = framework.registerPlugin(goodFactory2);
+      const pluginID1 = framework.registerPlugin(goodFactory1);
+      const pluginID2 = framework.registerPlugin(goodFactory2);
       var pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
-      var badID = "badID";
+      let badID = 'badID';
 
       expect(framework.unregisterPlugin(badID)).toBe(false);
       var pluginList = framework.getPluginIDList();
@@ -441,9 +399,9 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.contains(pluginList, pluginID1)).toBe(false);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
 
-      var pluginID3 = framework.registerPlugin(goodFactory1);
-      var pluginID4 = framework.registerPlugin(goodFactory1);
-      var pluginID5 = framework.registerPlugin(goodFactory1);
+      const pluginID3 = framework.registerPlugin(goodFactory1);
+      const pluginID4 = framework.registerPlugin(goodFactory1);
+      const pluginID5 = framework.registerPlugin(goodFactory1);
 
       pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(4);
@@ -463,148 +421,128 @@ describe('Analytics Framework Unit Tests', function()
       expect(_.contains(pluginList, pluginID5)).toBe(true);
     });
 
-    it('Test Registering Lots Of Plugins', function()
-    {
-      //Test that the framework will not crash when registering lots of plugins.
-      var upperLimit = 1000;
-      var goodFactory1 = Utils.createValidPluginFactory("test1");
+    it('Test Registering Lots Of Plugins', () => {
+      // Test that the framework will not crash when registering lots of plugins.
+      const upperLimit = 1000;
+      const goodFactory1 = Utils.createValidPluginFactory('test1');
 
-      var errorHit = false;
-      //make sure it doesn't throw an error.
-      try
-      {
-        for(var i = 0; i < upperLimit; i++)
-        {
+      let errorHit = false;
+      // make sure it doesn't throw an error.
+      try {
+        for (let i = 0; i < upperLimit; i++) {
           framework.registerPlugin(goodFactory1);
         }
-      }
-      catch (e)
-      {
+      } catch (e) {
         errorHit = true;
       }
 
       expect(errorHit).toBe(false);
-      var pluginList = framework.getPluginIDList();
+      const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(1000);
     });
-
   });
 
-  describe('Test Message Recording', function()
-  {
-    it('Test Recorded Messages On Start', function()
-    {
-      var recordedEvents = framework.getRecordedEvents();
+  describe('Test Message Recording', () => {
+    it('Test Recorded Messages On Start', () => {
+      const recordedEvents = framework.getRecordedEvents();
       expect(_.isArray(recordedEvents)).toBe(true);
       expect(recordedEvents.length).toEqual(0);
     });
 
-    //helper function for testing bad messages
-    var testBadMessages = function(framework)
-    {
-      var test;
-      var errorOccured = false;
-      try
-      {
+    // helper function for testing bad messages
+    const testBadMessages = function (framework) {
+      let test;
+      let errorOccured = false;
+      try {
         expect(framework.publishEvent(test)).toBe(false);
         expect(framework.publishEvent({})).toBe(false);
         expect(framework.publishEvent([])).toBe(false);
-        expect(framework.publishEvent("")).toBe(false);
+        expect(framework.publishEvent('')).toBe(false);
         expect(framework.publishEvent(null)).toBe(false);
         expect(framework.publishEvent(5)).toBe(false);
-        expect(framework.publishEvent("unitTestBadMessage")).toBe(false);
-      }
-      catch(e)
-      {
+        expect(framework.publishEvent('unitTestBadMessage')).toBe(false);
+      } catch (e) {
         errorOccured = true;
       }
 
       expect(errorOccured).toBe(false);
-      var recordedEvents = framework.getRecordedEvents();
+      const recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(0);
-    }
+    };
 
-    var testGoodMessages = function(framework)
-    {
-      var recordedEvents = framework.getRecordedEvents();
+    const testGoodMessages = function (framework) {
+      let recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(0);
 
-      var numMsgSent = 0;
-      var msgName;
-      var events = framework.flattenEvents(OO.Analytics.EVENTS); 
-      for(var i = 0; i < events.length; i++)
-      {
+      let numMsgSent = 0;
+      let msgName;
+      const events = framework.flattenEvents(OO.Analytics.EVENTS);
+      for (let i = 0; i < events.length; i++) {
         msgName = events[i];
         expect(framework.publishEvent(msgName)).toBe(true);
         numMsgSent++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
-        var length = recordedEvents.length;
+        const { length } = recordedEvents;
         expect(length).toEqual(numMsgSent);
-        var lastMsg = recordedEvents[length-1];
+        const lastMsg = recordedEvents[length - 1];
         expect(lastMsg.eventName).toEqual(msgName);
       }
-    }
+    };
 
-    var testGoodMessagesBadParams = function(framework)
-    {
-      var recordedEvents = framework.getRecordedEvents();
+    const testGoodMessagesBadParams = function (framework) {
+      let recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(0);
 
-      var msgSentObj = {count:0};
-      var params;
+      const msgSentObj = { count: 0 };
+      let params;
       badParamsHelper(framework, params, msgSentObj);
       params = {};
       badParamsHelper(framework, params, msgSentObj);
       params = 5;
       badParamsHelper(framework, params, msgSentObj);
-      params = "notAnArray";
+      params = 'notAnArray';
       badParamsHelper(framework, params, msgSentObj);
 
       recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(msgSentObj.count);
     };
 
-    var badParamsHelper = function(framework, params, msgSentObj)
-    {
-      var msgName;
-      var events = framework.flattenEvents(OO.Analytics.EVENTS);
-      var recordedEvents;
-      for(var i = 0; i < events.length; i++)
-      {
+    var badParamsHelper = function (framework, params, msgSentObj) {
+      let msgName;
+      const events = framework.flattenEvents(OO.Analytics.EVENTS);
+      let recordedEvents;
+      for (let i = 0; i < events.length; i++) {
         msgName = events[i];
         expect(framework.publishEvent(msgName)).toBe(true);
         msgSentObj.count++;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
-        var length = recordedEvents.length;
+        const { length } = recordedEvents;
         expect(length).toEqual(msgSentObj.count);
-        var lastMsg = recordedEvents[length-1];
+        const lastMsg = recordedEvents[length - 1];
         expect(lastMsg.eventName).toEqual(msgName);
       }
     };
 
-    describe('Test Framework Initialization', function()
-    {
-
-      it('Test Flatten Events Function', function()
-      {
-        var object = {};
+    describe('Test Framework Initialization', () => {
+      it('Test Flatten Events Function', () => {
+        let object = {};
         expect(framework.flattenEvents(object).length).toBe(0);
 
         object = {
           a: 'a_val',
           b: 'b_val',
-          c: 'c_val'
+          c: 'c_val',
         };
 
         // Should return the correct number of values
-        var flattenResult = framework.flattenEvents(object);
+        let flattenResult = framework.flattenEvents(object);
         expect(flattenResult.length).toBe(3);
 
         // Should return the correct values
-        var expectedVals = ['a_val', 'b_val', 'c_val'];
-        _.each(expectedVals, function(expectedVal) {
+        let expectedVals = ['a_val', 'b_val', 'c_val'];
+        _.each(expectedVals, (expectedVal) => {
           expect(_.contains(flattenResult, expectedVal)).toBe(true);
         });
 
@@ -612,16 +550,16 @@ describe('Analytics Framework Unit Tests', function()
           a: {
             aa1: 'aa1_val',
             aa2: 'aa2_val',
-            aa3: 'aa3_val'
+            aa3: 'aa3_val',
           },
           b: {
-            bb:'bb_val' 
-          }
+            bb: 'bb_val',
+          },
         };
         flattenResult = framework.flattenEvents(object);
         expect(flattenResult.length).toBe(4);
         expectedVals = ['aa1_val', 'aa2_val', 'aa3_val', 'bb_val'];
-        _.each(expectedVals, function(expectedVal) {
+        _.each(expectedVals, (expectedVal) => {
           expect(_.contains(flattenResult, expectedVal)).toBe(true);
         });
 
@@ -633,12 +571,12 @@ describe('Analytics Framework Unit Tests', function()
           b: {},
           c: 'c_val',
           d: 'd_val',
-          e: 'e_val'
+          e: 'e_val',
         };
         flattenResult = framework.flattenEvents(object);
         expect(flattenResult.length).toBe(5);
         expectedVals = ['aa1_val', 'aa2_val', 'c_val', 'd_val', 'e_val'];
-        _.each(expectedVals, function(expectedVal) {
+        _.each(expectedVals, (expectedVal) => {
           expect(_.contains(flattenResult, expectedVal)).toBe(true);
         });
 
@@ -646,101 +584,85 @@ describe('Analytics Framework Unit Tests', function()
           a: {
             aa1: 'aa1_val',
             aa2: {
-              aaa1: 'aaa1_val'
+              aaa1: 'aaa1_val',
             },
           },
           b: {
             b1: {
               bb1: {
-                bbb1: 'bbb1_val'
-              }
-            }
-          }
+                bbb1: 'bbb1_val',
+              },
+            },
+          },
         };
         flattenResult = framework.flattenEvents(object);
         expect(flattenResult.length).toBe(3);
         expectedVals = ['aa1_val', 'aaa1_val', 'bbb1_val'];
-        _.each(expectedVals, function(expectedVal) {
+        _.each(expectedVals, (expectedVal) => {
           expect(_.contains(flattenResult, expectedVal)).toBe(true);
         });
       });
-
     });
 
-    describe('Test Recording With No Plugins Registered', function()
-    {
-      it('Test Sending Invalid Messages', function()
-      {
+    describe('Test Recording With No Plugins Registered', () => {
+      it('Test Sending Invalid Messages', () => {
         testBadMessages(framework);
       });
 
-      it('Test Sending Valid Messages', function()
-      {
+      it('Test Sending Valid Messages', () => {
         testGoodMessages(framework);
       });
 
-      it('Test Sending Valid Messages With Bad Params', function()
-      {
+      it('Test Sending Valid Messages With Bad Params', () => {
         testGoodMessagesBadParams(framework);
       });
     });
 
-    describe('Test Recording With Plugin Registered', function()
-    {
-      //setup for individual tests
-      var testSetup = function()
-      {
-        var plugin = Utils.createValidPluginFactory();
+    describe('Test Recording With Plugin Registered', () => {
+      // setup for individual tests
+      const testSetup = function () {
+        const plugin = Utils.createValidPluginFactory();
         framework.registerPlugin(plugin);
       };
 
       beforeEach(testSetup);
 
-      it('Test Sending Invalid Messages', function()
-      {
+      it('Test Sending Invalid Messages', () => {
         expect(framework.getPluginIDList().length).toEqual(1);
         testBadMessages(framework);
       });
 
-      it('Test Sending Valid Messages', function()
-      {
+      it('Test Sending Valid Messages', () => {
         expect(framework.getPluginIDList().length).toEqual(1);
         testGoodMessages(framework);
       });
 
-      it('Test Sending Valid Messages With Bad Params', function()
-      {
+      it('Test Sending Valid Messages With Bad Params', () => {
         expect(framework.getPluginIDList().length).toEqual(1);
         testGoodMessagesBadParams(framework);
       });
     });
 
-    it('Test Max Messages Recorded', function()
-    {
-      for(var i = 0; i < 550; i++)
-      {
+    it('Test Max Messages Recorded', () => {
+      for (let i = 0; i < 550; i++) {
         framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED);
       }
 
-      var recordedEvents = framework.getRecordedEvents();
+      const recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toBeLessThan(550);
     });
   });
 
-  describe('Test Plugin Initialization', function()
-  {
-    //setup for individual tests
-    var testSetup = function()
-    {
+  describe('Test Plugin Initialization', () => {
+    // setup for individual tests
+    const testSetup = function () {
 
     };
 
-    //cleanup for individual tests
-    var testCleanup = function()
-    {
-      //Test factories
-      if(OO.Analytics.Framework.TEST)
-      {
+    // cleanup for individual tests
+    const testCleanup = function () {
+      // Test factories
+      if (OO.Analytics.Framework.TEST) {
         OO.Analytics.Framework.TEST = null;
       }
     };
@@ -748,129 +670,115 @@ describe('Analytics Framework Unit Tests', function()
     beforeEach(testSetup);
     afterEach(testCleanup);
 
-    var testSinglePluginWithMetadata = function(metadata, isGoodMetadata)
-    {
-      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+    const testSinglePluginWithMetadata = function (metadata, isGoodMetadata) {
+      const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       expect(framework.setPluginMetadata(metadata)).toBe(isGoodMetadata);
-      var pluginID = framework.registerPlugin(factory);
+      const pluginID = framework.registerPlugin(factory);
 
       expect(OO.Analytics.Framework.TEST.length).toEqual(1);
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.getPluginID()).toEqual(pluginID);
     };
 
-    it("Test Plugin Init with Undefined Metadata", function()
-    {
-      var metadata;
+    it('Test Plugin Init with Undefined Metadata', () => {
+      let metadata;
       testSinglePluginWithMetadata(metadata, false);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeUndefined();
     });
 
-    it("Test Plugin Init with Null Metadata", function()
-    {
-      var metadata = null;
+    it('Test Plugin Init with Null Metadata', () => {
+      const metadata = null;
       testSinglePluginWithMetadata(metadata, false);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeUndefined();
     });
 
-    it("Test Plugin Init with Empty String Metadata", function()
-    {
-      var metadata = "";
+    it('Test Plugin Init with Empty String Metadata', () => {
+      const metadata = '';
       testSinglePluginWithMetadata(metadata, false);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeUndefined();
     });
 
-    it("Test Plugin Init with String Metadata", function()
-    {
-      var metadata = "badMetadata";
+    it('Test Plugin Init with String Metadata', () => {
+      const metadata = 'badMetadata';
       testSinglePluginWithMetadata(metadata, false);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeUndefined();
     });
 
-    it("Test Plugin Init with Empty Metadata", function()
-    {
-      var metadata = {};
+    it('Test Plugin Init with Empty Metadata', () => {
+      const metadata = {};
       testSinglePluginWithMetadata(metadata, true);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeUndefined();
     });
 
-    it("Test Plugin Init with Array As Metadata", function()
-    {
-      var metadata = [];
+    it('Test Plugin Init with Array As Metadata', () => {
+      const metadata = [];
       testSinglePluginWithMetadata(metadata, true);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeUndefined();
     });
 
-    it("Test Plugin Init with Metadata For Other Plugins", function()
-    {
-      var metadata = {};
-      metadata.otherPlugin = {test1:1, test2:2};
+    it('Test Plugin Init with Metadata For Other Plugins', () => {
+      const metadata = {};
+      metadata.otherPlugin = { test1: 1, test2: 2 };
       testSinglePluginWithMetadata(metadata, true);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeUndefined();
     });
 
-    it("Test Setting Framework Metadata Just For This Plugin", function()
-    {
-      var metadata = {};
-      metadata.testName = {test1:1, test2:2};
+    it('Test Setting Framework Metadata Just For This Plugin', () => {
+      const metadata = {};
+      metadata.testName = { test1: 1, test2: 2 };
       testSinglePluginWithMetadata(metadata, true);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeDefined();
       expect(plugin.metadata).toEqual(metadata.testName);
     });
 
-    it("Test Setting Framework Metadata With Data For Multiple Plugins", function()
-    {
-      var metadata = {};
-      metadata.testName = {test1:1, test2:2};
-      metadata.otherTest = {test3:3, test4:4};
+    it('Test Setting Framework Metadata With Data For Multiple Plugins', () => {
+      const metadata = {};
+      metadata.testName = { test1: 1, test2: 2 };
+      metadata.otherTest = { test3: 3, test4: 4 };
       testSinglePluginWithMetadata(metadata, true);
 
-      var plugin = OO.Analytics.Framework.TEST[0];
+      const plugin = OO.Analytics.Framework.TEST[0];
       expect(plugin.initWasCalled).toBe(true);
       expect(plugin.metadata).toBeDefined();
       expect(plugin.metadata).toEqual(metadata.testName);
     });
   });
 
-  describe('Test Plugin Message Receiving', function()
-  {
-    var testFactory;
-    //setup for individual tests
-    var testSetup = function()
-    {
+  describe('Test Plugin Message Receiving', () => {
+    let testFactory;
+    // setup for individual tests
+    const testSetup = function () {
 
     };
 
-    //cleanup for individual tests
-    var testCleanup = function()
-    {
-      //Test factories
-      if(OO.Analytics.Framework.TEST)
-      {
+    // cleanup for individual tests
+    const testCleanup = function () {
+      // Test factories
+      if (OO.Analytics.Framework.TEST) {
         OO.Analytics.Framework.TEST = null;
       }
     };
@@ -878,13 +786,12 @@ describe('Analytics Framework Unit Tests', function()
     beforeEach(testSetup);
     afterEach(testCleanup);
 
-    it("Test Plugin Receives Messages When Active", function()
-    {
-      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
-      var pluginID = framework.registerPlugin(factory);
-      var plugin = OO.Analytics.Framework.TEST[0];
-      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
-      var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
+    it('Test Plugin Receives Messages When Active', () => {
+      const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      const pluginID = framework.registerPlugin(factory);
+      const plugin = OO.Analytics.Framework.TEST[0];
+      const msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
+      const msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       expect(framework.publishEvent(msg1)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(1);
@@ -899,13 +806,12 @@ describe('Analytics Framework Unit Tests', function()
       expect(plugin.msgReceivedList[2]).toEqual(msg2);
     });
 
-    it("Test Plugin Doesn't Receive Messages When Inactive", function()
-    {
-      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
-      var pluginID = framework.registerPlugin(factory);
-      var plugin = OO.Analytics.Framework.TEST[0];
-      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
-      var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
+    it("Test Plugin Doesn't Receive Messages When Inactive", () => {
+      const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      const pluginID = framework.registerPlugin(factory);
+      const plugin = OO.Analytics.Framework.TEST[0];
+      const msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
+      const msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       expect(framework.makePluginInactive(pluginID)).toBe(true);
       expect(framework.publishEvent(msg1)).toBe(true);
@@ -921,32 +827,31 @@ describe('Analytics Framework Unit Tests', function()
       expect(plugin.msgReceivedList.length).toEqual(0);
     });
 
-    it("Test Multiple Plugins Mixed Active and Inactive", function()
-    {
-      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
-      var pluginID1 = framework.registerPlugin(factory);
-      var pluginID2 = framework.registerPlugin(factory);
-      var plugin1 = OO.Analytics.Framework.TEST[0];
-      var plugin2 = OO.Analytics.Framework.TEST[1];
+    it('Test Multiple Plugins Mixed Active and Inactive', () => {
+      const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      const pluginID1 = framework.registerPlugin(factory);
+      const pluginID2 = framework.registerPlugin(factory);
+      const plugin1 = OO.Analytics.Framework.TEST[0];
+      const plugin2 = OO.Analytics.Framework.TEST[1];
 
-      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
-      var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
+      const msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
+      const msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
-      //send first message successfully
+      // send first message successfully
       expect(framework.publishEvent(msg1)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(1);
       expect(plugin1.msgReceivedList[0]).toEqual(msg1);
       expect(plugin2.msgReceivedList.length).toEqual(1);
       expect(plugin2.msgReceivedList[0]).toEqual(msg1);
 
-      //send second message successfully
+      // send second message successfully
       expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(2);
       expect(plugin1.msgReceivedList[1]).toEqual(msg2);
       expect(plugin2.msgReceivedList.length).toEqual(2);
       expect(plugin2.msgReceivedList[1]).toEqual(msg2);
 
-      //disable plugin1 and send message successfully
+      // disable plugin1 and send message successfully
       framework.makePluginInactive(pluginID1);
       expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(2);
@@ -954,27 +859,22 @@ describe('Analytics Framework Unit Tests', function()
       expect(plugin2.msgReceivedList.length).toEqual(3);
       expect(plugin2.msgReceivedList[2]).toEqual(msg2);
 
-      //reenable plugin1 and send message again.
+      // reenable plugin1 and send message again.
       framework.makePluginActive(pluginID1);
       expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin1.msgReceivedList.length).toEqual(3);
       expect(plugin1.msgReceivedList[2]).toEqual(msg2);
       expect(plugin2.msgReceivedList.length).toEqual(4);
       expect(plugin2.msgReceivedList[3]).toEqual(msg2);
-
     });
 
-    it("Test Framework Handles Plugin That Throws Error On getName", function()
-    {
-      var factory = Utils.createFactoryThatThrowsErrorOn("getName");
-      var errorOccured = false;
-      var pluginID;
-      try
-      {
+    it('Test Framework Handles Plugin That Throws Error On getName', () => {
+      const factory = Utils.createFactoryThatThrowsErrorOn('getName');
+      let errorOccured = false;
+      let pluginID;
+      try {
         pluginID = framework.registerPlugin(factory);
-      }
-      catch(e)
-      {
+      } catch (e) {
         OO.log(e);
         errorOccured = true;
       }
@@ -983,17 +883,13 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.getPluginIDList().length).toEqual(0);
     });
 
-    it("Test Framework Handles Plugin That Throws Error On getVersion", function()
-    {
-      var factory = Utils.createFactoryThatThrowsErrorOn("getVersion");
-      var errorOccured = false;
-      var pluginID;
-      try
-      {
+    it('Test Framework Handles Plugin That Throws Error On getVersion', () => {
+      const factory = Utils.createFactoryThatThrowsErrorOn('getVersion');
+      let errorOccured = false;
+      let pluginID;
+      try {
         pluginID = framework.registerPlugin(factory);
-      }
-      catch(e)
-      {
+      } catch (e) {
         OO.log(e);
         errorOccured = true;
       }
@@ -1002,79 +898,62 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.getPluginIDList().length).toEqual(0);
     });
 
-    it("Test Framework Handles Plugin That Throws Error On init", function()
-    {
-      var factory = Utils.createFactoryThatThrowsErrorOn("init");
-      var errorOccured = false;
-      var pluginID;
-      try
-      {
+    it('Test Framework Handles Plugin That Throws Error On init', () => {
+      const factory = Utils.createFactoryThatThrowsErrorOn('init');
+      let errorOccured = false;
+      let pluginID;
+      try {
         pluginID = framework.registerPlugin(factory);
-      }
-      catch(e)
-      {
+      } catch (e) {
         OO.log(e);
         errorOccured = true;
       }
       expect(errorOccured).toBe(false);
     });
 
-    it("Test Framework Handles Plugin That Throws Error On setMetadata", function()
-    {
-      var factory = Utils.createFactoryThatThrowsErrorOn("setMetadata");
-      var errorOccured = false;
-      var pluginID;
-      try
-      {
+    it('Test Framework Handles Plugin That Throws Error On setMetadata', () => {
+      const factory = Utils.createFactoryThatThrowsErrorOn('setMetadata');
+      let errorOccured = false;
+      let pluginID;
+      try {
         pluginID = framework.registerPlugin(factory);
         expect(framework.setPluginMetadata({}));
-      }
-      catch(e)
-      {
+      } catch (e) {
         OO.log(e);
         errorOccured = true;
       }
       expect(errorOccured).toBe(false);
     });
 
-    it("Test Framework Handles Plugin That Throws Error On setPluginID", function()
-    {
-      var factory = Utils.createFactoryThatThrowsErrorOn("setPluginID");
-      var errorOccured = false;
-      var pluginID;
-      try
-      {
+    it('Test Framework Handles Plugin That Throws Error On setPluginID', () => {
+      const factory = Utils.createFactoryThatThrowsErrorOn('setPluginID');
+      let errorOccured = false;
+      let pluginID;
+      try {
         pluginID = framework.registerPlugin(factory);
-      }
-      catch(e)
-      {
+      } catch (e) {
         OO.log(e);
         errorOccured = true;
       }
-      //plugin should still be registered even if the function failed.
+      // plugin should still be registered even if the function failed.
       expect(errorOccured).toBe(false);
       expect(framework.getPluginIDList().length).toEqual(1);
     });
 
 
-    it("Test Framework Handles Plugin That Throws Error On processEvent", function()
-    {
-      var factory = Utils.createFactoryThatThrowsErrorOn("processEvent");
-      var otherFactory  = Utils.createFactoryWithGlobalAccessToPluginInstance();
-      var errorOccured = false;
-      var pluginID1 = framework.registerPlugin(factory);
+    it('Test Framework Handles Plugin That Throws Error On processEvent', () => {
+      const factory = Utils.createFactoryThatThrowsErrorOn('processEvent');
+      const otherFactory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      let errorOccured = false;
+      const pluginID1 = framework.registerPlugin(factory);
       expect(framework.getPluginIDList().length).toEqual(1);
-      var pluginID2 = framework.registerPlugin(otherFactory);
+      const pluginID2 = framework.registerPlugin(otherFactory);
       expect(framework.getPluginIDList().length).toEqual(2);
-      try
-      {
+      try {
         expect(framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED)).toBe(true);
         expect(framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PLAY_REQUESTED)).toBe(true);
-      }
-      catch(e)
-      {
-        if (e)
-        {
+      } catch (e) {
+        if (e) {
           OO.log(e);
         }
         errorOccured = true;
@@ -1084,18 +963,14 @@ describe('Analytics Framework Unit Tests', function()
       expect(errorOccured).toBe(false);
     });
 
-    it("Test Framework Handles Plugin That Throws Error On destroy", function()
-    {
-      var factory = Utils.createFactoryThatThrowsErrorOn("destroy");
-      var errorOccured = false;
-      var pluginID;
-      try
-      {
+    it('Test Framework Handles Plugin That Throws Error On destroy', () => {
+      const factory = Utils.createFactoryThatThrowsErrorOn('destroy');
+      let errorOccured = false;
+      let pluginID;
+      try {
         pluginID = framework.registerPlugin(factory);
         framework.unregisterPlugin(pluginID);
-      }
-      catch(e)
-      {
+      } catch (e) {
         OO.log(e);
         errorOccured = true;
       }
@@ -1103,13 +978,12 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.getPluginIDList().length).toEqual(0);
     });
 
-    it("Test publishing events can be turned off and on", function()
-    {
-      var factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
-      var pluginID = framework.registerPlugin(factory);
-      var plugin = OO.Analytics.Framework.TEST[0];
-      var msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
-      var msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
+    it('Test publishing events can be turned off and on', () => {
+      const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      const pluginID = framework.registerPlugin(factory);
+      const plugin = OO.Analytics.Framework.TEST[0];
+      const msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
+      const msg2 = EVENTS.VIDEO_PLAY_REQUESTED;
 
       framework.stopPublishingEvents();
       expect(framework.publishEvent(msg1)).toBe(false);
@@ -1120,7 +994,7 @@ describe('Analytics Framework Unit Tests', function()
 
       expect(framework.publishEvent(msg2)).toBe(false);
       expect(plugin.msgReceivedList.length).toEqual(0);
-      //double check that we aren't recording the messages either.
+      // double check that we aren't recording the messages either.
       expect(framework.getRecordedEvents().length).toEqual(0);
 
       framework.resumePublishingEvents();
@@ -1135,15 +1009,14 @@ describe('Analytics Framework Unit Tests', function()
       expect(framework.publishEvent(msg2)).toBe(true);
       expect(plugin.msgReceivedList.length).toEqual(3);
       expect(plugin.msgReceivedList[2]).toEqual(msg2);
-      //make sure we resume recording events.
+      // make sure we resume recording events.
       expect(framework.getRecordedEvents().length).toEqual(3);
     });
   });
 
-  it('Test Framework Destroy', function()
-  {
+  it('Test Framework Destroy', () => {
     OO.Analytics.RegisterPluginFactory(templatePluginFactory);
-    var pluginList = framework.getPluginIDList();
+    let pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
@@ -1155,12 +1028,11 @@ describe('Analytics Framework Unit Tests', function()
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
 
-  it('Test Framework Destroy With Multi Frameworks', function()
-  {
+  it('Test Framework Destroy With Multi Frameworks', () => {
     OO.Analytics.RegisterPluginFactory(templatePluginFactory);
-    var framework2 = new OO.Analytics.Framework();
-    var pluginList = framework.getPluginIDList();
-    var pluginList2 = framework2.getPluginIDList();
+    const framework2 = new OO.Analytics.Framework();
+    let pluginList = framework.getPluginIDList();
+    let pluginList2 = framework2.getPluginIDList();
 
     expect(pluginList.length).toEqual(1);
     expect(pluginList2.length).toEqual(1);
@@ -1178,89 +1050,81 @@ describe('Analytics Framework Unit Tests', function()
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
 
-  describe('Test Creation Of Message Data Objects', function()
-  {
-
-    it('Test VideoSourceData', function()
-    {
-      var metadata =
-      {
-        embedCode: "test1",
-        metadata: {foo:"test2"}
+  describe('Test Creation Of Message Data Objects', () => {
+    it('Test VideoSourceData', () => {
+      const metadata = {
+        embedCode: 'test1',
+        metadata: { foo: 'test2' },
       };
 
-      var embedCode = "embedCodeTest";
-      var data = new OO.Analytics.EVENT_DATA.VideoSourceData(embedCode, metadata);
-      expect(data).toEqual({embedCode:embedCode,metadata:metadata});
+      const embedCode = 'embedCodeTest';
+      let data = new OO.Analytics.EVENT_DATA.VideoSourceData(embedCode, metadata);
+      expect(data).toEqual({ embedCode, metadata });
 
-      data = new OO.Analytics.EVENT_DATA.VideoSourceData(2,"test");
-      expect(data).not.toEqual({embedCode:2,metadata:"test"});
+      data = new OO.Analytics.EVENT_DATA.VideoSourceData(2, 'test');
+      expect(data).not.toEqual({ embedCode: 2, metadata: 'test' });
       expect(data.embedCode).toEqual(undefined);
       expect(data.metadata).toEqual(undefined);
     });
 
-    it('Test VideoContentMetadata', function()
-    {
-      var metadata =
-      {
-        title:"titleTest",
-        description:"descTest",
-        duration:2.3,
-        closedCaptions: {foo:"test"},
-        contentType: "contentTest",
-        hostedAtURL: "urlTest"
+    it('Test VideoContentMetadata', () => {
+      const metadata = {
+        title: 'titleTest',
+        description: 'descTest',
+        duration: 2.3,
+        closedCaptions: { foo: 'test' },
+        contentType: 'contentTest',
+        hostedAtURL: 'urlTest',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(metadata.title,
-                                                                  metadata.description,
-                                                                  metadata.duration,
-                                                                  metadata.closedCaptions,
-                                                                  metadata.contentType,
-                                                                  metadata.hostedAtURL);
+      let data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(metadata.title,
+        metadata.description,
+        metadata.duration,
+        metadata.closedCaptions,
+        metadata.contentType,
+        metadata.hostedAtURL);
       expect(data).toEqual(metadata);
 
-      //check and see if numbers get parsed correctly.
-      var temp = OO._.clone(metadata);
-      temp.duration = "2.3";
+      // check and see if numbers get parsed correctly.
+      const temp = OO._.clone(metadata);
+      temp.duration = '2.3';
       data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
-                                                              temp.description,
-                                                              temp.duration,
-                                                              temp.closedCaptions,
-                                                              temp.contentType,
-                                                              temp.hostedAtURL);
+        temp.description,
+        temp.duration,
+        temp.closedCaptions,
+        temp.contentType,
+        temp.hostedAtURL);
       expect(data).toEqual(metadata);
 
-      temp.duration = "2";
+      temp.duration = '2';
       data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
-                                                              temp.description,
-                                                              temp.duration,
-                                                              temp.closedCaptions,
-                                                              temp.contentType,
-                                                              temp.hostedAtURL);
+        temp.description,
+        temp.duration,
+        temp.closedCaptions,
+        temp.contentType,
+        temp.hostedAtURL);
       expect(data.duration).toEqual(2);
 
-      temp.duration = "asdf";
+      temp.duration = 'asdf';
       data = new OO.Analytics.EVENT_DATA.VideoContentMetadata(temp.title,
-                                                              temp.description,
-                                                              temp.duration,
-                                                              temp.closedCaptions,
-                                                              temp.contentType,
-                                                              temp.hostedAtURL);
+        temp.description,
+        temp.duration,
+        temp.closedCaptions,
+        temp.contentType,
+        temp.hostedAtURL);
       expect(data.duration).toBeUndefined();
     });
 
-    it('Test VideoDownloadingMetadata', function()
-    {
-      var metadata =
-      {
-        currentTime:1,
-        totalStreamDuration:2,
-        streamBufferedUntilTime:2.3,
+    it('Test VideoDownloadingMetadata', () => {
+      const metadata = {
+        currentTime: 1,
+        totalStreamDuration: 2,
+        streamBufferedUntilTime: 2.3,
         seekableRangeStart: 4.4,
-        seekableRangeEnd: 5.5
+        seekableRangeEnd: 5.5,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoDownloadingMetadata(1, 2, 2.3, "4.4", "5.5");
+      let data = new OO.Analytics.EVENT_DATA.VideoDownloadingMetadata(1, 2, 2.3, '4.4', '5.5');
       expect(data).toEqual(metadata);
 
       data = new OO.Analytics.EVENT_DATA.VideoDownloadingMetadata();
@@ -1272,75 +1136,65 @@ describe('Analytics Framework Unit Tests', function()
       expect(data.seekableRangeEnd).toBeUndefined();
     });
 
-    it('Test VideoBufferingStartedData', function()
-    {
-      var metadata =
-      {
-        streamUrl:"testUrl.com"
+    it('Test VideoBufferingStartedData', () => {
+      const metadata = {
+        streamUrl: 'testUrl.com',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoBufferingStartedData(metadata.streamUrl);
+      const data = new OO.Analytics.EVENT_DATA.VideoBufferingStartedData(metadata.streamUrl);
       expect(data).toEqual(metadata);
     });
 
-    it('Test VideoBufferingEndedData', function()
-    {
-      var metadata =
-      {
-        streamUrl:"testUrl.com"
+    it('Test VideoBufferingEndedData', () => {
+      const metadata = {
+        streamUrl: 'testUrl.com',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoBufferingEndedData(metadata.streamUrl);
+      const data = new OO.Analytics.EVENT_DATA.VideoBufferingEndedData(metadata.streamUrl);
       expect(data).toEqual(metadata);
     });
 
-    it('Test VideoBitrateProfileData', function()
-    {
-      var metadata =
-      {
-        bitrate:1000,
-        height:2000,
-        width:3000.3,
-        id:"testProfile"
+    it('Test VideoBitrateProfileData', () => {
+      const metadata = {
+        bitrate: 1000,
+        height: 2000,
+        width: 3000.3,
+        id: 'testProfile',
       };
 
-      var metadata2 =
-      {
-        bitrate:"1000",
-        height:"2000",
-        width:"3000.3",
-        id:"testProfile"
+      const metadata2 = {
+        bitrate: '1000',
+        height: '2000',
+        width: '3000.3',
+        id: 'testProfile',
       };
 
-      var metadata3 =
-      {
-        bitrate:"low",
-        height:2000,
-        width:3000.3,
-        id:"testProfile"
+      const metadata3 = {
+        bitrate: 'low',
+        height: 2000,
+        width: 3000.3,
+        id: 'testProfile',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata);
+      let data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata);
       expect(data).toEqual(metadata);
 
       data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata2);
-      //make sure it converts the string to numbers.
+      // make sure it converts the string to numbers.
       expect(data).toEqual(metadata);
 
       data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileData(metadata3);
       expect(data).toEqual(metadata3);
 
-      //double check bad data
-      var badMetadata =
-      {
-        bitrate:{},
-//        height:"2000",
-        width:[],
-        id:{}
+      // double check bad data
+      const badMetadata = {
+        bitrate: {},
+        //        height:"2000",
+        width: [],
+        id: {},
       };
 
-      var badMetadataResult =
-      {
+      const badMetadataResult = {
 
       };
 
@@ -1348,59 +1202,51 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(badMetadataResult);
     });
 
-    it('Test VideoBitrateProfileLookupData', function()
-    {
-      var metadata1 =
-      {
-        bitrate:1000,
-        height:2000,
-        width:3000.3,
-        id:"testProfile1"
+    it('Test VideoBitrateProfileLookupData', () => {
+      const metadata1 = {
+        bitrate: 1000,
+        height: 2000,
+        width: 3000.3,
+        id: 'testProfile1',
       };
 
-      var metadata2 =
-      {
-        bitrate:4000,
-        height:5000,
-        width:6000.3,
-        id:"testProfile2"
+      const metadata2 = {
+        bitrate: 4000,
+        height: 5000,
+        width: 6000.3,
+        id: 'testProfile2',
       };
 
-      var metadata3 =
-      {
-        bitrate:7000,
-        height:8000,
-        width:9000.3,
-        id:"testProfile3"
+      const metadata3 = {
+        bitrate: 7000,
+        height: 8000,
+        width: 9000.3,
+        id: 'testProfile3',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileLookupData([metadata1, metadata2, metadata3]);
+      let data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileLookupData([metadata1, metadata2, metadata3]);
       expect(data).toBeDefined();
       expect(data.profiles.testProfile1).toEqual(metadata1);
       expect(data.profiles.testProfile2).toEqual(metadata2);
       expect(data.profiles.testProfile3).toEqual(metadata3);
 
-      data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileLookupData("bad data");
+      data = new OO.Analytics.EVENT_DATA.VideoBitrateProfileLookupData('bad data');
       expect(data.profiles).toEqual({});
     });
 
-    it('Test VideoTargetBitrateData', function()
-    {
-      var metadata =
-      {
-        targetProfile:"testProfile"
+    it('Test VideoTargetBitrateData', () => {
+      const metadata = {
+        targetProfile: 'testProfile',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoTargetBitrateData(metadata.targetProfile);
+      let data = new OO.Analytics.EVENT_DATA.VideoTargetBitrateData(metadata.targetProfile);
       expect(data).toEqual(metadata);
 
-      var badMetadata =
-      {
-        targetProfile:{}
+      const badMetadata = {
+        targetProfile: {},
       };
 
-      var badMetadataResult =
-      {
+      const badMetadataResult = {
 
       };
 
@@ -1408,76 +1254,64 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(badMetadataResult);
     });
 
-    it('Test VideoSeekRequestedData', function()
-    {
-      var metadata =
-      {
-        seekingToTime:5.05
+    it('Test VideoSeekRequestedData', () => {
+      const metadata = {
+        seekingToTime: 5.05,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoSeekRequestedData(metadata.seekingToTime);
+      const data = new OO.Analytics.EVENT_DATA.VideoSeekRequestedData(metadata.seekingToTime);
       expect(data).toEqual(metadata);
     });
 
-    it('Test VideoSeekCompletedData', function()
-    {
-      var metadata =
-      {
-        timeSeekedTo:5109293.9949
+    it('Test VideoSeekCompletedData', () => {
+      const metadata = {
+        timeSeekedTo: 5109293.9949,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoSeekCompletedData(metadata.timeSeekedTo);
+      const data = new OO.Analytics.EVENT_DATA.VideoSeekCompletedData(metadata.timeSeekedTo);
       expect(data).toEqual(metadata);
     });
 
-    it('Test VideoStreamPositionChangedData', function()
-    {
-      var metadata =
-      {
-        streamPosition:500,
-        totalStreamDuration:1000,
+    it('Test VideoStreamPositionChangedData', () => {
+      const metadata = {
+        streamPosition: 500,
+        totalStreamDuration: 1000,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData(metadata.streamPosition,
-                                                                            metadata.totalStreamDuration);
+      const data = new OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData(metadata.streamPosition,
+        metadata.totalStreamDuration);
       expect(data).toEqual(metadata);
     });
 
-    it('Test VideoStreamPositionChangedData with String Inputs', function()
-    {
-      var metadataIn =
-      {
-        streamPosition:"500",
-        totalStreamDuration:"1000",
+    it('Test VideoStreamPositionChangedData with String Inputs', () => {
+      const metadataIn = {
+        streamPosition: '500',
+        totalStreamDuration: '1000',
       };
 
-      var metadataOut =
-      {
-        streamPosition:500,
-        totalStreamDuration:1000,
+      const metadataOut = {
+        streamPosition: 500,
+        totalStreamDuration: 1000,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData(metadataIn.streamPosition,
-                                                                            metadataIn.totalStreamDuration);
+      const data = new OO.Analytics.EVENT_DATA.VideoStreamPositionChangedData(metadataIn.streamPosition,
+        metadataIn.totalStreamDuration);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test AdPodStartedData', function()
-    {
-      var metadataIn =
-      {
-        numberOfAds:3
+    it('Test AdPodStartedData', () => {
+      const metadataIn = {
+        numberOfAds: 3,
       };
 
-      var metadataOut =
-      {
-        numberOfAds:3
+      const metadataOut = {
+        numberOfAds: 3,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
+      let data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.numberOfAds = "3";
+      metadataIn.numberOfAds = '3';
       data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
       expect(data).toEqual(metadataOut);
 
@@ -1486,12 +1320,12 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.numberOfAds = "2";
+      metadataIn.numberOfAds = '2';
       metadataOut.numberOfAds = 2;
       data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.numberOfAds = "asdf";
+      metadataIn.numberOfAds = 'asdf';
       data = new OO.Analytics.EVENT_DATA.AdPodStartedData(metadataIn.numberOfAds);
       expect(data.numberOfAds).toEqual(undefined);
 
@@ -1500,14 +1334,12 @@ describe('Analytics Framework Unit Tests', function()
       expect(data.numberOfAds).toEqual(undefined);
     });
 
-    it('Test AdPodEndedData', function()
-    {
-      var metadata =
-      {
-        adId:"adId"
+    it('Test AdPodEndedData', () => {
+      let metadata = {
+        adId: 'adId',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
+      let data = new OO.Analytics.EVENT_DATA.AdPodEndedData(metadata.adId);
       expect(data).toEqual(metadata);
 
       metadata = 1;
@@ -1523,18 +1355,15 @@ describe('Analytics Framework Unit Tests', function()
       expect(data.adId).toEqual(undefined);
     });
 
-    it('Test FullscreenChangedData', function()
-    {
-      var metadataIn =
-      {
-        changingToFullscreen:true
+    it('Test FullscreenChangedData', () => {
+      const metadataIn = {
+        changingToFullscreen: true,
       };
-      var metadataOut =
-      {
-        changingToFullscreen:true
+      const metadataOut = {
+        changingToFullscreen: true,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
+      let data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
       expect(data).toEqual(metadataIn);
 
       metadataIn.changingToFullscreen = false;
@@ -1542,22 +1371,22 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.changingToFullscreen = "true";
+      metadataIn.changingToFullscreen = 'true';
       metadataOut.changingToFullscreen = true;
       data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.changingToFullscreen = "false";
+      metadataIn.changingToFullscreen = 'false';
       metadataOut.changingToFullscreen = false;
       data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.changingToFullscreen = "banana";
+      metadataIn.changingToFullscreen = 'banana';
       metadataOut.changingToFullscreen = undefined;
       data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.changingToFullscreen = "";
+      metadataIn.changingToFullscreen = '';
       metadataOut.changingToFullscreen = undefined;
       data = new OO.Analytics.EVENT_DATA.FullscreenChangedData(metadataIn.changingToFullscreen);
       expect(data).toEqual(metadataOut);
@@ -1573,19 +1402,16 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test VolumeChangedData', function()
-    {
-      var metadataIn =
-      {
-        currentVolume:100
+    it('Test VolumeChangedData', () => {
+      const metadataIn = {
+        currentVolume: 100,
       };
 
-      var metadataOut =
-      {
-        currentVolume:100
+      const metadataOut = {
+        currentVolume: 100,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
+      let data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
       expect(data).toEqual(metadataOut);
 
       metadataIn.currentVolume = 0;
@@ -1593,12 +1419,12 @@ describe('Analytics Framework Unit Tests', function()
       data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.currentVolume = "100";
+      metadataIn.currentVolume = '100';
       metadataOut.currentVolume = 100;
       data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
       expect(data).toEqual(metadataOut);
 
-      metadataIn.currentVolume = "0";
+      metadataIn.currentVolume = '0';
       metadataOut.currentVolume = 0;
       data = new OO.Analytics.EVENT_DATA.VolumeChangedData(metadataIn.currentVolume);
       expect(data).toEqual(metadataOut);
@@ -1610,41 +1436,38 @@ describe('Analytics Framework Unit Tests', function()
     });
 
     // indirectly tests LinearVideoData and NonLinearVideoData
-    it('Test AdStartedData', function()
-    {
+    it('Test AdStartedData', () => {
       // test LINEAR_VIDEO adtype
-      var metadataIn =
-      {
+      let metadataIn = {
         adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
         adMetadata: {
-          name: "testname",
+          name: 'testname',
           duration: 10,
-          indexInPod: 1
-        }
+          indexInPod: 1,
+        },
       };
-      var metadataOut =
-      {
+      let metadataOut = {
         adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
         adMetadata: {
-          adId: "testname",
+          adId: 'testname',
           adDuration: 10,
-          adPodPosition: 1
-        }
+          adPodPosition: 1,
+        },
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
+      let data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
       expect(data).toEqual(metadataOut);
 
       // test string numbers
-      metadataIn.duration = "10";
-      metadataIn.indexInPod = "1";
+      metadataIn.duration = '10';
+      metadataIn.indexInPod = '1';
       data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
       expect(data).toEqual(metadataOut);
 
       // test bad inputs for every ad property
       metadataIn.adMetadata.name = 0;
       metadataIn.adMetadata.duration = false;
-      metadataIn.adMetadata.indexInPod = "NaN";
+      metadataIn.adMetadata.indexInPod = 'NaN';
       metadataOut.adMetadata.adId = undefined;
       metadataOut.adMetadata.adDuration = undefined;
       metadataOut.adMetadata.adPodPosition = undefined;
@@ -1652,19 +1475,17 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
 
       // test NONLINEAR_OVERLAY adtype
-      metadataIn =
-      {
+      metadataIn = {
         adType: OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY,
         adMetadata: {
-          id: "testname"
-        }
+          id: 'testname',
+        },
       };
-      metadataOut =
-      {
+      metadataOut = {
         adType: OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY,
         adMetadata: {
-          adId: "testname"
-        }
+          adId: 'testname',
+        },
       };
 
       data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
@@ -1677,27 +1498,24 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
 
       // test unrecognized ad type
-      metadataIn.adType = "bad ad type";
-      metadataOut.adType = "bad ad type";
+      metadataIn.adType = 'bad ad type';
+      metadataOut.adType = 'bad ad type';
       metadataOut.adMetadata = undefined;
       data = new OO.Analytics.EVENT_DATA.AdStartedData(metadataIn.adType, metadataIn.adMetadata);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test AdEndedData', function()
-    {
-      var metadataIn =
-      {
+    it('Test AdEndedData', () => {
+      const metadataIn = {
         adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-        adId: "testname",
+        adId: 'testname',
       };
-      var metadataOut =
-      {
+      const metadataOut = {
         adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-        adId: "testname"
+        adId: 'testname',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
+      let data = new OO.Analytics.EVENT_DATA.AdEndedData(metadataIn.adType, metadataIn.adId);
       expect(data).toEqual(metadataOut);
 
       // test number as (bad) input
@@ -1718,447 +1536,387 @@ describe('Analytics Framework Unit Tests', function()
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test VideoElementData', function()
-    {
-      var metadataIn =
-      {
-        streamUrl: "http://blahblah"
+    it('Test VideoElementData', () => {
+      const metadataIn = {
+        streamUrl: 'http://blahblah',
       };
 
-      var metadataOut =
-      {
-        streamUrl: "http://blahblah"
+      const metadataOut = {
+        streamUrl: 'http://blahblah',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoElementData(metadataIn.streamUrl);
+      const data = new OO.Analytics.EVENT_DATA.VideoElementData(metadataIn.streamUrl);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test AdErrorData', function()
-    {
+    it('Test AdErrorData', () => {
       // testing if input is expected to be string
-      var metadataIn = "errorString";
-      var metadataOut =
-      {
-        error: "errorString"
+      let metadataIn = 'errorString';
+      let metadataOut = {
+        error: 'errorString',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
+      let data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
       expect(data).toEqual(metadataOut);
 
       // testing if input is expected to be object
-      metadataIn =
-      {
-        errorObject: "errorObject"
+      metadataIn = {
+        errorObject: 'errorObject',
       };
-      metadataOut =
-      {
+      metadataOut = {
         error: {
-          errorObject: "errorObject"
-        }
+          errorObject: 'errorObject',
+        },
       };
       data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
       expect(data).toEqual(metadataOut);
 
       // testing bad input
       metadataIn = 1;
-      metadataOut =
-      {
-        error: undefined
+      metadataOut = {
+        error: undefined,
       };
       data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
       expect(data).toEqual(metadataOut);
 
-      metadataIn = "";
-      metadataOut =
-      {
-        error: ""
+      metadataIn = '';
+      metadataOut = {
+        error: '',
       };
       data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
       expect(data).toEqual(metadataOut);
 
       metadataIn = false;
-      metadataOut =
-      {
-        error: undefined
+      metadataOut = {
+        error: undefined,
       };
       data = new OO.Analytics.EVENT_DATA.AdErrorData(metadataIn);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test StreamTypeData', function()
-    {
-      var metadataIn =
-      {
-        streamType: OO.Analytics.STREAM_TYPE.VOD
+    it('Test StreamTypeData', () => {
+      let metadataIn = {
+        streamType: OO.Analytics.STREAM_TYPE.VOD,
       };
 
-      var metadataOut =
-      {
-        streamType: OO.Analytics.STREAM_TYPE.VOD
+      let metadataOut = {
+        streamType: OO.Analytics.STREAM_TYPE.VOD,
       };
 
-      var data = new OO.Analytics.EVENT_DATA.StreamTypeMetadata(metadataIn.streamType);
+      let data = new OO.Analytics.EVENT_DATA.StreamTypeMetadata(metadataIn.streamType);
       expect(data).toEqual(metadataOut);
 
-      metadataIn =
-      {
-        streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM
+      metadataIn = {
+        streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM,
       };
 
-      metadataOut =
-      {
-        streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM
+      metadataOut = {
+        streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM,
       };
 
       data = new OO.Analytics.EVENT_DATA.StreamTypeMetadata(metadataIn.streamType);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test GeoMetadata', function() {
-      var metadataIn =
-      {
-        country: "testCountry",
-        region: "testRegion",
-        state: "testState",
-        city: "testCity",
+    it('Test GeoMetadata', () => {
+      let metadataIn = {
+        country: 'testCountry',
+        region: 'testRegion',
+        state: 'testState',
+        city: 'testCity',
         latitude: 5.0,
         longitude: -10.3,
-        dma: "testDma"
+        dma: 'testDma',
       };
 
-      var metadataOut =
-      {
-        country: "testCountry",
-        region: "testRegion",
-        state: "testState",
-        city: "testCity",
+      let metadataOut = {
+        country: 'testCountry',
+        region: 'testRegion',
+        state: 'testState',
+        city: 'testCity',
         latitude: 5.0,
         longitude: -10.3,
-        dma: "testDma"
+        dma: 'testDma',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
+      let data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
       expect(data).toEqual(metadataOut);
 
-      //test that numbers can come in as strings but get converted.
-      metadataIn =
-      {
-        country: "testCountry",
-        region: "testRegion",
-        state: "testState",
-        city: "testCity",
-        latitude: "5.0",
-        longitude: "-10.3",
-        dma: "testDma"
+      // test that numbers can come in as strings but get converted.
+      metadataIn = {
+        country: 'testCountry',
+        region: 'testRegion',
+        state: 'testState',
+        city: 'testCity',
+        latitude: '5.0',
+        longitude: '-10.3',
+        dma: 'testDma',
       };
 
-      metadataOut =
-      {
-        country: "testCountry",
-        region: "testRegion",
-        state: "testState",
-        city: "testCity",
+      metadataOut = {
+        country: 'testCountry',
+        region: 'testRegion',
+        state: 'testState',
+        city: 'testCity',
         latitude: 5.0,
         longitude: -10.3,
-        dma: "testDma"
+        dma: 'testDma',
       };
 
       data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
       expect(data).toEqual(metadataOut);
 
-      //test that all params are optional
-      metadataIn =
-      {
+      // test that all params are optional
+      metadataIn = {
       };
 
-      metadataOut =
-      {
+      metadataOut = {
       };
 
       data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
       expect(data).toEqual(metadataOut);
-      expect(data.hasOwnProperty("country")).toEqual(false);
-      expect(data.hasOwnProperty("region")).toEqual(false);
-      expect(data.hasOwnProperty("state")).toEqual(false);
-      expect(data.hasOwnProperty("city")).toEqual(false);
-      expect(data.hasOwnProperty("latitude")).toEqual(false);
-      expect(data.hasOwnProperty("longitude")).toEqual(false);
-      expect(data.hasOwnProperty("dma")).toEqual(false);
+      expect(data.hasOwnProperty('country')).toEqual(false);
+      expect(data.hasOwnProperty('region')).toEqual(false);
+      expect(data.hasOwnProperty('state')).toEqual(false);
+      expect(data.hasOwnProperty('city')).toEqual(false);
+      expect(data.hasOwnProperty('latitude')).toEqual(false);
+      expect(data.hasOwnProperty('longitude')).toEqual(false);
+      expect(data.hasOwnProperty('dma')).toEqual(false);
     });
 
     // [DEPRECATED]
-    it('Test VideoErrorData', function()
-    {
-      var metadataIn =
-      {
-        errorCode: "100",
+    it('Test VideoErrorData', () => {
+      let metadataIn = {
+        errorCode: '100',
       };
 
-      var metadataOut =
-      {
-        errorCode: "100",
-        errorMessage: "General Error"
+      let metadataOut = {
+        errorCode: '100',
+        errorMessage: 'General Error',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode);
+      let data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode);
       expect(data).toEqual(metadataOut);
 
       // test unknown error code
-      metadataIn =
-      {
-        errorCode: "101",
+      metadataIn = {
+        errorCode: '101',
       };
 
-      metadataOut =
-      {
-        errorCode: "101",
-        errorMessage: undefined
+      metadataOut = {
+        errorCode: '101',
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
       // will not accept numbers (at least for now, because VC_PLAY_FAILED's "code" arg is string only)
-      metadataIn =
-      {
+      metadataIn = {
         errorCode: 0,
       };
 
-      metadataOut =
-      {
+      metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
       // test bad inputs
-      metadataIn =
-      {
+      metadataIn = {
         errorCode: null,
       };
 
-      metadataOut =
-      {
+      metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
-      metadataIn =
-      {
+      metadataIn = {
         errorCode: undefined,
       };
 
-      metadataOut =
-      {
+      metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test VideoPlaybackErrorData', function()
-    {
-      var metadataIn =
-      {
-        errorCode: "error code",
-        errorMessage: "error message"
-      };
-      
-      var metadataOut =
-      {
-        errorCode: "error code",
-        errorMessage: "error message"
+    it('Test VideoPlaybackErrorData', () => {
+      let metadataIn = {
+        errorCode: 'error code',
+        errorMessage: 'error message',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      let metadataOut = {
+        errorCode: 'error code',
+        errorMessage: 'error message',
+      };
+
+      let data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataIn);
 
-      metadataIn =
-      {
+      metadataIn = {
         errorCode: 123,
-        errorMessage: 456
+        errorMessage: 456,
       };
 
-      metadataOut =
-      {
+      metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
-      metadataIn =
-      {
-        errorCode: "",
-        errorMessage: false
+      metadataIn = {
+        errorCode: '',
+        errorMessage: false,
       };
 
-      metadataOut =
-      {
-        errorCode: "",
-        errorMessage: undefined
+      metadataOut = {
+        errorCode: '',
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test AuthorizationErrorData', function()
-    {
-      var metadataIn =
-      {
-        errorCode: "error code",
-        errorMessage: "error message"
+    it('Test AuthorizationErrorData', () => {
+      let metadataIn = {
+        errorCode: 'error code',
+        errorMessage: 'error message',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      let data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataIn);
 
-      metadataIn =
-      {
+      metadataIn = {
         errorCode: 123,
-        errorMessage: 456
+        errorMessage: 456,
       };
 
-      var metadataOut =
-      {
+      let metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
-      metadataIn =
-      {
-        errorCode: "",
-        errorMessage: false
+      metadataIn = {
+        errorCode: '',
+        errorMessage: false,
       };
 
-      metadataOut =
-      {
-        errorCode: "",
-        errorMessage: undefined
+      metadataOut = {
+        errorCode: '',
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test GeneralErrorData', function()
-    {
-      var metadataIn =
-      {
-        errorCode: "error code",
-        errorMessage: "error message"
+    it('Test GeneralErrorData', () => {
+      let metadataIn = {
+        errorCode: 'error code',
+        errorMessage: 'error message',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      let data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataIn);
 
-      metadataIn =
-      {
+      metadataIn = {
         errorCode: 123,
-        errorMessage: 456
+        errorMessage: 456,
       };
 
-      var metadataOut =
-      {
+      let metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
-      metadataIn =
-      {
-        errorCode: "",
-        errorMessage: false
+      metadataIn = {
+        errorCode: '',
+        errorMessage: false,
       };
 
-      metadataOut =
-      {
-        errorCode: "",
-        errorMessage: undefined
+      metadataOut = {
+        errorCode: '',
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test MetadataLoadingErrorData', function()
-    {
-      var metadataIn =
-      {
-        errorCode: "error code",
-        errorMessage: "error message"
+    it('Test MetadataLoadingErrorData', () => {
+      let metadataIn = {
+        errorCode: 'error code',
+        errorMessage: 'error message',
       };
 
-      var data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      let data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataIn);
 
-      metadataIn =
-      {
+      metadataIn = {
         errorCode: 123,
-        errorMessage: 456
+        errorMessage: 456,
       };
 
-      var metadataOut =
-      {
+      let metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
 
-      metadataIn =
-      {
-        errorCode: "",
-        errorMessage: false
+      metadataIn = {
+        errorCode: '',
+        errorMessage: false,
       };
 
-      metadataOut =
-      {
-        errorCode: "",
-        errorMessage: undefined
+      metadataOut = {
+        errorCode: '',
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
       expect(data).toEqual(metadataOut);
     });
 
-    it('Test SdkAdEventData', function()
-    {
-      var metadataIn = {
-        adPluginName: "testAdPlugin",
-        adEventName: "testAdEvent",
-        adEventData: {}
+    it('Test SdkAdEventData', () => {
+      let metadataIn = {
+        adPluginName: 'testAdPlugin',
+        adEventName: 'testAdEvent',
+        adEventData: {},
       };
 
-      var data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.adEventName, metadataIn.adEventData);
+      let data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.adEventName, metadataIn.adEventData);
       expect(data).toEqual(metadataIn);
 
-      metadataIn =
-      {
+      metadataIn = {
         adPluginName: {},
-        adEventName: "blah"
+        adEventName: 'blah',
       };
 
-      var metadataOut =
-      {
+      const metadataOut = {
         errorCode: undefined,
-        errorMessage: undefined
+        errorMessage: undefined,
       };
 
       data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.sdkAdEvent);
