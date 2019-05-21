@@ -43,8 +43,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createMissingFunctionFactory = function (functionToRemove) {
     return OO._.bind(() => {
-      const validFactory = Utils.createValidPluginFactory();
-      const badPlugin = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const badPlugin = new ValidFactory();
       delete badPlugin[functionToRemove];
       return badPlugin;
     }, this);
@@ -52,8 +52,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createExtraFunctionFactory = function (functionToAdd) {
     return OO._.bind(() => {
-      const validFactory = Utils.createValidPluginFactory();
-      const extraFuncFactory = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const extraFuncFactory = new ValidFactory();
       extraFuncFactory[functionToAdd] = function () {};
       return extraFuncFactory;
     }, this);
@@ -61,8 +61,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createWrongNameReturnTypeFactory = function () {
     return OO._.bind(() => {
-      const validFactory = Utils.createValidPluginFactory();
-      const wrongReturnFactory = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const wrongReturnFactory = new ValidFactory();
       wrongReturnFactory.getName = function () {
         return 5;
       };
@@ -72,8 +72,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createWrongVersionReturnTypeFactory = function () {
     return OO._.bind(() => {
-      const validFactory = Utils.createValidPluginFactory();
-      const wrongReturnFactory = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const wrongReturnFactory = new ValidFactory();
       wrongReturnFactory.getVersion = function () {
         return 5;
       };
@@ -83,8 +83,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createRecordedEventsFactory = function () {
     return OO._.bind(() => {
-      const validFactory = Utils.createValidPluginFactory();
-      const eventFactory = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const eventFactory = new ValidFactory();
       eventFactory.processRecordedEvents = function (events) {
         this.recordedEvents = events;
       };
@@ -94,8 +94,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createFactoryWithGlobalAccessToPluginInstance = function () {
     return OO._.bind(() => {
-      const validFactory = Utils.createValidPluginFactory();
-      const plugin = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const plugin = new ValidFactory();
       plugin.msgReceivedList = [];
       plugin.active = true;
 
@@ -121,8 +121,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createFactoryThatThrowsErrorOn = function (funcName) {
     return OO._.bind(() => {
-      const validFactory = Utils.createValidPluginFactory();
-      const badPlugin = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const badPlugin = new ValidFactory();
       badPlugin[funcName] = function () {
         throw 'Error';
       };
@@ -132,8 +132,8 @@ if (!OO.Analytics.Utils) {
 
   Utils.createFactoryToTestConstructorParams = function () {
     return OO._.bind((framework) => {
-      const validFactory = Utils.createValidPluginFactory();
-      const validPlugin = new validFactory();
+      const ValidFactory = Utils.createValidPluginFactory();
+      const validPlugin = new ValidFactory();
       if (!OO.Analytics.Framework.TEST) {
         OO.Analytics.Framework.TEST = {};
         OO.Analytics.Framework.TEST.frameworkParam = framework;

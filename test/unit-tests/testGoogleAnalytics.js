@@ -5,7 +5,7 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
   //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
   require(`${COMMON_SRC_ROOT}utils/InitModules/InitOOUnderscore.js`);
-  const gaPluginFactory = require(`${SRC_ROOT}plugins/googleAnalytics.js`);
+  const GaPluginFactory = require(`${SRC_ROOT}plugins/googleAnalytics.js`);
 
   const { Analytics } = OO;
   const { Utils } = OO.Analytics;
@@ -64,7 +64,7 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
 
   // helpers
   const createPlugin = function (framework, metadata) {
-    const plugin = new gaPluginFactory(framework);
+    const plugin = new GaPluginFactory(framework);
     plugin.init();
     metadata = metadata || {};
     plugin.setMetadata(metadata);

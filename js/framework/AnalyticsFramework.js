@@ -173,23 +173,23 @@ OO.Analytics.Framework = function () {
    * Each one will have its own unique plugin id.
    * @public
    * @method OO.Analytics.Framework#registerPlugin
-   * @param  {function} pluginFactory Plugin factory function
+   * @param  {function} PluginFactory Plugin factory function
    * @returns {string}                 Returns a unique plugin id for this plugin factory.
    */
-  this.registerPlugin = function (pluginFactory) {
+  this.registerPlugin = function (PluginFactory) {
     let pluginID;
     let plugin;
     let errorOccured = false;
 
     // sanity check
-    if (!pluginFactory) {
+    if (!PluginFactory) {
       OO.log(createErrorString('Trying to register plugin class that is a falsy value.'));
       errorOccured = true;
     }
 
     if (!errorOccured) {
       try {
-        plugin = new pluginFactory(this);
+        plugin = new PluginFactory(this);
       } catch (error) {
         OO.log(error);
         OO.log(createErrorString('Error was thrown during plugin creation.'));
@@ -214,7 +214,7 @@ OO.Analytics.Framework = function () {
       if (!pluginID) {
         errorOccured = true;
       } else if (!_registeredPlugins[pluginID]) {
-        _registeredPlugins[pluginID] = { factory: pluginFactory, instance: plugin, active: true };
+        _registeredPlugins[pluginID] = { factory: PluginFactory, instance: plugin, active: true };
         safeFunctionCall(plugin, 'setPluginID', [pluginID]);
       }
     }

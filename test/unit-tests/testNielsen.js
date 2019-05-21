@@ -4,7 +4,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
   require(`${COMMON_SRC_ROOT}utils/InitModules/InitOOUnderscore.js`);
-  const nielsenPluginFactory = require(`${SRC_ROOT}plugins/Nielsen.js`);
+  const NielsenPluginFactory = require(`${SRC_ROOT}plugins/Nielsen.js`);
 
   const { Analytics } = OO;
   const { Utils } = OO.Analytics;
@@ -51,7 +51,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   };
 
   const createPlugin = function (framework) {
-    const plugin = new nielsenPluginFactory(framework);
+    const plugin = new NielsenPluginFactory(framework);
     plugin.testMode = true;
     plugin.init();
     plugin.setMetadata({
@@ -72,8 +72,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   afterEach(testCleanup);
 
   it('Test Nielsen Plugin Validity', () => {
-    expect(nielsenPluginFactory).not.toBeNull();
-    const plugin = new nielsenPluginFactory();
+    expect(NielsenPluginFactory).not.toBeNull();
+    const plugin = new NielsenPluginFactory();
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
@@ -100,7 +100,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   // });
   //
   it('Test Nielsen Plugin Validity', () => {
-    const pluginID = framework.registerPlugin(nielsenPluginFactory);
+    const pluginID = framework.registerPlugin(NielsenPluginFactory);
     expect(pluginID).toBeDefined();
     const pluginList = framework.getPluginIDList();
     expect(_.contains(pluginList, pluginID));
@@ -149,7 +149,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
     let eventProcessed;
     let paramsReceived;
     const newFactoryWithFunctionTracing = function () {
-      const factory = new nielsenPluginFactory();
+      const factory = new NielsenPluginFactory();
       factory.setMetadata = function (metadata) {
         metadataReceived = metadata;
       };
@@ -174,7 +174,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   });
 
   it('Test Framework Destroy With Template', () => {
-    OO.Analytics.RegisterPluginFactory(nielsenPluginFactory);
+    OO.Analytics.RegisterPluginFactory(NielsenPluginFactory);
     let pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -211,7 +211,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   // });
 
   it('Test all functions', () => {
-    const plugin = new nielsenPluginFactory(framework);
+    const plugin = new NielsenPluginFactory(framework);
     let errorOccured = false;
     try {
       for (const key in plugin) {

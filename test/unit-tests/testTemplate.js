@@ -4,7 +4,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
   require(`${COMMON_SRC_ROOT}utils/InitModules/InitOOUnderscore.js`);
-  const templatePluginFactory = require(`${SRC_ROOT}plugins/AnalyticsPluginTemplate.js`);
+  const TemplatePluginFactory = require(`${SRC_ROOT}plugins/AnalyticsPluginTemplate.js`);
 
   const { Analytics } = OO;
   const { Utils } = OO.Analytics;
@@ -30,13 +30,13 @@ describe('Analytics Framework Template Unit Tests', () => {
   afterEach(testCleanup);
 
   it('Test Analytics Template Validity', () => {
-    expect(templatePluginFactory).not.toBeNull();
-    const plugin = new templatePluginFactory();
+    expect(TemplatePluginFactory).not.toBeNull();
+    const plugin = new TemplatePluginFactory();
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
   it('Test Auto Registering Template', () => {
-    OO.Analytics.RegisterPluginFactory(templatePluginFactory);
+    OO.Analytics.RegisterPluginFactory(TemplatePluginFactory);
     const pluginList = framework.getPluginIDList();
     expect(pluginList.length).toBe(1);
 
@@ -46,7 +46,7 @@ describe('Analytics Framework Template Unit Tests', () => {
     expect(framework.isPluginActive(pluginID)).toBe(true);
 
     // test registering it again
-    const pluginID2 = framework.registerPlugin(templatePluginFactory);
+    const pluginID2 = framework.registerPlugin(TemplatePluginFactory);
     expect(pluginID2).not.toBeFalsy();
     expect(pluginID2 && _.isString(pluginID2)).toBe(true);
     expect(framework.isPluginActive(pluginID2)).toBe(true);
@@ -57,7 +57,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test Analytics Template Validity', () => {
-    const pluginID = framework.registerPlugin(templatePluginFactory);
+    const pluginID = framework.registerPlugin(TemplatePluginFactory);
     expect(pluginID).toBeDefined();
     const pluginList = framework.getPluginIDList();
     expect(_.contains(pluginList, pluginID));
@@ -70,9 +70,9 @@ describe('Analytics Framework Template Unit Tests', () => {
     const framework2 = new Analytics.Framework();
     expect(OO.Analytics.FrameworkInstanceList).toBeDefined();
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
-    OO.Analytics.RegisterPluginFactory(templatePluginFactory);
+    OO.Analytics.RegisterPluginFactory(TemplatePluginFactory);
     expect(OO.Analytics.PluginFactoryList).toBeDefined();
-    expect(_.contains(OO.Analytics.PluginFactoryList, templatePluginFactory)).toBe(true);
+    expect(_.contains(OO.Analytics.PluginFactoryList, TemplatePluginFactory)).toBe(true);
 
     let pluginList1 = framework.getPluginIDList();
     let pluginList2 = framework2.getPluginIDList();
@@ -96,7 +96,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   //  //erase the global references for the plugins and frameworks.
   //  OO.Analytics.PluginFactoryList = null;
   //  OO.Analytics.FrameworkInstanceList = null;
-  //  OO.Analytics.RegisterPluginFactory(templatePluginFactory);
+  //  OO.Analytics.RegisterPluginFactory(TemplatePluginFactory);
   //  expect(OO.Analytics.PluginFactoryList).toBeTruthy();
   //  expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   //  expect(OO.Analytics.FrameworkInstanceList).toBeTruthy();
@@ -108,7 +108,7 @@ describe('Analytics Framework Template Unit Tests', () => {
     let eventProcessed;
     let paramsReceived;
     const newFactoryWithFunctionTracing = function () {
-      const factory = new templatePluginFactory();
+      const factory = new TemplatePluginFactory();
       factory.setMetadata = function (metadata) {
         metadataReceived = metadata;
       };
@@ -133,7 +133,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test Framework Destroy With Template', () => {
-    OO.Analytics.RegisterPluginFactory(templatePluginFactory);
+    OO.Analytics.RegisterPluginFactory(TemplatePluginFactory);
     let pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -147,7 +147,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test Framework Destroy With Template And Multi Frameworks', () => {
-    OO.Analytics.RegisterPluginFactory(templatePluginFactory);
+    OO.Analytics.RegisterPluginFactory(TemplatePluginFactory);
     const framework2 = new OO.Analytics.Framework();
     let pluginList = framework.getPluginIDList();
     let pluginList2 = framework2.getPluginIDList();
@@ -169,7 +169,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test all functions', () => {
-    const plugin = new templatePluginFactory(framework);
+    const plugin = new TemplatePluginFactory(framework);
     let errorOccured = false;
     try {
       for (const key in plugin) {

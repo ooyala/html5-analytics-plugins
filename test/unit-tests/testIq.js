@@ -4,7 +4,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
   require(`${COMMON_SRC_ROOT}utils/InitModules/InitOOUnderscore.js`);
-  const iqPluginFactory = require(`${SRC_ROOT}plugins/iq.js`);
+  const IqPluginFactory = require(`${SRC_ROOT}plugins/iq.js`);
 
   const { Analytics } = OO;
   const { Utils } = OO.Analytics;
@@ -134,7 +134,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   };
 
   const createPlugin = function (framework) {
-    const plugin = new iqPluginFactory(framework);
+    const plugin = new IqPluginFactory(framework);
 
     // enable iq reporting in plugin for testing
     const metadata = {
@@ -154,13 +154,13 @@ describe('Analytics Framework Template Unit Tests', () => {
   afterEach(testCleanup);
 
   it('Test IQ Plugin Validity', () => {
-    expect(iqPluginFactory).not.toBeNull();
-    const plugin = new iqPluginFactory();
+    expect(IqPluginFactory).not.toBeNull();
+    const plugin = new IqPluginFactory();
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
   it('Test IQ Plugin Validity', () => {
-    const pluginID = framework.registerPlugin(iqPluginFactory);
+    const pluginID = framework.registerPlugin(IqPluginFactory);
     expect(pluginID).toBeDefined();
     const pluginList = framework.getPluginIDList();
     expect(_.contains(pluginList, pluginID));
@@ -169,7 +169,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test Auto Registering IQ Plugin', () => {
-    OO.Analytics.RegisterPluginFactory(iqPluginFactory);
+    OO.Analytics.RegisterPluginFactory(IqPluginFactory);
     const pluginList = framework.getPluginIDList();
     expect(pluginList.length).toBe(1);
 
@@ -179,7 +179,7 @@ describe('Analytics Framework Template Unit Tests', () => {
     expect(framework.isPluginActive(pluginID)).toBe(true);
 
     // test registering it again
-    const pluginID2 = framework.registerPlugin(iqPluginFactory);
+    const pluginID2 = framework.registerPlugin(IqPluginFactory);
     expect(pluginID2).not.toBeFalsy();
     expect(pluginID2 && _.isString(pluginID2)).toBe(true);
     expect(framework.isPluginActive(pluginID2)).toBe(true);
@@ -193,9 +193,9 @@ describe('Analytics Framework Template Unit Tests', () => {
     const framework2 = new Analytics.Framework();
     expect(OO.Analytics.FrameworkInstanceList).toBeDefined();
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
-    OO.Analytics.RegisterPluginFactory(iqPluginFactory);
+    OO.Analytics.RegisterPluginFactory(IqPluginFactory);
     expect(OO.Analytics.PluginFactoryList).toBeDefined();
-    expect(_.contains(OO.Analytics.PluginFactoryList, iqPluginFactory)).toBe(true);
+    expect(_.contains(OO.Analytics.PluginFactoryList, IqPluginFactory)).toBe(true);
 
     let pluginList1 = framework.getPluginIDList();
     let pluginList2 = framework2.getPluginIDList();
@@ -230,7 +230,7 @@ describe('Analytics Framework Template Unit Tests', () => {
     let eventProcessed = null;
     let paramsReceived = null;
     const newFactoryWithFunctionTracing = function () {
-      const factory = new iqPluginFactory();
+      const factory = new IqPluginFactory();
       factory.setMetadata = function (metadata) {
         metadataReceived = metadata;
       };
@@ -255,7 +255,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test Framework Destroy With IQ Plugin', () => {
-    OO.Analytics.RegisterPluginFactory(iqPluginFactory);
+    OO.Analytics.RegisterPluginFactory(IqPluginFactory);
     let pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
@@ -269,7 +269,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test Framework Destroy With IQ Plugin And Multi Frameworks', () => {
-    OO.Analytics.RegisterPluginFactory(iqPluginFactory);
+    OO.Analytics.RegisterPluginFactory(IqPluginFactory);
     const framework2 = new OO.Analytics.Framework();
     let pluginList = framework.getPluginIDList();
     let pluginList2 = framework2.getPluginIDList();
@@ -291,7 +291,7 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('Test all functions', () => {
-    const plugin = new iqPluginFactory(framework);
+    const plugin = new IqPluginFactory(framework);
     let errorOccured = false;
     try {
       for (const key in plugin) {

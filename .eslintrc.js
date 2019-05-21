@@ -42,7 +42,6 @@ module.exports = {
       }
     ],
     "no-undef": "warn",
-    "new-cap": "warn",
     "no-unused-vars": "warn",
     "import/no-dynamic-require": "warn",
     "global-require": "warn",
@@ -88,6 +87,5 @@ module.exports = {
     "no-fallthrough": "warn",
     "no-throw-literal": "warn",
     "no-useless-escape": "warn",
-    "no-mixed-spaces-and-tabs": "warn",
   },
 };

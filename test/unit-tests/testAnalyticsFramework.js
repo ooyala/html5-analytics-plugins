@@ -86,25 +86,25 @@ describe('Analytics Framework Unit Tests', () => {
     it('Test Factory Returns Plugin With Missing Required Function', () => {
       let i;
       for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++) {
-        const missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
-        const plugin = new missingFunctionFactory();
+        const MissingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
+        const plugin = new MissingFunctionFactory();
         expect(framework.validatePlugin(plugin)).toBe(false);
       }
     });
 
     it('Test Valid Factory', () => {
-      const goodPluginFactory = Utils.createValidPluginFactory();
-      const plugin = new goodPluginFactory();
+      const GoodPluginFactory = Utils.createValidPluginFactory();
+      const plugin = new GoodPluginFactory();
       expect(framework.validatePlugin(plugin)).toBe(true);
     });
 
     it('Test Factory Returns Plugin With More Than Just Required Function', () => {
-      const extraFunctionFactory = Utils.createExtraFunctionFactory('something');
-      const plugin = new extraFunctionFactory();
+      const ExtraFunctionFactory = Utils.createExtraFunctionFactory('something');
+      const plugin = new ExtraFunctionFactory();
       expect(framework.validatePlugin(plugin)).toBe(true);
 
-      const extraFunctionFactory2 = Utils.createExtraFunctionFactory('somethingMore');
-      const plugin2 = new extraFunctionFactory2();
+      const ExtraFunctionFactory2 = Utils.createExtraFunctionFactory('somethingMore');
+      const plugin2 = new ExtraFunctionFactory2();
       expect(framework.validatePlugin(plugin2)).toBe(true);
 
       // add a second extra function to the first plugin, as a sanity check.
@@ -113,14 +113,14 @@ describe('Analytics Framework Unit Tests', () => {
     });
 
     it('Test Bad Return Value Types For getName()', () => {
-      const wrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
-      const plugin = new wrongReturnPluginFactory();
+      const WrongReturnPluginFactory = Utils.createWrongNameReturnTypeFactory();
+      const plugin = new WrongReturnPluginFactory();
       expect(framework.validatePlugin(plugin)).toBe(false);
     });
 
     it('Test Bad Return Value Types For getVersion()', () => {
-      const wrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
-      const plugin = new wrongReturnPluginFactory();
+      const WrongReturnPluginFactory = Utils.createWrongVersionReturnTypeFactory();
+      const plugin = new WrongReturnPluginFactory();
       expect(framework.validatePlugin(plugin)).toBe(false);
     });
   });

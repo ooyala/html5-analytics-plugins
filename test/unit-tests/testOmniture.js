@@ -5,7 +5,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
   require(`${COMMON_SRC_ROOT}utils/InitModules/InitOOUnderscore.js`);
-  const omniturePluginFactory = require(`${SRC_ROOT}plugins/omniture.js`);
+  const OmniturePluginFactory = require(`${SRC_ROOT}plugins/omniture.js`);
 
   const { Analytics } = OO;
   const { Utils } = OO.Analytics;
@@ -58,15 +58,15 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
         },
       };
     }
-    const plugin = new omniturePluginFactory(framework);
+    const plugin = new OmniturePluginFactory(framework);
     plugin.init();
     plugin.setMetadata(metadata);
     return plugin;
   };
 
   it('Test Omniture Plugin Validity', () => {
-    expect(omniturePluginFactory).not.toBeNull();
-    const plugin = new omniturePluginFactory(framework);
+    expect(OmniturePluginFactory).not.toBeNull();
+    const plugin = new OmniturePluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
@@ -93,7 +93,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   // });
   //
   it('Test Omniture Plugin Validity', () => {
-    const pluginID = framework.registerPlugin(omniturePluginFactory);
+    const pluginID = framework.registerPlugin(OmniturePluginFactory);
     expect(pluginID).toBeDefined();
     const pluginList = framework.getPluginIDList();
     expect(_.contains(pluginList, pluginID));
@@ -142,7 +142,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     let eventProcessed = null;
     let paramsReceived = null;
     const newFactoryWithFunctionTracing = function () {
-      const factory = new omniturePluginFactory();
+      const factory = new OmniturePluginFactory();
       factory.setMetadata = function (metadata) {
         metadataReceived = metadata;
       };
@@ -167,7 +167,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   });
 
   it('Test Framework Destroy With Template', () => {
-    OO.Analytics.RegisterPluginFactory(omniturePluginFactory);
+    OO.Analytics.RegisterPluginFactory(OmniturePluginFactory);
     let pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);

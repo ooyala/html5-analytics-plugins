@@ -4,7 +4,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   require(`${SRC_ROOT}framework/AnalyticsFramework.js`);
   //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
-  const convivaPluginFactory = require(`${SRC_ROOT}plugins/conviva.js`);
+  const ConvivaPluginFactory = require(`${SRC_ROOT}plugins/conviva.js`);
 
 
   const { Analytics } = OO;
@@ -38,7 +38,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
 
   // helpers
   const createPlugin = function (framework, metadata) {
-    const plugin = new convivaPluginFactory(framework);
+    const plugin = new ConvivaPluginFactory(framework);
     plugin.init();
     metadata = metadata || {
       gatewayUrl: 'testUrl',
@@ -59,14 +59,14 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   };
 
   it('Test Conviva Plugin Validity', () => {
-    expect(convivaPluginFactory).not.toBeNull();
-    expect(convivaPluginFactory).toBeDefined();
-    const plugin = new convivaPluginFactory(framework);
+    expect(ConvivaPluginFactory).not.toBeNull();
+    expect(ConvivaPluginFactory).toBeDefined();
+    const plugin = new ConvivaPluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
   it('Test Conviva Plugin Validity', () => {
-    const pluginID = framework.registerPlugin(convivaPluginFactory);
+    const pluginID = framework.registerPlugin(ConvivaPluginFactory);
     expect(pluginID).toBeDefined();
     const pluginList = framework.getPluginIDList();
     expect(_.contains(pluginList, pluginID));
@@ -79,7 +79,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     let eventProcessed = null;
     let paramsReceived = null;
     const newFactoryWithFunctionTracing = function () {
-      const factory = new convivaPluginFactory();
+      const factory = new ConvivaPluginFactory();
       factory.setMetadata = function (metadata) {
         metadataReceived = metadata;
       };
@@ -104,7 +104,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   });
 
   it('Test Framework Destroy With Template', () => {
-    OO.Analytics.RegisterPluginFactory(convivaPluginFactory);
+    OO.Analytics.RegisterPluginFactory(ConvivaPluginFactory);
     let pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
