@@ -73,7 +73,7 @@ const AnalyticsPluginTemplate = function (framework) {
    * @param  {object} metadata The metadata for this plugin
    */
   this.setMetadata = function (metadata) {
-    OO.log(`Analytics Template: PluginID \'${id}\' received this metadata:`, metadata);
+    OO.log(`Analytics Template: PluginID '${id}' received this metadata:`, metadata);
   };
 
   /**
@@ -84,7 +84,7 @@ const AnalyticsPluginTemplate = function (framework) {
    * @param  {Array} params     Array of parameters sent with the event
    */
   this.processEvent = function (eventName, params) {
-    OO.log(`Analytics Template: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    OO.log(`Analytics Template: PluginID '${id}' received this event '${eventName}' with these params:`, params);
     switch (eventName) {
       case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
         if (params && params[0]) {

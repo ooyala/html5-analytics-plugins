@@ -61,9 +61,7 @@ module.exports = {
     "no-prototype-builtins": "warn",
     "valid-typeof": "warn",
     "no-multi-assign": "warn",
-    "prefer-spread": "warn",
     "no-unused-expressions": "warn",
-    "no-sequences": "warn",
     "no-void": "warn",
     "prefer-const": "warn",
     "no-bitwise": "warn",
@@ -78,6 +76,6 @@ module.exports = {
     "block-scoped-var": "warn",
     "no-mixed-operators": "warn",
     "consistent-return": "warn",
-    "no-useless-escape": "warn",
+    "prefer-spread": "warn",
   },
 };

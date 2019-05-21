@@ -222,11 +222,11 @@ OO.Analytics.Framework = function () {
 
     if (errorOccured) {
       if (pluginID) {
-        OO.log(createErrorString(`\'${pluginID}\' is not valid and was not registered.`));
+        OO.log(createErrorString(`'${pluginID}' is not valid and was not registered.`));
       } else {
         const pluginName = safeFunctionCall(plugin, 'getName');
         if (pluginName) {
-          OO.log(createErrorString(`\'${pluginName}\' is not valid and was not registered.`));
+          OO.log(createErrorString(`'${pluginName}' is not valid and was not registered.`));
         } else {
           OO.log(createErrorString('Plugin validation failed and was not registered.'));
         }
@@ -285,7 +285,7 @@ OO.Analytics.Framework = function () {
           isValid = false;
           if (plugin.getName && typeof plugin.getName === 'function') {
             try {
-              OO.log(createErrorString(`Plugin \'${plugin.getName()}\' missing function: ${reqFunc}`));
+              OO.log(createErrorString(`Plugin '${plugin.getName()}' missing function: ${reqFunc}`));
             } catch (e) {
               OO.log(createErrorString(`Plugin missing function: ${reqFunc}`));
             }
@@ -509,7 +509,8 @@ OO.Analytics.Framework = function () {
       }
       eventPublished = true;
     } else {
-      OO.log(createErrorString(`Event \'${eventName}\' being published and it's not in the list of OO.Analytics.EVENTS`));
+      OO.log(createErrorString(`Event '${eventName}' being published and it's not 
+      in the list of OO.Analytics.EVENTS`));
     }
     return eventPublished;
   };
@@ -545,7 +546,8 @@ OO.Analytics.Framework = function () {
         }
 
         if (_uniquePluginId > MAX_PLUGINS) {
-          OO.log(createErrorString(`You have tried to create more than ${MAX_PLUGINS} unique plugin ids. There is probably an infinite loop or some other error.`));
+          OO.log(createErrorString(`You have tried to create more than 
+          ${MAX_PLUGINS} unique plugin ids. There is probably an infinite loop or some other error.`));
         }
       }
     }
@@ -610,11 +612,13 @@ OO.Analytics.Framework = function () {
     } catch (err) {
       try {
         if (plugin && _.isFunction(plugin.getName)) {
-          OO.log(createErrorString(`Error occurred during call to function \'${funcName}\' on plugin \'${plugin.getName()}\'\n`));
+          OO.log(createErrorString(`Error occurred during call to function
+           '${funcName}' on plugin '${plugin.getName()}'\n`));
           OO.log(err);
         }
       } catch (e) {
-        OO.log(createErrorString(`Error occurred during call to function \'${funcName}\' on plugin\n`, err));
+        OO.log(createErrorString(`Error occurred during call to function 
+        '${funcName}' on plugin\n`, err));
       }
     }
 
@@ -630,7 +634,8 @@ OO.Analytics.Framework = function () {
    */
   var debugCheckFunctionIsInRequiredList = privateMember((funcName) => {
     if (!_.contains(OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS, funcName)) {
-      OO.log(createErrorString(`Calling function \'${funcName}\' in framework code and it's not in the REQUIRED_PLUGIN_FUNCTIONS list.`));
+      OO.log(createErrorString(`Calling function '${funcName}' in framework code and it's not in 
+      the REQUIRED_PLUGIN_FUNCTIONS list.`));
     }
   });
 

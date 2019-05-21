@@ -159,7 +159,7 @@ const GAAnalyticsPlugin = function (framework) {
    */
   this.setMetadata = function (metadata) {
     if (metadata) {
-      this.log(`GA: PluginID \'${id}\' received this metadata:`, metadata);
+      this.log(`GA: PluginID '${id}' received this metadata:`, metadata);
       // Grab the tracker name if available and valid
       if (validateTrackerName(metadata.trackerName)) {
         trackerName = metadata.trackerName;

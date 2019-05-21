@@ -179,7 +179,7 @@ const IqPlugin = function (framework) {
         pcode = jsonPcode;
       }
     }
-    OO.log(`Analytics Template: PluginID \'${id}\' received this metadata:`, metadata);
+    OO.log(`Analytics Template: PluginID '${id}' received this metadata:`, metadata);
   };
 
   /**
@@ -297,7 +297,7 @@ const IqPlugin = function (framework) {
    * @param  {Array} params     Array of parameters sent with the event
    */
   this.processEvent = function (eventName, params) {
-    OO.log(`IQ: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    OO.log(`IQ: PluginID '${id}' received this event '${eventName}' with these params:`, params);
 
     // This first switch is for non IQ reporting events that require changes to the internal plugin state
     switch (eventName) {

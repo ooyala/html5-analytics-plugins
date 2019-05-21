@@ -355,7 +355,7 @@ const ConvivaAnalyticsPlugin = function (framework) {
    * @param  {Array} params     Array of parameters sent with the event
    */
   this.processEvent = function (eventName, params) {
-    OO.log(`Conviva: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    OO.log(`Conviva: PluginID '${id}' received this event '${eventName}' with these params:`, params);
     switch (eventName) {
       case OO.Analytics.EVENTS.VIDEO_ELEMENT_CREATED:
         if (params && params[0] && params[0].streamUrl) {

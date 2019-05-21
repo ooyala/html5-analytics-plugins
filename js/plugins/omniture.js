@@ -95,7 +95,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @param  {object} metadata The metadata for this plugin
    */
   this.setMetadata = function (metadata) {
-    OO.log(`Omniture: PluginID \'${id}\' received this metadata:`, metadata);
+    OO.log(`Omniture: PluginID '${id}' received this metadata:`, metadata);
     // Set-up the Visitor and AppMeasurement instances.
     if (validateOmnitureMetadata(metadata)) {
       // Doc: https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_as_configure.html
@@ -256,7 +256,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @param  {Array} params     Array of parameters sent with the event
    */
   this.processEvent = function (eventName, params) {
-    OO.log(`Omniture: PluginID \'${id}\' received this event \'${eventName}\' with these params:`, params);
+    OO.log(`Omniture: PluginID '${id}' received this event '${eventName}' with these params:`, params);
     switch (eventName) {
       case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
         onContentStart();
