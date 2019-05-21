@@ -425,17 +425,15 @@ const GAAnalyticsPlugin = function (framework) {
           param.value = this.createdAt;
         }
         window.dataLayer.push(param);
-      }
-      // Legacy GA code block support
-      else if (typeof _gaq !== 'undefined') {
+      } else if (typeof _gaq !== 'undefined') {
+        // Legacy GA code block support
         param = ['_trackEvent', this.gaEventCategory, event, title];
         if (this.createdAt) {
           param.push(this.createdAt);
         }
         _gaq.push(param);
-      }
-      // Current GA code block support
-      else if (typeof window[gaFunction] !== 'undefined') {
+      } else if (typeof window[gaFunction] !== 'undefined') {
+        // Current GA code block support
         param = {
           eventCategory: this.gaEventCategory,
           eventAction: event,

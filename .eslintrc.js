@@ -74,7 +74,6 @@ module.exports = {
     "no-restricted-globals": "warn",
     "no-nested-ternary": "warn",
     "no-return-assign": "warn",
-    "brace-style": "warn",
     "no-cond-assign": "warn",
     "block-scoped-var": "warn",
     "no-mixed-operators": "warn",
