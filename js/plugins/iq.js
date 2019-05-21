@@ -566,6 +566,7 @@ const IqPlugin = function (framework) {
         adSecondQuartile = false;
         adThirdQuartile = false;
         adLastQuartile = false;
+      // eslint-disable-next-line no-fallthrough
       case OO.Analytics.EVENTS.AD_REQUEST:
       case OO.Analytics.EVENTS.AD_REQUEST_SUCCESS:
       case OO.Analytics.EVENTS.AD_SDK_LOADED:

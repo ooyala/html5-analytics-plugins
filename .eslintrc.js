@@ -79,7 +79,6 @@ module.exports = {
     "block-scoped-var": "warn",
     "no-mixed-operators": "warn",
     "consistent-return": "warn",
-    "no-fallthrough": "warn",
     "no-useless-escape": "warn",
   },
 };

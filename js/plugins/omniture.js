@@ -359,6 +359,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
         if (params && params[0]) {
           playerDelegate.onStreamTypeUpdated(params[0].streamType);
         }
+        break;
       default:
         break;
     }
