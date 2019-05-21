@@ -628,7 +628,7 @@ var OoyalaPlayerDelegate = function () {
     } else if (streamType === OO.Analytics.STREAM_TYPE.VOD) {
       videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
     } else {
-   	// default streamType
+      // default streamType
       videoInfo.streamType = ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD;
     }
     videoInfo.playerName = playerName;

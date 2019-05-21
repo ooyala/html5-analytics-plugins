@@ -533,7 +533,7 @@ const ConvivaAnalyticsPlugin = function (framework) {
 
   var validSession = function () {
     return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null
-           && typeof currentConvivaSessionKey !== 'undefined';
+      && typeof currentConvivaSessionKey !== 'undefined';
   };
 
   /**
@@ -662,8 +662,9 @@ function Html5Http() {
   this.makeRequest = function (httpMethod, url, data, contentType, timeoutMs, callback) {
     // XDomainRequest only exists in IE, and is IE8-IE9's way of making CORS requests.
     // It is present in IE10 but won't work right.
-    // if (typeof XDomainRequest !== "undefined" && navigator.userAgent.indexOf('MSIE 10') === -1) {
-    // 	return this.makeRequestIE89.apply(this, arguments);
+    // if (typeof XDomainRequest !== "undefined"
+    // && navigator.userAgent.indexOf('MSIE 10') === -1) {
+    // return this.makeRequestIE89.apply(this, arguments);
     // }
     return this.makeRequestStandard.apply(this, arguments);
   };
@@ -694,8 +695,7 @@ function Html5Http() {
         xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
         if (xmlHttpReq.status === 200) {
           if (callback) callback(true, xmlHttpReq.responseText);
-        } else
-        if (callback) callback(false, `http status ${xmlHttpReq.status}`);
+        } else if (callback) callback(false, `http status ${xmlHttpReq.status}`);
       }
     };
 
@@ -704,37 +704,37 @@ function Html5Http() {
     return null; // no way to cancel the request
   };
 
-  //   this.makeRequestIE89 = function(httpMethod, url, data, contentType, timeoutMs, callback) {
-  //    // IE8-9 does not allow changing the contentType on CORS requests.
-  //    // IE8-9 does not like mixed intranet/extranet CORS requests.
-  //    // IE8-9 does not like mixed HTTPS-in-HTTP-page / HTTP-in-HTTPS-page CORS requests.
-
-  //    var xmlHttpReq = new XDomainRequest();
-
-  //    xmlHttpReq.open(httpMethod, url, true); // async=true
-
-  //    if (timeoutMs != null) {
-  //        xmlHttpReq.timeout = timeoutMs;
-  //        xmlHttpReq.ontimeout = function() {
-  //            xmlHttpReq.onload = xmlHttpReq.onerror = null;
-  //            if (callback) callback(false, "timeout after "+timeoutMs+" ms");
-  //        };
-  //    }
-
-  // // onreadystatechange won't trigger for XDomainRequest.
-  //    xmlHttpReq.onload = function() {
-  //    	xmlHttpReq.ontimeout = null;
-  //    	if (callback) callback(true, xmlHttpReq.responseText);
-  //    };
-  //    xmlHttpReq.onerror = function() {
-  //    	xmlHttpReq.ontimeout = null;
-  //    	if (callback) callback(false, "http status " + xmlHttpReq.status);
-  //    };
-
-  //    xmlHttpReq.send(data);
-
-  //    return null; // no way to cancel the request
+  // this.makeRequestIE89 = function (httpMethod, url, data, contentType, timeoutMs, callback) {
+  //   // IE8-9 does not allow changing the contentType on CORS requests.
+  //   // IE8-9 does not like mixed intranet/extranet CORS requests.
+  //   // IE8-9 does not like mixed HTTPS-in-HTTP-page / HTTP-in-HTTPS-page CORS requests.
+  //
+  //   var xmlHttpReq = new XDomainRequest();
+  //
+  //   xmlHttpReq.open(httpMethod, url, true); // async=true
+  //
+  //   if (timeoutMs != null) {
+  //     xmlHttpReq.timeout = timeoutMs;
+  //     xmlHttpReq.ontimeout = function () {
+  //       xmlHttpReq.onload = xmlHttpReq.onerror = null;
+  //       if (callback) callback(false, 'timeout after ' + timeoutMs + ' ms');
+  //     };
+  //   }
+  //
+  //   // onreadystatechange won't trigger for XDomainRequest.
+  //   xmlHttpReq.onload = function () {
+  //     xmlHttpReq.ontimeout = null;
+  //     if (callback) callback(true, xmlHttpReq.responseText);
   //   };
+  //   xmlHttpReq.onerror = function () {
+  //     xmlHttpReq.ontimeout = null;
+  //     if (callback) callback(false, 'http status ' + xmlHttpReq.status);
+  //   };
+  //
+  //   xmlHttpReq.send(data);
+  //
+  //   return null; // no way to cancel the request
+  // };
 
   this.release = function () {
     // nothing to release

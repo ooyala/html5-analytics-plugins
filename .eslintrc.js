@@ -86,7 +86,6 @@ module.exports = {
     "no-mixed-operators": "warn",
     "consistent-return": "warn",
     "no-fallthrough": "warn",
-    "no-tabs": "warn",
     "no-throw-literal": "warn",
     "no-useless-escape": "warn",
     "no-mixed-spaces-and-tabs": "warn",

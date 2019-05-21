@@ -208,12 +208,12 @@ const IqPlugin = function (framework) {
   };
 
   /**
-    * Updates the ad offset for calculating the correct playhead for videos
-    * with SSAI ads embedded after a seek has been performed.
-    * @private
-    * @method IqPlugin#updateAdOffset
-    * @param {number} playhead The raw playhead returned by the video plugin (in seconds)
-    */
+   * Updates the ad offset for calculating the correct playhead for videos
+   * with SSAI ads embedded after a seek has been performed.
+   * @private
+   * @method IqPlugin#updateAdOffset
+   * @param {number} playhead The raw playhead returned by the video plugin (in seconds)
+   */
   this.updateAdOffset = function (playhead) {
     if (adTimeline !== null) {
       adOffset = 0;
@@ -226,13 +226,13 @@ const IqPlugin = function (framework) {
   };
 
   /**
-    * Checks the player is inside an SSAI ad block.
-	* Checks the passed playhead against the ad timeline and returns true
-	* if it is inside an SSAI ad block, false otherwise
-    * @private
-    * @method IqPlugin#isSSAIAdPlaying
-    * @param {number} playhead the playhead time to check (in seconds)
-    */
+   * Checks the player is inside an SSAI ad block.
+   * Checks the passed playhead against the ad timeline and returns true
+   * if it is inside an SSAI ad block, false otherwise
+   * @private
+   * @method IqPlugin#isSSAIAdPlaying
+   * @param {number} playhead the playhead time to check (in seconds)
+   */
   this.isSSAIAdPlaying = function (playhead) {
     for (let index = 0; index < adTimeline.length; index++) {
       if (playhead >= adTimeline[index].start && playhead < adTimeline[index].end) {
@@ -243,12 +243,12 @@ const IqPlugin = function (framework) {
   };
 
   /**
-    * Convenience function for reporting the custom ad playthrough percent event to IQ
-    * @private
-    * @method IqPlugin#reportAdPlaythrough
-    * @param {number} playhead the playhead time to check (in seconds)
-    * @param {number} duration the stream total duration (in seconds)
-    */
+   * Convenience function for reporting the custom ad playthrough percent event to IQ
+   * @private
+   * @method IqPlugin#reportAdPlaythrough
+   * @param {number} playhead the playhead time to check (in seconds)
+   * @param {number} duration the stream total duration (in seconds)
+   */
   this.reportAdPlaythrough = function (eventName, playhead, duration) {
     let percentPlayed = 0;
     let reportQuartile = false;
@@ -593,7 +593,7 @@ const IqPlugin = function (framework) {
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_IMPRESSION:
         if ((!allowThrift || thriftPcode != null || jsonPcode != null)
-        	&& params && params[0] && params[0].metadata) {
+          && params && params[0] && params[0].metadata) {
           try {
             eventMetadata = params[0].metadata;
             OO.log(`IQ: Reported: reportAssetImpression() with args: ${JSON.stringify(params[0])}`);
@@ -605,7 +605,7 @@ const IqPlugin = function (framework) {
         break;
       case OO.Analytics.EVENTS.REPORT_DISCOVERY_CLICK:
         if ((!allowThrift || thriftPcode != null || jsonPcode != null)
-        	&& params && params[0] && params[0].metadata) {
+          && params && params[0] && params[0].metadata) {
           try {
             eventMetadata = params[0].metadata;
             OO.log(`IQ: Reported: reportAssetClick() with args: ${JSON.stringify(params[0])}`);
