@@ -3,7 +3,8 @@ global.Conviva = {
   currentClient: null, // unit test helper
   currentSystemFactory: null,
   currentContentMetadata: null,
-  SystemInterface() {},
+  SystemInterface() {
+  },
   SystemFactory() {
     Conviva.currentSystemFactory = this;
     this.release = function () {
@@ -29,8 +30,10 @@ global.Conviva = {
     this.cleanupSession = function () {
       this.sessionsCleanedUp++;
     };
-    this.detachPlayer = function () {};
-    this.releasePlayerStateManager = function () {};
+    this.detachPlayer = function () {
+    };
+    this.releasePlayerStateManager = function () {
+    };
     this.createSession = function () {
       if (this.sessionId === Conviva.Client.NO_SESSION_KEY) {
         this.sessionId = 1;
@@ -39,7 +42,8 @@ global.Conviva = {
       }
       return this.sessionId;
     };
-    this.attachPlayer = function () {};
+    this.attachPlayer = function () {
+    };
     this.release = function () {
       this.sessionId = Conviva.Client.NO_SESSION_KEY;
       Conviva.currentClient = null;
@@ -47,7 +51,8 @@ global.Conviva = {
     this.adStart = function (sessionId, adStream, adPlayer, adPosition) {
       if (Conviva.currentPlayerStateManager) {
         // Conviva SDK sets player state to not monitored on ad start
-        Conviva.currentPlayerStateManager.currentPlayerState = Conviva.PlayerStateManager.PlayerState.NOT_MONITORED;
+        Conviva.currentPlayerStateManager.currentPlayerState = Conviva
+          .PlayerStateManager.PlayerState.NOT_MONITORED;
       }
       this.adStartSessionId = sessionId;
       this.adPlaying = true;
@@ -64,8 +69,10 @@ global.Conviva = {
       this.adPlaying = false;
     };
   },
-  SystemSettings() {},
-  ClientSettings() {},
+  SystemSettings() {
+  },
+  ClientSettings() {
+  },
   ContentMetadata() {
     Conviva.currentContentMetadata = this;
   },
@@ -88,7 +95,8 @@ global.Conviva = {
       this.currentBitrate = bitrate;
     };
 
-    this.release = function () {};
+    this.release = function () {
+    };
   },
 };
 

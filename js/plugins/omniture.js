@@ -123,14 +123,19 @@ const OmnitureAnalyticsPlugin = function (framework) {
       vpPlugin.configure(playerPluginConfig);
 
       // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
-      aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(appMeasurement, new ADB.va.plugins.aa.AdobeAnalyticsPluginDelegate());
+      aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(
+        appMeasurement,
+        new ADB.va.plugins.aa.AdobeAnalyticsPluginDelegate(),
+      );
       const aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
       aaPluginConfig.channel = metadata.channel; // optional
       aaPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
       aaPlugin.configure(aaPluginConfig);
 
       // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
-      const ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(new ADB.va.plugins.ah.AdobeHeartbeatPluginDelegate());
+      const ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(
+        new ADB.va.plugins.ah.AdobeHeartbeatPluginDelegate(),
+      );
       const ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
         metadata.heartbeatTrackingServer,
         metadata.publisherId,

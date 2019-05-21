@@ -585,44 +585,44 @@ if (!OO.Analytics.EVENTS) {
      * @description This property contains different the categories of Ooyala Player Errors.
      */
     ERROR:
-    {
-      /**
-       * @public
-       * @event OO.Analytics.EVENTS.ERROR#GENERAL
-       * @description This message is sent when a general error occurs.
-       * @param {Array} paramArray Array of length 1, contains an instance of
-       * OO.Analytics.EVENT_DATA.GeneralErrorData
-       */
-      GENERAL: 'general_error',
+      {
+        /**
+         * @public
+         * @event OO.Analytics.EVENTS.ERROR#GENERAL
+         * @description This message is sent when a general error occurs.
+         * @param {Array} paramArray Array of length 1, contains an instance of
+         * OO.Analytics.EVENT_DATA.GeneralErrorData
+         */
+        GENERAL: 'general_error',
 
-      /**
-       * @public
-       * @event OO.Analytics.EVENTS.ERROR#METADATA_LOADING
-       * @description This message is sent when a metadata loading error occurs
-       * (invalid metadata, invalid content, or a network error when loading metadata).
-       * @param {Array} paramArray Array of length 1, contains an instance of
-       * OO.Analytics.EVENT_DATA.MetadataLoadingError
-       */
-      METADATA_LOADING: 'metadata_loading_error',
+        /**
+         * @public
+         * @event OO.Analytics.EVENTS.ERROR#METADATA_LOADING
+         * @description This message is sent when a metadata loading error occurs
+         * (invalid metadata, invalid content, or a network error when loading metadata).
+         * @param {Array} paramArray Array of length 1, contains an instance of
+         * OO.Analytics.EVENT_DATA.MetadataLoadingError
+         */
+        METADATA_LOADING: 'metadata_loading_error',
 
-      /**
-       * @public
-       * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
-       * @description This message is sent when a video playback error occurs.
-       * @param {Array} paramArray Array of length 1, contains an instance of
-       * OO.Analytics.EVENT_DATA.VideoPlaybackErrorData
-       */
-      VIDEO_PLAYBACK: 'video_playback_error',
+        /**
+         * @public
+         * @event OO.Analytics.EVENTS.ERROR#VIDEO_PLAYBACK
+         * @description This message is sent when a video playback error occurs.
+         * @param {Array} paramArray Array of length 1, contains an instance of
+         * OO.Analytics.EVENT_DATA.VideoPlaybackErrorData
+         */
+        VIDEO_PLAYBACK: 'video_playback_error',
 
-      /**
-       * @public
-       * @event OO.Analytics.EVENTS.ERROR#AUTHORIZATION
-       * @description This message is sent when a stream authorization server (SAS) error occurs.
-       * @param {Array} paramArray Array of length 1, contains an instance of
-       * OO.Analytics.EVENT_DATA.AuthorizationErrorData
-       */
-      AUTHORIZATION: 'authorization_error',
-    },
+        /**
+         * @public
+         * @event OO.Analytics.EVENTS.ERROR#AUTHORIZATION
+         * @description This message is sent when a stream authorization server (SAS) error occurs.
+         * @param {Array} paramArray Array of length 1, contains an instance of
+         * OO.Analytics.EVENT_DATA.AuthorizationErrorData
+         */
+        AUTHORIZATION: 'authorization_error',
+      },
   };
   OO.Analytics.EVENTS = EVENTS;
 }
@@ -670,7 +670,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @property  {string} contentType A string indicating the type of content in the stream (ex. "video").
    * @property  {string} hostedAtURL The url the video is being hosted from
    */
-  EVENT_DATA.VideoContentMetadata = function (title, description, duration, closedCaptions, contentType, hostedAtURL) {
+  EVENT_DATA.VideoContentMetadata = function (title, description, duration, closedCaptions,
+    contentType, hostedAtURL) {
     const checkContentData = OO._.bind(checkDataType, this, 'VideoContentMetadata');
     this.title = checkContentData(title, 'title', ['string']);
     this.description = checkContentData(description, 'description', ['string']);
@@ -743,11 +744,16 @@ if (!OO.Analytics.EVENT_DATA) {
    * @property {number} seekableRangeStart The earliest time the user can seek to
    * @property {number} seekableRangeEnd The latest time the user can seek to
    */
-  EVENT_DATA.VideoDownloadingMetadata = function (currentTime, totalStreamDuration, streamBufferedUntilTime, seekableRangeStart, seekableRangeEnd) {
+  EVENT_DATA.VideoDownloadingMetadata = function (currentTime, totalStreamDuration, streamBufferedUntilTime,
+    seekableRangeStart, seekableRangeEnd) {
     const checkDownloadData = OO._.bind(checkDataType, this, 'VideoDownloadingMetadata');
     this.currentTime = checkDownloadData(currentTime, 'currentTime', ['number']);
     this.totalStreamDuration = checkDownloadData(totalStreamDuration, 'totalStreamDuration', ['number']);
-    this.streamBufferedUntilTime = checkDownloadData(streamBufferedUntilTime, 'streamBufferedUntilTime', ['number']);
+    this.streamBufferedUntilTime = checkDownloadData(
+      streamBufferedUntilTime,
+      'streamBufferedUntilTime',
+      ['number'],
+    );
     this.seekableRangeStart = checkDownloadData(seekableRangeStart, 'seekableRangeStart', ['number']);
     this.seekableRangeEnd = checkDownloadData(seekableRangeEnd, 'seekableRangeEnd', ['number']);
   };
@@ -861,12 +867,25 @@ if (!OO.Analytics.EVENT_DATA) {
    * @property {string} videoId Id used to differentiate between various streams (such as ad vs content playback).
    *                            Possible values are defined in OO.VIDEO.
    */
-  EVENT_DATA.VideoStreamPositionChangedData = function (streamPosition, totalStreamDuration, videoId, currentLiveTime) {
-    const checkVideoStreamPositionChangedData = OO._.bind(checkDataType, this, 'VideoStreamPositionChangedData');
+  EVENT_DATA.VideoStreamPositionChangedData = function (streamPosition, totalStreamDuration,
+    videoId, currentLiveTime) {
+    const checkVideoStreamPositionChangedData = OO._.bind(
+      checkDataType,
+      this,
+      'VideoStreamPositionChangedData',
+    );
     this.streamPosition = checkVideoStreamPositionChangedData(streamPosition, 'streamPosition', ['number']);
-    this.totalStreamDuration = checkVideoStreamPositionChangedData(totalStreamDuration, 'totalStreamDuration', ['number']);
+    this.totalStreamDuration = checkVideoStreamPositionChangedData(
+      totalStreamDuration,
+      'totalStreamDuration',
+      ['number'],
+    );
     this.videoId = checkVideoStreamPositionChangedData(videoId, 'videoId', ['string']);
-    this.currentLiveTime = checkVideoStreamPositionChangedData(currentLiveTime, 'currentLiveTime', ['number']);
+    this.currentLiveTime = checkVideoStreamPositionChangedData(
+      currentLiveTime,
+      'currentLiveTime',
+      ['number'],
+    );
   };
 
   /**
@@ -1077,7 +1096,11 @@ if (!OO.Analytics.EVENT_DATA) {
     autoplayed, hadPreroll, position, plugin, technology, encoding, streamUrl, drm, isLive) {
     const checkInitialPlayStartingData = OO._.bind(checkDataType, this, 'VideoPlayerCreatedData');
     this.playerCoreVersion = checkInitialPlayStartingData(playerCoreVersion, 'playerCoreVersion', ['string']);
-    this.timeSinceInitialPlay = checkInitialPlayStartingData(timeSinceInitialPlay, 'timeSinceInitialPlay', ['number']);
+    this.timeSinceInitialPlay = checkInitialPlayStartingData(
+      timeSinceInitialPlay,
+      'timeSinceInitialPlay',
+      ['number'],
+    );
     this.autoplayed = checkInitialPlayStartingData(autoplayed, 'autoplayed', ['boolean']);
     this.hadPreroll = checkInitialPlayStartingData(hadPreroll, 'hadPreroll', ['boolean']);
     this.position = checkInitialPlayStartingData(position, 'position', ['number']);
@@ -1100,7 +1123,11 @@ if (!OO.Analytics.EVENT_DATA) {
   EVENT_DATA.PlaybackReadyData = function (playerCoreVersion, timeSincePlayerCreated, pluginList) {
     const checkPlaybackReadyData = OO._.bind(checkDataType, this, 'PlaybackReadyData');
     this.playerCoreVersion = checkPlaybackReadyData(playerCoreVersion, 'playerCoreVersion', ['string']);
-    this.timeSincePlayerCreated = checkPlaybackReadyData(timeSincePlayerCreated, 'timeSincePlayerCreated', ['number']);
+    this.timeSincePlayerCreated = checkPlaybackReadyData(
+      timeSincePlayerCreated,
+      'timeSincePlayerCreated',
+      ['number'],
+    );
     this.pluginList = checkPlaybackReadyData(pluginList, 'pluginList', ['array']);
   };
 
@@ -1239,7 +1266,11 @@ if (!OO.Analytics.EVENT_DATA) {
     this.adPluginName = checkAdRequestSuccessData(adPluginName, 'adPluginName', ['string']);
     this.adPosition = checkAdRequestSuccessData(adPosition, 'adPosition', ['number']);
     this.responseTime = checkAdRequestSuccessData(responseTime, 'responseTime', ['number']);
-    this.timeSinceInitialPlay = checkAdRequestSuccessData(timeSinceInitialPlay, 'timeSinceInitialPlay', ['number']);
+    this.timeSinceInitialPlay = checkAdRequestSuccessData(
+      timeSinceInitialPlay,
+      'timeSinceInitialPlay',
+      ['number'],
+    );
   };
 
   /**
@@ -1272,7 +1303,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @property {string} errorMessage The error message
    * @property {boolean} isTimeout If ad request timed out or not
    */
-  EVENT_DATA.AdRequestErrorData = function (adPluginName, adPosition, adTagUrl, errorCodes, errorMessage, isTimeout) {
+  EVENT_DATA.AdRequestErrorData = function (adPluginName, adPosition, adTagUrl,
+    errorCodes, errorMessage, isTimeout) {
     const checkAdRequestErrorData = OO._.bind(checkDataType, this, 'AdRequestErrorData');
     this.adPluginName = checkAdRequestErrorData(adPluginName, 'adPluginName', ['string']);
     this.adPosition = checkAdRequestErrorData(adPosition, 'adPosition', ['number']);
@@ -1294,7 +1326,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @property {array} videoPluginList Array containing names of all video plugins registered
    * @property {string} mediaFileUrl The url used to retrieve the ad media file
    */
-  EVENT_DATA.AdPlaybackErrorData = function (adPluginName, adPosition, adTagUrl, errorCodes, errorMessage, videoPluginList, mediaFileUrl) {
+  EVENT_DATA.AdPlaybackErrorData = function (adPluginName, adPosition, adTagUrl,
+    errorCodes, errorMessage, videoPluginList, mediaFileUrl) {
     const checkAdPlaybackErrorData = OO._.bind(checkDataType, this, 'AdPlaybackErrorData');
     this.adPluginName = checkAdPlaybackErrorData(adPluginName, 'adPluginName', ['string']);
     this.adPosition = checkAdPlaybackErrorData(adPosition, 'adPosition', ['number']);
@@ -1379,7 +1412,11 @@ if (!OO.Analytics.EVENT_DATA) {
    *                               between ad plugin to ad plugin.
    */
   EVENT_DATA.ReportDiscoveryImpressionEventData = function (metadata) {
-    const checkReportDiscoveryImpressionEventData = OO._.bind(checkDataType, this, 'ReportDiscoveryImpressionEventData');
+    const checkReportDiscoveryImpressionEventData = OO._.bind(
+      checkDataType,
+      this,
+      'ReportDiscoveryImpressionEventData',
+    );
     this.metadata = checkReportDiscoveryImpressionEventData(metadata, 'metadata', ['object']);
   };
 
@@ -1392,7 +1429,11 @@ if (!OO.Analytics.EVENT_DATA) {
    *                               between ad plugin to ad plugin.
    */
   EVENT_DATA.ReportDiscoveryClickEventData = function (metadata) {
-    const checkReportDiscoveryClickEventData = OO._.bind(checkDataType, this, 'ReportDiscoveryClickEventData');
+    const checkReportDiscoveryClickEventData = OO._.bind(
+      checkDataType,
+      this,
+      'ReportDiscoveryClickEventData',
+    );
     this.metadata = checkReportDiscoveryClickEventData(metadata, 'metadata', ['object']);
   };
 
@@ -1423,7 +1464,11 @@ if (!OO.Analytics.EVENT_DATA) {
    */
   EVENT_DATA.FullscreenChangedData = function (changingToFullscreen) {
     const checkFullscreenChangedData = OO._.bind(checkDataType, this, 'FullscreenChangedData');
-    this.changingToFullscreen = checkFullscreenChangedData(changingToFullscreen, 'changingToFullscreen', ['boolean']);
+    this.changingToFullscreen = checkFullscreenChangedData(
+      changingToFullscreen,
+      'changingToFullscreen',
+      ['boolean'],
+    );
   };
 
   /**

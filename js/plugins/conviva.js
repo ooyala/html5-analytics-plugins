@@ -190,7 +190,8 @@ const ConvivaAnalyticsPlugin = function (framework) {
    */
   var tryBuildConvivaContentMetadata = function () {
     let success = false;
-    if (playRequested && videoContentMetadata && embedCode && convivaClient && streamUrl && streamType && !validSession()) {
+    if (playRequested && videoContentMetadata && embedCode && convivaClient
+      && streamUrl && streamType && !validSession()) {
       playerStateManager = convivaClient.getPlayerStateManager();
       const contentMetadata = new Conviva.ContentMetadata();
 
@@ -204,7 +205,9 @@ const ConvivaAnalyticsPlugin = function (framework) {
       // The type of stream for this content. Usually either live or VOD.
       // Sometimes the application may not know right away, in which case you have the option to set it to Unknown
       // and possibly fill the gap later on.
-      contentMetadata.streamType = streamType === OO.Analytics.STREAM_TYPE.LIVE_STREAM ? Conviva.ContentMetadata.StreamType.LIVE : Conviva.ContentMetadata.StreamType.VOD;
+      contentMetadata.streamType = streamType === OO.Analytics.STREAM_TYPE.LIVE_STREAM
+        ? Conviva.ContentMetadata.StreamType.LIVE
+        : Conviva.ContentMetadata.StreamType.VOD;
 
       // Duration of this particular video stream.
       // If this information is available to your application from your Content Management System,

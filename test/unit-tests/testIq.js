@@ -315,7 +315,8 @@ describe('Analytics Framework Template Unit Tests', () => {
     expect(unitTestState.doNotTrack).toBe(false);
   });
 
-  it('IQ Plugin can initialize and set device and player info when tracking level is set to ANONYMOUS', () => {
+  it(`IQ Plugin can initialize and set device and player info
+   when tracking level is set to ANONYMOUS`, () => {
     OO.trackingLevel = OO.TRACKING_LEVEL.ANONYMOUS;
     const plugin = createPlugin(framework);
     const { unitTestState } = plugin.ooyalaReporter;

@@ -12,7 +12,7 @@ module.exports = {
   },
   rules: {
     "max-len": [
-      "warn", 110,
+      "error", 110,
       {
         "ignoreComments": true,
         "ignorePattern": "if \\(\/\\(\\w*|\\)\/",

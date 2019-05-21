@@ -82,7 +82,8 @@ OO.Analytics.Framework = function () {
 
       success = true;
     } else {
-      OO.log(createErrorString('Calling setPluginMetadata without valid metadata object. Defaulting to no metadata'));
+      OO.log(createErrorString(`Calling setPluginMetadata without valid metadata object.
+       Defaulting to no metadata`));
     }
 
     return success;
@@ -300,7 +301,8 @@ OO.Analytics.Framework = function () {
         try {
           const name = plugin.getName();
           if (!name || !_.isString(name)) {
-            OO.log(createErrorString("Plugin does not have \'string\' as return type of getName() or is empty string"));
+            OO.log(createErrorString(`Plugin does not have 'string' as 
+            return type of getName() or is empty string`));
             isValid = false;
           }
         } catch (e) {
@@ -314,7 +316,8 @@ OO.Analytics.Framework = function () {
         try {
           const version = plugin.getVersion();
           if (!version || !_.isString(version)) {
-            OO.log(createErrorString("Plugin does not have \'string\' as return type of getVersion() or is empty string"));
+            OO.log(createErrorString(`Plugin does not have 'string' 
+            as return type of getVersion() or is empty string`));
             isValid = false;
           }
         } catch (e) {

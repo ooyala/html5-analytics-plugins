@@ -1,4 +1,3 @@
-
 describe('Analytics Framework Unit Tests', () => {
   jest.autoMockOff();
   require(`${SRC_ROOT}framework/AnalyticsFramework.js`);
@@ -15,7 +14,8 @@ describe('Analytics Framework Unit Tests', () => {
   // setup for individual tests
   const testSetup = function () {
     // mute the logging because there will be lots of error messages that are appearing for valid reasons.
-    OO.log = function () {};
+    OO.log = function () {
+    };
     framework = new Analytics.Framework();
   };
 
@@ -86,7 +86,9 @@ describe('Analytics Framework Unit Tests', () => {
     it('Test Factory Returns Plugin With Missing Required Function', () => {
       let i;
       for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++) {
-        const MissingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
+        const MissingFunctionFactory = Utils.createMissingFunctionFactory(
+          Analytics.REQUIRED_PLUGIN_FUNCTIONS[i],
+        );
         const plugin = new MissingFunctionFactory();
         expect(framework.validatePlugin(plugin)).toBe(false);
       }
@@ -108,7 +110,8 @@ describe('Analytics Framework Unit Tests', () => {
       expect(framework.validatePlugin(plugin2)).toBe(true);
 
       // add a second extra function to the first plugin, as a sanity check.
-      plugin.anotherExtraFunction = function () {};
+      plugin.anotherExtraFunction = function () {
+      };
       expect(framework.validatePlugin(plugin)).toBe(true);
     });
 
@@ -157,7 +160,8 @@ describe('Analytics Framework Unit Tests', () => {
     });
 
     it('Test Registering Factory Returning Empty Object', () => {
-      const badEmptyPluginFactory = function () {};
+      const badEmptyPluginFactory = function () {
+      };
       expect(framework.registerPlugin(badEmptyPluginFactory)).toBeFalsy();
       const pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(0);
@@ -166,7 +170,9 @@ describe('Analytics Framework Unit Tests', () => {
     it('Test Registering Factory With Missing Required Function', () => {
       let i;
       for (i = 0; i < Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++) {
-        const missingFunctionFactory = Utils.createMissingFunctionFactory(Analytics.REQUIRED_PLUGIN_FUNCTIONS[i]);
+        const missingFunctionFactory = Utils.createMissingFunctionFactory(
+          Analytics.REQUIRED_PLUGIN_FUNCTIONS[i],
+        );
         expect(framework.registerPlugin(missingFunctionFactory)).toBeFalsy();
       }
       const pluginList = framework.getPluginIDList();
@@ -806,7 +812,7 @@ describe('Analytics Framework Unit Tests', () => {
       expect(plugin.msgReceivedList[2]).toEqual(msg2);
     });
 
-    it("Test Plugin Doesn't Receive Messages When Inactive", () => {
+    it('Test Plugin Doesn\'t Receive Messages When Inactive', () => {
       const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       const pluginID = framework.registerPlugin(factory);
       const plugin = OO.Analytics.Framework.TEST[0];
@@ -1194,9 +1200,7 @@ describe('Analytics Framework Unit Tests', () => {
         id: {},
       };
 
-      const badMetadataResult = {
-
-      };
+      const badMetadataResult = {};
 
       data = new OO.Analytics.EVENT_DATA.VideoBufferingEndedData(badMetadata);
       expect(data).toEqual(badMetadataResult);
@@ -1246,9 +1250,7 @@ describe('Analytics Framework Unit Tests', () => {
         targetProfile: {},
       };
 
-      const badMetadataResult = {
-
-      };
+      const badMetadataResult = {};
 
       data = new OO.Analytics.EVENT_DATA.VideoTargetBitrateData(badMetadata.targetProfile);
       expect(data).toEqual(badMetadataResult);
@@ -1667,11 +1669,9 @@ describe('Analytics Framework Unit Tests', () => {
       expect(data).toEqual(metadataOut);
 
       // test that all params are optional
-      metadataIn = {
-      };
+      metadataIn = {};
 
-      metadataOut = {
-      };
+      metadataOut = {};
 
       data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
       expect(data).toEqual(metadataOut);
@@ -1761,7 +1761,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: 'error message',
       };
 
-      let data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      let data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataIn);
 
       metadataIn = {
@@ -1774,7 +1777,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: undefined,
       };
 
-      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataOut);
 
       metadataIn = {
@@ -1787,7 +1793,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: undefined,
       };
 
-      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.VideoPlaybackErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataOut);
     });
 
@@ -1797,7 +1806,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: 'error message',
       };
 
-      let data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      let data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataIn);
 
       metadataIn = {
@@ -1810,7 +1822,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: undefined,
       };
 
-      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataOut);
 
       metadataIn = {
@@ -1823,7 +1838,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: undefined,
       };
 
-      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.AuthorizationErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataOut);
     });
 
@@ -1859,7 +1877,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: undefined,
       };
 
-      data = new OO.Analytics.EVENT_DATA.GeneralErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.GeneralErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataOut);
     });
 
@@ -1869,7 +1890,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: 'error message',
       };
 
-      let data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      let data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataIn);
 
       metadataIn = {
@@ -1882,7 +1906,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: undefined,
       };
 
-      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataOut);
 
       metadataIn = {
@@ -1895,7 +1922,10 @@ describe('Analytics Framework Unit Tests', () => {
         errorMessage: undefined,
       };
 
-      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(metadataIn.errorCode, metadataIn.errorMessage);
+      data = new OO.Analytics.EVENT_DATA.MetadataLoadingErrorData(
+        metadataIn.errorCode,
+        metadataIn.errorMessage,
+      );
       expect(data).toEqual(metadataOut);
     });
 
@@ -1906,7 +1936,11 @@ describe('Analytics Framework Unit Tests', () => {
         adEventData: {},
       };
 
-      let data = new OO.Analytics.EVENT_DATA.SdkAdEventData(metadataIn.adPluginName, metadataIn.adEventName, metadataIn.adEventData);
+      let data = new OO.Analytics.EVENT_DATA.SdkAdEventData(
+        metadataIn.adPluginName,
+        metadataIn.adEventName,
+        metadataIn.adEventData,
+      );
       expect(data).toEqual(metadataIn);
 
       metadataIn = {

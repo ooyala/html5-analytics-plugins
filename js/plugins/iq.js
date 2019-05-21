@@ -145,7 +145,12 @@ const IqPlugin = function (framework) {
     if (this.testMode) {
       trySetupAnalytics();
     } else if (!this.ooyalaReporter) {
-      OO.loadScriptOnce('//analytics.ooyala.com/static/v3/analytics.js', trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
+      OO.loadScriptOnce(
+        '//analytics.ooyala.com/static/v3/analytics.js',
+        trySetupAnalytics,
+        sdkLoadError,
+        SDK_LOAD_TIMEOUT,
+      );
     }
   };
 
@@ -274,7 +279,12 @@ const IqPlugin = function (framework) {
       }
       if (reportQuartile) {
         OO.log(`IQ: Reported: reportCustomEvent() for event: adPlaythrough with args:${JSON.stringify(percentPlayed)}`);
-        this.ooyalaReporter.reportCustomEvent(eventName, { adEventName: 'adPlaythrough', percent: percentPlayed });
+        this.ooyalaReporter.reportCustomEvent(
+          eventName, {
+            adEventName: 'adPlaythrough',
+            percent: percentPlayed,
+          },
+        );
       }
     }
   };
@@ -597,7 +607,14 @@ const IqPlugin = function (framework) {
           try {
             eventMetadata = params[0].metadata;
             OO.log(`IQ: Reported: reportAssetImpression() with args: ${JSON.stringify(params[0])}`);
-            this.ooyalaReporter.reportAssetImpression(eventMetadata.asset, eventMetadata.customData, eventMetadata.uiTag, eventMetadata.contentSource, eventMetadata.pageSize, eventMetadata.assetPosition);
+            this.ooyalaReporter.reportAssetImpression(
+              eventMetadata.asset,
+              eventMetadata.customData,
+              eventMetadata.uiTag,
+              eventMetadata.contentSource,
+              eventMetadata.pageSize,
+              eventMetadata.assetPosition,
+            );
           } catch (e) {
             OO.log(`IQ: Tried reporting event: ${eventName} but received error: ${e}`);
           }
@@ -609,7 +626,14 @@ const IqPlugin = function (framework) {
           try {
             eventMetadata = params[0].metadata;
             OO.log(`IQ: Reported: reportAssetClick() with args: ${JSON.stringify(params[0])}`);
-            this.ooyalaReporter.reportAssetClick(eventMetadata.asset, eventMetadata.customData, eventMetadata.uiTag, eventMetadata.contentSource, eventMetadata.pageSize, eventMetadata.assetPosition);
+            this.ooyalaReporter.reportAssetClick(
+              eventMetadata.asset,
+              eventMetadata.customData,
+              eventMetadata.uiTag,
+              eventMetadata.contentSource,
+              eventMetadata.pageSize,
+              eventMetadata.assetPosition,
+            );
           } catch (e) {
             OO.log(`IQ: Tried reporting event: ${eventName} but received error: ${e}`);
           }

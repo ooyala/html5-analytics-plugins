@@ -102,7 +102,12 @@ const NielsenAnalyticsPlugin = function (framework) {
 
     // If SDK is not loaded by now, load SDK
     if (!window.NOLCMB) {
-      OO.loadScriptOnce('//cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js', trySetupNielsen, sdkLoadError, SDK_LOAD_TIMEOUT);
+      OO.loadScriptOnce(
+        '//cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js',
+        trySetupNielsen,
+        sdkLoadError,
+        SDK_LOAD_TIMEOUT,
+      );
     }
   };
 
@@ -290,7 +295,8 @@ const NielsenAnalyticsPlugin = function (framework) {
           // Playhead updates should occur every 1 second according to docs at:
           // https://engineeringforum.nielsen.com/sdk/developers/product-dcr-implementation-av-bsdk.php;
           const currentTime = new Date().getTime();
-          const sufficientDelay = currentTime >= lastPlayheadUpdate + PLAYHEAD_UPDATE_INTERVAL || this.testMode;
+          const sufficientDelay = currentTime >= lastPlayheadUpdate + PLAYHEAD_UPDATE_INTERVAL
+            || this.testMode;
           if (playhead >= 0 && sufficientDelay) {
             // TODO: receiving video_stream_position_changed immediately after ad_break_started
             lastPlayheadUpdate = currentTime;

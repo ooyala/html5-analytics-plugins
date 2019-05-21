@@ -227,7 +227,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
   });
 
   it('Conviva Plugin can track paused event', () => {
@@ -240,9 +241,11 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateVideoPause();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
   });
 
   it('Conviva Plugin can track stopped event', () => {
@@ -255,9 +258,11 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
   });
 
   it('Conviva Plugin can track buffering event', () => {
@@ -270,11 +275,14 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateVideoBufferingStarted();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.BUFFERING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.BUFFERING);
     simulator.simulateVideoBufferingEnded();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
   });
 
   it('Conviva Plugin can track PAUSED after buffering finishes when content is PAUSED', () => {
@@ -287,14 +295,18 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateVideoPause();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
 
     simulator.simulateVideoBufferingStarted();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.BUFFERING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.BUFFERING);
     simulator.simulateVideoBufferingEnded();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PAUSED);
   });
 
   it('Conviva Plugin can track bitrate changes', () => {
@@ -307,7 +319,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateBitrateChange({
       bitrate: 120000,
       width: 640,
@@ -327,7 +340,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulateBitrateChange({
       bitrate: 'ABCD',
       width: 640,
@@ -464,7 +478,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
       },
     });
     const { sessionId } = Conviva.currentClient;
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
     expect(Conviva.currentClient.adPlaying).toBe(true);
     expect(Conviva.currentClient.adStartSessionId).toBe(sessionId);
     expect(Conviva.currentClient.adStream).toBe(Conviva.Client.AdStream.SEPARATE);
@@ -476,12 +491,14 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
       adId: 'adId',
     });
     simulator.simulateAdBreakEnded();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
     expect(Conviva.currentClient.adPlaying).toBe(false);
     expect(Conviva.currentClient.adEndSessionId).toBe(sessionId);
 
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
   });
 
   it('Conviva Plugin can track midroll ad playback', () => {
@@ -494,7 +511,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     expect(Conviva.currentClient.adPlaying).toBe(false);
 
     simulator.simulateVideoProgress({
@@ -511,7 +529,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
       },
     });
     const { sessionId } = Conviva.currentClient;
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
     expect(Conviva.currentClient.adPlaying).toBe(true);
     expect(Conviva.currentClient.adStartSessionId).toBe(sessionId);
     expect(Conviva.currentClient.adStream).toBe(Conviva.Client.AdStream.SEPARATE);
@@ -523,7 +542,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
       adId: 'adId',
     });
     simulator.simulateAdBreakEnded();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
     expect(Conviva.currentClient.adPlaying).toBe(false);
     expect(Conviva.currentClient.adEndSessionId).toBe(sessionId);
   });
@@ -538,7 +558,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     expect(Conviva.currentClient.adPlaying).toBe(false);
 
     simulator.simulateContentComplete({
@@ -556,7 +577,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
       },
     });
     const { sessionId } = Conviva.currentClient;
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.NOT_MONITORED);
     expect(Conviva.currentClient.adPlaying).toBe(true);
     expect(Conviva.currentClient.adStartSessionId).toBe(sessionId);
     expect(Conviva.currentClient.adStream).toBe(Conviva.Client.AdStream.SEPARATE);
@@ -568,7 +590,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
       adId: 'adId',
     });
     simulator.simulateAdBreakEnded();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
     expect(Conviva.currentClient.adPlaying).toBe(false);
     expect(Conviva.currentClient.adEndSessionId).toBe(sessionId);
   });
@@ -585,9 +608,11 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
 
     // when playback completes, session will end
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
@@ -597,9 +622,11 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     const secondSessionId = Conviva.currentClient.sessionId;
     expect(secondSessionId).not.toBe(firstSessionId);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
     simulator.simulateReplay();
     expect(Conviva.currentClient.sessionId).not.toBe(firstSessionId);
     expect(Conviva.currentClient.sessionId).not.toBe(secondSessionId);
@@ -617,9 +644,11 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     startPlayer(simulator);
     expect(Conviva.currentContentMetadata.streamUrl).toBe('http://testStreamUrl');
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
 
     // when playback completes, session will end
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
@@ -635,7 +664,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     const secondSessionId = Conviva.currentClient.sessionId;
     expect(secondSessionId).not.toBe(firstSessionId);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
 
     // simulate discovery
     expect(Conviva.currentClient.sessionsCleanedUp).toBe(1);
@@ -663,9 +693,11 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
     simulator.simulatePlaybackComplete();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
     plugin.destroy();
     expect(Conviva.currentClient).toBe(null);
     expect(Conviva.currentSystemFactory).toBe(null);
@@ -682,7 +714,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     });
     startPlayer(simulator);
     simulator.simulateContentPlayback();
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.PLAYING);
 
     const beforeUnloadEvent = document.createEvent('Event');
     beforeUnloadEvent.initEvent('beforeunload', true, true);
@@ -702,7 +735,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
       duration: 60000,
     });
     startPlayer(simulator);
-    expect(Conviva.currentPlayerStateManager.currentPlayerState).toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
+    expect(Conviva.currentPlayerStateManager.currentPlayerState)
+      .toBe(Conviva.PlayerStateManager.PlayerState.STOPPED);
 
     const beforeUnloadEvent = document.createEvent('Event');
     beforeUnloadEvent.initEvent('beforeunload', true, true);
@@ -713,7 +747,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   });
 
   // negative cases
-  it('Conviva Plugin will not track if player state manager was not created due to missing page level metadata', () => {
+  it(`Conviva Plugin will not track if player state manager was not 
+  created due to missing page level metadata`, () => {
     const plugin = createPlugin(framework, {});
     const simulator = Utils.createPlaybackSimulator(plugin);
     expect(Conviva.currentPlayerStateManager).toBe(null);

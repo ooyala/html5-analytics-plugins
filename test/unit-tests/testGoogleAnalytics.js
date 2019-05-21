@@ -269,7 +269,8 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_QUARTER, 'testTitle');
   });
 
-  it('GA will not send playback milestone for playProgressQuarter again if meeting the same milestone again in the same playback', () => {
+  it(`GA will not send playback milestone for playProgressQuarter
+   again if meeting the same milestone again in the same playback`, () => {
     const plugin = createPlugin(framework);
     const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulatePlayerLoad({
@@ -325,7 +326,8 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_HALF, 'testTitle');
   });
 
-  it('GA will not send playback milestone for playProgressHalf again if meeting the same milestone again in the same playback', () => {
+  it(`GA will not send playback milestone for playProgressHalf 
+  again if meeting the same milestone again in the same playback`, () => {
     const plugin = createPlugin(framework);
     const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulatePlayerLoad({
@@ -381,7 +383,8 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
     checkGaArgumentsForEvent(EVENT_ACTION.PLAY_PROGRESS_THREE_QUARTERS, 'testTitle');
   });
 
-  it('GA will not send playback milestone for playProgressThreeQuarters again if meeting the same milestone again in the same playback', () => {
+  it(`GA will not send playback milestone for playProgressThreeQuarters 
+  again if meeting the same milestone again in the same playback`, () => {
     const plugin = createPlugin(framework);
     const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulatePlayerLoad({
@@ -544,7 +547,11 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
       totalStreamDuration: 60,
     });
 
-    checkGaArgumentsForEventWithTrackerName('testTrackerName', EVENT_ACTION.PLAY_PROGRESS_STARTED, 'testTitle');
+    checkGaArgumentsForEventWithTrackerName(
+      'testTrackerName',
+      EVENT_ACTION.PLAY_PROGRESS_STARTED,
+      'testTitle',
+    );
 
     simulator.simulateVideoProgress({
       playheads: [1, 15, 16, 20, 25, 30, 31, 39, 45, 46, 59, 60],

@@ -96,7 +96,8 @@ const GAAnalyticsPlugin = function (framework) {
    */
   this.displayError = function () {
     this.gaTrackingEnabled = false;
-    console.error('The Ooyala Google Analytics Tracking module is installed, but no valid Google Analytics code block is detected.');
+    console.error(`The Ooyala Google Analytics Tracking module is installed,
+     but no valid Google Analytics code block is detected.`);
   };
 
   /**
@@ -327,7 +328,7 @@ const GAAnalyticsPlugin = function (framework) {
    * onPositionChanged event is triggered, periodically, when the video stream position changes.
    * @public
    * @method GAAnalyticsPlugin#onPositionChanged
-   * @param  {object} data The stream duration and current stream position
+   * @param {object} data The stream duration and current stream position
    */
   this.onPositionChanged = function (params) {
     if (this.currentPlaybackType !== 'content' || !params || !params.length) {
@@ -343,7 +344,9 @@ const GAAnalyticsPlugin = function (framework) {
     this.currentPlayheadPosition = params.streamPosition;
 
     _.each(this.playbackMilestones, function (milestone) {
-      if ((this.currentPlayheadPosition / this.duration) >= milestone[0] && this.lastReportedPlaybackMilestone !== milestone[0] && milestone[0] > this.lastReportedPlaybackMilestone) {
+      if ((this.currentPlayheadPosition / this.duration) >= milestone[0]
+        && this.lastReportedPlaybackMilestone !== milestone[0] && milestone[0]
+        > this.lastReportedPlaybackMilestone) {
         this.reportToGA(milestone[1]);
         this.lastReportedPlaybackMilestone = milestone[0];
         this.log(`onPositionChanged (${this.currentPlayheadPosition}, ${milestone[1]})`);
@@ -391,7 +394,8 @@ const GAAnalyticsPlugin = function (framework) {
 
     // The Ooyala event subscription triggers an "onpause" on playback; we'll filter it here
     // It also triggers an "onpause" when playback finishes; we'll filter that, too
-    if (typeof this.currentPlayheadPosition === 'undefined' || this.currentPlayheadPosition > (this.duration - 2)) {
+    if (typeof this.currentPlayheadPosition === 'undefined'
+      || this.currentPlayheadPosition > (this.duration - 2)) {
       return false;
     }
 
