@@ -688,14 +688,16 @@ function Html5Http() {
       xmlHttpReq.ontimeout = function () {
         // Often this callback will be called after onreadystatechange.
         // The first callback called will cleanup the other to prevent duplicate responses.
-        xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
+        xmlHttpReq.ontimeout = null;
+        xmlHttpReq.onreadystatechange = xmlHttpReq.ontimeout;
         if (callback) callback(false, `timeout after ${timeoutMs} ms`);
       };
     }
 
     xmlHttpReq.onreadystatechange = function () {
       if (xmlHttpReq.readyState === 4) {
-        xmlHttpReq.ontimeout = xmlHttpReq.onreadystatechange = null;
+        xmlHttpReq.ontimeout = null;
+        xmlHttpReq.onreadystatechange = xmlHttpReq.ontimeout;
         if (xmlHttpReq.status === 200) {
           if (callback) callback(true, xmlHttpReq.responseText);
         } else if (callback) callback(false, `http status ${xmlHttpReq.status}`);
