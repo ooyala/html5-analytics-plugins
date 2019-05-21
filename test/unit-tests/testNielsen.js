@@ -324,6 +324,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
                 setPlayheadPositionCalled++;
                 playhead = param;
                 break;
+              default:
+              // do nothing
             }
           },
         };
@@ -423,6 +425,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
                 setPlayheadPositionCalled++;
                 playhead = param;
                 break;
+              default:
+              // do nothing
             }
           },
         };
@@ -552,6 +556,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
                 setPlayheadPositionCalled++;
                 playhead = param;
                 break;
+              default:
+              // do nothing
             }
           },
         };
@@ -669,6 +675,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
                 setPlayheadPositionCalled++;
                 playhead = param;
                 break;
+              default:
+              // do nothing
             }
           },
         };
@@ -887,6 +895,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
                   adMetadata = param;
                 }
                 break;
+              default:
+              // do nothing
             }
           },
         };
@@ -981,6 +991,8 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
                 setPlayheadPositionCalled++;
                 playhead = param;
                 break;
+              default:
+              // do nothing
             }
           },
         };

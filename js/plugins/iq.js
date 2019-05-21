@@ -354,6 +354,8 @@ const IqPlugin = function (framework) {
         playingSsaiAd = false;
         ssaiAdTransition = true;
         break;
+      default:
+      // do nothing
     }
 
     // OO.EVENTS.AUTHORAZATION_FETCHED -> OO.Analytics.EVENTS.STREAM_TYPE_UPDATED
