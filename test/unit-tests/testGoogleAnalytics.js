@@ -71,11 +71,7 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
     return plugin;
   };
 
-  const checkGaArgumentsForEvent = function (eventAction, eventLabel) {
-    checkGaArgumentsForEventWithTrackerName(null, eventAction, eventLabel);
-  };
-
-  var checkGaArgumentsForEventWithTrackerName = function (trackerName, eventAction, eventLabel) {
+  const checkGaArgumentsForEventWithTrackerName = function (trackerName, eventAction, eventLabel) {
     // command, hit type
     const command = trackerName ? `${trackerName}.${COMMAND.SEND}` : COMMAND.SEND;
     expect(MockGa.gaCommand).toBe(command);
@@ -92,6 +88,10 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
         expect(eventFields[key]).toBe(testFields[key]);
       }
     }
+  };
+
+  const checkGaArgumentsForEvent = function (eventAction, eventLabel) {
+    checkGaArgumentsForEventWithTrackerName(null, eventAction, eventLabel);
   };
 
   it('GA sends contentReady event when player is loaded', () => {

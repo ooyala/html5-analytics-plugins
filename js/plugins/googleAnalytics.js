@@ -152,77 +152,11 @@ const GAAnalyticsPlugin = function (framework) {
   };
 
   /**
-   * [Required Function] Set the metadata for this plugin.
-   * @public
-   * @method GAAnalyticsPlugin#setMetadata
-   * @param  {object} metadata The metadata for this plugin
-   */
-  this.setMetadata = function (metadata) {
-    if (metadata) {
-      this.log(`GA: PluginID '${id}' received this metadata:`, metadata);
-      // Grab the tracker name if available and valid
-      if (validateTrackerName(metadata.trackerName)) {
-        trackerName = metadata.trackerName;
-        this.log('GA: Using tracker name:', trackerName);
-      } else {
-        trackerName = null;
-      }
-    }
-  };
-
-  /**
-   * [Required Function] Process an event from the Analytics Framework, with the given parameters.
-   * @public
-   * @method GAAnalyticsPlugin#processEvent
-   * @param  {string} eventName Name of the event
-   * @param  {Array} params     Array of parameters sent with the event
-   */
-  this.processEvent = function (eventName, params) {
-    switch (eventName) {
-      case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
-        this.onPlayerCreated();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        resetPlaybackState();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
-        this.onPositionChanged(params);
-        break;
-      case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
-        resetPlaybackState();
-        resetContent();
-        this.onContentReady(params);
-        break;
-      case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
-        this.onStreamMetadataUpdated(params);
-        break;
-      case OO.Analytics.EVENTS.VIDEO_PLAYING:
-        this.onPlay();
-        break;
-      case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
-        this.onEnd();
-        break;
-      case OO.Analytics.EVENTS.AD_BREAK_STARTED:
-        this.onWillPlayAds();
-        break;
-      case OO.Analytics.EVENTS.AD_BREAK_ENDED:
-        this.onAdsPlayed();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        this.onPaused();
-        break;
-
-      default:
-        break;
-    }
-  };
-
-  /**
    * Resets any properties and variables associated with the playback state.
    * @private
    * @method GAAnalyticsPlugin#resetPlaybackState
    */
-  var resetPlaybackState = _.bind(function () {
+  const resetPlaybackState = _.bind(function () {
     this.playing = false;
     this.lastEventReported = null;
     this.lastReportedPlaybackMilestone = -1;
@@ -234,7 +168,7 @@ const GAAnalyticsPlugin = function (framework) {
    * @private
    * @method GAAnalyticsPlugin#resetContent
    */
-  var resetContent = _.bind(function () {
+  const resetContent = _.bind(function () {
     this.duration = null;
     this.content = null;
   }, this);
@@ -281,34 +215,6 @@ const GAAnalyticsPlugin = function (framework) {
 
     this.reportToGA('adPlaybackFinished');
     this.log('onAdsPlayed');
-  };
-
-  /**
-   * onStreamMetadataUpdated event is triggered when the stream metadata has been updated.
-   * This will contain custom metadata
-   * @public
-   * @method GAAnalyticsPlugin#onStreamMetadataUpdated
-   */
-  this.onStreamMetadataUpdated = function (metadata) {
-    if (metadata.length) metadata = metadata[0];
-    this.log('onStreamMetadataUpdated');
-
-    if (metadata) {
-      _cacheEvents = false;
-      if (metadata.base) {
-        const data = metadata.base;
-        this.createdAt = data.created_at || data.CreationDate;
-        // TODO: How do we test createAd and customDimension?
-        if (!!this.createdAt && !!ga && !!ooyalaGaTrackSettings.customDimension) {
-          const command = getGACommand('set');
-          ga(command, ooyalaGaTrackSettings.customDimension, this.createdAt);
-        }
-      }
-    }
-
-    while (_cachedEvents.length > 0) {
-      this.sendToGA(_cachedEvents.shift());
-    }
   };
 
   /**
@@ -404,6 +310,129 @@ const GAAnalyticsPlugin = function (framework) {
   };
 
   /**
+   * Report event to Google Analytics
+   * @public
+   * @method GAAnalyticsPlugin#reportToGA
+   */
+  this.reportToGA = function (event) {
+    if (this.lastEventReported !== event) {
+      // Ooyala event subscriptions result in duplicate triggers; we'll filter them out here
+      this.lastEventReported = event;
+
+      if (_cacheEvents) {
+        _cachedEvents.push(event);
+      } else {
+        this.sendToGA(event);
+      }
+    }
+  };
+
+  /**
+   * Generates the command string to use with the ga() method. If a tracker name
+   * was provided in the metadata, we will prepend the tracker name to the command
+   * per GA docs at:
+   * https://developers.google.com/analytics/devguides/collection/analyticsjs/creating-trackers
+   * @private
+   * @method GAAnalyticsPlugin#getGACommand
+   * @param {string} commandName the name of the ga() command
+   * @returns {string} the final command to provide to the ga() method
+   */
+  const getGACommand = function (commandName) {
+    if (commandName) {
+      return trackerName ? `${trackerName}.${commandName}` : commandName;
+    }
+
+    return null;
+  };
+
+  /**
+   * Checks to see if the tracker name is valid. The tracker name is expected to be
+   * a non-empty string.
+   * @private
+   * @method GAAnalyticsPlugin#validateTrackerName
+   * @param {string} name the tracker name to validate
+   * @returns {boolean} true if the tracker name is valid, false otherwise
+   */
+  const validateTrackerName = function (name) {
+    return _.isString(name) && !_.isEmpty(name);
+  };
+
+  /**
+   * [Required Function] Process an event from the Analytics Framework, with the given parameters.
+   * @public
+   * @method GAAnalyticsPlugin#processEvent
+   * @param  {string} eventName Name of the event
+   * @param  {Array} params     Array of parameters sent with the event
+   */
+  this.processEvent = function (eventName, params) {
+    switch (eventName) {
+      case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
+        this.onPlayerCreated();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
+        resetPlaybackState();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
+        this.onPositionChanged(params);
+        break;
+      case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
+        resetPlaybackState();
+        resetContent();
+        this.onContentReady(params);
+        break;
+      case OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED:
+        this.onStreamMetadataUpdated(params);
+        break;
+      case OO.Analytics.EVENTS.VIDEO_PLAYING:
+        this.onPlay();
+        break;
+      case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
+        this.onEnd();
+        break;
+      case OO.Analytics.EVENTS.AD_BREAK_STARTED:
+        this.onWillPlayAds();
+        break;
+      case OO.Analytics.EVENTS.AD_BREAK_ENDED:
+        this.onAdsPlayed();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_PAUSED:
+        this.onPaused();
+        break;
+
+      default:
+        break;
+    }
+  };
+
+  /**
+   * onStreamMetadataUpdated event is triggered when the stream metadata has been updated.
+   * This will contain custom metadata
+   * @public
+   * @method GAAnalyticsPlugin#onStreamMetadataUpdated
+   */
+  this.onStreamMetadataUpdated = function (metadata) {
+    if (metadata.length) metadata = metadata[0];
+    this.log('onStreamMetadataUpdated');
+
+    if (metadata) {
+      _cacheEvents = false;
+      if (metadata.base) {
+        const data = metadata.base;
+        this.createdAt = data.created_at || data.CreationDate;
+        // TODO: How do we test createAd and customDimension?
+        if (!!this.createdAt && !!ga && !!ooyalaGaTrackSettings.customDimension) {
+          const command = getGACommand('set');
+          ga(command, ooyalaGaTrackSettings.customDimension, this.createdAt);
+        }
+      }
+    }
+
+    while (_cachedEvents.length > 0) {
+      this.sendToGA(_cachedEvents.shift());
+    }
+  };
+
+  /**
    * Send event to Google Analytics
    * @public
    * @method GAAnalyticsPlugin#sendToGA
@@ -449,51 +478,22 @@ const GAAnalyticsPlugin = function (framework) {
   };
 
   /**
-   * Report event to Google Analytics
+   * [Required Function] Set the metadata for this plugin.
    * @public
-   * @method GAAnalyticsPlugin#reportToGA
+   * @method GAAnalyticsPlugin#setMetadata
+   * @param  {object} metadata The metadata for this plugin
    */
-  this.reportToGA = function (event) {
-    if (this.lastEventReported !== event) {
-      // Ooyala event subscriptions result in duplicate triggers; we'll filter them out here
-      this.lastEventReported = event;
-
-      if (_cacheEvents) {
-        _cachedEvents.push(event);
+  this.setMetadata = function (metadata) {
+    if (metadata) {
+      this.log(`GA: PluginID '${id}' received this metadata:`, metadata);
+      // Grab the tracker name if available and valid
+      if (validateTrackerName(metadata.trackerName)) {
+        trackerName = metadata.trackerName;
+        this.log('GA: Using tracker name:', trackerName);
       } else {
-        this.sendToGA(event);
+        trackerName = null;
       }
     }
-  };
-
-  /**
-   * Generates the command string to use with the ga() method. If a tracker name
-   * was provided in the metadata, we will prepend the tracker name to the command
-   * per GA docs at:
-   * https://developers.google.com/analytics/devguides/collection/analyticsjs/creating-trackers
-   * @private
-   * @method GAAnalyticsPlugin#getGACommand
-   * @param {string} commandName the name of the ga() command
-   * @returns {string} the final command to provide to the ga() method
-   */
-  var getGACommand = function (commandName) {
-    if (commandName) {
-      return trackerName ? `${trackerName}.${commandName}` : commandName;
-    }
-
-    return null;
-  };
-
-  /**
-   * Checks to see if the tracker name is valid. The tracker name is expected to be
-   * a non-empty string.
-   * @private
-   * @method GAAnalyticsPlugin#validateTrackerName
-   * @param {string} name the tracker name to validate
-   * @returns {boolean} true if the tracker name is valid, false otherwise
-   */
-  var validateTrackerName = function (name) {
-    return _.isString(name) && !_.isEmpty(name);
   };
 };
 

@@ -20,6 +20,19 @@ const path = {
   scripts: ['./js/plugins/**/*.*'],
 };
 
+const checkFileExtension = function (extension, fileName) {
+  if (!fileName || fileName.length < extension.length) {
+    return false;
+  }
+
+  return (fileName.lastIndexOf(extension) === fileName.length - extension.length);
+};
+
+const getFileNameFromPath = function (path) {
+  const start = path.lastIndexOf('/') + 1;
+  return path.substring(start);
+};
+
 // Build All
 gulp.task('build', ['browserify', 'publishDependencies']);
 
@@ -69,19 +82,6 @@ gulp.task('browserify', () => {
     }
   });
 });
-
-var checkFileExtension = function (extension, fileName) {
-  if (!fileName || fileName.length < extension.length) {
-    return false;
-  }
-
-  return (fileName.lastIndexOf(extension) === fileName.length - extension.length);
-};
-
-var getFileNameFromPath = function (path) {
-  const start = path.lastIndexOf('/') + 1;
-  return path.substring(start);
-};
 
 // Run tests
 gulp.task('test', shell.task(['npm test']));

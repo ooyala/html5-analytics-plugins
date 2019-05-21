@@ -4,6 +4,7 @@ require('./InitAnalyticsNamespace.js');
  * If Analytics.EVENTS or Analytics.REQUIRED_PLUGIN_FUNCTIONS do not already
  * exist, create them.
  */
+let ERROR_CODE;
 
 /**
  * @public
@@ -40,7 +41,7 @@ if (!OO.Analytics.STREAM_TYPE) {
  * @namespace OO.Analytics.ERROR_CODE
  */
 if (!OO.Analytics.ERROR_CODE) {
-  var ERROR_CODE = {
+  ERROR_CODE = {
     100: 'General Error',
   };
   OO.Analytics.ERROR_CODE = ERROR_CODE;
@@ -629,6 +630,123 @@ if (!OO.Analytics.EVENTS) {
 
 if (!OO.Analytics.EVENT_DATA) {
   const EVENT_DATA = {};
+
+  /**
+   * @private
+   * @class Analytics#logErrorString
+   * @classdesc Helper function to return an error string with the Analytics Constants prefix.
+   * @property {string} origStr the error string
+   * @returns {string} The new error string.
+   */
+  const logErrorString = function (origStr) {
+    OO.log(`Error AnalyticsConstants: ${origStr}`);
+  };
+
+  const checkDataType = function (className, data, varName, expectedTypes) {
+    let error = true;
+    let toRet = data;
+    for (let i = 0; i < expectedTypes.length; i++) {
+      const expectedType = expectedTypes[i];
+      if (expectedType === 'string') {
+        if (OO._.isString(toRet)) {
+          error = false;
+          break;
+        }
+      } else if (expectedType === 'object') {
+        if (toRet && OO._.isObject(toRet)) {
+          error = false;
+          break;
+        }
+      } else if (expectedType === 'array') {
+        if (toRet && OO._.isArray(toRet)) {
+          error = false;
+        }
+      } else if (expectedType === 'number') {
+        // in the case number comes in as a string, try parsing it.
+        const toRetFloat = parseFloat(toRet);
+        if (OO._.isNumber(toRet)) {
+          error = false;
+          break;
+        } else if (!isNaN(toRetFloat)) {
+          toRet = toRetFloat;
+          error = false;
+          break;
+        }
+      } else if (expectedType === 'boolean') {
+        if (OO._.isBoolean(toRet)) {
+          error = false;
+        } else if (toRet === 'true') {
+          toRet = true;
+          error = false;
+          break;
+        } else if (toRet === 'false') {
+          toRet = false;
+          error = false;
+          break;
+        }
+      }
+    }
+
+    if (error) {
+      logErrorString(
+        `Analytics.EVENT_DATA.${className} being created with invalid ${varName
+        }. Should be one of these types [${expectedTypes}] but was [${typeof (data)}].`,
+      );
+      return undefined;
+    }
+
+    return toRet;
+  };
+
+  /**
+   * @private
+   * @class Analytics#selectAdType
+   * @classdesc Checks for a recognized Ad Type and returns the corresponding EVENT_DATA object.
+   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
+   * @property {object} adMetadata The metadata associated with the ad
+   * @returns {object} The EVENT_DATA object that associates with the Ad Type.
+   */
+  const selectAdType = function (adType, adMetadataIn) {
+    let adMetadataOut;
+    switch (adType) {
+      case OO.Analytics.AD_TYPE.LINEAR_VIDEO:
+        adMetadataOut = new EVENT_DATA.LinearVideoData(
+          adMetadataIn.name,
+          adMetadataIn.duration,
+          adMetadataIn.indexInPod,
+        );
+        break;
+      case OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY:
+        adMetadataOut = new EVENT_DATA.NonLinearOverlayData(
+          adMetadataIn.id,
+        );
+        break;
+      default:
+        logErrorString(
+          `Ad Type not recognized. Should be one of these values [${
+            OO._.values(OO.Analytics.AD_TYPE)}] but was [${adType}].`,
+        );
+        break;
+    }
+    return adMetadataOut;
+  };
+
+  /**
+   * @private
+   * @class Analytics#translateErrorCode
+   * @classdesc Translates the error code provided into the corresponding error message.
+   * @property {number} code The error code
+   * @returns {string} The error string associated with the error code number.
+   */
+  const translateErrorCode = function (code) {
+    let errorMessage;
+    if (_.has(ERROR_CODE, code)) {
+      errorMessage = ERROR_CODE[code];
+    } else {
+      logErrorString(`Error code not recognized. Error code provided was: ${code}`);
+    }
+    return errorMessage;
+  };
 
   /**
    * @public
@@ -1501,123 +1619,6 @@ if (!OO.Analytics.EVENT_DATA) {
   EVENT_DATA.VolumeChangedData = function (currentVolume) {
     const checkVolumeChangedData = OO._.bind(checkDataType, this, 'VolumeChangedData');
     this.currentVolume = checkVolumeChangedData(currentVolume, 'currentVolume', ['number']);
-  };
-
-  var checkDataType = function (className, data, varName, expectedTypes) {
-    let error = true;
-    let toRet = data;
-    for (let i = 0; i < expectedTypes.length; i++) {
-      const expectedType = expectedTypes[i];
-      if (expectedType === 'string') {
-        if (OO._.isString(toRet)) {
-          error = false;
-          break;
-        }
-      } else if (expectedType === 'object') {
-        if (toRet && OO._.isObject(toRet)) {
-          error = false;
-          break;
-        }
-      } else if (expectedType === 'array') {
-        if (toRet && OO._.isArray(toRet)) {
-          error = false;
-        }
-      } else if (expectedType === 'number') {
-        // in the case number comes in as a string, try parsing it.
-        const toRetFloat = parseFloat(toRet);
-        if (OO._.isNumber(toRet)) {
-          error = false;
-          break;
-        } else if (!isNaN(toRetFloat)) {
-          toRet = toRetFloat;
-          error = false;
-          break;
-        }
-      } else if (expectedType === 'boolean') {
-        if (OO._.isBoolean(toRet)) {
-          error = false;
-        } else if (toRet === 'true') {
-          toRet = true;
-          error = false;
-          break;
-        } else if (toRet === 'false') {
-          toRet = false;
-          error = false;
-          break;
-        }
-      }
-    }
-
-    if (error) {
-      logErrorString(
-        `Analytics.EVENT_DATA.${className} being created with invalid ${varName
-        }. Should be one of these types [${expectedTypes}] but was [${typeof (data)}].`,
-      );
-      return undefined;
-    }
-
-    return toRet;
-  };
-
-  /**
-   * @private
-   * @class Analytics#selectAdType
-   * @classdesc Checks for a recognized Ad Type and returns the corresponding EVENT_DATA object.
-   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {object} adMetadata The metadata associated with the ad
-   * @returns {object} The EVENT_DATA object that associates with the Ad Type.
-   */
-  var selectAdType = function (adType, adMetadataIn) {
-    let adMetadataOut;
-    switch (adType) {
-      case OO.Analytics.AD_TYPE.LINEAR_VIDEO:
-        adMetadataOut = new EVENT_DATA.LinearVideoData(
-          adMetadataIn.name,
-          adMetadataIn.duration,
-          adMetadataIn.indexInPod,
-        );
-        break;
-      case OO.Analytics.AD_TYPE.NONLINEAR_OVERLAY:
-        adMetadataOut = new EVENT_DATA.NonLinearOverlayData(
-          adMetadataIn.id,
-        );
-        break;
-      default:
-        logErrorString(
-          `Ad Type not recognized. Should be one of these values [${
-            OO._.values(OO.Analytics.AD_TYPE)}] but was [${adType}].`,
-        );
-        break;
-    }
-    return adMetadataOut;
-  };
-
-  /**
-   * @private
-   * @class Analytics#translateErrorCode
-   * @classdesc Translates the error code provided into the corresponding error message.
-   * @property {number} code The error code
-   * @returns {string} The error string associated with the error code number.
-   */
-  var translateErrorCode = function (code) {
-    let errorMessage;
-    if (_.has(ERROR_CODE, code)) {
-      errorMessage = ERROR_CODE[code];
-    } else {
-      logErrorString(`Error code not recognized. Error code provided was: ${code}`);
-    }
-    return errorMessage;
-  };
-
-  /**
-   * @private
-   * @class Analytics#logErrorString
-   * @classdesc Helper function to return an error string with the Analytics Constants prefix.
-   * @property {string} origStr the error string
-   * @returns {string} The new error string.
-   */
-  var logErrorString = function (origStr) {
-    OO.log(`Error AnalyticsConstants: ${origStr}`);
   };
 
   OO.Analytics.EVENT_DATA = EVENT_DATA;

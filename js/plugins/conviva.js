@@ -100,6 +100,92 @@ const ConvivaAnalyticsPlugin = function (framework) {
   };
 
   /**
+   * Provides SystemSettings to configure the Conviva SystemFactory
+   * @private
+   * @method ConvivaAnalyticsPlugin#getSystemSettings
+   * @returns {object} An instance of Conviva's SystemSettings
+   */
+  const getSystemSettings = function () {
+    const systemSettings = new Conviva.SystemSettings();
+    // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.ERROR; // default
+    // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
+    // systemSettings.allowUncaughtExceptions = false; // default
+    return systemSettings;
+  };
+
+  /**
+   * Provides ClientSettings to configure the Conviva Client
+   * @private
+   * @method ConvivaAnalyticsPlugin#getClientSettings
+   * @returns {object} An instance of Conviva's ClientSettings
+   */
+  const getClientSettings = function () {
+    const clientSettings = new Conviva.ClientSettings(convivaMetadata.customerKey);
+    // clientSettings.heartbeatInterval = 20; // default
+    // clientSettings.gatewayUrl = credentials.gatewayUrl; // default
+    clientSettings.gatewayUrl = convivaMetadata.gatewayUrl;
+    return clientSettings;
+  };
+
+  /**
+   * Checks to see if the Conviva SDK is loaded
+   * @private
+   * @method ConvivaAnalyticsPlugin#sdkLoaded
+   * @returns {boolean} True if the SDK is loaded, false otherwise
+   */
+  const sdkLoaded = function () {
+    return !!window.Conviva;
+  };
+
+  /**
+   * Validates the custom metadata passed in via page level settings.
+   * @private
+   * @method ConvivaAnalyticsPlugin#validateCustomMetadata
+   * @param  {object} metadata The Conviva custom metadata to validate
+   * @returns {boolean} true if valid, false otherwise
+   */
+  const validateCustomMetadata = function (metadata) {
+    return _.isObject(metadata);
+  };
+
+  /**
+   * Conviva metadata needs to include the following:
+   * gatewayUrl, customerKey
+   * @private
+   * @method ConvivaAnalyticsPlugin#validateConvivaMetadata
+   * @param  {object} metadata The Conviva page level metadata to validate
+   * @returns true if valid, false otherwise
+   */
+  const validateConvivaMetadata = function (metadata) {
+    let valid = true;
+    const requiredKeys = ['gatewayUrl', 'customerKey'];
+
+    let missingKeys = [];
+
+    if (metadata) {
+      _.each(requiredKeys, (key) => {
+        if (!_.has(metadata, key)) {
+          missingKeys.push(key);
+          valid = false;
+        }
+      });
+    } else {
+      OO.log('Error: Missing Conviva Metadata!');
+      missingKeys = requiredKeys;
+      valid = false;
+    }
+
+
+    if (!_.isEmpty(missingKeys)) {
+      _.each(missingKeys, (key) => {
+        OO.log(`Error: Missing Conviva Metadata Key: ${key}`);
+      });
+    }
+
+    return valid;
+  };
+
+  /**
    * If the required metadata and Conviva SDK is available, this function will
    * create the system interface and settings to create an instance of the Conviva
    * Client object. Will also try to create the Conviva Content Metadata once the
@@ -131,31 +217,33 @@ const ConvivaAnalyticsPlugin = function (framework) {
   };
 
   /**
-   * Provides SystemSettings to configure the Conviva SystemFactory
+   * Resets any state variables back to their initial values.
    * @private
-   * @method ConvivaAnalyticsPlugin#getSystemSettings
-   * @returns {object} An instance of Conviva's SystemSettings
+   * @method ConvivaAnalyticsPlugin#resetPlaybackState
    */
-  var getSystemSettings = function () {
-    const systemSettings = new Conviva.SystemSettings();
-    // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.ERROR; // default
-    // systemSettings.logLevel = Conviva.SystemSettings.LogLevel.DEBUG;
-    // systemSettings.allowUncaughtExceptions = false; // default
-    return systemSettings;
+  const resetPlaybackState = function () {
+    currentPlayhead = -1;
+    buffering = false;
+    paused = false;
+    inAdBreak = false;
+    contentComplete = false;
+    playRequested = false;
   };
 
   /**
-   * Provides ClientSettings to configure the Conviva Client
+   * Resets any content state variables back to their initial values.
    * @private
-   * @method ConvivaAnalyticsPlugin#getClientSettings
-   * @returns {object} An instance of Conviva's ClientSettings
+   * @method ConvivaAnalyticsPlugin#resetContentState
    */
-  var getClientSettings = function () {
-    const clientSettings = new Conviva.ClientSettings(convivaMetadata.customerKey);
-    // clientSettings.heartbeatInterval = 20; // default
-    // clientSettings.gatewayUrl = credentials.gatewayUrl; // default
-    clientSettings.gatewayUrl = convivaMetadata.gatewayUrl;
-    return clientSettings;
+  const resetContentState = function () {
+    streamUrl = null;
+    videoContentMetadata = null;
+    embedCode = null;
+  };
+
+  const validSession = function () {
+    return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null
+      && typeof currentConvivaSessionKey !== 'undefined';
   };
 
   /**
@@ -181,6 +269,56 @@ const ConvivaAnalyticsPlugin = function (framework) {
   };
 
   /**
+   * Checks to see if the Conviva SDK is ready to accept tracking events.
+   * @private
+   * @method ConvivaAnalyticsPlugin#canTrack
+   */
+  const canTrack = function () {
+    return playerStateManager && convivaClient && validSession();
+  };
+
+  /**
+   * Updates the Conviva PlayerStateManager of the latest player state.
+   * @private
+   * @method ConvivaAnalyticsPlugin#updatePlayerState
+   * @param {string} state the Conviva.PlayerStateManager.PlayerState to update
+   */
+  const updatePlayerState = function (state) {
+    if (canTrack()) {
+      playerStateManager.setPlayerState(state);
+    } else {
+      OO.log(`Conviva Plugin Error: trying to set player state when unable to with state ${state}`);
+    }
+  };
+
+  /**
+   * To be called when the main content has started playback.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackPlay
+   */
+  const trackPlay = function () {
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.PLAYING);
+  };
+
+  /**
+   * To be called when the main content has paused.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackPause
+   */
+  const trackPause = function () {
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.PAUSED);
+  };
+
+  /**
+   * To be called when the main content is not playing.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackStop
+   */
+  const trackStop = function () {
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.STOPPED);
+  };
+
+  /**
    * Gathers all relevant application information for a particular video playback and stores this
    * information inside a Conviva ContentMetadata object. Clears the last session if necessary. After
    * the ContentMetadata is created, the Conviva Client will create a session for tracking.
@@ -188,7 +326,7 @@ const ConvivaAnalyticsPlugin = function (framework) {
    * @method ConvivaAnalyticsPlugin#tryBuildConvivaContentMetadata
    * @returns {boolean} true if the Conviva Content Metadata and Session was created, false otherwise
    */
-  var tryBuildConvivaContentMetadata = function () {
+  const tryBuildConvivaContentMetadata = function () {
     let success = false;
     if (playRequested && videoContentMetadata && embedCode && convivaClient
       && streamUrl && streamType && !validSession()) {
@@ -275,61 +413,83 @@ const ConvivaAnalyticsPlugin = function (framework) {
   };
 
   /**
-   * Checks to see if the Conviva SDK is loaded
+   * To be called when the video is paused due to buffering.
    * @private
-   * @method ConvivaAnalyticsPlugin#sdkLoaded
-   * @returns {boolean} True if the SDK is loaded, false otherwise
+   * @ethod ConvivaAnalyticsPlugin#trackBuffering
    */
-  var sdkLoaded = function () {
-    return !!window.Conviva;
+  const trackBuffering = function () {
+    updatePlayerState(Conviva.PlayerStateManager.PlayerState.BUFFERING);
   };
 
   /**
-   * Validates the custom metadata passed in via page level settings.
+   * To be called when the main content changes bitrate.
    * @private
-   * @method ConvivaAnalyticsPlugin#validateCustomMetadata
-   * @param  {object} metadata The Conviva custom metadata to validate
-   * @returns {boolean} true if valid, false otherwise
+   * @ethod ConvivaAnalyticsPlugin#trackBitrateChange
+   * @param {number} bitrate The new bitrate of the main content in bps
    */
-  var validateCustomMetadata = function (metadata) {
-    return _.isObject(metadata);
+  const trackBitrateChange = function (bitrate) {
+    if (canTrack()) {
+      const kbpsBitrate = Math.round(bitrate / 1000);
+      playerStateManager.setBitrateKbps(kbpsBitrate);
+    }
   };
 
   /**
-   * Conviva metadata needs to include the following:
-   * gatewayUrl, customerKey
+   * To be called when an ad has started playing.
    * @private
-   * @method ConvivaAnalyticsPlugin#validateConvivaMetadata
-   * @param  {object} metadata The Conviva page level metadata to validate
-   * @returns true if valid, false otherwise
+   * @method ConvivaAnalyticsPlugin#trackAdStart
    */
-  const validateConvivaMetadata = function (metadata) {
-    let valid = true;
-    const requiredKeys = ['gatewayUrl', 'customerKey'];
+  const trackAdStart = function () {
+    if (canTrack()) {
+      let adPosition = null;
+      if (currentPlayhead <= 0) {
+        OO.log('[Conviva-Ooyala] Playing preroll');
+        adPosition = Conviva.Client.AdPosition.PREROLL;
+      } else if (contentComplete) {
+        OO.log('[Conviva-Ooyala] Playing postroll');
+        adPosition = Conviva.Client.AdPosition.POSTROLL;
+      } else {
+        OO.log('[Conviva-Ooyala] Playing midroll');
+        adPosition = Conviva.Client.AdPosition.MIDROLL;
+      }
 
-    let missingKeys = [];
+      // TODO: If SSAI, use CONTENT instead of SEPARATE for adStream
+      const adStream = Conviva.Client.AdStream.SEPARATE;
+      // TODO: Determine when to use CONTENT instead of SEPARATE for adPlayer (iOS probably uses CONTENT because of singleElement)
+      const adPlayer = Conviva.Client.AdPlayer.SEPARATE;
+      convivaClient.adStart(currentConvivaSessionKey, adStream, adPlayer, adPosition);
+    }
+  };
 
-    if (metadata) {
-      _.each(requiredKeys, (key) => {
-        if (!_.has(metadata, key)) {
-          missingKeys.push(key);
-          valid = false;
-        }
-      });
-    } else {
-      OO.log('Error: Missing Conviva Metadata!');
-      missingKeys = requiredKeys;
-      valid = false;
+  /**
+   * To be called when an ad has stopped playing.
+   * @private
+   * @method ConvivaAnalyticsPlugin#trackAdEnd
+   */
+  const trackAdEnd = function () {
+    if (canTrack()) {
+      convivaClient.adEnd(currentConvivaSessionKey);
+    }
+  };
+
+  /**
+   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
+   * @public
+   * @method ConvivaAnalyticsPlugin#destroy
+   */
+  this.destroy = function () {
+    _framework = null;
+    resetPlaybackState();
+    clearLastSession();
+    if (convivaClient) {
+      convivaClient.release();
+      convivaClient = null;
     }
 
-
-    if (!_.isEmpty(missingKeys)) {
-      _.each(missingKeys, (key) => {
-        OO.log(`Error: Missing Conviva Metadata Key: ${key}`);
-      });
+    if (systemFactory) {
+      systemFactory.release();
+      systemFactory = null;
     }
-
-    return valid;
   };
 
   /**
@@ -486,166 +646,6 @@ const ConvivaAnalyticsPlugin = function (framework) {
         break;
       default:
         break;
-    }
-  };
-
-  /**
-   * Resets any state variables back to their initial values.
-   * @private
-   * @method ConvivaAnalyticsPlugin#resetPlaybackState
-   */
-  var resetPlaybackState = function () {
-    currentPlayhead = -1;
-    buffering = false;
-    paused = false;
-    inAdBreak = false;
-    contentComplete = false;
-    playRequested = false;
-  };
-
-  /**
-   * Resets any content state variables back to their initial values.
-   * @private
-   * @method ConvivaAnalyticsPlugin#resetContentState
-   */
-  var resetContentState = function () {
-    streamUrl = null;
-    videoContentMetadata = null;
-    embedCode = null;
-  };
-
-  /**
-   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
-   * @public
-   * @method ConvivaAnalyticsPlugin#destroy
-   */
-  this.destroy = function () {
-    _framework = null;
-    resetPlaybackState();
-    clearLastSession();
-    if (convivaClient) {
-      convivaClient.release();
-      convivaClient = null;
-    }
-
-    if (systemFactory) {
-      systemFactory.release();
-      systemFactory = null;
-    }
-  };
-
-  var validSession = function () {
-    return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null
-      && typeof currentConvivaSessionKey !== 'undefined';
-  };
-
-  /**
-   * Checks to see if the Conviva SDK is ready to accept tracking events.
-   * @private
-   * @method ConvivaAnalyticsPlugin#canTrack
-   */
-  const canTrack = function () {
-    return playerStateManager && convivaClient && validSession();
-  };
-
-  /**
-   * Updates the Conviva PlayerStateManager of the latest player state.
-   * @private
-   * @method ConvivaAnalyticsPlugin#updatePlayerState
-   * @param {string} state the Conviva.PlayerStateManager.PlayerState to update
-   */
-  const updatePlayerState = function (state) {
-    if (canTrack()) {
-      playerStateManager.setPlayerState(state);
-    } else {
-      OO.log(`Conviva Plugin Error: trying to set player state when unable to with state ${state}`);
-    }
-  };
-
-  /**
-   * To be called when the main content has started playback.
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackPlay
-   */
-  var trackPlay = function () {
-    updatePlayerState(Conviva.PlayerStateManager.PlayerState.PLAYING);
-  };
-
-  /**
-   * To be called when the main content has paused.
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackPause
-   */
-  var trackPause = function () {
-    updatePlayerState(Conviva.PlayerStateManager.PlayerState.PAUSED);
-  };
-
-  /**
-   * To be called when the main content is not playing.
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackStop
-   */
-  var trackStop = function () {
-    updatePlayerState(Conviva.PlayerStateManager.PlayerState.STOPPED);
-  };
-
-  /**
-   * To be called when the video is paused due to buffering.
-   * @private
-   * @ethod ConvivaAnalyticsPlugin#trackBuffering
-   */
-  var trackBuffering = function () {
-    updatePlayerState(Conviva.PlayerStateManager.PlayerState.BUFFERING);
-  };
-
-  /**
-   * To be called when the main content changes bitrate.
-   * @private
-   * @ethod ConvivaAnalyticsPlugin#trackBitrateChange
-   * @param {number} bitrate The new bitrate of the main content in bps
-   */
-  var trackBitrateChange = function (bitrate) {
-    if (canTrack()) {
-      const kbpsBitrate = Math.round(bitrate / 1000);
-      playerStateManager.setBitrateKbps(kbpsBitrate);
-    }
-  };
-
-  /**
-   * To be called when an ad has started playing.
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackAdStart
-   */
-  var trackAdStart = function () {
-    if (canTrack()) {
-      let adPosition = null;
-      if (currentPlayhead <= 0) {
-        OO.log('[Conviva-Ooyala] Playing preroll');
-        adPosition = Conviva.Client.AdPosition.PREROLL;
-      } else if (contentComplete) {
-        OO.log('[Conviva-Ooyala] Playing postroll');
-        adPosition = Conviva.Client.AdPosition.POSTROLL;
-      } else {
-        OO.log('[Conviva-Ooyala] Playing midroll');
-        adPosition = Conviva.Client.AdPosition.MIDROLL;
-      }
-
-      // TODO: If SSAI, use CONTENT instead of SEPARATE for adStream
-      const adStream = Conviva.Client.AdStream.SEPARATE;
-      // TODO: Determine when to use CONTENT instead of SEPARATE for adPlayer (iOS probably uses CONTENT because of singleElement)
-      const adPlayer = Conviva.Client.AdPlayer.SEPARATE;
-      convivaClient.adStart(currentConvivaSessionKey, adStream, adPlayer, adPosition);
-    }
-  };
-
-  /**
-   * To be called when an ad has stopped playing.
-   * @private
-   * @method ConvivaAnalyticsPlugin#trackAdEnd
-   */
-  var trackAdEnd = function () {
-    if (canTrack()) {
-      convivaClient.adEnd(currentConvivaSessionKey);
     }
   };
 };

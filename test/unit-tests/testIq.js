@@ -1173,7 +1173,8 @@ describe('Analytics Framework Template Unit Tests', () => {
   });
 
   it('IQ Plugin should not report duplicate events if allowThrift is true', () => {
-    var metadata = {
+    let metadata;
+    metadata = {
       metadata:
       {
         allowThrift: true,
@@ -1203,7 +1204,7 @@ describe('Analytics Framework Template Unit Tests', () => {
     simulator.simulateVideoProgress({
       playheads: [1, 2, 3, 4, 5, 7.5, 10],
     });
-    var metadata = {
+    metadata = {
       asset: { id: 'abcd', idType: 'ooyala', ooyalaDiscoveryContext: '/abcdefg/' },
       pageSize: 1,
       assetPosition: 1,

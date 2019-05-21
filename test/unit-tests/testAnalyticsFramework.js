@@ -376,18 +376,20 @@ describe('Analytics Framework Unit Tests', () => {
 
 
     it('Test Registering and Unregistering Factories Mixed Test Cases', () => {
+      let pluginList;
+
       const goodFactory1 = Utils.createValidPluginFactory('test1');
       const goodFactory2 = Utils.createValidPluginFactory('test2');
 
       const pluginID1 = framework.registerPlugin(goodFactory1);
       const pluginID2 = framework.registerPlugin(goodFactory2);
-      var pluginList = framework.getPluginIDList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
 
       let badID = 'badID';
 
       expect(framework.unregisterPlugin(badID)).toBe(false);
-      var pluginList = framework.getPluginIDList();
+      pluginList = framework.getPluginIDList();
       expect(pluginList.length).toEqual(2);
       expect(_.contains(pluginList, pluginID1)).toBe(true);
       expect(_.contains(pluginList, pluginID2)).toBe(true);
@@ -496,6 +498,23 @@ describe('Analytics Framework Unit Tests', () => {
       }
     };
 
+    const badParamsHelper = function (framework, params, msgSentObj) {
+      let msgName;
+      const events = framework.flattenEvents(OO.Analytics.EVENTS);
+      let recordedEvents;
+      for (let i = 0; i < events.length; i++) {
+        msgName = events[i];
+        expect(framework.publishEvent(msgName)).toBe(true);
+        msgSentObj.count++;
+        recordedEvents = framework.getRecordedEvents();
+        expect(_.isArray(recordedEvents)).toBe(true);
+        const { length } = recordedEvents;
+        expect(length).toEqual(msgSentObj.count);
+        const lastMsg = recordedEvents[length - 1];
+        expect(lastMsg.eventName).toEqual(msgName);
+      }
+    };
+
     const testGoodMessagesBadParams = function (framework) {
       let recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(0);
@@ -512,23 +531,6 @@ describe('Analytics Framework Unit Tests', () => {
 
       recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(msgSentObj.count);
-    };
-
-    var badParamsHelper = function (framework, params, msgSentObj) {
-      let msgName;
-      const events = framework.flattenEvents(OO.Analytics.EVENTS);
-      let recordedEvents;
-      for (let i = 0; i < events.length; i++) {
-        msgName = events[i];
-        expect(framework.publishEvent(msgName)).toBe(true);
-        msgSentObj.count++;
-        recordedEvents = framework.getRecordedEvents();
-        expect(_.isArray(recordedEvents)).toBe(true);
-        const { length } = recordedEvents;
-        expect(length).toEqual(msgSentObj.count);
-        const lastMsg = recordedEvents[length - 1];
-        expect(lastMsg.eventName).toEqual(msgName);
-      }
     };
 
     describe('Test Framework Initialization', () => {

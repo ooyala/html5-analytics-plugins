@@ -107,43 +107,42 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
     expect(framework.makePluginInactive(pluginID)).toBe(true);
     expect(framework.makePluginActive(pluginID)).toBe(true);
   });
+
+
+  // it('Test Template Mixed Loading Templates and Frameworks Delayed', function () {
+  //   let framework3;
+  //   const framework2 = new Analytics.Framework();
+  //   expect(OO.Analytics.FrameworkInstanceList).toBeDefined();
+  //   expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
+  //   const templatePluginFactory = require(SRC_ROOT + 'plugins/AnalyticsPluginTemplate.js');
+  //   expect(OO.Analytics.PluginFactoryList).toBeDefined();
+  //   expect(_.contains(OO.Analytics.PluginFactoryList, templatePluginFactory)).toBe(true);
   //
+  //   const pluginList1 = framework.getPluginIDList();
+  //   const pluginList2 = framework2.getPluginIDList();
+  //   expect(pluginList1.length).toEqual(1);
+  //   expect(pluginList2.length).toEqual(1);
   //
-  // it('Test Template Mixed Loading Templates and Frameworks Delayed', function()
-  // {
-  //  var framework2 = new Analytics.Framework();
-  //  expect(OO.Analytics.FrameworkInstanceList).toBeDefined();
-  //  expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
-  //  var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
-  //  expect(OO.Analytics.PluginFactoryList).toBeDefined();
-  //  expect(_.contains(OO.Analytics.PluginFactoryList, templatePluginFactory)).toBe(true);
-  //
-  //  var pluginList1 = framework.getPluginIDList();
-  //  var pluginList2 = framework2.getPluginIDList();
-  //  expect(pluginList1.length).toEqual(1);
-  //  expect(pluginList2.length).toEqual(1);
-  //
-  //  var framework3 = new Analytics.Framework();
-  //  pluginList1 = framework.getPluginIDList();
-  //  pluginList2 = framework2.getPluginIDList();
-  //  var pluginList3 = framework3.getPluginIDList();
-  //  expect(pluginList1.length).toEqual(1);
-  //  expect(pluginList2.length).toEqual(1);
-  //  expect(pluginList3.length).toEqual(1);
+  //   framework3 = new Analytics.Framework();
+  //   pluginList1 = framework.getPluginIDList();
+  //   pluginList2 = framework2.getPluginIDList();
+  //   pluginList3 = framework3.getPluginIDList();
+  //   expect(pluginList1.length).toEqual(1);
+  //   expect(pluginList2.length).toEqual(1);
+  //   expect(pluginList3.length).toEqual(1);
   // });
   //
-  // it('Test Template Created Before Framework', function()
-  // {
-  //  //erase the global references for the plugins and frameworks.
-  //  OO.Analytics.PluginFactoryList = null;
-  //  OO.Analytics.FrameworkInstanceList = null;
-  //  var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
-  //  expect(OO.Analytics.PluginFactoryList).toBeTruthy();
-  //  expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
-  //  expect(OO.Analytics.FrameworkInstanceList).toBeTruthy();
-  //  expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
+  // it('Test Template Created Before Framework', function () {
+  //   //erase the global references for the plugins and frameworks.
+  //   OO.Analytics.PluginFactoryList = null;
+  //   OO.Analytics.FrameworkInstanceList = null;
+  //   const templatePluginFactory = require(SRC_ROOT + 'plugins/AnalyticsPluginTemplate.js');
+  //   expect(OO.Analytics.PluginFactoryList).toBeTruthy();
+  //   expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
+  //   expect(OO.Analytics.FrameworkInstanceList).toBeTruthy();
+  //   expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
   // });
-  //
+
   it('Test Setting Metadata and Processing An Event', () => {
     let metadataReceived;
     let eventProcessed;

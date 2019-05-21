@@ -46,6 +46,63 @@ const IqPlugin = function (framework) {
   this.testMode = false;
 
   /**
+   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
+   * @public
+   * @method IqPlugin#destroy
+   */
+  this.destroy = function () {
+    _framework = null;
+  };
+
+  /**
+   * Called when the SDK fails to load.
+   * @private
+   * @method NielsenAnalyticsPlugin#sdkLoadError
+   */
+  const sdkLoadError = function () {
+    // Destroy and unregister
+    if (OO._.isString(id)) {
+      framework.unregisterPlugin(id);
+    }
+    this.destroy();
+  };
+
+  const trySetupAnalytics = OO._.bind(function () {
+    if (window.Ooyala) {
+      this.ooyalaReporter = new Ooyala.Analytics.Reporter();
+
+      let missedEvents;
+      // if you need to process missed events, here is an example
+      if (_framework && OO._.isFunction(_framework.getRecordedEvents)) {
+        missedEvents = _framework.getRecordedEvents();
+        for (let i = 0; i < missedEvents.length; i++) {
+          recordedEvent = missedEvents[i];
+          this.processEvent(recordedEvent.eventName, recordedEvent.params);
+        }
+      }
+
+      // TODO: setup
+      const deviceInfo = {};
+      const playerName = 'Ooyala Player';
+      const playerVersion = OO.VERSION.core.releaseVersion; // TODO: need a mechanism in core to get this
+      let doNotTrack = false;
+      switch (OO.trackingLevel) {
+        case OO.TRACKING_LEVEL.DISABLED:
+        case OO.TRACKING_LEVEL.ANONYMOUS:
+          doNotTrack = true;
+          break;
+        case OO.TRACKING_LEVEL.DEFAULT:
+        default:
+          break;
+      }
+      this.ooyalaReporter.setDeviceInfo(null, null, null, doNotTrack);
+      this.ooyalaReporter.setPlayerInfo(playerId, playerName, playerVersion);
+    } else {
+      OO.log('IQ Plugin: Analytics SDK not loaded');
+    }
+  }, this);
+
+  /**
    * [Required Function] Return the name of the plugin.
    * @public
    * @method IqPlugin#getName
@@ -298,6 +355,10 @@ const IqPlugin = function (framework) {
    */
   this.processEvent = function (eventName, params) {
     OO.log(`IQ: PluginID '${id}' received this event '${eventName}' with these params:`, params);
+    let foundAd;
+    let index;
+    let ln;
+    let eventMetadata;
 
     // This first switch is for non IQ reporting events that require changes to the internal plugin state
     switch (eventName) {
@@ -331,8 +392,10 @@ const IqPlugin = function (framework) {
         this.updateAdOffset(currentPlayhead);
         break;
       case OO.Analytics.EVENTS.SSAI_PLAY_SINGLE_AD:
-        var foundAd = false;
-        for (let index = 0; index < adTimeline.length; index++) {
+        foundAd = false;
+        index = 0;
+        ln = adTimeline.length;
+        for (; index < ln; index++) {
           if (adTimeline[index].adId === params[0].ad.adId) {
             foundAd = true;
           }
@@ -591,7 +654,7 @@ const IqPlugin = function (framework) {
           params = [];
         }
 
-        var eventMetadata = params[0];
+        eventMetadata = params[0];
         if (!eventMetadata) {
           eventMetadata = {};
         }
@@ -646,63 +709,6 @@ const IqPlugin = function (framework) {
         break;
     }
   };
-
-  /**
-   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
-   * @public
-   * @method IqPlugin#destroy
-   */
-  this.destroy = function () {
-    _framework = null;
-  };
-
-  /**
-   * Called when the SDK fails to load.
-   * @private
-   * @method NielsenAnalyticsPlugin#sdkLoadError
-   */
-  var sdkLoadError = function () {
-    // Destroy and unregister
-    if (OO._.isString(id)) {
-      framework.unregisterPlugin(id);
-    }
-    this.destroy();
-  };
-
-  var trySetupAnalytics = OO._.bind(function () {
-    if (window.Ooyala) {
-      this.ooyalaReporter = new Ooyala.Analytics.Reporter();
-
-      let missedEvents;
-      // if you need to process missed events, here is an example
-      if (_framework && OO._.isFunction(_framework.getRecordedEvents)) {
-        missedEvents = _framework.getRecordedEvents();
-        for (let i = 0; i < missedEvents.length; i++) {
-          recordedEvent = missedEvents[i];
-          this.processEvent(recordedEvent.eventName, recordedEvent.params);
-        }
-      }
-
-      // TODO: setup
-      const deviceInfo = {};
-      const playerName = 'Ooyala Player';
-      const playerVersion = OO.VERSION.core.releaseVersion; // TODO: need a mechanism in core to get this
-      let doNotTrack = false;
-      switch (OO.trackingLevel) {
-        case OO.TRACKING_LEVEL.DISABLED:
-        case OO.TRACKING_LEVEL.ANONYMOUS:
-          doNotTrack = true;
-          break;
-        case OO.TRACKING_LEVEL.DEFAULT:
-        default:
-          break;
-      }
-      this.ooyalaReporter.setDeviceInfo(null, null, null, doNotTrack);
-      this.ooyalaReporter.setPlayerInfo(playerId, playerName, playerVersion);
-    } else {
-      OO.log('IQ Plugin: Analytics SDK not loaded');
-    }
-  }, this);
 };
 
 // Add the template to the global list of factories for all new instances of the framework

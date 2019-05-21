@@ -85,6 +85,58 @@ const NielsenAnalyticsPlugin = function (framework) {
   };
 
   /**
+   * Notifies the Nielsen SDK of an event. If the SDK instance is not ready, will store the event and its
+   * parameters. These stored events will be handled when the SDK instance is ready.
+   * @private
+   * @method NielsenAnalyticsPlugin#notifyNielsen
+   * @param {number} event The event to notify the SDK about. See
+   *                       https://engineeringforum.nielsen.com/sdk/developers/bsdk-nielsen-browser-sdk-apis.php
+   * @param {object|number} param The param associated with the reported event
+   */
+  const notifyNielsen = function (event, param) {
+    if (nSdkInstance) {
+      OO.log(`ggPM: ${event} with param: ${param}`);
+      if ((event === 3 || event === 15) && _.isObject(param) && param.type) {
+        OO.log(`ggPM: loadMetadata type: ${param.type}`);
+      }
+      nSdkInstance.ggPM(event, param);
+    } else {
+      OO.log(`ggPM: Storing event: ${event} with param: ${param}`);
+      const storedParam = _.isObject(param) ? _.clone(param) : param;
+      storedEvents.push({
+        event,
+        param: storedParam,
+      });
+    }
+  };
+
+  /**
+   * Handles any events that were stored due to a delayed SDK initialization.
+   * @private
+   * @method NielsenAnalyticsPlugin#handleStoredEvents
+   */
+  const handleStoredEvents = function () {
+    let se;
+    while (storedEvents.length > 0) {
+      se = storedEvents.shift();
+      notifyNielsen(se.event, se.param);
+    }
+  };
+
+  /**
+   * Called when the SDK fails to load.
+   * @private
+   * @method NielsenAnalyticsPlugin#sdkLoadError
+   */
+  const sdkLoadError = function () {
+    // Destroy and unregister
+    if (_.isString(id)) {
+      framework.unregisterPlugin(id);
+    }
+    this.destroy();
+  };
+
+  /**
    * [Required Function] Initialize the plugin with the given metadata.
    * @public
    * @method NielsenAnalyticsPlugin#init
@@ -118,7 +170,7 @@ const NielsenAnalyticsPlugin = function (framework) {
    * @method NielsenAnalyticsPlugin#trySetupNielsen
    * @returns {boolean} Whether or not the setup was a success
    */
-  var trySetupNielsen = function () {
+  const trySetupNielsen = function () {
     let setup = false;
 
     if (nielsenMetadata && window.NOLCMB) {
@@ -146,32 +198,6 @@ const NielsenAnalyticsPlugin = function (framework) {
       setup = true;
     }
     return setup;
-  };
-
-  /**
-   * Handles any events that were stored due to a delayed SDK initialization.
-   * @private
-   * @method NielsenAnalyticsPlugin#handleStoredEvents
-   */
-  var handleStoredEvents = function () {
-    let se;
-    while (storedEvents.length > 0) {
-      se = storedEvents.shift();
-      notifyNielsen(se.event, se.param);
-    }
-  };
-
-  /**
-   * Called when the SDK fails to load.
-   * @private
-   * @method NielsenAnalyticsPlugin#sdkLoadError
-   */
-  var sdkLoadError = function () {
-    // Destroy and unregister
-    if (_.isString(id)) {
-      framework.unregisterPlugin(id);
-    }
-    this.destroy();
   };
 
   /**
@@ -221,6 +247,163 @@ const NielsenAnalyticsPlugin = function (framework) {
 
     trySetupNielsen();
   };
+
+  /**
+   * Resets any state variables back to their initial values.
+   * @private
+   * @method NielsenAnalyticsPlugin#resetPlaybackState
+   */
+  const resetPlaybackState = function () {
+    contentDuration = -1;
+    currentPlayhead = 0;
+    currentAdPlayhead = 0;
+    mainContentStarted = false;
+    inAdBreak = false;
+    adStarted = false;
+    lastPlayheadUpdate = -1;
+  };
+
+  /**
+   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
+   * @public
+   * @method NielsenAnalyticsPlugin#destroy
+   */
+  this.destroy = function () {
+    _framework = null;
+    resetPlaybackState();
+  };
+
+  /**
+   * To be called when the main content has started playback. This will be called when the content initially starts
+   * or when transitioning back to main content from an ad. Will notify the Nielsen SDK of a load metadata event
+   * (event 15).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackPlay
+   */
+  const trackPlay = function () {
+    if (loadContentMetadataAfterAd) {
+      loadContentMetadataAfterAd = false;
+      OO.log(`Nielsen Tracking: loadMetadata from content play with playhead ${currentPlayhead}`);
+      notifyNielsen(DCR_EVENT.LOAD_METADATA, contentMetadata);
+    }
+  };
+
+  /**
+   * To be called when the main content has been paused. Will notify the Nielsen SDK of a stop event
+   * (event 7).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackContentPause
+   */
+  const trackContentPause = function () {
+    const reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log(`Nielsen Tracking: stop from content pause with playhead ${reportedPlayhead}`);
+    notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
+  };
+
+  /**
+   * To be called when an ad has been paused. Will notify the Nielsen SDK of a stop event
+   * (event 7).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdPause
+   */
+  const trackAdPause = function () {
+    const reportedAdPlayhead = Math.floor(currentAdPlayhead);
+    OO.log(`Nielsen Tracking: stop from ad pause with ad playhead ${reportedAdPlayhead}`);
+    notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
+  };
+
+  /**
+   * To be called when the main content has finished playback. This must be called before any postrolls start. Will
+   * notify the Nielsen SDK of a end event (event 57).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackComplete
+   */
+  const trackComplete = function () {
+    const reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log(`Nielsen Tracking: end with playhead ${reportedPlayhead}`);
+    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    // the final second due to the 1 second intervals between reporting playheads)
+    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
+    notifyNielsen(DCR_EVENT.END, reportedPlayhead);
+  };
+
+  /**
+   * To be called when there is a content playhead update. Will notify the Nielsen SDK of a "set playhead position" event
+   * (event 49).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackPlayhead
+   */
+  const trackPlayhead = function () {
+    // TODO: Add more checks to ensure we report the correct playhead
+    if (inAdBreak) {
+      const reportedAdPlayhead = Math.floor(currentAdPlayhead);
+      OO.log(`Nielsen Tracking: setPlayheadPosition with ad playhead ${reportedAdPlayhead}`);
+      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
+    } else {
+      // TODO: Handle live streams
+      const reportedPlayhead = Math.floor(currentPlayhead);
+      OO.log(`Nielsen Tracking: setPlayheadPosition with playhead ${reportedPlayhead}`);
+      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
+    }
+  };
+
+  /**
+   * To be called when an ad break has started. Will notify the Nielsen SDK of a stop event (event 7).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdBreakStart
+   */
+  const trackAdBreakStart = function () {
+    const reportedPlayhead = Math.floor(currentPlayhead);
+    OO.log(`Nielsen Tracking: stop from ad break with playhead ${reportedPlayhead}`);
+    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    // the final second due to the 1 second intervals between reporting playheads)
+    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
+    notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
+  };
+
+  /**
+   * To be called when an ad playback has started. Will notify the Nielsen SDK of a load metadata event (event 15).
+   * The event type will be one of preroll, midroll, or postroll, depending on the current playhead and if the
+   * content has finished.
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdStart
+   * @param {object} metadata The metadata for the ad.
+   *                        It must contain the following fields:<br/>
+   *   adDuration {number} The length of the ad<br />
+   *   adId {string} The id of the ad<br />
+   */
+  const trackAdStart = function (metadata) {
+    let type = null;
+    if (currentPlayhead <= 0) {
+      type = 'preroll';
+    } else if (contentComplete) {
+      type = 'postroll';
+    } else {
+      type = 'midroll';
+    }
+
+    OO.log(`Nielsen Tracking: loadMetadata for ad with type: ${type} with ad playhead ${currentAdPlayhead}`);
+    notifyNielsen(DCR_EVENT.LOAD_METADATA, {
+      type,
+      length: metadata.adDuration,
+      assetid: metadata.adId,
+    });
+  };
+
+  /**
+   * To be called when an ad playback has finished. Will notify the Nielsen SDK of a stop event (event 3).
+   * @private
+   * @method NielsenAnalyticsPlugin#trackAdEnd
+   */
+  const trackAdEnd = function () {
+    const reportedAdPlayhead = Math.floor(currentAdPlayhead);
+    OO.log(`Nielsen Tracking: stop with ad playhead ${reportedAdPlayhead}`);
+    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
+    // the final second due to the 1 second intervals between reporting playheads)
+    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
+    notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
+  };
+
 
   /**
    * [Required Function] Process an event from the Analytics Framework, with the given parameters.
@@ -343,188 +526,6 @@ const NielsenAnalyticsPlugin = function (framework) {
         break;
       default:
         break;
-    }
-  };
-
-  /**
-   * Resets any state variables back to their initial values.
-   * @private
-   * @method NielsenAnalyticsPlugin#resetPlaybackState
-   */
-  var resetPlaybackState = function () {
-    contentDuration = -1;
-    currentPlayhead = 0;
-    currentAdPlayhead = 0;
-    mainContentStarted = false;
-    inAdBreak = false;
-    adStarted = false;
-    lastPlayheadUpdate = -1;
-  };
-
-  /**
-   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
-   * @public
-   * @method NielsenAnalyticsPlugin#destroy
-   */
-  this.destroy = function () {
-    _framework = null;
-    resetPlaybackState();
-  };
-
-  /**
-   * To be called when the main content has started playback. This will be called when the content initially starts
-   * or when transitioning back to main content from an ad. Will notify the Nielsen SDK of a load metadata event
-   * (event 15).
-   * @private
-   * @method NielsenAnalyticsPlugin#trackPlay
-   */
-  var trackPlay = function () {
-    if (loadContentMetadataAfterAd) {
-      loadContentMetadataAfterAd = false;
-      OO.log(`Nielsen Tracking: loadMetadata from content play with playhead ${currentPlayhead}`);
-      notifyNielsen(DCR_EVENT.LOAD_METADATA, contentMetadata);
-    }
-  };
-
-  /**
-   * To be called when the main content has been paused. Will notify the Nielsen SDK of a stop event
-   * (event 7).
-   * @private
-   * @method NielsenAnalyticsPlugin#trackContentPause
-   */
-  var trackContentPause = function () {
-    const reportedPlayhead = Math.floor(currentPlayhead);
-    OO.log(`Nielsen Tracking: stop from content pause with playhead ${reportedPlayhead}`);
-    notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
-  };
-
-  /**
-   * To be called when an ad has been paused. Will notify the Nielsen SDK of a stop event
-   * (event 7).
-   * @private
-   * @method NielsenAnalyticsPlugin#trackAdPause
-   */
-  var trackAdPause = function () {
-    const reportedAdPlayhead = Math.floor(currentAdPlayhead);
-    OO.log(`Nielsen Tracking: stop from ad pause with ad playhead ${reportedAdPlayhead}`);
-    notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
-  };
-
-  /**
-   * To be called when the main content has finished playback. This must be called before any postrolls start. Will
-   * notify the Nielsen SDK of a end event (event 57).
-   * @private
-   * @method NielsenAnalyticsPlugin#trackComplete
-   */
-  var trackComplete = function () {
-    const reportedPlayhead = Math.floor(currentPlayhead);
-    OO.log(`Nielsen Tracking: end with playhead ${reportedPlayhead}`);
-    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
-    // the final second due to the 1 second intervals between reporting playheads)
-    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
-    notifyNielsen(DCR_EVENT.END, reportedPlayhead);
-  };
-
-  /**
-   * To be called when there is a content playhead update. Will notify the Nielsen SDK of a "set playhead position" event
-   * (event 49).
-   * @private
-   * @method NielsenAnalyticsPlugin#trackPlayhead
-   */
-  var trackPlayhead = function () {
-    // TODO: Add more checks to ensure we report the correct playhead
-    if (inAdBreak) {
-      const reportedAdPlayhead = Math.floor(currentAdPlayhead);
-      OO.log(`Nielsen Tracking: setPlayheadPosition with ad playhead ${reportedAdPlayhead}`);
-      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
-    } else {
-      // TODO: Handle live streams
-      const reportedPlayhead = Math.floor(currentPlayhead);
-      OO.log(`Nielsen Tracking: setPlayheadPosition with playhead ${reportedPlayhead}`);
-      notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
-    }
-  };
-
-  /**
-   * To be called when an ad break has started. Will notify the Nielsen SDK of a stop event (event 7).
-   * @private
-   * @method NielsenAnalyticsPlugin#trackAdBreakStart
-   */
-  var trackAdBreakStart = function () {
-    const reportedPlayhead = Math.floor(currentPlayhead);
-    OO.log(`Nielsen Tracking: stop from ad break with playhead ${reportedPlayhead}`);
-    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
-    // the final second due to the 1 second intervals between reporting playheads)
-    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedPlayhead);
-    notifyNielsen(DCR_EVENT.STOP, reportedPlayhead);
-  };
-
-  /**
-   * To be called when an ad playback has started. Will notify the Nielsen SDK of a load metadata event (event 15).
-   * The event type will be one of preroll, midroll, or postroll, depending on the current playhead and if the
-   * content has finished.
-   * @private
-   * @method NielsenAnalyticsPlugin#trackAdStart
-   * @param {object} metadata The metadata for the ad.
-   *                        It must contain the following fields:<br/>
-   *   adDuration {number} The length of the ad<br />
-   *   adId {string} The id of the ad<br />
-   */
-  var trackAdStart = function (metadata) {
-    let type = null;
-    if (currentPlayhead <= 0) {
-      type = 'preroll';
-    } else if (contentComplete) {
-      type = 'postroll';
-    } else {
-      type = 'midroll';
-    }
-
-    OO.log(`Nielsen Tracking: loadMetadata for ad with type: ${type} with ad playhead ${currentAdPlayhead}`);
-    notifyNielsen(DCR_EVENT.LOAD_METADATA, {
-      type,
-      length: metadata.adDuration,
-      assetid: metadata.adId,
-    });
-  };
-
-  /**
-   * To be called when an ad playback has finished. Will notify the Nielsen SDK of a stop event (event 3).
-   * @private
-   * @method NielsenAnalyticsPlugin#trackAdEnd
-   */
-  var trackAdEnd = function () {
-    const reportedAdPlayhead = Math.floor(currentAdPlayhead);
-    OO.log(`Nielsen Tracking: stop with ad playhead ${reportedAdPlayhead}`);
-    // Report a final SET_PLAYHEAD_POSITION so the SDK reports the final second (it may miss
-    // the final second due to the 1 second intervals between reporting playheads)
-    notifyNielsen(DCR_EVENT.SET_PLAYHEAD_POSITION, reportedAdPlayhead);
-    notifyNielsen(DCR_EVENT.STOP, reportedAdPlayhead);
-  };
-
-  /**
-   * Notifies the Nielsen SDK of an event. If the SDK instance is not ready, will store the event and its
-   * parameters. These stored events will be handled when the SDK instance is ready.
-   * @private
-   * @method NielsenAnalyticsPlugin#notifyNielsen
-   * @param {number} event The event to notify the SDK about. See
-   *                       https://engineeringforum.nielsen.com/sdk/developers/bsdk-nielsen-browser-sdk-apis.php
-   * @param {object|number} param The param associated with the reported event
-   */
-  var notifyNielsen = function (event, param) {
-    if (nSdkInstance) {
-      OO.log(`ggPM: ${event} with param: ${param}`);
-      if ((event === 3 || event === 15) && _.isObject(param) && param.type) {
-        OO.log(`ggPM: loadMetadata type: ${param.type}`);
-      }
-      nSdkInstance.ggPM(event, param);
-    } else {
-      OO.log(`ggPM: Storing event: ${event} with param: ${param}`);
-      const storedParam = _.isObject(param) ? _.clone(param) : param;
-      storedEvents.push({
-        event,
-        param: storedParam,
-      });
     }
   };
 };

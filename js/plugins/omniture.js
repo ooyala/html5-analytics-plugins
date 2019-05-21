@@ -181,7 +181,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @param props The props to add to the AppMeasurement object
    * @param eVars The eVars to add to the AppMeasurement object
    */
-  var updateEvarsAndProps = function (props, eVars) {
+  const updateEvarsAndProps = function (props, eVars) {
     if (appMeasurement) {
       // add in props
       if (!_.isEmpty(props)) {
@@ -218,7 +218,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @param  {object} metadata The Omniture metadata to validate
    * @returns true if valid, false otherwise
    */
-  var validateOmnitureMetadata = function (metadata) {
+  const validateOmnitureMetadata = function (metadata) {
     let valid = true;
     const requiredKeys = ['marketingCloudOrgId', 'visitorTrackingServer', 'appMeasurementTrackingServer',
       'reportSuiteId', 'pageName', 'visitorId', 'channel', 'heartbeatTrackingServer', 'publisherId'];
@@ -370,7 +370,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#resetPlaybackState
    */
-  var resetPlaybackState = function () {
+  const resetPlaybackState = function () {
     currentPlayhead = 0;
     mainContentStarted = false;
     inAdBreak = false;
@@ -401,7 +401,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#onContentStart
    */
-  var onContentStart = function () {
+  const onContentStart = function () {
     vpPlugin.trackVideoLoad();
     vpPlugin.trackSessionStart();
   };
@@ -412,7 +412,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#trackPlay
    */
-  var trackPlay = function () {
+  const trackPlay = function () {
     if (!mainContentStarted) {
       mainContentStarted = true;
       vpPlugin.trackPlay();
@@ -428,7 +428,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#trackPause
    */
-  var trackPause = function () {
+  const trackPause = function () {
     vpPlugin.trackPause();
   };
 
@@ -438,7 +438,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#trackSeekStart
    */
-  var trackSeekStart = function () {
+  const trackSeekStart = function () {
     seekStarted = true;
     vpPlugin.trackSeekStart();
   };
@@ -449,7 +449,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#trackSeekEnd
    */
-  var trackSeekEnd = function () {
+  const trackSeekEnd = function () {
     seekStarted = false;
     vpPlugin.trackSeekComplete();
   };
@@ -460,7 +460,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#trackComplete
    */
-  var trackComplete = function () {
+  const trackComplete = function () {
     mainContentStarted = false;
     vpPlugin.trackComplete();
     vpPlugin.trackVideoUnload();
@@ -471,7 +471,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#trackAdStart
    */
-  var trackAdStart = function () {
+  const trackAdStart = function () {
     vpPlugin.trackAdStart();
   };
 
@@ -480,7 +480,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#trackAdEnd
    */
-  var trackAdEnd = function () {
+  const trackAdEnd = function () {
     vpPlugin.trackAdComplete();
   };
 
@@ -496,7 +496,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
  * @classdesc The video player delegate that the Omniture Heartbeat SDK requires. Omniture will use
  * this delegate to find out information about the currently playing video periodically.
  */
-var OoyalaPlayerDelegate = function () {
+const OoyalaPlayerDelegate = function () {
   // video
   let id = null;
   let name = null;
