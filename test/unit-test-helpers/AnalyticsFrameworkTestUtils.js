@@ -124,7 +124,7 @@ if (!OO.Analytics.Utils) {
       const ValidFactory = Utils.createValidPluginFactory();
       const badPlugin = new ValidFactory();
       badPlugin[funcName] = function () {
-        throw 'Error';
+        throw new Error('Error');
       };
       return badPlugin;
     }, this);
