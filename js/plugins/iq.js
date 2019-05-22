@@ -159,7 +159,7 @@ var IqPlugin= function (framework)
     }
     else if (!this.ooyalaReporter)
     {
-      OO.loadScriptOnce("https://s3.amazonaws.com/static.ooyala.com/iq/staging/ingestion/static/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
+      OO.loadScriptOnce("https://s3.amazonaws.com/static.ooyala.com/iq/production/ingestion/static/analytics.js", trySetupAnalytics, sdkLoadError, SDK_LOAD_TIMEOUT);
     }
   };
 
