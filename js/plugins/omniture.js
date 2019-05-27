@@ -95,6 +95,7 @@ const OoyalaPlayerDelegate = function () {
    *   adPodPosition {number} The ad pod position of the ad (ex: second ad in the pod would have ad pod position 2)
    */
   this.onAdPlayback = function (metadata) {
+    // eslint-disable-next-line prefer-destructuring
     adId = metadata.adId;
     adLength = metadata.adDuration;
     adPosition = metadata.adPodPosition;

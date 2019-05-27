@@ -229,9 +229,11 @@ const IqPlugin = function (framework) {
         allowThrift = (metadata.metadata.allowThrift === true || metadata.metadata.allowThrift === 'true');
       }
       if (metadata.metadata.thriftPcode != null) {
+        // eslint-disable-next-line prefer-destructuring
         thriftPcode = metadata.metadata.thriftPcode;
       }
       if (metadata.metadata.jsonPcode != null) {
+        // eslint-disable-next-line prefer-destructuring
         jsonPcode = metadata.metadata.jsonPcode;
         pcode = jsonPcode;
       }
@@ -376,6 +378,7 @@ const IqPlugin = function (framework) {
       // OO.EVENTS.EMBED_CODE_CHANGED -> OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED.
       case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
         if (params && params[0] && params[0].metadata) {
+          // eslint-disable-next-line prefer-destructuring
           autoPlay = params[0].metadata.autoPlay;
           if (params[0].embedCode !== currentEmbedCode) {
             lastEmbedCode = currentEmbedCode;
@@ -425,7 +428,7 @@ const IqPlugin = function (framework) {
     if (eventName === OO.Analytics.EVENTS.STREAM_TYPE_UPDATED) {
       // we don't need the auth data but we do need the geo data and that is the second param
       if (params && params[1]) {
-        geoMetadata = params[1];
+        [, geoMetadata] = params;
         // we have to change country and dma to countryCode and geoVendor because
         // analytics.js throws errors if there are incorrect params in the object.
         geoMetadata.countryCode = geoMetadata.country;
@@ -441,7 +444,7 @@ const IqPlugin = function (framework) {
     if (eventName === OO.Analytics.EVENTS.STREAM_TYPE_UPDATED) {
       // we don't need the auth data but we do need the geo data and that is the second param
       if (params && params[1]) {
-        geoMetadata = params[1];
+        [, geoMetadata] = params;
         // we have to change country and dma to countryCode and geoVendor because
         // analytics.js throws errors if there are incorrect params in the object.
         geoMetadata.countryCode = geoMetadata.country;
@@ -484,13 +487,14 @@ const IqPlugin = function (framework) {
       case OO.Analytics.EVENTS.VIDEO_PLAYER_CREATED:
         if (params && params[0] && params[0].params) {
           const eventParams = params[0];
+          // eslint-disable-next-line prefer-destructuring
           pcode = eventParams.params.pcode;
           if (jsonPcode != null) {
             pcode = jsonPcode;
           }
 
           playerId = eventParams.params.playerBrandingId;
-          eventMetadata = params[0];
+          [eventMetadata] = params;
           eventMetadata.qosEventName = eventName;
           this.ooyalaReporter._base.pcode = pcode;
 
@@ -654,7 +658,7 @@ const IqPlugin = function (framework) {
           params = [];
         }
 
-        eventMetadata = params[0];
+        [eventMetadata] = params;
         if (!eventMetadata) {
           eventMetadata = {};
         }

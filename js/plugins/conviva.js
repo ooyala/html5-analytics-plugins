@@ -813,6 +813,7 @@ const ConvivaAnalyticsPlugin = function (framework) {
     switch (eventName) {
       case OO.Analytics.EVENTS.VIDEO_ELEMENT_CREATED:
         if (params && params[0] && params[0].streamUrl) {
+          // eslint-disable-next-line prefer-destructuring
           streamUrl = params[0].streamUrl;
           tryBuildConvivaContentMetadata();
         }
@@ -865,13 +866,14 @@ const ConvivaAnalyticsPlugin = function (framework) {
         clearLastSession();
         if (params && params[0] && params[0].embedCode) {
           resetContentState();
+          // eslint-disable-next-line prefer-destructuring
           embedCode = params[0].embedCode;
           tryBuildConvivaContentMetadata();
         }
         break;
       case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
         if (params && params[0]) {
-          videoContentMetadata = params[0];
+          [videoContentMetadata] = params;
           tryBuildConvivaContentMetadata();
         }
         break;
@@ -898,6 +900,7 @@ const ConvivaAnalyticsPlugin = function (framework) {
         if (params && params[0]) {
           // Retrieve the stream type here.
           // Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
+          // eslint-disable-next-line prefer-destructuring
           streamType = params[0].streamType;
           tryBuildConvivaContentMetadata();
         }

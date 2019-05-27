@@ -166,6 +166,7 @@ if (!OO.Analytics.Utils) {
         const innerMetadata = metadata.metadata;
         let autoPlay = null;
         if (innerMetadata) {
+          // eslint-disable-next-line prefer-destructuring
           autoPlay = innerMetadata.autoPlay;
         }
 

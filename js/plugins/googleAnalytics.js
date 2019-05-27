@@ -225,7 +225,7 @@ const GAAnalyticsPlugin = function (framework) {
    */
   this.onContentReady = function (content) {
     this.content = content;
-    if (content.length) this.content = content[0];
+    if (content.length) [this.content] = content;
     this.reportToGA('contentReady');
     this.log('onContentReady');
   };
@@ -241,7 +241,7 @@ const GAAnalyticsPlugin = function (framework) {
       return false;
     }
 
-    params = params[0];
+    [params] = params;
 
     if (params.totalStreamDuration > 0) {
       this.duration = params.totalStreamDuration;
@@ -254,7 +254,7 @@ const GAAnalyticsPlugin = function (framework) {
         && this.lastReportedPlaybackMilestone !== milestone[0] && milestone[0]
         > this.lastReportedPlaybackMilestone) {
         this.reportToGA(milestone[1]);
-        this.lastReportedPlaybackMilestone = milestone[0];
+        [this.lastReportedPlaybackMilestone] = milestone;
         this.log(`onPositionChanged (${this.currentPlayheadPosition}, ${milestone[1]})`);
       }
     }, this);
@@ -411,7 +411,7 @@ const GAAnalyticsPlugin = function (framework) {
    * @method GAAnalyticsPlugin#onStreamMetadataUpdated
    */
   this.onStreamMetadataUpdated = function (metadata) {
-    if (metadata.length) metadata = metadata[0];
+    if (metadata.length) [metadata] = metadata;
     this.log('onStreamMetadataUpdated');
 
     if (metadata) {
@@ -488,6 +488,7 @@ const GAAnalyticsPlugin = function (framework) {
       this.log(`GA: PluginID '${id}' received this metadata:`, metadata);
       // Grab the tracker name if available and valid
       if (validateTrackerName(metadata.trackerName)) {
+        // eslint-disable-next-line prefer-destructuring
         trackerName = metadata.trackerName;
         this.log('GA: Using tracker name:', trackerName);
       } else {

@@ -83,7 +83,6 @@ module.exports = {
     "import/no-dynamic-require": "warn",
     "global-require": "warn",
     "no-restricted-syntax": "warn",
-    "prefer-destructuring": "warn",
     "valid-typeof": "warn",
     "no-restricted-globals": "warn",
     "no-mixed-operators": "warn",
