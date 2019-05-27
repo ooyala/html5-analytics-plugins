@@ -198,11 +198,11 @@ if (!OO.Analytics.Utils) {
 
     this.simulateStreamMetadataUpdated = function (metadata) {
       preSimulate();
-      metadata = metadata || {};
-      if (metadata) {
+      const metadataNew = metadata || {};
+      if (metadataNew) {
         plugin.processEvent(OO.Analytics.EVENTS.VIDEO_STREAM_METADATA_UPDATED, [{
-          base: metadata.base || {},
-          modules: metadata.modules || {},
+          base: metadataNew.base || {},
+          modules: metadataNew.modules || {},
         }]);
       }
     };

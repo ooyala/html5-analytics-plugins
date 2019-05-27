@@ -66,8 +66,8 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
   const createPlugin = function (framework, metadata) {
     const plugin = new GaPluginFactory(framework);
     plugin.init();
-    metadata = metadata || {};
-    plugin.setMetadata(metadata);
+    const metadataNew = metadata || {};
+    plugin.setMetadata(metadataNew);
     return plugin;
   };
 

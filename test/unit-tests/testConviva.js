@@ -40,17 +40,17 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   const createPlugin = function (framework, metadata) {
     const plugin = new ConvivaPluginFactory(framework);
     plugin.init();
-    metadata = metadata || {
+    const metadataNew = metadata || {
       gatewayUrl: 'testUrl',
       customerKey: 'testKey',
     };
-    plugin.setMetadata(metadata);
+    plugin.setMetadata(metadataNew);
     return plugin;
   };
 
   const startPlayer = function (simulator, streamUrl) {
-    streamUrl = streamUrl || 'http://testStreamUrl';
-    simulator.simulateVideoElementCreated(streamUrl);
+    const streamUrlNew = streamUrl || 'http://testStreamUrl';
+    simulator.simulateVideoElementCreated(streamUrlNew);
     simulator.simulatePlayerStart();
   };
 

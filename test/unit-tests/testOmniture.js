@@ -36,8 +36,9 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
 
   // helpers
   const createPlugin = function (framework, metadata) {
+    let metadataNew = metadata;
     if (!metadata) {
-      metadata = {
+      metadataNew = {
         marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
         visitorTrackingServer: 'ovppartners.sc.omtrdc.net',
         appMeasurementTrackingServer: 'ovppartners.sc.omtrdc.net',
@@ -60,7 +61,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     }
     const plugin = new OmniturePluginFactory(framework);
     plugin.init();
-    plugin.setMetadata(metadata);
+    plugin.setMetadata(metadataNew);
     return plugin;
   };
 

@@ -46,6 +46,12 @@ module.exports = {
         "ignoreTemplateLiterals": true
       }
     ],
+    "no-param-reassign": [
+      "error",
+      {
+        "props": false
+      }
+    ],
     "require-jsdoc": [
       "warn",
       {
@@ -70,7 +76,6 @@ module.exports = {
     "import/no-dynamic-require": "warn",
     "global-require": "warn",
     "no-plusplus": "warn",
-    "no-param-reassign": "warn",
     "no-restricted-syntax": "warn",
     "no-underscore-dangle": "warn",
     "guard-for-in": "warn",
