@@ -4,494 +4,6 @@ require('../framework/InitAnalyticsNamespace.js');
 // require("./omniture/VisitorAPI.js");
 
 /**
- * @class OmnitureAnalyticsPlugin
- * @classdesc Omniture Analytics/Video Heartbeat plugin that works with the Ooyala Analytics Framework.
- * @param {object} framework The Analytics Framework instance
- */
-const OmnitureAnalyticsPlugin = function (framework) {
-  let _framework = framework;
-  const name = 'omniture';
-  const version = 'v1';
-  let id;
-
-  const OOYALA_PLAYER_NAME = 'Ooyala V4';
-  const OOYALA_PLAYER_VERSION = '';
-
-  const playerDelegate = new OoyalaPlayerDelegate();
-  let appMeasurement = null;
-  let vpPlugin = null;
-  let aaPlugin = null;
-  let heartbeat = null;
-
-  let currentEmbedCode = null;
-  let currentPlayhead = 0;
-  let mainContentStarted = false;
-  let inAdBreak = false;
-  let trackedPlayForPreroll = false;
-  let pauseRequested = false;
-  let seekStarted = false;
-
-  /**
-   * [Required Function] Return the name of the plugin.
-   * @public
-   * @method OmnitureAnalyticsPlugin#getName
-   * @returns {string} The name of the plugin.
-   */
-  this.getName = function () {
-    return name;
-  };
-
-  /**
-   * [Required Function] Return the version string of the plugin.
-   * @public
-   * @method OmnitureAnalyticsPlugin#getVersion
-   * @returns {string} The version of the plugin.
-   */
-  this.getVersion = function () {
-    return version;
-  };
-
-  /**
-   * [Required Function] Set the plugin id given by the Analytics Framework when
-   * this plugin is registered.
-   * @public
-   * @method OmnitureAnalyticsPlugin#setPluginID
-   * @param  {string} newID The plugin id
-   */
-  this.setPluginID = function (newID) {
-    id = newID;
-  };
-
-  /**
-   * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
-   * @public
-   * @method OmnitureAnalyticsPlugin#setPluginID
-   * @returns  {string} The pluginID assigned to this instance from the Analytics Framework.
-   */
-  this.getPluginID = function () {
-    return id;
-  };
-
-  /**
-   * [Required Function] Initialize the plugin with the given metadata.
-   * @public
-   * @method OmnitureAnalyticsPlugin#init
-   */
-  this.init = function () {
-    let missedEvents;
-    if (_framework && OO._.isFunction(_framework.getRecordedEvents)) {
-      missedEvents = _framework.getRecordedEvents();
-      _.each(missedEvents, _.bind(function (recordedEvent) {
-        // recordedEvent.timeStamp;
-        this.processEvent(recordedEvent.eventName, recordedEvent.params);
-      }, this));
-    }
-  };
-
-  /**
-   * [Required Function] Set the metadata for this plugin.
-   * @public
-   * @method OmnitureAnalyticsPlugin#setMetadata
-   * @param  {object} metadata The metadata for this plugin
-   */
-  this.setMetadata = function (metadata) {
-    OO.log(`Omniture: PluginID '${id}' received this metadata:`, metadata);
-    // Set-up the Visitor and AppMeasurement instances.
-    if (validateOmnitureMetadata(metadata)) {
-      // Doc: https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_as_configure.html
-
-      // TODO: Get metadata, props and evar from backdoor/backlot settings as well
-      const visitor = new Visitor(metadata.marketingCloudOrgId);
-      visitor.trackingServer = metadata.visitorTrackingServer;
-
-      // Set-up the AppMeasurement component.
-      appMeasurement = new AppMeasurement();
-      appMeasurement.visitor = visitor;
-      appMeasurement.trackingServer = metadata.appMeasurementTrackingServer;
-      appMeasurement.account = metadata.reportSuiteId;
-      appMeasurement.pageName = metadata.pageName;
-      appMeasurement.charSet = 'UTF-8';
-      appMeasurement.visitorID = metadata.visitorId;
-
-      updateEvarsAndProps(metadata.props, metadata.eVars);
-
-      // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
-      vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
-      this.omnitureVideoPlayerPlugin = vpPlugin;
-      const playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
-      playerPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
-      vpPlugin.configure(playerPluginConfig);
-
-      // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
-      aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(
-        appMeasurement,
-        new ADB.va.plugins.aa.AdobeAnalyticsPluginDelegate(),
-      );
-      const aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
-      aaPluginConfig.channel = metadata.channel; // optional
-      aaPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
-      aaPlugin.configure(aaPluginConfig);
-
-      // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
-      const ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(
-        new ADB.va.plugins.ah.AdobeHeartbeatPluginDelegate(),
-      );
-      const ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
-        metadata.heartbeatTrackingServer,
-        metadata.publisherId,
-      );
-      ahPluginConfig.ovp = OOYALA_PLAYER_NAME;
-      // TODO: Get Player version
-      ahPluginConfig.sdk = OOYALA_PLAYER_VERSION;
-      ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
-      if (metadata.heartbeatSSL) {
-        // set this to true to enable Heartbeat calls through HTTPS
-        ahPluginConfig.ssl = metadata.heartbeatSSL;
-      }
-      ahPlugin.configure(ahPluginConfig);
-
-      const plugins = [vpPlugin, aaPlugin, ahPlugin];
-
-      // Setup and configure the Heartbeat lib.
-      heartbeat = new ADB.va.Heartbeat(new ADB.va.HeartbeatDelegate(), plugins);
-      const configData = new ADB.va.HeartbeatConfig();
-      configData.debugLogging = metadata.debug; // set this to false for production apps.
-      heartbeat.configure(configData);
-    }
-  };
-
-  /**
-   * Clears the vars from the AppMeasurement object and updates the AppMeasurement object with new props and eVars.
-   * @protected
-   * @method OmnitureAnalyticsPlugin#updateMetadata
-   * @param props The updated props
-   * @param eVars The updated eVars
-   */
-  this.updateMetadata = function (props, eVars) {
-    if (appMeasurement) {
-      appMeasurement.clearVars();
-      updateEvarsAndProps(props, eVars);
-    }
-  };
-
-  /**
-   * Adds eVars and props to the AppMeasurement object
-   * @private
-   * @method OmnitureAnalyticsPlugin#updateEvarsAndProps
-   * @param props The props to add to the AppMeasurement object
-   * @param eVars The eVars to add to the AppMeasurement object
-   */
-  const updateEvarsAndProps = function (props, eVars) {
-    if (appMeasurement) {
-      // add in props
-      if (!_.isEmpty(props)) {
-        _.each(props, (value, key) => {
-          // TODO: Validate keys (are of form prop#)
-          appMeasurement[key] = value;
-        });
-      }
-
-      // add in eVars
-      if (!_.isEmpty(eVars)) {
-        _.each(eVars, (value, key) => {
-          // TODO: Validate keys (are of form eVar#)
-          appMeasurement[key] = value;
-        });
-      }
-    }
-  };
-
-  const checkSdkLoaded = function () {
-    // TODO: Check all the ADB objects exist
-  };
-
-  /**
-   * Omniture metadata needs to include the following:
-   * marketingCloudOrgId, visitorTrackingServer, appMeasurementTrackingServer,
-   * reportSuiteId, pageName, visitorId, channel, heartbeatTrackingServer, and
-   * publisherId
-   *
-   * It can optionally have:
-   * debug, props, eVars
-   * @private
-   * @method OmnitureAnalyticsPlugin#validateOmnitureMetadata
-   * @param  {object} metadata The Omniture metadata to validate
-   * @returns true if valid, false otherwise
-   */
-  const validateOmnitureMetadata = function (metadata) {
-    let valid = true;
-    const requiredKeys = ['marketingCloudOrgId', 'visitorTrackingServer', 'appMeasurementTrackingServer',
-      'reportSuiteId', 'pageName', 'visitorId', 'channel', 'heartbeatTrackingServer', 'publisherId'];
-
-    let missingKeys = [];
-
-    if (metadata) {
-      _.each(requiredKeys, (key) => {
-        if (!_.has(metadata, key)) {
-          missingKeys.push(key);
-          valid = false;
-        }
-      });
-    } else {
-      OO.log('Error: Missing Omniture Metadata!');
-      missingKeys = requiredKeys;
-      valid = false;
-    }
-
-
-    if (!_.isEmpty(missingKeys)) {
-      _.each(missingKeys, (key) => {
-        OO.log(`Error: Missing Omniture Metadata Key: ${key}`);
-      });
-    }
-
-    return valid;
-  };
-
-  /**
-   * [Required Function] Process an event from the Analytics Framework, with the given parameters.
-   * @public
-   * @method OmnitureAnalyticsPlugin#processEvent
-   * @param  {string} eventName Name of the event
-   * @param  {Array} params     Array of parameters sent with the event
-   */
-  this.processEvent = function (eventName, params) {
-    OO.log(`Omniture: PluginID '${id}' received this event '${eventName}' with these params:`, params);
-    switch (eventName) {
-      case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
-        onContentStart();
-        break;
-      case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
-        trackComplete();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
-        pauseRequested = true;
-        break;
-      case OO.Analytics.EVENTS.VIDEO_PLAYING:
-        trackPlay();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_PAUSED:
-        // According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
-        // we should not be tracking pauses when switching from main content to an ad
-        if (pauseRequested) {
-          pauseRequested = false;
-          trackPause();
-        }
-        break;
-      case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
-        resetPlaybackState();
-        onContentStart();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
-        if (params && params[0] && params[0].embedCode) {
-          if (currentEmbedCode && params[0].embedCode !== currentEmbedCode) {
-            const metadata = params[0].metadata.omniture || {};
-            this.updateMetadata(metadata.props, metadata.eVars);
-          }
-          currentEmbedCode = params[0].embedCode;
-          playerDelegate.onEmbedCodeChanged(params[0].embedCode);
-        }
-        resetPlaybackState();
-        break;
-      case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
-        if (params && params[0]) {
-          playerDelegate.onInitializeContent(params[0]);
-        }
-        break;
-      case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
-        // Note that we get a seek requested upon replay before main content playback starts
-        if (mainContentStarted && !inAdBreak) {
-          trackSeekStart();
-        }
-        break;
-      case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
-        // Only send seek completed if we sent a seek requested
-        if (mainContentStarted && !inAdBreak && seekStarted) {
-          trackSeekEnd();
-        }
-        break;
-      case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
-        // TODO: Ask about Buffer before play start
-        // TODO: Revisit buffering logic
-        break;
-      case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
-        break;
-      case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
-        if (params && params[0] && params[0].streamPosition) {
-          if (!inAdBreak) {
-            currentPlayhead = params[0].streamPosition;
-            playerDelegate.onPlayheadChanged(currentPlayhead);
-          }
-        }
-        break;
-      case OO.Analytics.EVENTS.AD_BREAK_STARTED:
-        inAdBreak = true;
-        playerDelegate.onAdBreak();
-        break;
-      case OO.Analytics.EVENTS.AD_BREAK_ENDED:
-        inAdBreak = false;
-        playerDelegate.onAdBreakComplete();
-        break;
-      case OO.Analytics.EVENTS.AD_STARTED:
-        if (params && params[0]) {
-          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
-            playerDelegate.onAdPlayback(params[0].adMetadata);
-            trackAdStart();
-            if (!mainContentStarted && !trackedPlayForPreroll) {
-              trackedPlayForPreroll = true;
-              // We need a special track play here for ads if main content has not started.
-              // Don't call the trackPlay() function of this plugin because that one
-              // is for the main content
-              vpPlugin.trackPlay();
-            }
-          }
-        }
-        break;
-      case OO.Analytics.EVENTS.AD_ENDED:
-        if (params && params[0]) {
-          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
-            trackAdEnd();
-            playerDelegate.onAdPlaybackComplete();
-          }
-        }
-        break;
-      case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
-        if (params && params[0]) {
-          playerDelegate.onStreamTypeUpdated(params[0].streamType);
-        }
-        break;
-      default:
-        break;
-    }
-  };
-
-  /**
-   * Resets all state variables to their initial values.
-   * @private
-   * @method OmnitureAnalyticsPlugin#resetPlaybackState
-   */
-  const resetPlaybackState = function () {
-    currentPlayhead = 0;
-    mainContentStarted = false;
-    inAdBreak = false;
-    trackedPlayForPreroll = false;
-    pauseRequested = false;
-    seekStarted = false;
-    playerDelegate.onReplay();
-  };
-
-  /**
-   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
-   * @public
-   * @method OmnitureAnalyticsPlugin#destroy
-   */
-  this.destroy = function () {
-    _framework = null;
-    if (heartbeat) {
-      heartbeat.destroy();
-      heartbeat = null;
-    }
-    resetPlaybackState();
-  };
-
-  /**
-   * To be called when content has started (via user click, a replay event, etc). Will call the VideoPlayerPlugin's
-   * trackVideoLoad and trackSessionStart APIs. trackVideoLoad must be called before the Omniture SDK will track any
-   * future events.
-   * @private
-   * @method OmnitureAnalyticsPlugin#onContentStart
-   */
-  const onContentStart = function () {
-    vpPlugin.trackVideoLoad();
-    vpPlugin.trackSessionStart();
-  };
-
-  /**
-   * To be called when the main content has started playback. This can be called for the initial playback after
-   * onContentStart and also after pause events. Will notify the Omniture SDK of a play event.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackPlay
-   */
-  const trackPlay = function () {
-    if (!mainContentStarted) {
-      mainContentStarted = true;
-      vpPlugin.trackPlay();
-    } else {
-      vpPlugin.trackPlay();
-    }
-  };
-
-  /**
-   * To be called when the main content has paused. Do not call this before transitioning to an ad playback
-   * from main content or else Omniture will report incorrect analytics. Will notify the Omniture SDK of a pause
-   * event.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackPause
-   */
-  const trackPause = function () {
-    vpPlugin.trackPause();
-  };
-
-  /**
-   * To be called when the user has initiated a seek. Will notify the Omniture SDK of a seek start event. Must be
-   * paired with a trackSeekEnd call.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackSeekStart
-   */
-  const trackSeekStart = function () {
-    seekStarted = true;
-    vpPlugin.trackSeekStart();
-  };
-
-  /**
-   * To be called when the user has finished a seek. Will notify the Omniture SDK of a seek complete event. Must be
-   * paired with a trackSeekStart call.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackSeekEnd
-   */
-  const trackSeekEnd = function () {
-    seekStarted = false;
-    vpPlugin.trackSeekComplete();
-  };
-
-  /**
-   * To be called when the main content and postrolls have finished playing. Will notify the Omniture SDK of a complete
-   * event and a video unload event.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackComplete
-   */
-  const trackComplete = function () {
-    mainContentStarted = false;
-    vpPlugin.trackComplete();
-    vpPlugin.trackVideoUnload();
-  };
-
-  /**
-   * To be called when an ad has started playback. Will notify the Omniture SDK of an ad start event.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackAdStart
-   */
-  const trackAdStart = function () {
-    vpPlugin.trackAdStart();
-  };
-
-  /**
-   * To be called when an ad has finished playback. Will notify the Omniture SDK of an ad complete event.
-   * @private
-   * @method OmnitureAnalyticsPlugin#trackAdEnd
-   */
-  const trackAdEnd = function () {
-    vpPlugin.trackAdComplete();
-  };
-
-  // TODO: Find out how to expose the player delegate for unit tests
-  // convenience functions for unit testing
-  this.getPlayerDelegate = function () {
-    return playerDelegate;
-  };
-};
-
-/**
  * @class OoyalaPlayerDelegate
  * @classdesc The video player delegate that the Omniture Heartbeat SDK requires. Omniture will use
  * this delegate to find out information about the currently playing video periodically.
@@ -708,6 +220,493 @@ const OoyalaPlayerDelegate = function () {
   };
   this.onStreamTypeUpdated = function (type) {
     streamType = type;
+  };
+};
+
+/**
+ * @class OmnitureAnalyticsPlugin
+ * @classdesc Omniture Analytics/Video Heartbeat plugin that works with the Ooyala Analytics Framework.
+ * @param {object} framework The Analytics Framework instance
+ */
+const OmnitureAnalyticsPlugin = function (framework) {
+  let _framework = framework;
+  const name = 'omniture';
+  const version = 'v1';
+  let id;
+
+  const OOYALA_PLAYER_NAME = 'Ooyala V4';
+  const OOYALA_PLAYER_VERSION = '';
+
+  const playerDelegate = new OoyalaPlayerDelegate();
+  let appMeasurement = null;
+  let vpPlugin = null;
+  let aaPlugin = null;
+  let heartbeat = null;
+
+  let currentEmbedCode = null;
+  let currentPlayhead = 0;
+  let mainContentStarted = false;
+  let inAdBreak = false;
+  let trackedPlayForPreroll = false;
+  let pauseRequested = false;
+  let seekStarted = false;
+
+  /**
+   * [Required Function] Return the name of the plugin.
+   * @public
+   * @method OmnitureAnalyticsPlugin#getName
+   * @returns {string} The name of the plugin.
+   */
+  this.getName = function () {
+    return name;
+  };
+
+  /**
+   * [Required Function] Return the version string of the plugin.
+   * @public
+   * @method OmnitureAnalyticsPlugin#getVersion
+   * @returns {string} The version of the plugin.
+   */
+  this.getVersion = function () {
+    return version;
+  };
+
+  /**
+   * [Required Function] Set the plugin id given by the Analytics Framework when
+   * this plugin is registered.
+   * @public
+   * @method OmnitureAnalyticsPlugin#setPluginID
+   * @param  {string} newID The plugin id
+   */
+  this.setPluginID = function (newID) {
+    id = newID;
+  };
+
+  /**
+   * [Required Function] Returns the stored plugin id, given by the Analytics Framework.
+   * @public
+   * @method OmnitureAnalyticsPlugin#setPluginID
+   * @returns  {string} The pluginID assigned to this instance from the Analytics Framework.
+   */
+  this.getPluginID = function () {
+    return id;
+  };
+
+  /**
+   * [Required Function] Initialize the plugin with the given metadata.
+   * @public
+   * @method OmnitureAnalyticsPlugin#init
+   */
+  this.init = function () {
+    let missedEvents;
+    if (_framework && OO._.isFunction(_framework.getRecordedEvents)) {
+      missedEvents = _framework.getRecordedEvents();
+      _.each(missedEvents, _.bind(function (recordedEvent) {
+        // recordedEvent.timeStamp;
+        this.processEvent(recordedEvent.eventName, recordedEvent.params);
+      }, this));
+    }
+  };
+
+  /**
+   * Adds eVars and props to the AppMeasurement object
+   * @private
+   * @method OmnitureAnalyticsPlugin#updateEvarsAndProps
+   * @param props The props to add to the AppMeasurement object
+   * @param eVars The eVars to add to the AppMeasurement object
+   */
+  const updateEvarsAndProps = function (props, eVars) {
+    if (appMeasurement) {
+      // add in props
+      if (!_.isEmpty(props)) {
+        _.each(props, (value, key) => {
+          // TODO: Validate keys (are of form prop#)
+          appMeasurement[key] = value;
+        });
+      }
+
+      // add in eVars
+      if (!_.isEmpty(eVars)) {
+        _.each(eVars, (value, key) => {
+          // TODO: Validate keys (are of form eVar#)
+          appMeasurement[key] = value;
+        });
+      }
+    }
+  };
+
+  const checkSdkLoaded = function () {
+    // TODO: Check all the ADB objects exist
+  };
+
+  /**
+   * Omniture metadata needs to include the following:
+   * marketingCloudOrgId, visitorTrackingServer, appMeasurementTrackingServer,
+   * reportSuiteId, pageName, visitorId, channel, heartbeatTrackingServer, and
+   * publisherId
+   *
+   * It can optionally have:
+   * debug, props, eVars
+   * @private
+   * @method OmnitureAnalyticsPlugin#validateOmnitureMetadata
+   * @param  {object} metadata The Omniture metadata to validate
+   * @returns true if valid, false otherwise
+   */
+  const validateOmnitureMetadata = function (metadata) {
+    let valid = true;
+    const requiredKeys = ['marketingCloudOrgId', 'visitorTrackingServer', 'appMeasurementTrackingServer',
+      'reportSuiteId', 'pageName', 'visitorId', 'channel', 'heartbeatTrackingServer', 'publisherId'];
+
+    let missingKeys = [];
+
+    if (metadata) {
+      _.each(requiredKeys, (key) => {
+        if (!_.has(metadata, key)) {
+          missingKeys.push(key);
+          valid = false;
+        }
+      });
+    } else {
+      OO.log('Error: Missing Omniture Metadata!');
+      missingKeys = requiredKeys;
+      valid = false;
+    }
+
+
+    if (!_.isEmpty(missingKeys)) {
+      _.each(missingKeys, (key) => {
+        OO.log(`Error: Missing Omniture Metadata Key: ${key}`);
+      });
+    }
+
+    return valid;
+  };
+
+  /**
+   * Resets all state variables to their initial values.
+   * @private
+   * @method OmnitureAnalyticsPlugin#resetPlaybackState
+   */
+  const resetPlaybackState = function () {
+    currentPlayhead = 0;
+    mainContentStarted = false;
+    inAdBreak = false;
+    trackedPlayForPreroll = false;
+    pauseRequested = false;
+    seekStarted = false;
+    playerDelegate.onReplay();
+  };
+
+  /**
+   * [Required Function] Clean up this plugin so the garbage collector can clear it out.
+   * @public
+   * @method OmnitureAnalyticsPlugin#destroy
+   */
+  this.destroy = function () {
+    _framework = null;
+    if (heartbeat) {
+      heartbeat.destroy();
+      heartbeat = null;
+    }
+    resetPlaybackState();
+  };
+
+  /**
+   * To be called when content has started (via user click, a replay event, etc). Will call the VideoPlayerPlugin's
+   * trackVideoLoad and trackSessionStart APIs. trackVideoLoad must be called before the Omniture SDK will track any
+   * future events.
+   * @private
+   * @method OmnitureAnalyticsPlugin#onContentStart
+   */
+  const onContentStart = function () {
+    vpPlugin.trackVideoLoad();
+    vpPlugin.trackSessionStart();
+  };
+
+  /**
+   * To be called when the main content has started playback. This can be called for the initial playback after
+   * onContentStart and also after pause events. Will notify the Omniture SDK of a play event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackPlay
+   */
+  const trackPlay = function () {
+    if (!mainContentStarted) {
+      mainContentStarted = true;
+      vpPlugin.trackPlay();
+    } else {
+      vpPlugin.trackPlay();
+    }
+  };
+
+  /**
+   * To be called when the main content has paused. Do not call this before transitioning to an ad playback
+   * from main content or else Omniture will report incorrect analytics. Will notify the Omniture SDK of a pause
+   * event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackPause
+   */
+  const trackPause = function () {
+    vpPlugin.trackPause();
+  };
+
+  /**
+   * To be called when the user has initiated a seek. Will notify the Omniture SDK of a seek start event. Must be
+   * paired with a trackSeekEnd call.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackSeekStart
+   */
+  const trackSeekStart = function () {
+    seekStarted = true;
+    vpPlugin.trackSeekStart();
+  };
+
+  /**
+   * To be called when the user has finished a seek. Will notify the Omniture SDK of a seek complete event. Must be
+   * paired with a trackSeekStart call.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackSeekEnd
+   */
+  const trackSeekEnd = function () {
+    seekStarted = false;
+    vpPlugin.trackSeekComplete();
+  };
+
+  /**
+   * To be called when the main content and postrolls have finished playing. Will notify the Omniture SDK of a complete
+   * event and a video unload event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackComplete
+   */
+  const trackComplete = function () {
+    mainContentStarted = false;
+    vpPlugin.trackComplete();
+    vpPlugin.trackVideoUnload();
+  };
+
+  /**
+   * To be called when an ad has started playback. Will notify the Omniture SDK of an ad start event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackAdStart
+   */
+  const trackAdStart = function () {
+    vpPlugin.trackAdStart();
+  };
+
+  /**
+   * To be called when an ad has finished playback. Will notify the Omniture SDK of an ad complete event.
+   * @private
+   * @method OmnitureAnalyticsPlugin#trackAdEnd
+   */
+  const trackAdEnd = function () {
+    vpPlugin.trackAdComplete();
+  };
+
+  // TODO: Find out how to expose the player delegate for unit tests
+  // convenience functions for unit testing
+  this.getPlayerDelegate = function () {
+    return playerDelegate;
+  };
+
+  /**
+   * [Required Function] Set the metadata for this plugin.
+   * @public
+   * @method OmnitureAnalyticsPlugin#setMetadata
+   * @param  {object} metadata The metadata for this plugin
+   */
+  this.setMetadata = function (metadata) {
+    OO.log(`Omniture: PluginID '${id}' received this metadata:`, metadata);
+    // Set-up the Visitor and AppMeasurement instances.
+    if (validateOmnitureMetadata(metadata)) {
+      // Doc: https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_as_configure.html
+
+      // TODO: Get metadata, props and evar from backdoor/backlot settings as well
+      const visitor = new Visitor(metadata.marketingCloudOrgId);
+      visitor.trackingServer = metadata.visitorTrackingServer;
+
+      // Set-up the AppMeasurement component.
+      appMeasurement = new AppMeasurement();
+      appMeasurement.visitor = visitor;
+      appMeasurement.trackingServer = metadata.appMeasurementTrackingServer;
+      appMeasurement.account = metadata.reportSuiteId;
+      appMeasurement.pageName = metadata.pageName;
+      appMeasurement.charSet = 'UTF-8';
+      appMeasurement.visitorID = metadata.visitorId;
+
+      updateEvarsAndProps(metadata.props, metadata.eVars);
+
+      // Setup the VideoPlayerPlugin, this is passed into Heartbeat()
+      vpPlugin = new ADB.va.plugins.videoplayer.VideoPlayerPlugin(playerDelegate);
+      this.omnitureVideoPlayerPlugin = vpPlugin;
+      const playerPluginConfig = new ADB.va.plugins.videoplayer.VideoPlayerPluginConfig();
+      playerPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      vpPlugin.configure(playerPluginConfig);
+
+      // Setup the AdobeAnalyticsPlugin plugin, this is passed into Heartbeat()
+      aaPlugin = new ADB.va.plugins.aa.AdobeAnalyticsPlugin(
+        appMeasurement,
+        new ADB.va.plugins.aa.AdobeAnalyticsPluginDelegate(),
+      );
+      const aaPluginConfig = new ADB.va.plugins.aa.AdobeAnalyticsPluginConfig();
+      aaPluginConfig.channel = metadata.channel; // optional
+      aaPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      aaPlugin.configure(aaPluginConfig);
+
+      // Setup the AdobeHeartbeat plugin, this is passed into Heartbeat()
+      const ahPlugin = new ADB.va.plugins.ah.AdobeHeartbeatPlugin(
+        new ADB.va.plugins.ah.AdobeHeartbeatPluginDelegate(),
+      );
+      const ahPluginConfig = new ADB.va.plugins.ah.AdobeHeartbeatPluginConfig(
+        metadata.heartbeatTrackingServer,
+        metadata.publisherId,
+      );
+      ahPluginConfig.ovp = OOYALA_PLAYER_NAME;
+      // TODO: Get Player version
+      ahPluginConfig.sdk = OOYALA_PLAYER_VERSION;
+      ahPluginConfig.debugLogging = metadata.debug; // set this to false for production apps.
+      if (metadata.heartbeatSSL) {
+        // set this to true to enable Heartbeat calls through HTTPS
+        ahPluginConfig.ssl = metadata.heartbeatSSL;
+      }
+      ahPlugin.configure(ahPluginConfig);
+
+      const plugins = [vpPlugin, aaPlugin, ahPlugin];
+
+      // Setup and configure the Heartbeat lib.
+      heartbeat = new ADB.va.Heartbeat(new ADB.va.HeartbeatDelegate(), plugins);
+      const configData = new ADB.va.HeartbeatConfig();
+      configData.debugLogging = metadata.debug; // set this to false for production apps.
+      heartbeat.configure(configData);
+    }
+  };
+  /**
+   * Clears the vars from the AppMeasurement object and updates the AppMeasurement object with new props and eVars.
+   * @protected
+   * @method OmnitureAnalyticsPlugin#updateMetadata
+   * @param props The updated props
+   * @param eVars The updated eVars
+   */
+  this.updateMetadata = function (props, eVars) {
+    if (appMeasurement) {
+      appMeasurement.clearVars();
+      updateEvarsAndProps(props, eVars);
+    }
+  };
+
+  /**
+   * [Required Function] Process an event from the Analytics Framework, with the given parameters.
+   * @public
+   * @method OmnitureAnalyticsPlugin#processEvent
+   * @param  {string} eventName Name of the event
+   * @param  {Array} params     Array of parameters sent with the event
+   */
+  this.processEvent = function (eventName, params) {
+    OO.log(`Omniture: PluginID '${id}' received this event '${eventName}' with these params:`, params);
+    switch (eventName) {
+      case OO.Analytics.EVENTS.INITIAL_PLAYBACK_REQUESTED:
+        onContentStart();
+        break;
+      case OO.Analytics.EVENTS.PLAYBACK_COMPLETED:
+        trackComplete();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_PAUSE_REQUESTED:
+        pauseRequested = true;
+        break;
+      case OO.Analytics.EVENTS.VIDEO_PLAYING:
+        trackPlay();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_PAUSED:
+        // According to https://marketing.adobe.com/resources/help/en_US/sc/appmeasurement/hbvideo/video_events.html
+        // we should not be tracking pauses when switching from main content to an ad
+        if (pauseRequested) {
+          pauseRequested = false;
+          trackPause();
+        }
+        break;
+      case OO.Analytics.EVENTS.VIDEO_REPLAY_REQUESTED:
+        resetPlaybackState();
+        onContentStart();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_SOURCE_CHANGED:
+        if (params && params[0] && params[0].embedCode) {
+          if (currentEmbedCode && params[0].embedCode !== currentEmbedCode) {
+            const metadata = params[0].metadata.omniture || {};
+            this.updateMetadata(metadata.props, metadata.eVars);
+          }
+          currentEmbedCode = params[0].embedCode;
+          playerDelegate.onEmbedCodeChanged(params[0].embedCode);
+        }
+        resetPlaybackState();
+        break;
+      case OO.Analytics.EVENTS.VIDEO_CONTENT_METADATA_UPDATED:
+        if (params && params[0]) {
+          playerDelegate.onInitializeContent(params[0]);
+        }
+        break;
+      case OO.Analytics.EVENTS.VIDEO_SEEK_REQUESTED:
+        // Note that we get a seek requested upon replay before main content playback starts
+        if (mainContentStarted && !inAdBreak) {
+          trackSeekStart();
+        }
+        break;
+      case OO.Analytics.EVENTS.VIDEO_SEEK_COMPLETED:
+        // Only send seek completed if we sent a seek requested
+        if (mainContentStarted && !inAdBreak && seekStarted) {
+          trackSeekEnd();
+        }
+        break;
+      case OO.Analytics.EVENTS.VIDEO_BUFFERING_STARTED:
+        // TODO: Ask about Buffer before play start
+        // TODO: Revisit buffering logic
+        break;
+      case OO.Analytics.EVENTS.VIDEO_BUFFERING_ENDED:
+        break;
+      case OO.Analytics.EVENTS.VIDEO_STREAM_POSITION_CHANGED:
+        if (params && params[0] && params[0].streamPosition) {
+          if (!inAdBreak) {
+            currentPlayhead = params[0].streamPosition;
+            playerDelegate.onPlayheadChanged(currentPlayhead);
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.AD_BREAK_STARTED:
+        inAdBreak = true;
+        playerDelegate.onAdBreak();
+        break;
+      case OO.Analytics.EVENTS.AD_BREAK_ENDED:
+        inAdBreak = false;
+        playerDelegate.onAdBreakComplete();
+        break;
+      case OO.Analytics.EVENTS.AD_STARTED:
+        if (params && params[0]) {
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
+            playerDelegate.onAdPlayback(params[0].adMetadata);
+            trackAdStart();
+            if (!mainContentStarted && !trackedPlayForPreroll) {
+              trackedPlayForPreroll = true;
+              // We need a special track play here for ads if main content has not started.
+              // Don't call the trackPlay() function of this plugin because that one
+              // is for the main content
+              vpPlugin.trackPlay();
+            }
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.AD_ENDED:
+        if (params && params[0]) {
+          if (params[0].adType === OO.Analytics.AD_TYPE.LINEAR_VIDEO) {
+            trackAdEnd();
+            playerDelegate.onAdPlaybackComplete();
+          }
+        }
+        break;
+      case OO.Analytics.EVENTS.STREAM_TYPE_UPDATED:
+        if (params && params[0]) {
+          playerDelegate.onStreamTypeUpdated(params[0].streamType);
+        }
+        break;
+      default:
+        break;
+    }
   };
 };
 

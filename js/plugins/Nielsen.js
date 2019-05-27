@@ -137,33 +137,6 @@ const NielsenAnalyticsPlugin = function (framework) {
   };
 
   /**
-   * [Required Function] Initialize the plugin with the given metadata.
-   * @public
-   * @method NielsenAnalyticsPlugin#init
-   */
-  this.init = function () {
-    // TODO: Test Missed events
-    let missedEvents;
-    if (_framework && _.isFunction(_framework.getRecordedEvents)) {
-      missedEvents = _framework.getRecordedEvents();
-      _.each(missedEvents, _.bind(function (recordedEvent) {
-        // recordedEvent.timeStamp;
-        this.processEvent(recordedEvent.eventName, recordedEvent.params);
-      }, this));
-    }
-
-    // If SDK is not loaded by now, load SDK
-    if (!window.NOLCMB) {
-      OO.loadScriptOnce(
-        '//cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js',
-        trySetupNielsen,
-        sdkLoadError,
-        SDK_LOAD_TIMEOUT,
-      );
-    }
-  };
-
-  /**
    * Tries to setup the Nielsen SDK Instance object. The Nielsen SDK Instance object requires specific metadata and
    * window.NOLCMB to exist (created by the Nielsen SDK script).
    * @private
@@ -198,6 +171,33 @@ const NielsenAnalyticsPlugin = function (framework) {
       setup = true;
     }
     return setup;
+  };
+
+  /**
+   * [Required Function] Initialize the plugin with the given metadata.
+   * @public
+   * @method NielsenAnalyticsPlugin#init
+   */
+  this.init = function () {
+    // TODO: Test Missed events
+    let missedEvents;
+    if (_framework && _.isFunction(_framework.getRecordedEvents)) {
+      missedEvents = _framework.getRecordedEvents();
+      _.each(missedEvents, _.bind(function (recordedEvent) {
+        // recordedEvent.timeStamp;
+        this.processEvent(recordedEvent.eventName, recordedEvent.params);
+      }, this));
+    }
+
+    // If SDK is not loaded by now, load SDK
+    if (!window.NOLCMB) {
+      OO.loadScriptOnce(
+        '//cdn-gl.imrworldwide.com/novms/js/2/ggcmb510.js',
+        trySetupNielsen,
+        sdkLoadError,
+        SDK_LOAD_TIMEOUT,
+      );
+    }
   };
 
   /**
