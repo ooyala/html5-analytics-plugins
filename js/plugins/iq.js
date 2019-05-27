@@ -250,7 +250,7 @@ const IqPlugin = function (framework) {
    * @param {array} timeline The raw array of ads returned by the SSAI server
    */
   this.processAdTimeline = function (timeline) {
-    if (timeline === null || typeof (timeline) !== 'array') {
+    if (timeline === null || typeof (timeline) !== 'string') {
       return [];
     }
     const processedTimeline = [];
