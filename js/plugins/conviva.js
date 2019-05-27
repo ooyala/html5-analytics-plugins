@@ -6,12 +6,12 @@ require('../../html5-common/js/utils/utils.js');
 
 // Implements Conviva.HttpInterface for Chrome.
 
-function Html5Http() {
+function Html5Http(...args) {
   function _constr() {
     // nothing to initialize
   }
 
-  _constr.apply(this, arguments);
+  _constr.apply(this, args);
 
   this.makeRequest = function (httpMethod, url, data, contentType, timeoutMs, callback) {
     // XDomainRequest only exists in IE, and is IE8-IE9's way of making CORS requests.
@@ -20,7 +20,7 @@ function Html5Http() {
     // && navigator.userAgent.indexOf('MSIE 10') === -1) {
     // return this.makeRequestIE89.apply(this, arguments);
     // }
-    return this.makeRequestStandard.apply(this, arguments);
+    return this.makeRequestStandard.apply(this, [httpMethod, url, data, contentType, timeoutMs, callback]);
   };
 
   this.makeRequestStandard = function (httpMethod, url, data, contentType, timeoutMs, callback) {
@@ -101,12 +101,12 @@ function Html5Http() {
 
 // Implements Conviva.LoggingInterface for Chrome.
 
-function Html5Logging() {
+function Html5Logging(...args) {
   function _constr() {
     // nothing to initialize
   }
 
-  _constr.apply(this, arguments);
+  _constr.apply(this, args);
 
   this.consoleLog = function (message, logLevel) {
     if (typeof console === 'undefined') return;
@@ -135,12 +135,12 @@ function Html5Logging() {
 // If you wish you can maintain your own user agent string parsing on the client side
 // instead, and use it to supply the requested Conviva data.
 
-function Html5Metadata() {
+function Html5Metadata(...args) {
   function _constr() {
     // nothing to initialize
   }
 
-  _constr.apply(this, arguments);
+  _constr.apply(this, args);
 
   // Relying on HTTP user agent string parsing on the Conviva Platform.
   this.getBrowserName = function () {
@@ -209,12 +209,12 @@ function Html5Metadata() {
 // HTML5 localStorage relies on a single key to index items,
 // so we find a consistent way to combine storageSpace and storageKey.
 
-function Html5Storage() {
+function Html5Storage(...args) {
   function _constr() {
     // nothing to initialize
   }
 
-  _constr.apply(this, arguments);
+  _constr.apply(this, args);
 
   this.saveData = function (storageSpace, storageKey, data, callback) {
     const localStorageKey = `${storageSpace}.${storageKey}`;
@@ -245,12 +245,12 @@ function Html5Storage() {
 
 // Implements Conviva.TimeInterface for Chrome.
 
-function Html5Time() {
+function Html5Time(...args) {
   function _constr() {
     // nothing to initialize
   }
 
-  _constr.apply(this, arguments);
+  _constr.apply(this, args);
 
   this.getEpochTimeMs = function () {
     const d = new Date();
@@ -271,12 +271,12 @@ function Html5Time() {
 // Some JavaScript implementations do not have setInterval, in which case
 // you may have to write it yourself using setTimeout.
 
-function Html5Timer() {
+function Html5Timer(...args) {
   function _constr() {
     // nothing to initialize
   }
 
-  _constr.apply(this, arguments);
+  _constr.apply(this, args);
 
   this.createTimer = function (timerAction, intervalMs, actionName) {
     let timerId = setInterval(timerAction, intervalMs);

@@ -13,24 +13,25 @@ global.MockGa = {
 };
 
 
-global.ga = function (command) {
+global.ga = function (...args) {
   const eventHitTypeOrder = ['eventCategory', 'eventAction', 'eventLabel', 'eventValue'];
+  const [command] = args;
   if (command) {
     if (typeof command === 'string') {
       MockGa.gaCommand = command;
-      MockGa.gaHitType = arguments[1];
-      const { length } = arguments;
+      [, MockGa.gaHitType] = args;
+      const { length } = args;
       // 0 and 1 are command and hit type
       for (let i = 2; i < length; i++) {
-        if (arguments[i]) {
-          if (typeof arguments[i] === 'object' && i === length - 1) {
-            const fieldsObject = arguments[i];
+        if (args[i]) {
+          if (typeof args[i] === 'object' && i === length - 1) {
+            const fieldsObject = args[i];
             for (const key in fieldsObject) {
               MockGa.gaEventFields[key] = fieldsObject[key];
             }
           } else {
             const hitTypeField = eventHitTypeOrder[i - 2];
-            MockGa.gaEventFields[hitTypeField] = arguments[i];
+            MockGa.gaEventFields[hitTypeField] = args[i];
           }
         }
       }
