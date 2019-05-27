@@ -84,7 +84,6 @@ module.exports = {
     "global-require": "warn",
     "no-restricted-syntax": "warn",
     "no-restricted-globals": "warn",
-    "consistent-return": "warn",
     "no-shadow": "warn",
     "no-prototype-builtins": "warn",
     "guard-for-in": "warn",

@@ -258,6 +258,8 @@ const GAAnalyticsPlugin = function (framework) {
         this.log(`onPositionChanged (${this.currentPlayheadPosition}, ${milestone[1]})`);
       }
     }, this);
+
+    return undefined;
   };
 
   /**
@@ -307,6 +309,8 @@ const GAAnalyticsPlugin = function (framework) {
 
     this.reportToGA('playbackPaused');
     this.log('onPaused');
+
+    return undefined;
   };
 
   /**
