@@ -110,7 +110,7 @@ function Html5Logging(...args) {
 
   this.consoleLog = function (message, logLevel) {
     if (typeof console === 'undefined') return;
-    if (console.log && logLevel === Conviva.SystemSettings.LogLevel.DEBUG
+    if ((console.log && logLevel === Conviva.SystemSettings.LogLevel.DEBUG)
       || logLevel === Conviva.SystemSettings.LogLevel.INFO) {
       console.log(message);
     } else if (console.warn && logLevel === Conviva.SystemSettings.LogLevel.WARNING) {
