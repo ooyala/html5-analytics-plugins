@@ -488,7 +488,7 @@ describe('Analytics Framework Unit Tests', () => {
       for (let i = 0; i < events.length; i++) {
         msgName = events[i];
         expect(framework.publishEvent(msgName)).toBe(true);
-        numMsgSent++;
+        numMsgSent += 1;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         const { length } = recordedEvents;
@@ -505,7 +505,7 @@ describe('Analytics Framework Unit Tests', () => {
       for (let i = 0; i < events.length; i++) {
         msgName = events[i];
         expect(framework.publishEvent(msgName)).toBe(true);
-        msgSentObj.count++;
+        msgSentObj.count += 1;
         recordedEvents = framework.getRecordedEvents();
         expect(_.isArray(recordedEvents)).toBe(true);
         const { length } = recordedEvents;

@@ -375,7 +375,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSessionStart = function () {
-      called++;
+      called += 1;
     };
     simulator.simulatePlayerStart();
     expect(called).toBe(1);
@@ -386,7 +386,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackPlay = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateContentPlayback();
     expect(called).toBe(1);
@@ -397,7 +397,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function () {
-      called++;
+      called += 1;
     };
     simulator.simulatePlayerStart();
     expect(called).toBe(1);
@@ -409,10 +409,10 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     let videoLoadCalled = 0;
     let playCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function () {
-      videoLoadCalled++;
+      videoLoadCalled += 1;
     };
     plugin.omnitureVideoPlayerPlugin.trackPlay = function () {
-      playCalled++;
+      playCalled += 1;
     };
     simulator.simulatePlayerStart();
     simulator.simulateContentPlayback();
@@ -427,7 +427,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackPause = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateVideoPause();
     expect(called).toBe(1);
@@ -438,7 +438,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekStart = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateContentPlayback();
     simulator.simulateVideoSeek();
@@ -450,7 +450,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateContentPlayback();
     simulator.simulateVideoSeek();
@@ -468,7 +468,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackComplete = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateContentComplete({
       streamPosition: 60,
@@ -482,7 +482,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateContentComplete({
       streamPosition: 60,
@@ -496,7 +496,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdStart = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
@@ -514,7 +514,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const simulator = Utils.createPlaybackSimulator(plugin);
     let called = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdComplete = function () {
-      called++;
+      called += 1;
     };
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
@@ -530,52 +530,52 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
 
     let adStartCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdStart = function () {
-      adStartCalled++;
+      adStartCalled += 1;
     };
 
     let adCompleteCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackAdComplete = function () {
-      adCompleteCalled++;
+      adCompleteCalled += 1;
     };
 
     let sessionStartCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackSessionStart = function () {
-      sessionStartCalled++;
+      sessionStartCalled += 1;
     };
 
     let videoLoadCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function () {
-      videoLoadCalled++;
+      videoLoadCalled += 1;
     };
 
     let playCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackPlay = function () {
-      playCalled++;
+      playCalled += 1;
     };
 
     let pauseCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackPause = function () {
-      pauseCalled++;
+      pauseCalled += 1;
     };
 
     let seekStartCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekStart = function () {
-      seekStartCalled++;
+      seekStartCalled += 1;
     };
 
     let seekCompleteCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function () {
-      seekCompleteCalled++;
+      seekCompleteCalled += 1;
     };
 
     let completeCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackComplete = function () {
-      completeCalled++;
+      completeCalled += 1;
     };
 
     let videoUnloadCalled = 0;
     plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function () {
-      videoUnloadCalled++;
+      videoUnloadCalled += 1;
     };
 
     const clearCounts = function () {

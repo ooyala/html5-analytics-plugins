@@ -28,7 +28,7 @@ global.Conviva = {
       return new Conviva.PlayerStateManager();
     };
     this.cleanupSession = function () {
-      this.sessionsCleanedUp++;
+      this.sessionsCleanedUp += 1;
     };
     this.detachPlayer = function () {
     };
@@ -38,7 +38,7 @@ global.Conviva = {
       if (this.sessionId === Conviva.Client.NO_SESSION_KEY) {
         this.sessionId = 1;
       } else {
-        this.sessionId++;
+        this.sessionId += 1;
       }
       return this.sessionId;
     };

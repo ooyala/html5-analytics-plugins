@@ -51,54 +51,54 @@ describe('Analytics Framework Template Unit Tests', () => {
             },
 
             setDeviceInfo(deviceId, deviceInfo, userAgent, doNotTrack) {
-              this.unitTestState.setDeviceInfoCalled++;
+              this.unitTestState.setDeviceInfoCalled += 1;
               this.unitTestState.doNotTrack = doNotTrack;
             },
             setPlayerInfo() {
-              this.unitTestState.setPlayerInfoCalled++;
+              this.unitTestState.setPlayerInfoCalled += 1;
             },
             initializeMedia(mediaId, contentType) {
-              this.unitTestState.initializeMediaCalled++;
+              this.unitTestState.initializeMediaCalled += 1;
               this.unitTestState.mediaId = mediaId;
               this.unitTestState.contentType = contentType;
             },
             setMediaDuration(duration) {
-              this.unitTestState.setMediaDurationCalled++;
+              this.unitTestState.setMediaDurationCalled += 1;
               this.unitTestState.duration = duration;
             },
             reportPlayerLoad() {
-              this.unitTestState.reportPlayerLoadCalled++;
+              this.unitTestState.reportPlayerLoadCalled += 1;
             },
             reportPlaybackStarted() {
-              this.unitTestState.reportPlaybackStartedCalled++;
+              this.unitTestState.reportPlaybackStartedCalled += 1;
             },
             reportPlayRequested() {
-              this.unitTestState.reportPlayRequestedCalled++;
+              this.unitTestState.reportPlayRequestedCalled += 1;
             },
             reportPause() {
-              this.unitTestState.reportPauseCalled++;
+              this.unitTestState.reportPauseCalled += 1;
             },
             reportResume() {
-              this.unitTestState.reportResumeCalled++;
+              this.unitTestState.reportResumeCalled += 1;
             },
             reportPlayHeadUpdate(currentPlayheadPosition) {
               this.unitTestState.currentPlayheadPosition = currentPlayheadPosition;
-              this.unitTestState.reportPlayHeadUpdateCalled++;
+              this.unitTestState.reportPlayHeadUpdateCalled += 1;
             },
             reportSeek(currentPlayheadPosition, seekedPlayheadPosition) {
               this.unitTestState.seekedPlayheadPosition = seekedPlayheadPosition;
-              this.unitTestState.reportSeekCalled++;
+              this.unitTestState.reportSeekCalled += 1;
             },
             reportComplete() {
-              this.unitTestState.reportCompleteCalled++;
+              this.unitTestState.reportCompleteCalled += 1;
             },
             reportReplay() {
-              this.unitTestState.reportReplayCalled++;
+              this.unitTestState.reportReplayCalled += 1;
             },
             reportCustomEvent(eventName, eventMetadata) {
               this.unitTestState.eventName = eventName;
               this.unitTestState.eventMetadata = eventMetadata;
-              this.unitTestState.reportCustomEventCalled++;
+              this.unitTestState.reportCustomEventCalled += 1;
             },
             reportAssetImpression(asset, customData, uiTag, contentSource, pageSize, assetPosition) {
               this.unitTestState.asset = asset;
@@ -107,7 +107,7 @@ describe('Analytics Framework Template Unit Tests', () => {
               this.unitTestState.contentSource = contentSource;
               this.unitTestState.pageSize = pageSize;
               this.unitTestState.assetPosition = assetPosition;
-              this.unitTestState.reportAssetImpressionCalled++;
+              this.unitTestState.reportAssetImpressionCalled += 1;
             },
             reportAssetClick(asset, customData, uiTag, contentSource, pageSize, assetPosition) {
               this.unitTestState.asset = asset;
@@ -116,7 +116,7 @@ describe('Analytics Framework Template Unit Tests', () => {
               this.unitTestState.contentSource = contentSource;
               this.unitTestState.pageSize = pageSize;
               this.unitTestState.assetPosition = assetPosition;
-              this.unitTestState.reportAssetClickCalled++;
+              this.unitTestState.reportAssetClickCalled += 1;
             },
           };
         },

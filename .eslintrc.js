@@ -47,9 +47,15 @@ module.exports = {
       }
     ],
     "no-param-reassign": [
-      "error",
+      "warn",
       {
         "props": false
+      }
+    ],
+    "no-plusplus": [
+      "error",
+      {
+        "allowForLoopAfterthoughts": true
       }
     ],
     "require-jsdoc": [
@@ -75,7 +81,6 @@ module.exports = {
     "no-unused-vars": "warn",
     "import/no-dynamic-require": "warn",
     "global-require": "warn",
-    "no-plusplus": "warn",
     "no-restricted-syntax": "warn",
     "no-underscore-dangle": "warn",
     "guard-for-in": "warn",

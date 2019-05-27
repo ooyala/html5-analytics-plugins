@@ -295,7 +295,7 @@ OO.Analytics.Framework = function () {
         id = `${_uniquePluginId}_${name}_${version}`;
         // we shouldn't have any naming conflicts but just in case, throw an error
         if (!_registeredPlugins[id]) {
-          _uniquePluginId++;
+          _uniquePluginId += 1;
         } else {
           OO.log(createErrorString(`Failed to create a unique name for plugin ${name}_${version}`));
           id = null;

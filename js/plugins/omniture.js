@@ -558,7 +558,7 @@ const OoyalaPlayerDelegate = function () {
    * @method OoyalaPlayerDelegate#onAdBreak
    */
   this.onAdBreak = function () {
-    adBreakPosition++;
+    adBreakPosition += 1;
     inAdBreak = true;
   };
 

@@ -234,7 +234,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
       getInstance() {
         return {
           ggInitialize() {
-            initializeCalled++;
+            initializeCalled += 1;
           },
           ggPM() {
           },
@@ -259,7 +259,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           },
           ggPM(event, param) {
             if (event === GGPM_INITIAL_LOAD_METADATA_EVENT) {
-              loadMetadataCalled++;
+              loadMetadataCalled += 1;
               metadata = param;
             }
           },
@@ -301,26 +301,26 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           ggPM(event, param) {
             switch (event) {
               case GGPM_STOP_EVENT:
-                stopCalled++;
+                stopCalled += 1;
                 stopTime = param;
                 break;
               case GGPM_INITIAL_LOAD_METADATA_EVENT:
-                initialLoadMetadataCalled++;
+                initialLoadMetadataCalled += 1;
                 contentMetadata = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param) {
                   if (param.type === GGPM_METADATA_TYPE_CONTENT) {
-                    loadMetadataForContentCalled++;
+                    loadMetadataForContentCalled += 1;
                     contentMetadata = param;
                   } else {
-                    loadMetadataForAdCalled++;
+                    loadMetadataForAdCalled += 1;
                     adMetadata = param;
                   }
                 }
                 break;
               case GGPM_SET_PLAYHEAD_POSITION_EVENT:
-                setPlayheadPositionCalled++;
+                setPlayheadPositionCalled += 1;
                 playhead = param;
                 break;
               default:
@@ -402,26 +402,26 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           ggPM(event, param) {
             switch (event) {
               case GGPM_STOP_EVENT:
-                stopCalled++;
+                stopCalled += 1;
                 stopTime = param;
                 break;
               case GGPM_INITIAL_LOAD_METADATA_EVENT:
-                initialLoadMetadataCalled++;
+                initialLoadMetadataCalled += 1;
                 contentMetadata = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param) {
                   if (param.type === GGPM_METADATA_TYPE_CONTENT) {
-                    loadMetadataForContentCalled++;
+                    loadMetadataForContentCalled += 1;
                     contentMetadata = param;
                   } else {
-                    loadMetadataForAdCalled++;
+                    loadMetadataForAdCalled += 1;
                     adMetadata = param;
                   }
                 }
                 break;
               case GGPM_SET_PLAYHEAD_POSITION_EVENT:
-                setPlayheadPositionCalled++;
+                setPlayheadPositionCalled += 1;
                 playhead = param;
                 break;
               default:
@@ -533,26 +533,26 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           ggPM(event, param) {
             switch (event) {
               case GGPM_STOP_EVENT:
-                stopCalled++;
+                stopCalled += 1;
                 stopTime = param;
                 break;
               case GGPM_INITIAL_LOAD_METADATA_EVENT:
-                initialLoadMetadataCalled++;
+                initialLoadMetadataCalled += 1;
                 contentMetadata = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param) {
                   if (param.type === GGPM_METADATA_TYPE_CONTENT) {
-                    loadMetadataForContentCalled++;
+                    loadMetadataForContentCalled += 1;
                     contentMetadata = param;
                   } else {
-                    loadMetadataForAdCalled++;
+                    loadMetadataForAdCalled += 1;
                     adMetadata = param;
                   }
                 }
                 break;
               case GGPM_SET_PLAYHEAD_POSITION_EVENT:
-                setPlayheadPositionCalled++;
+                setPlayheadPositionCalled += 1;
                 playhead = param;
                 break;
               default:
@@ -652,26 +652,26 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           ggPM(event, param) {
             switch (event) {
               case GGPM_STOP_EVENT:
-                stopCalled++;
+                stopCalled += 1;
                 stopTime = param;
                 break;
               case GGPM_INITIAL_LOAD_METADATA_EVENT:
-                initialLoadMetadataCalled++;
+                initialLoadMetadataCalled += 1;
                 contentMetadata = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param) {
                   if (param.type === GGPM_METADATA_TYPE_CONTENT) {
-                    loadMetadataForContentCalled++;
+                    loadMetadataForContentCalled += 1;
                     contentMetadata = param;
                   } else {
-                    loadMetadataForAdCalled++;
+                    loadMetadataForAdCalled += 1;
                     adMetadata = param;
                   }
                 }
                 break;
               case GGPM_SET_PLAYHEAD_POSITION_EVENT:
-                setPlayheadPositionCalled++;
+                setPlayheadPositionCalled += 1;
                 playhead = param;
                 break;
               default:
@@ -781,7 +781,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           },
           ggPM(event, param) {
             if (event === GGPM_SET_PLAYHEAD_POSITION_EVENT) {
-              setPlayheadPositionCalled++;
+              setPlayheadPositionCalled += 1;
               playhead = param;
             }
           },
@@ -845,11 +845,11 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           },
           ggPM(event, param) {
             if (event === GGPM_END_EVENT) {
-              endCalled++;
+              endCalled += 1;
               endTime = param;
             }
             if (event === GGPM_SET_PLAYHEAD_POSITION_EVENT) {
-              setPlayheadPositionCalled++;
+              setPlayheadPositionCalled += 1;
               playhead = param;
             }
           },
@@ -885,12 +885,12 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           ggPM(event, param) {
             switch (event) {
               case GGPM_END_EVENT:
-                endCalled++;
+                endCalled += 1;
                 endTime = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param && param.type !== GGPM_METADATA_TYPE_CONTENT) {
-                  loadMetadataCalled++;
+                  loadMetadataCalled += 1;
                   adMetadata = param;
                 }
                 break;
@@ -964,30 +964,30 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
           ggPM(event, param) {
             switch (event) {
               case GGPM_STOP_EVENT:
-                stopCalled++;
+                stopCalled += 1;
                 stopTime = param;
                 break;
               case GGPM_END_EVENT:
-                endCalled++;
+                endCalled += 1;
                 endTime = param;
                 break;
               case GGPM_INITIAL_LOAD_METADATA_EVENT:
-                initialLoadMetadataCalled++;
+                initialLoadMetadataCalled += 1;
                 contentMetadata = param;
                 break;
               case GGPM_LOAD_METADATA_EVENT:
                 if (param) {
                   if (param.type === GGPM_METADATA_TYPE_CONTENT) {
-                    loadMetadataForContentCalled++;
+                    loadMetadataForContentCalled += 1;
                     contentMetadata = param;
                   } else {
-                    loadMetadataForAdCalled++;
+                    loadMetadataForAdCalled += 1;
                     adMetadata = param;
                   }
                 }
                 break;
               case GGPM_SET_PLAYHEAD_POSITION_EVENT:
-                setPlayheadPositionCalled++;
+                setPlayheadPositionCalled += 1;
                 playhead = param;
                 break;
               default:
