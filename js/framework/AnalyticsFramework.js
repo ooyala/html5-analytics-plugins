@@ -253,6 +253,7 @@ OO.Analytics.Framework = function () {
 
     try {
       if (_.isFunction(plugin[funcName])) {
+        // eslint-disable-next-line prefer-spread
         return plugin[funcName].apply(plugin, params);
       }
     } catch (err) {

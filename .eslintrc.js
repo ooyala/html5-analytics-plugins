@@ -85,7 +85,6 @@ module.exports = {
     "no-restricted-syntax": "warn",
     "no-restricted-globals": "warn",
     "consistent-return": "warn",
-    "prefer-spread": "warn",
     "no-shadow": "warn",
     "no-prototype-builtins": "warn",
     "guard-for-in": "warn",
