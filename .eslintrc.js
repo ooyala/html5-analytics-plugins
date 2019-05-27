@@ -58,6 +58,7 @@ module.exports = {
         "allowForLoopAfterthoughts": true
       }
     ],
+    "no-underscore-dangle": 0,
     "require-jsdoc": [
       "warn",
       {
@@ -82,17 +83,16 @@ module.exports = {
     "import/no-dynamic-require": "warn",
     "global-require": "warn",
     "no-restricted-syntax": "warn",
-    "no-underscore-dangle": "warn",
-    "guard-for-in": "warn",
     "no-use-before-define": "warn",
     "prefer-rest-params": "warn",
     "prefer-destructuring": "warn",
-    "no-prototype-builtins": "warn",
     "valid-typeof": "warn",
     "no-restricted-globals": "warn",
     "no-mixed-operators": "warn",
     "consistent-return": "warn",
     "prefer-spread": "warn",
     "no-shadow": "warn",
+    "no-prototype-builtins": "warn",
+    "guard-for-in": "warn",
   },
 };
