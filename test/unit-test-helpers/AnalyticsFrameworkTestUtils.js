@@ -108,7 +108,7 @@ if (!OO.Analytics.Utils) {
         this.metadata = metadata;
       };
 
-      plugin.processEvent = function (msgName, params) {
+      plugin.processEvent = function (msgName) {
         this.msgReceivedList.push(msgName);
       };
 

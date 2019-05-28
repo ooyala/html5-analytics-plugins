@@ -337,13 +337,6 @@ const OmnitureAnalyticsPlugin = function (framework) {
   };
 
   /**
-   * Check Sdk Loaded
-   */
-  const checkSdkLoaded = function () {
-    // TODO: Check all the ADB objects exist
-  };
-
-  /**
    * Omniture metadata needs to include the following:
    * marketingCloudOrgId, visitorTrackingServer, appMeasurementTrackingServer,
    * reportSuiteId, pageName, visitorId, channel, heartbeatTrackingServer, and

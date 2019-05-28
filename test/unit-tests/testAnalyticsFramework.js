@@ -205,6 +205,7 @@ describe('Analytics Framework Unit Tests', () => {
 
     it('Test Factory Receives Framework Instance as param', () => {
       const goodFactory = Utils.createFactoryToTestConstructorParams();
+      // eslint-disable-next-line no-unused-vars
       const pluginID = framework.registerPlugin(goodFactory);
       expect(OO.Analytics.Framework.TEST.frameworkParam).not.toBeNull();
       expect(OO.Analytics.Framework.TEST.frameworkParam.getRecordedEvents()).toEqual([]);
@@ -782,7 +783,6 @@ describe('Analytics Framework Unit Tests', () => {
   });
 
   describe('Test Plugin Message Receiving', () => {
-    let testFactory;
     // setup for individual tests
     const testIndividualSetup = function () {
 
@@ -801,6 +801,7 @@ describe('Analytics Framework Unit Tests', () => {
 
     it('Test Plugin Receives Messages When Active', () => {
       const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      // eslint-disable-next-line no-unused-vars
       const pluginID = framework.registerPlugin(factory);
       const plugin = OO.Analytics.Framework.TEST[0];
       const msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;
@@ -843,6 +844,7 @@ describe('Analytics Framework Unit Tests', () => {
     it('Test Multiple Plugins Mixed Active and Inactive', () => {
       const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       const pluginID1 = framework.registerPlugin(factory);
+      // eslint-disable-next-line no-unused-vars
       const pluginID2 = framework.registerPlugin(factory);
       const plugin1 = OO.Analytics.Framework.TEST[0];
       const plugin2 = OO.Analytics.Framework.TEST[1];
@@ -914,6 +916,7 @@ describe('Analytics Framework Unit Tests', () => {
     it('Test Framework Handles Plugin That Throws Error On init', () => {
       const factory = Utils.createFactoryThatThrowsErrorOn('init');
       let errorOccured = false;
+      // eslint-disable-next-line no-unused-vars
       let pluginID;
       try {
         pluginID = framework.registerPlugin(factory);
@@ -927,6 +930,7 @@ describe('Analytics Framework Unit Tests', () => {
     it('Test Framework Handles Plugin That Throws Error On setMetadata', () => {
       const factory = Utils.createFactoryThatThrowsErrorOn('setMetadata');
       let errorOccured = false;
+      // eslint-disable-next-line no-unused-vars
       let pluginID;
       try {
         pluginID = framework.registerPlugin(factory);
@@ -940,7 +944,9 @@ describe('Analytics Framework Unit Tests', () => {
 
     it('Test Framework Handles Plugin That Throws Error On setPluginID', () => {
       const factory = Utils.createFactoryThatThrowsErrorOn('setPluginID');
+      // eslint-disable-next-line no-unused-vars
       let errorOccured = false;
+      // eslint-disable-next-line no-unused-vars
       let pluginID;
       try {
         pluginID = framework.registerPlugin(factory);
@@ -958,8 +964,10 @@ describe('Analytics Framework Unit Tests', () => {
       const factory = Utils.createFactoryThatThrowsErrorOn('processEvent');
       const otherFactory = Utils.createFactoryWithGlobalAccessToPluginInstance();
       let errorOccured = false;
+      // eslint-disable-next-line no-unused-vars
       const pluginID1 = framework.registerPlugin(factory);
       expect(framework.getPluginIDList().length).toEqual(1);
+      // eslint-disable-next-line no-unused-vars
       const pluginID2 = framework.registerPlugin(otherFactory);
       expect(framework.getPluginIDList().length).toEqual(2);
       try {
@@ -993,6 +1001,7 @@ describe('Analytics Framework Unit Tests', () => {
 
     it('Test publishing events can be turned off and on', () => {
       const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
+      // eslint-disable-next-line no-unused-vars
       const pluginID = framework.registerPlugin(factory);
       const plugin = OO.Analytics.Framework.TEST[0];
       const msg1 = EVENTS.INITIAL_PLAYBACK_REQUESTED;

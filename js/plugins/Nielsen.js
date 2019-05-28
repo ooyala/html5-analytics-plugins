@@ -11,14 +11,11 @@ const NielsenAnalyticsPlugin = function (framework) {
   const name = 'Nielsen';
   const version = 'v1';
   let id;
-
-  let contentDuration = -1;
   let currentPlayhead = 0;
   let currentAdPlayhead = 0;
   let mainContentStarted = false;
   let inAdBreak = false;
   let adStarted = false;
-  const embedCode = null;
   let lastPlayheadUpdate = -1;
   const contentMetadata = {};
   let contentComplete = false;
@@ -254,7 +251,6 @@ const NielsenAnalyticsPlugin = function (framework) {
    * @method NielsenAnalyticsPlugin#resetPlaybackState
    */
   const resetPlaybackState = function () {
-    contentDuration = -1;
     currentPlayhead = 0;
     currentAdPlayhead = 0;
     mainContentStarted = false;

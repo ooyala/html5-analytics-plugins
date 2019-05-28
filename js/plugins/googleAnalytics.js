@@ -10,7 +10,6 @@ const GAAnalyticsPlugin = function (framework) {
   const name = 'googleAnalytics';
   const version = 'v1';
   let id;
-  const _active = true;
   const _cachedEvents = [];
   let _cacheEvents = true;
 

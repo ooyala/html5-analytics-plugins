@@ -58,6 +58,7 @@ const AnalyticsPluginTemplate = function (framework) {
    * @method AnalyticsPluginTemplate#init
    */
   this.init = function () {
+    // eslint-disable-next-line no-unused-vars
     let missedEvents;
     // if you need to process missed events, here is an example
     if (_framework && OO._.isFunction(_framework.getRecordedEvents)) {
@@ -90,6 +91,7 @@ const AnalyticsPluginTemplate = function (framework) {
         if (params && params[0]) {
           // Retrieve the stream type here.
           // Possible values include OO.Analytics.STREAM_TYPE.VOD and OO.Analytics.STREAM_TYPE.LIVE_STREAM
+          // eslint-disable-next-line no-unused-vars
           const { streamType } = params[0];
         }
         break;

@@ -97,25 +97,6 @@ OO.Analytics.Framework = function () {
     return toReturn;
   });
 
-
-  /**
-   * Clears the list of recorded events.
-   * @private
-   * @method OO.Analytics.Framework#clearRecordedEvents
-   */
-  const clearRecordedEvents = privateMember(() => {
-    _recordedEventList = [];
-  });
-
-  /**
-   * Enable recording of events.
-   * @private
-   * @method OO.Analytics.Framework#startRecordingEvents
-   */
-  const startRecordingEvents = privateMember(() => {
-    _recording = true;
-  });
-
   /**
    * Disable recording of events.
    * @private
@@ -283,7 +264,6 @@ OO.Analytics.Framework = function () {
    */
   const createPluginId = privateMember((plugin) => {
     let id = null;
-    let error;
     // Plugin ID's are create using sequential numbers. Nothing fancy but this
     // way the framework can keep track of how many have been registered. There is
     // a chance that someone could have an infinite loop where plugins get registered

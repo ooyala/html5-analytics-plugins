@@ -82,8 +82,6 @@ module.exports = {
     "no-restricted-syntax": "warn",
     "no-prototype-builtins": "warn",
     "guard-for-in": "warn",
-    // TODO: need to check
     "no-underscore-dangle": 0,
-    "no-unused-vars": "warn",
   },
 };

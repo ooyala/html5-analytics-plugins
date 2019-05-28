@@ -12,8 +12,6 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   const { _ } = OO;
   let framework;
 
-  const playerName = 'Ooyala V4';
-
   const GGPM_STOP_EVENT = 7;// "stop";
   const GGPM_END_EVENT = 57;// "end";
   const GGPM_INITIAL_LOAD_METADATA_EVENT = 3;
@@ -244,6 +242,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
       },
     };
 
+    // eslint-disable-next-line no-unused-vars
     const plugin = createPlugin(framework);
     // TODO: The require calls init
     expect(initializeCalled).toBe(1);
@@ -289,7 +288,9 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
     let initialLoadMetadataCalled = 0;
     let loadMetadataForContentCalled = 0;
     let contentMetadata = null;
+    // eslint-disable-next-line no-unused-vars
     let loadMetadataForAdCalled = 0;
+    // eslint-disable-next-line no-unused-vars
     let adMetadata = null;
     let stopCalled = 0;
     let stopTime = -1;
@@ -388,6 +389,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
 
   it('Nielsen plugin can track stop event upon pausing an ad', () => {
     let initialLoadMetadataCalled = 0;
+    // eslint-disable-next-line no-unused-vars
     let loadMetadataForContentCalled = 0;
     let contentMetadata = null;
     let loadMetadataForAdCalled = 0;

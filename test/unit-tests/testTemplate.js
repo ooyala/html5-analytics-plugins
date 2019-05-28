@@ -8,7 +8,6 @@ describe('Analytics Framework Template Unit Tests', () => {
   const TemplatePluginFactory = require(`${SRC_ROOT}plugins/AnalyticsPluginTemplate.js`);
 
   const { Analytics } = OO;
-  const { Utils } = OO.Analytics;
   const { _ } = OO;
   let framework;
 

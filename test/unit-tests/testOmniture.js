@@ -936,6 +936,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
 
   // evars and props
   it('Omniture Video Plugin can parse eVars and props', () => {
+    // eslint-disable-next-line no-unused-vars
     const plugin = createPlugin(framework,
       {
         marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
@@ -1017,6 +1018,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
 
   // Adobe Plugin Setup
   it('Omniture Video Plugin can instantiate Adobe Plugins', () => {
+    // eslint-disable-next-line no-unused-vars
     const plugin = createPlugin(framework,
       {
         marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
@@ -1060,6 +1062,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   });
 
   it('Omniture Video Plugin turn on debug logging', () => {
+    // eslint-disable-next-line no-unused-vars
     const plugin = createPlugin(framework,
       {
         marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
@@ -1103,6 +1106,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   });
 
   it('Omniture Video Plugin can turn on SSL mode', () => {
+    // eslint-disable-next-line no-unused-vars
     const plugin = createPlugin(framework,
       {
         marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',

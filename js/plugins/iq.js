@@ -82,7 +82,6 @@ const IqPlugin = function (framework) {
       }
 
       // TODO: setup
-      const deviceInfo = {};
       const playerName = 'Ooyala Player';
       const playerVersion = OO.VERSION.core.releaseVersion; // TODO: need a mechanism in core to get this
       let doNotTrack = false;

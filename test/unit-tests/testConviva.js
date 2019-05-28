@@ -13,8 +13,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   const { _ } = OO;
   let framework;
 
-  const playerName = 'Ooyala V4';
-
   // setup for individual tests
   const testSetup = function () {
     framework = new Analytics.Framework();
@@ -687,7 +685,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   it('Conviva Plugin can clean up on destroy', () => {
     const plugin = createPlugin(framework);
     const simulator = Utils.createPlaybackSimulator(plugin);
-    const firstSessionId = Conviva.currentClient.sessionId;
     simulator.simulatePlayerLoad({
       embedCode: 'testEmbedCode',
       title: 'testTitle',
@@ -708,7 +705,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   it('Conviva Plugin calls destroy on beforeunload after content has started', () => {
     const plugin = createPlugin(framework);
     const simulator = Utils.createPlaybackSimulator(plugin);
-    const firstSessionId = Conviva.currentClient.sessionId;
     simulator.simulatePlayerLoad({
       embedCode: 'testEmbedCode',
       title: 'testTitle',
@@ -730,7 +726,6 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   it('Conviva Plugin calls destroy on beforeunload before content has started', () => {
     const plugin = createPlugin(framework);
     const simulator = Utils.createPlaybackSimulator(plugin);
-    const firstSessionId = Conviva.currentClient.sessionId;
     simulator.simulatePlayerLoad({
       embedCode: 'testEmbedCode',
       title: 'testTitle',
@@ -752,6 +747,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   it(`Conviva Plugin will not track if player state manager was not 
   created due to missing page level metadata`, () => {
     const plugin = createPlugin(framework, {});
+    // eslint-disable-next-line no-unused-vars
     const simulator = Utils.createPlaybackSimulator(plugin);
     expect(Conviva.currentPlayerStateManager).toBe(null);
     expect(Conviva.currentClient).toBe(null);

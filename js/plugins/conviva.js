@@ -302,7 +302,7 @@ function Html5Timer(...args) {
 
   _constr.apply(this, args);
 
-  this.createTimer = function (timerAction, intervalMs, actionName) {
+  this.createTimer = function (timerAction, intervalMs) {
     let timerId = setInterval(timerAction, intervalMs);
     // eslint-disable-next-line require-jsdoc
     const cancelTimerFunc = (function () {
@@ -349,10 +349,6 @@ const ConvivaAnalyticsPlugin = function (framework) {
   let inAdBreak = false;
   let contentComplete = false;
   let playRequested = false;
-
-  // Below is used for reference only
-  const OOYALA_TOUCHSTONE_SERVICE_URL = 'https://ooyala-test.testonly.conviva.com';
-  const CURRENT_CONVIVA_JS_SDK_VERSION = 'Conviva_SDK_JavaScript_2.91.0.24548';
 
   /**
    * [Required Function] Return the name of the plugin.

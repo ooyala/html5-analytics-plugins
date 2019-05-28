@@ -10,10 +10,7 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
 
   const { Analytics } = OO;
   const { Utils } = OO.Analytics;
-  const { _ } = OO;
   let framework;
-
-  const playerName = 'Ooyala V4';
 
   const COMMAND = {
     SEND: 'send',
