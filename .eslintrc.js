@@ -79,7 +79,6 @@ module.exports = {
       }
     ],
     "import/no-dynamic-require": "warn",
-    "no-shadow": "warn",
     "no-restricted-syntax": "warn",
     "no-prototype-builtins": "warn",
     "guard-for-in": "warn",

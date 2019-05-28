@@ -29,9 +29,9 @@ const checkFileExtension = function (extension, fileName) {
   return (fileName.lastIndexOf(extension) === fileName.length - extension.length);
 };
 
-const getFileNameFromPath = function (path) {
-  const start = path.lastIndexOf('/') + 1;
-  return path.substring(start);
+const getFileNameFromPath = function (pathStr) {
+  const start = pathStr.lastIndexOf('/') + 1;
+  return pathStr.substring(start);
 };
 
 // Build All

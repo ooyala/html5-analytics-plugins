@@ -38,6 +38,7 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   afterEach(testCleanup);
 
   // helpers
+  // eslint-disable-next-line no-shadow
   const createPlugin = function (framework, metadata) {
     const plugin = new ConvivaPluginFactory(framework);
     plugin.init();

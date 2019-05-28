@@ -68,6 +68,7 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
   afterEach(testCleanup);
 
   // helpers
+  // eslint-disable-next-line no-shadow
   const createPlugin = function (framework, metadata) {
     const plugin = new GaPluginFactory(framework);
     plugin.init();

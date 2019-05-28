@@ -459,6 +459,7 @@ describe('Analytics Framework Unit Tests', () => {
     });
 
     // helper function for testing bad messages
+    // eslint-disable-next-line
     const testBadMessages = function (framework) {
       let test;
       let errorOccured = false;
@@ -479,6 +480,7 @@ describe('Analytics Framework Unit Tests', () => {
       expect(recordedEvents.length).toEqual(0);
     };
 
+    // eslint-disable-next-line no-shadow
     const testGoodMessages = function (framework) {
       let recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(0);
@@ -499,6 +501,7 @@ describe('Analytics Framework Unit Tests', () => {
       }
     };
 
+    // eslint-disable-next-line no-shadow
     const badParamsHelper = function (framework, params, msgSentObj) {
       let msgName;
       const events = framework.flattenEvents(OO.Analytics.EVENTS);
@@ -516,6 +519,7 @@ describe('Analytics Framework Unit Tests', () => {
       }
     };
 
+    // eslint-disable-next-line no-shadow
     const testGoodMessagesBadParams = function (framework) {
       let recordedEvents = framework.getRecordedEvents();
       expect(recordedEvents.length).toEqual(0);
@@ -629,12 +633,12 @@ describe('Analytics Framework Unit Tests', () => {
 
     describe('Test Recording With Plugin Registered', () => {
       // setup for individual tests
-      const testSetup = function () {
+      const testIndividualSetup = function () {
         const plugin = Utils.createValidPluginFactory();
         framework.registerPlugin(plugin);
       };
 
-      beforeEach(testSetup);
+      beforeEach(testIndividualSetup);
 
       it('Test Sending Invalid Messages', () => {
         expect(framework.getPluginIDList().length).toEqual(1);
@@ -664,20 +668,20 @@ describe('Analytics Framework Unit Tests', () => {
 
   describe('Test Plugin Initialization', () => {
     // setup for individual tests
-    const testSetup = function () {
+    const testIndividualSetup = function () {
 
     };
 
     // cleanup for individual tests
-    const testCleanup = function () {
+    const testIndividualCleanup = function () {
       // Test factories
       if (OO.Analytics.Framework.TEST) {
         OO.Analytics.Framework.TEST = null;
       }
     };
 
-    beforeEach(testSetup);
-    afterEach(testCleanup);
+    beforeEach(testIndividualSetup);
+    afterEach(testIndividualCleanup);
 
     const testSinglePluginWithMetadata = function (metadata, isGoodMetadata) {
       const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();
@@ -780,20 +784,20 @@ describe('Analytics Framework Unit Tests', () => {
   describe('Test Plugin Message Receiving', () => {
     let testFactory;
     // setup for individual tests
-    const testSetup = function () {
+    const testIndividualSetup = function () {
 
     };
 
     // cleanup for individual tests
-    const testCleanup = function () {
+    const testIndividualCleanup = function () {
       // Test factories
       if (OO.Analytics.Framework.TEST) {
         OO.Analytics.Framework.TEST = null;
       }
     };
 
-    beforeEach(testSetup);
-    afterEach(testCleanup);
+    beforeEach(testIndividualSetup);
+    afterEach(testIndividualCleanup);
 
     it('Test Plugin Receives Messages When Active', () => {
       const factory = Utils.createFactoryWithGlobalAccessToPluginInstance();

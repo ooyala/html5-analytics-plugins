@@ -51,6 +51,7 @@ describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
     //    OO.log = console.log;
   };
 
+  // eslint-disable-next-line no-shadow
   const createPlugin = function (framework) {
     const plugin = new NielsenPluginFactory(framework);
     plugin.testMode = true;

@@ -40,6 +40,7 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   afterEach(testCleanup);
 
   // helpers
+  // eslint-disable-next-line
   const createPlugin = function (framework, metadata) {
     let metadataNew = metadata;
     if (!metadata) {

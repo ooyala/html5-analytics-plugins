@@ -134,6 +134,7 @@ describe('Analytics Framework Template Unit Tests', () => {
     window.Ooyala = null;
   };
 
+  // eslint-disable-next-line no-shadow
   const createPlugin = function (framework) {
     const plugin = new IqPluginFactory(framework);
 

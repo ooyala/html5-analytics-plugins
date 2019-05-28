@@ -360,11 +360,11 @@ const GAAnalyticsPlugin = function (framework) {
    * a non-empty string.
    * @private
    * @method GAAnalyticsPlugin#validateTrackerName
-   * @param {string} name the tracker name to validate
-   * @returns {boolean} true if the tracker name is valid, false otherwise
+   * @param {string} trackerNameStr the tracker trackerNameStr to validate
+   * @returns {boolean} true if the tracker trackerNameStr is valid, false otherwise
    */
-  const validateTrackerName = function (name) {
-    return _.isString(name) && !_.isEmpty(name);
+  const validateTrackerName = function (trackerNameStr) {
+    return _.isString(trackerNameStr) && !_.isEmpty(trackerNameStr);
   };
 
   /**
