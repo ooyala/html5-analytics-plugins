@@ -46,19 +46,13 @@ module.exports = {
         "ignoreTemplateLiterals": true
       }
     ],
-    "no-param-reassign": [
-      "warn",
-      {
-        "props": false
-      }
-    ],
     "no-plusplus": [
       "error",
       {
         "allowForLoopAfterthoughts": true
       }
     ],
-    "no-underscore-dangle": 0,
+
     "require-jsdoc": [
       "warn",
       {
@@ -79,13 +73,20 @@ module.exports = {
         "requireReturn": false
       }
     ],
-    "no-unused-vars": "warn",
+    "no-param-reassign": [
+      "warn",
+      {
+        "props": false
+      }
+    ],
     "import/no-dynamic-require": "warn",
     "global-require": "warn",
-    "no-restricted-syntax": "warn",
-    "no-restricted-globals": "warn",
     "no-shadow": "warn",
+    "no-restricted-syntax": "warn",
     "no-prototype-builtins": "warn",
     "guard-for-in": "warn",
+    // TODO: need to check
+    "no-underscore-dangle": 0,
+    "no-unused-vars": "warn",
   },
 };

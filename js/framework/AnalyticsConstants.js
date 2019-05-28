@@ -667,7 +667,7 @@ if (!OO.Analytics.EVENT_DATA) {
         if (OO._.isNumber(toRet)) {
           error = false;
           break;
-        } else if (!isNaN(toRetFloat)) {
+        } else if (!Number.isNaN(toRetFloat)) {
           toRet = toRetFloat;
           error = false;
           break;
