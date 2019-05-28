@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 jest.dontMock('underscore');
 jest.dontMock('jquery');
 

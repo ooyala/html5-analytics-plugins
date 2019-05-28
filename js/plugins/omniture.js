@@ -130,12 +130,12 @@ const OoyalaPlayerDelegate = function () {
   };
 
   // Omniture required functions below
-
   /**
    * Required by Omniture. The Omniture SDK will call this function to retrieve various content metadata.
    * @public
    * @method OoyalaPlayerDelegate#getVideoInfo
-   * @returns {ADB.va.plugins.videoplayer.VideoInfo}
+   * @returns {global.ADB.va.plugins.videoplayer.VideoInfo|global.ADB.va.plugins.videoplayer.VideoInfo}
+   * The videoInfo obj
    */
   this.getVideoInfo = function () {
     const videoInfo = new ADB.va.plugins.videoplayer.VideoInfo();
@@ -159,7 +159,7 @@ const OoyalaPlayerDelegate = function () {
    * Required by Omniture. The Omniture SDK will call this function to retrieve various ad break metadata.
    * @public
    * @method OoyalaPlayerDelegate#getAdBreakInfo
-   * @returns {ADB.va.plugins.videoplayer.AdBreakInfo}
+   * @returns {null|global.ADB.va.plugins.videoplayer.AdBreakInfo|global.ADB.va.plugins.videoplayer.AdBreakInfo} The adBreakInfo obj or null
    */
   this.getAdBreakInfo = function () {
     // We do not want to provide ad break info if we are not in an ad break.
@@ -179,7 +179,7 @@ const OoyalaPlayerDelegate = function () {
    * Required by Omniture. The Omniture SDK will call this function to retrieve various ad metadata.
    * @public
    * @method OoyalaPlayerDelegate#getAdInfo
-   * @returns {ADB.va.plugins.videoplayer.AdInfo}
+   * @returns {ADB.va.plugins.videoplayer.AdInfo} adInfo obj
    */
   this.getAdInfo = function () {
     // We do not want to provide ad info if we are not in an ad.
@@ -198,10 +198,10 @@ const OoyalaPlayerDelegate = function () {
 
   /**
    * Required by Omniture. The Omniture SDK will call this function to retrieve various chapter metadata.
-   * As the Ooyala Video PLayer currently does not enforce the concept of chapters, we will return null.
    * @public
    * @method OoyalaPlayerDelegate#getChapterInfo
-   * @returns {null}
+   * @returns {null} As the Ooyala Video PLayer currently does not enforce
+   * the concept of chapters, we will return null.
    */
   this.getChapterInfo = function () {
     // TODO: Chapter info if/when available
@@ -213,7 +213,7 @@ const OoyalaPlayerDelegate = function () {
    * We will update this function when more hooks are introduced in the analytics framework.
    * @public
    * @method OoyalaPlayerDelegate#getQoSInfo
-   * @returns {null}
+   * @returns {null} function call null
    */
   this.getQoSInfo = function () {
     // TODO: QOS info if/when available
@@ -313,8 +313,8 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * Adds eVars and props to the AppMeasurement object
    * @private
    * @method OmnitureAnalyticsPlugin#updateEvarsAndProps
-   * @param props The props to add to the AppMeasurement object
-   * @param eVars The eVars to add to the AppMeasurement object
+   * @param {object} props The props to add to the AppMeasurement object
+   * @param {object} eVars The eVars to add to the AppMeasurement object
    */
   const updateEvarsAndProps = function (props, eVars) {
     if (appMeasurement) {
@@ -336,6 +336,9 @@ const OmnitureAnalyticsPlugin = function (framework) {
     }
   };
 
+  /**
+   * Check Sdk Loaded
+   */
   const checkSdkLoaded = function () {
     // TODO: Check all the ADB objects exist
   };
@@ -351,7 +354,7 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * @private
    * @method OmnitureAnalyticsPlugin#validateOmnitureMetadata
    * @param  {object} metadata The Omniture metadata to validate
-   * @returns true if valid, false otherwise
+   * @returns {boolean} true if valid, false otherwise
    */
   const validateOmnitureMetadata = function (metadata) {
     let valid = true;
@@ -583,8 +586,8 @@ const OmnitureAnalyticsPlugin = function (framework) {
    * Clears the vars from the AppMeasurement object and updates the AppMeasurement object with new props and eVars.
    * @protected
    * @method OmnitureAnalyticsPlugin#updateMetadata
-   * @param props The updated props
-   * @param eVars The updated eVars
+   * @param {object} props The updated props
+   * @param {object} eVars The updated eVars
    */
   this.updateMetadata = function (props, eVars) {
     if (appMeasurement) {

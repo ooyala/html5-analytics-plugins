@@ -4,9 +4,13 @@ require('../../html5-common/js/utils/utils.js');
 // Below implementations of system interface functions were pulled from the Conviva Sample App
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
-// Implements Conviva.HttpInterface for Chrome.
-
+/**
+ * Implements Conviva.HttpInterface for Chrome.
+ * @param {array} args The array of arguments.
+ * @constructor
+ */
 function Html5Http(...args) {
+  // eslint-disable-next-line require-jsdoc
   function _constr() {
     // nothing to initialize
   }
@@ -99,9 +103,13 @@ function Html5Http(...args) {
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
-// Implements Conviva.LoggingInterface for Chrome.
-
+/**
+ * Implements Conviva.LoggingInterface for Chrome.
+ * @param {array} args The array of arguments.
+ * @constructor
+ */
 function Html5Logging(...args) {
+  // eslint-disable-next-line require-jsdoc
   function _constr() {
     // nothing to initialize
   }
@@ -127,15 +135,19 @@ function Html5Logging(...args) {
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
-// Implements Conviva.MetadataInterface for Chrome.
-
 // The Conviva Platform will recognize HTTP user agent strings for major browsers,
 // and use these to fill in some of the missing metadata.
 // You can validate the resulting metadata through our validation tools.
 // If you wish you can maintain your own user agent string parsing on the client side
 // instead, and use it to supply the requested Conviva data.
 
+/**
+ * Implements Conviva.MetadataInterface for Chrome.
+ * @param {array} args The array of arguments.
+ * @constructor
+ */
 function Html5Metadata(...args) {
+  // eslint-disable-next-line require-jsdoc
   function _constr() {
     // nothing to initialize
   }
@@ -204,12 +216,16 @@ function Html5Metadata(...args) {
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
-// Implements Conviva.StorageInterface for Chrome.
-
 // HTML5 localStorage relies on a single key to index items,
 // so we find a consistent way to combine storageSpace and storageKey.
 
+/**
+ * Implements Conviva.StorageInterface for Chrome.
+ * @param {array} args The array of arguments.
+ * @constructor
+ */
 function Html5Storage(...args) {
+  // eslint-disable-next-line require-jsdoc
   function _constr() {
     // nothing to initialize
   }
@@ -243,9 +259,13 @@ function Html5Storage(...args) {
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
-// Implements Conviva.TimeInterface for Chrome.
-
+/**
+ * Implements Conviva.TimeInterface for Chrome.
+ * @param {array} args The array of arguments.
+ * @constructor
+ */
 function Html5Time(...args) {
+  // eslint-disable-next-line require-jsdoc
   function _constr() {
     // nothing to initialize
   }
@@ -264,14 +284,18 @@ function Html5Time(...args) {
 
 /*! (C) 2015 Conviva, Inc. All rights reserved. Confidential and proprietary. */
 
-// Implements Conviva.TimerInterface for Chrome.
-
 // setInterval does exactly what we need. We just need to return a function
 // which cancels the timer when called.
 // Some JavaScript implementations do not have setInterval, in which case
 // you may have to write it yourself using setTimeout.
 
+/**
+ * Implements Conviva.TimerInterface for Chrome.
+ * @param {array} args The array of arguments.
+ * @constructor
+ */
 function Html5Timer(...args) {
+  // eslint-disable-next-line require-jsdoc
   function _constr() {
     // nothing to initialize
   }
@@ -280,6 +304,7 @@ function Html5Timer(...args) {
 
   this.createTimer = function (timerAction, intervalMs, actionName) {
     let timerId = setInterval(timerAction, intervalMs);
+    // eslint-disable-next-line require-jsdoc
     const cancelTimerFunc = (function () {
       if (timerId !== -1) {
         clearInterval(timerId);
@@ -446,8 +471,8 @@ const ConvivaAnalyticsPlugin = function (framework) {
    * gatewayUrl, customerKey
    * @private
    * @method ConvivaAnalyticsPlugin#validateConvivaMetadata
-   * @param  {object} metadata The Conviva page level metadata to validate
-   * @returns true if valid, false otherwise
+   * @param {object} metadata The Conviva page level metadata to validate.
+   * @returns {boolean} true if valid, false otherwise.
    */
   const validateConvivaMetadata = function (metadata) {
     let valid = true;
@@ -503,6 +528,11 @@ const ConvivaAnalyticsPlugin = function (framework) {
     embedCode = null;
   };
 
+  /**
+   * @private
+   * @method ConvivaAnalyticsPlugin#validSession
+   * @returns {boolean} function call result
+   */
   const validSession = function () {
     return currentConvivaSessionKey !== Conviva.Client.NO_SESSION_KEY && currentConvivaSessionKey !== null
       && typeof currentConvivaSessionKey !== 'undefined';
@@ -534,6 +564,7 @@ const ConvivaAnalyticsPlugin = function (framework) {
    * Checks to see if the Conviva SDK is ready to accept tracking events.
    * @private
    * @method ConvivaAnalyticsPlugin#canTrack
+   * @returns {*} function call result or undefined.
    */
   const canTrack = function () {
     return playerStateManager && convivaClient && validSession();

@@ -42,6 +42,7 @@ const GAAnalyticsPlugin = function (framework) {
    * Log plugin events if verboseLogging is set to 'true'.
    * @public
    * @method GAAnalyticsPlugin#log
+   * @param {*} what .
    */
   this.log = function (what) {
     if (!this.verboseLogging || typeof console === 'undefined') return;
@@ -222,6 +223,7 @@ const GAAnalyticsPlugin = function (framework) {
    * This will contain information about the video content. For example, title and description.
    * @public
    * @method GAAnalyticsPlugin#onContentReady
+   * @param {array} content The video content.
    */
   this.onContentReady = function (content) {
     this.content = content;
@@ -234,7 +236,8 @@ const GAAnalyticsPlugin = function (framework) {
    * onPositionChanged event is triggered, periodically, when the video stream position changes.
    * @public
    * @method GAAnalyticsPlugin#onPositionChanged
-   * @param {object} data The stream duration and current stream position
+   * @param {array} params The array of params.
+   * @returns {boolean|undefined} function call result or undefined
    */
   this.onPositionChanged = function (params) {
     if (this.currentPlaybackType !== 'content' || !params || !params.length) {
@@ -293,6 +296,7 @@ const GAAnalyticsPlugin = function (framework) {
    * onPaused event is sent when video playback has paused.
    * @public
    * @method GAAnalyticsPlugin#onPaused
+   * @returns {boolean|undefined} function call result or undefined.
    */
   this.onPaused = function () {
     if (this.currentPlaybackType !== 'content') {
@@ -318,6 +322,7 @@ const GAAnalyticsPlugin = function (framework) {
    * Report event to Google Analytics
    * @public
    * @method GAAnalyticsPlugin#reportToGA
+   * @param {string} event The name of the event.
    */
   this.reportToGA = function (event) {
     if (this.lastEventReported !== event) {
@@ -414,6 +419,7 @@ const GAAnalyticsPlugin = function (framework) {
    * This will contain custom metadata
    * @public
    * @method GAAnalyticsPlugin#onStreamMetadataUpdated
+   * @param {object} metadata The metadata for this plugin.
    */
   this.onStreamMetadataUpdated = function (metadata) {
     // eslint-disable-next-line
@@ -442,6 +448,7 @@ const GAAnalyticsPlugin = function (framework) {
    * Send event to Google Analytics
    * @public
    * @method GAAnalyticsPlugin#sendToGA
+   * @param {string} event The name of the event.
    */
   this.sendToGA = function (event) {
     if (this.gaTrackingEnabled) {

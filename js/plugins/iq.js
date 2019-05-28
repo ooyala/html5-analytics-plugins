@@ -125,8 +125,8 @@ const IqPlugin = function (framework) {
   /**
    * Return the autoPlay value.
    * @public
-   * @method IqPlugin@getAutoPlay
-   * @return {boolean} The value of autoPlay.
+   * @method IqPlugin#getAutoPlay
+   * @returns {boolean} The value of autoPlay.
    */
   this.getAutoPlay = function () {
     return autoPlay;
@@ -135,8 +135,8 @@ const IqPlugin = function (framework) {
   /**
    * Return the iqEnabled value.
    * @public
-   * @method IqPlugin@getIqEnabled
-   * @return {boolean} The value of iqEnabled.
+   * @method IqPlugin#getIqEnabled
+   * @returns {boolean} The value of iqEnabled.
    */
   this.getIqEnabled = function () {
     return iqEnabled;
@@ -145,8 +145,8 @@ const IqPlugin = function (framework) {
   /**
    * Return the allowThrift value.
    * @public
-   * @method IqPlugin@getAllowThrift
-   * @return {boolean} The value of allowThrift.
+   * @method IqPlugin#getAllowThrift
+   * @returns {boolean} The value of allowThrift.
    */
   this.getAllowThrift = function () {
     return allowThrift;
@@ -155,8 +155,8 @@ const IqPlugin = function (framework) {
   /**
    * Return the thriftPcode value.
    * @public
-   * @method IqPlugin@thriftPcode
-   * @return {boolean} The value of thriftPcode.
+   * @method IqPlugin#thriftPcode
+   * @returns {boolean} The value of thriftPcode.
    */
   this.getThriftPcode = function () {
     return thriftPcode;
@@ -165,8 +165,8 @@ const IqPlugin = function (framework) {
   /**
    * Return the jsonPcode value.
    * @public
-   * @method IqPlugin@jsonPcode
-   * @return {boolean} The value of jsonPcode.
+   * @method IqPlugin#jsonPcode
+   * @returns {boolean} The value of jsonPcode.
    */
   this.getJsonPcode = function () {
     return jsonPcode;
@@ -177,7 +177,7 @@ const IqPlugin = function (framework) {
    * this plugin is registered.
    * @public
    * @method IqPlugin#setPluginID
-   * @param  {string} newID The plugin id
+   * @param {string} newID The plugin id
    */
   this.setPluginID = function (newID) {
     id = newID;
@@ -248,6 +248,7 @@ const IqPlugin = function (framework) {
    * @private
    * @method IqPlugin#processAdTimeline
    * @param {array} timeline The raw array of ads returned by the SSAI server
+   * @returns {Array} New array with adData.
    */
   this.processAdTimeline = function (timeline) {
     if (timeline === null || typeof (timeline) !== 'string') {
@@ -296,6 +297,7 @@ const IqPlugin = function (framework) {
    * @private
    * @method IqPlugin#isSSAIAdPlaying
    * @param {number} playhead the playhead time to check (in seconds)
+   * @returns {boolean} function call result
    */
   this.isSSAIAdPlaying = function (playhead) {
     for (let index = 0; index < adTimeline.length; index++) {
@@ -307,11 +309,12 @@ const IqPlugin = function (framework) {
   };
 
   /**
-   * Convenience function for reporting the custom ad playthrough percent event to IQ
+   * Convenience function for reporting the custom ad playthrough percent event to IQ.
    * @private
    * @method IqPlugin#reportAdPlaythrough
-   * @param {number} playhead the playhead time to check (in seconds)
-   * @param {number} duration the stream total duration (in seconds)
+   * @param {string} eventName Name of the event.
+   * @param {number} playhead the playhead time to check (in seconds).
+   * @param {number} duration the stream total duration (in seconds).
    */
   this.reportAdPlaythrough = function (eventName, playhead, duration) {
     let percentPlayed = 0;

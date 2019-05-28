@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 require(`${SRC_ROOT}framework/InitAnalyticsNamespace.js`);
 require(`${SRC_ROOT}framework/AnalyticsConstants.js`);
 require(`${COMMON_SRC_ROOT}utils/constants.js`);

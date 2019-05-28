@@ -1,4 +1,4 @@
-/* eslint-disable global-require */
+/* eslint-disable global-require,require-jsdoc */
 describe('Analytics Framework GA Plugin Unit Tests', () => {
   jest.autoMockOff();
   require('../unit-test-helpers/mock_ga.js');
@@ -43,7 +43,9 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
     AD_PLAYBACK_FINISHED: 'adPlaybackFinished',
   };
 
-  // setup for individual tests
+  /**
+   * Setup for individual tests.
+   */
   const testSetup = function () {
     framework = new Analytics.Framework();
     // mute the logging becuase there will be lots of error messages
@@ -51,7 +53,9 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
     };
   };
 
-  // cleanup for individual tests
+  /**
+   * Cleanup for individual tests.
+   */
   const testCleanup = function () {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];

@@ -635,13 +635,20 @@ if (!OO.Analytics.EVENT_DATA) {
    * @private
    * @class Analytics#logErrorString
    * @classdesc Helper function to return an error string with the Analytics Constants prefix.
-   * @property {string} origStr the error string
-   * @returns {string} The new error string.
+   * @param {string} origStr the error string
    */
   const logErrorString = function (origStr) {
     OO.log(`Error AnalyticsConstants: ${origStr}`);
   };
 
+  /**
+   * @private
+   * @class Analytics#checkDataType
+   * @param {string} className The Analytics.EVENT_DATA class Name.
+   * @param {*} data The type.
+   * @param {string} varName The name of variable.
+   * @param {array} expectedTypes The expected type of Analytics.EVENT_DATA
+   */
   const checkDataType = function (className, data, varName, expectedTypes) {
     let error = true;
     let toRet = data;
@@ -702,9 +709,10 @@ if (!OO.Analytics.EVENT_DATA) {
    * @private
    * @class Analytics#selectAdType
    * @classdesc Checks for a recognized Ad Type and returns the corresponding EVENT_DATA object.
-   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {object} adMetadata The metadata associated with the ad
-   * @returns {object} The EVENT_DATA object that associates with the Ad Type.
+   * @param {string} adType The type of ad (linear video, linear overlay, nonlinear overlay).
+   * @param {object} adMetadataIn The metadata associated with the ad.
+   * @returns {Analytics.EVENT_DATA.LinearVideoData|Analytics.EVENT_DATA.NonLinearOverlayData}
+   * The EVENT_DATA object that associates with the Ad Type.
    */
   const selectAdType = function (adType, adMetadataIn) {
     let adMetadataOut;
@@ -735,7 +743,7 @@ if (!OO.Analytics.EVENT_DATA) {
    * @private
    * @class Analytics#translateErrorCode
    * @classdesc Translates the error code provided into the corresponding error message.
-   * @property {number} code The error code
+   * @param {number} code The error code
    * @returns {string} The error string associated with the error code number.
    */
   const translateErrorCode = function (code) {
@@ -753,7 +761,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @class Analytics.EVENT_DATA#VideoElementData
    * @classdesc Contains the data passed along with VIDEO_ELEMENT_CREATED. This includes
    * the stream url of the video element.
-   * @property {string} streamUrl This is the video element's stream URL
+   * @param {string} streamUrl This is the video element's stream URL.
+   * @constructor
    */
   EVENT_DATA.VideoElementData = function (streamUrl) {
     const checkElementData = OO._.bind(checkDataType, this, 'VideoElementData');
@@ -767,8 +776,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * includes the embed code (video id) and any metadata this video stream needs
    * pass along to other plugins (for example, it could contain ad tag data or analytics
    * account information).
-   * @property  {string} embedCode This is the video stream's unique id
-   * @property  {object} metadata   An object containing metadata about the video stream and player id to be used
+   * @param {string} embedCode This is the video stream's unique id.
+   * @param {object} metadata An object containing metadata about the video stream and player id to be used.
+   * @constructor
    */
   EVENT_DATA.VideoSourceData = function (embedCode, metadata) {
     const checkSourceData = OO._.bind(checkDataType, this, 'VideoSourceData');
@@ -781,12 +791,13 @@ if (!OO.Analytics.EVENT_DATA) {
    * @class Analytics.EVENT_DATA#VideoContentMetadata
    * @classdesc Contains information about the content of the video stream,
    * such as title and description.
-   * @property  {string} title Title of the video
-   * @property  {string} description Video description
-   * @property  {number} duration Duration of the video in milliseconds
-   * @property  {object} closedCaptions Object containing information about the closed captions available
-   * @property  {string} contentType A string indicating the type of content in the stream (ex. "video").
-   * @property  {string} hostedAtURL The url the video is being hosted from
+   * @param {string} title Title of the video.
+   * @param {string} description Video description.
+   * @param {number} duration Duration of the video in milliseconds.
+   * @param {object} closedCaptions Object containing information about the closed captions available.
+   * @param {string} contentType A string indicating the type of content in the stream (ex. "video").
+   * @param {string} hostedAtURL The url the video is being hosted from.
+   * @constructor
    */
   EVENT_DATA.VideoContentMetadata = function (title, description, duration, closedCaptions,
     contentType, hostedAtURL) {
@@ -803,7 +814,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#StreamTypeMetadata
    * @classdesc Contains information about the content stream type
-   * @property {string} streamType OO.Analytics.STREAM_TYPE of the stream.
+   * @param {string} streamType OO.Analytics.STREAM_TYPE of the stream.
+   * @constructor
    */
   EVENT_DATA.StreamTypeMetadata = function (streamType) {
     const checkStreamTypeData = OO._.bind(checkDataType, this, 'StreamTypeMetadata');
@@ -813,8 +825,9 @@ if (!OO.Analytics.EVENT_DATA) {
   /**
    * @public
    * @class Analytics.EVENT_DATA#GeoMetadata
-   * @classdesc Contains information the user's geo location based on ip
-   * @property {object} userGeoData The resolved geo data from the user's ip
+   * @classdesc Contains information the user's geo location based on ip.
+   * @param {object} userGeoData The resolved geo data from the user's ip.
+   * @constructor
    */
   EVENT_DATA.GeoMetadata = function (userGeoData) {
     const checkUserGeoData = OO._.bind(checkDataType, this, 'GeoMetadata');
@@ -857,11 +870,12 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VideoDownloadingMetadata
    * @classdesc Contains information about the stream that is being downloaded.
-   * @property {number} currentTime The current time of the player
-   * @property {number} totalStreamDuration The duration of the video stream
-   * @property {number} streamBufferedUntilTime The stream is buffered until this timestamp
-   * @property {number} seekableRangeStart The earliest time the user can seek to
-   * @property {number} seekableRangeEnd The latest time the user can seek to
+   * @param {number} currentTime The current time of the player.
+   * @param {number} totalStreamDuration The duration of the video stream.
+   * @param {number} streamBufferedUntilTime The stream is buffered until this timestamp.
+   * @param {number} seekableRangeStart The earliest time the user can seek to.
+   * @param {number} seekableRangeEnd The latest time the user can seek to.
+   * @constructor
    */
   EVENT_DATA.VideoDownloadingMetadata = function (currentTime, totalStreamDuration, streamBufferedUntilTime,
     seekableRangeStart, seekableRangeEnd) {
@@ -881,9 +895,10 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VideoBufferingStartedData
    * @classdesc Contains information about the stream that has started buffering.
-   * @property {string} streamUrl The url of the stream that is buffering
-   * @property {string} videoId The video Id (main, etc.)
-   * @property {number} position The playhead position buffering started
+   * @param {string} streamUrl The url of the stream that is buffering.
+   * @param {string} videoId The video Id (main, etc.).
+   * @param {number} position The playhead position buffering started.
+   * @constructor
    */
   EVENT_DATA.VideoBufferingStartedData = function (streamUrl, videoId, position) {
     const checkBufferingStartedData = OO._.bind(checkDataType, this, 'VideoBufferingStartedData');
@@ -896,7 +911,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VideoBufferingEndedData
    * @classdesc Contains information about the stream that finished buffering.
-   * @property {string} streamUrl The url of the stream that finished buffering
+   * @param {string} streamUrl The url of the stream that finished buffering.
+   * @constructor
    */
   EVENT_DATA.VideoBufferingEndedData = function (streamUrl) {
     const checkBufferingEndedData = OO._.bind(checkDataType, this, 'VideoBufferingEndedData');
@@ -930,10 +946,11 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VideoBitrateProfileData
    * @classdesc Contains information about a bitrate profile.
-   * @property {string} id The id of this profile
-   * @property {number} bitrate The bitrate of this profile
-   * @property {number} width The width of this profile
-   * @property {number} height The height of this profile
+   * @param {object} bitrateProfile The profile.
+   * {number} bitrateProfile.bitrate The bitrate of this profile.
+   * {number} bitrateProfile.width The width of this profile.
+   * {number} bitrateProfile.height The height of this profile.
+   * @constructor
    */
   EVENT_DATA.VideoBitrateProfileData = function (bitrateProfile) {
     const checkBitrateProfile = OO._.bind(checkDataType, this, 'VideoBitrateProfileData');
@@ -947,7 +964,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VideoTargetBitrateData
    * @classdesc Contains information what bitrate profile is being requested.
-   * @property {string} targetProfile The id of the bitrate profile being requested.
+   * @param {string} targetProfile The id of the bitrate profile being requested.
+   * @constructor
    */
   EVENT_DATA.VideoTargetBitrateData = function (targetProfile) {
     const checkTargetBitrate = OO._.bind(checkDataType, this, 'VideoTargetBitrateData');
@@ -958,7 +976,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VideoSeekRequestedData
    * @classdesc Contains information about seeking to a particular time in the stream.
-   * @property {number} seekingToTime The time requested to be seeked to
+   * @param {number} seekingToTime The time requested to be seeked to.
+   * @constructor
    */
   EVENT_DATA.VideoSeekRequestedData = function (seekingToTime) {
     const checkSeekStartedData = OO._.bind(checkDataType, this, 'VideoSeekRequestedData');
@@ -970,21 +989,25 @@ if (!OO.Analytics.EVENT_DATA) {
    * @class Analytics.EVENT_DATA#VideoSeekCompletedData
    * @classdesc Contains information about the result of seeking to a particular
    * time in the stream.
-   * @property {number} timeSeekedTo The time that was actually seeked to
+   * @param {number} timeSeekedTo The time that was actually seeked to.
+   * @constructor
    */
   EVENT_DATA.VideoSeekCompletedData = function (timeSeekedTo) {
     const checkSeekEndedData = OO._.bind(checkDataType, this, 'VideoSeekCompletedData');
     this.timeSeekedTo = checkSeekEndedData(timeSeekedTo, 'timeSeekedTo', ['number']);
   };
 
+
   /**
    * @public
    * @class Analytics.EVENT_DATA#VideoStreamPositionChangedData
    * @classdesc Contains information about the current stream position and the length of the stream.
-   * @property {number} streamPosition The current stream position
-   * @property {number} totalStreamDuration The total length/duration of the stream
-   * @property {string} videoId Id used to differentiate between various streams (such as ad vs content playback).
-   *                            Possible values are defined in OO.VIDEO.
+   * @param {number} streamPosition The current stream position.
+   * @param {number} totalStreamDuration The total length/duration of the stream.
+   * @param {string} videoId Id used to differentiate between various streams
+   * (such as ad vs content playback). Possible values are defined in OO.VIDEO.
+   * @param {number} currentLiveTime Time of live streams.
+   * @constructor
    */
   EVENT_DATA.VideoStreamPositionChangedData = function (streamPosition, totalStreamDuration,
     videoId, currentLiveTime) {
@@ -1029,8 +1052,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#GeneralErrorData
    * @classdesc Contains information about the error code and message of a general error.
-   * @property {string} errorCode The error code
-   * @property {string} errorMessage The error message
+   * @param {string} errorCode The error code.
+   * @param {string} errorMessage The error message.
+   * @constructor
    */
   EVENT_DATA.GeneralErrorData = function (errorCode, errorMessage) {
     const checkGeneralErrorData = OO._.bind(checkDataType, this, 'GeneralErrorData');
@@ -1043,8 +1067,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @class Analytics.EVENT_DATA#MetadataLoadingErrorData
    * @classdesc Contains information about the error code and message of a metadata loading
    * error.
-   * @property {string} errorCode The error code
-   * @property {string} errorMessage The error message
+   * @param {string} errorCode The error code.
+   * @param {string} errorMessage The error message.
+   * @constructor
    */
   EVENT_DATA.MetadataLoadingErrorData = function (errorCode, errorMessage) {
     const checkMetadataLoadingErrorData = OO._.bind(checkDataType, this, 'MetadataLoadingErrorData');
@@ -1056,8 +1081,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VideoPlaybackErrorData
    * @classdesc Contains information about the error code and message of the video error.
-   * @property {string} errorCode The error code
-   * @property {string} errorMessage The error message
+   * @param {string} errorCode The error code.
+   * @param {string} errorMessage The error message.
+   * @constructor
    */
   EVENT_DATA.VideoPlaybackErrorData = function (errorCode, errorMessage) {
     const checkVideoPlaybackErrorData = OO._.bind(checkDataType, this, 'VideoPlaybackErrorData');
@@ -1069,8 +1095,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AuthorizationErrorData
    * @classdesc Contains information about the error code and message of the authorization error.
-   * @property {string} errorCode The error code
-   * @property {string} errorMessage The error message
+   * @param {string} errorCode The error code.
+   * @param {string} errorMessage The error message.
+   * @constructor
    */
   EVENT_DATA.AuthorizationErrorData = function (errorCode, errorMessage) {
     const checkAuthorizationErrorData = OO._.bind(checkDataType, this, 'AuthorizationErrorData');
@@ -1082,7 +1109,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdPodStartedData
    * @classdesc Contain information about how many ads are in the ad pod.
-   * @property {number} numberOfAds The number of ads in the pod
+   * @param {number} numberOfAds The number of ads in the pod.
+   * @constructor
    */
   EVENT_DATA.AdPodStartedData = function (numberOfAds) {
     const checkAdPodStartedData = OO._.bind(checkDataType, this, 'AdPodStartedData');
@@ -1093,7 +1121,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdPodEndedData
    * @classdesc Contain information about the adId of the ad pod.
-   * @property {string} adId The id of the ad pod
+   * @param {string} adId The id of the ad pod.
+   * @constructor
    */
   EVENT_DATA.AdPodEndedData = function (adId) {
     const checkAdPodEndedData = OO._.bind(checkDataType, this, 'AdPodEndedData');
@@ -1104,8 +1133,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdStartedData
    * @classdesc Contains information about the type of ad that has started and its ad data.
-   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {object} adMetadata The metadata associated with the ad(i.e. EVENT_DATA.LinearVideoData or EVENT_DATA.NonLinearOverlayData)
+   * @param {string} adType The type of ad (linear video, linear overlay, nonlinear overlay).
+   * @param {object} adMetadataIn The metadata associated with the ad(i.e. EVENT_DATA.LinearVideoData or EVENT_DATA.NonLinearOverlayData).
+   * @constructor
    */
   EVENT_DATA.AdStartedData = function (adType, adMetadataIn) {
     const checkAdStartedData = OO._.bind(checkDataType, this, 'AdStartedData');
@@ -1117,9 +1147,10 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#LinearVideoData
    * @classdesc Contains information about the linear video ad data.
-   * @property {string} adId The id of the ad
-   * @property {number} adDuration The duration of the ad video stream
-   * @property {number} adPodPosition The index of the current ad in its ad pod
+   * @param {string} adId The id of the ad.
+   * @param {number} adDuration The duration of the ad video stream.
+   * @param {number} adPodPosition The index of the current ad in its ad pod.
+   * @constructor
    */
   EVENT_DATA.LinearVideoData = function (adId, adDuration, adPodPosition) {
     const checkLinearVideoData = OO._.bind(checkDataType, this, 'LinearVideoData');
@@ -1131,8 +1162,8 @@ if (!OO.Analytics.EVENT_DATA) {
   /**
    * @public
    * @class Analytics.EVENT_DATA#NonLinearOverlayData
-   * @classdesc Contains information about the non linear overlay ad data.
-   * @property {string} adId The id of the ad
+   * @param {string} adId The id of the ad.
+   * @constructor
    */
   EVENT_DATA.NonLinearOverlayData = function (adId) {
     const checkNonLinearOverlayData = OO._.bind(checkDataType, this, 'NonLinearOverlayData');
@@ -1142,9 +1173,9 @@ if (!OO.Analytics.EVENT_DATA) {
   /**
    * @public
    * @class Analytics.EVENT_DATA#AdEndedData
-   * @classdesc Contains information about the type of ad that has ended and its ad data.
-   * @property {string} adType The type of ad (linear video, linear overlay, nonlinear overlay)
-   * @property {string} adId The id of the ad
+   * @param {string} adType The type of ad (linear video, linear overlay, nonlinear overlay).
+   * @param {string} adId The id of the ad.
+   * @constructor
    */
   EVENT_DATA.AdEndedData = function (adType, adId) {
     const checkAdEndedData = OO._.bind(checkDataType, this, 'AdEndedData');
@@ -1155,8 +1186,8 @@ if (!OO.Analytics.EVENT_DATA) {
   /**
    * @public
    * @class Analytics.EVENT_DATA#AdErrorData
-   * @classdesc Contains information about the ad error.
-   * @property {object|string} The error object or string
+   * @param {object|string} error The error object or string.
+   * @constructor
    */
   EVENT_DATA.AdErrorData = function (error) {
     const checkAdErrorData = OO._.bind(checkDataType, this, 'AdErrorData');
@@ -1167,7 +1198,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdClickedData
    * @classdesc Contains information about the ad clicked event.
-   * @property {object} The metadata sent with the event
+   * @param {object} metadata The metadata sent with the event.
+   * @constructor
    */
   EVENT_DATA.AdClickedData = function (metadata) {
     const checkAdClickedData = OO._.bind(checkDataType, this, 'AdClickedData');
@@ -1176,14 +1208,14 @@ if (!OO.Analytics.EVENT_DATA) {
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#VideoPlayerCreatedData
-   * @classdesc Contains information about the player created event
-   * @property {string} playerCoreVersion The player core version
-   * @property {object} params The configuration metadata associated with the player
-   * (i.e. pcode, playerBrandingId, skin configuration, player configuration parameters)
-   * @property {string} embedCode The embed code of the asset attempting to play
-   * @property {string} playerUrl The url of the page containing the player
-   * @property {string} pcode The provider pcode
+   * @class Analytics.EVENT_DATA#VideoPlayerCreatedData.
+   * @classdesc Contains information about the player created event.
+   * @param {string} playerCoreVersion The player core version.
+   * @param {object} params The configuration metadata associated with the player
+   * (i.e. pcode, playerBrandingId, skin configuration, player configuration parameters).
+   * @param {string} embedCode The embed code of the asset attempting to play.
+   * @param {string} playerUrl The url of the page containing the player.
+   * @constructor
    */
   EVENT_DATA.VideoPlayerCreatedData = function (playerCoreVersion, params, embedCode, playerUrl) {
     const checkVideoPlayerCreatedData = OO._.bind(checkDataType, this, 'VideoPlayerCreatedData');
@@ -1198,18 +1230,19 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#InitialPlayStartingData
    * @classdesc Contains the information about the initial play starting event.
-   * @property {string} playerCoreVersion The player core version
-   * @property {number} timeSinceInitialPlay The time since the initial play request was made
-   * @property {boolean} autoplayed Boolean for if the video was autoplayed or not
-   * @property {boolean} hadPreroll Boolean for if the video had an ad play before it started
-   * @property {number} position The initial position of the playhead upon playback start. This includes
+   * @param {string} playerCoreVersion The player core version
+   * @param {number} timeSinceInitialPlay The time since the initial play request was made
+   * @param {boolean} autoplayed Boolean for if the video was autoplayed or not
+   * @param {boolean} hadPreroll Boolean for if the video had an ad play before it started
+   * @param {number} position The initial position of the playhead upon playback start. This includes
    *   midrolls that play before content due to an initial playhead time > 0
-   * @property {string} plugin The video plugin used for playback
-   * @property {string} technology The browser technology used - HTML5, Flash, Mixed, or Other
-   * @property {string} encoding The stream encoding type, i.e. MP4, HLS, Dash, etc.
-   * @property {string} streamUrl The URL of the content being played
-   * @property {string} drm The DRM being used, none if there is no DRM
-   * @property {boolean} isLive Boolean that is true if a live stream is playing. If false it is VOD.
+   * @param {string} plugin The video plugin used for playback
+   * @param {string} technology The browser technology used - HTML5, Flash, Mixed, or Other
+   * @param {string} encoding The stream encoding type, i.e. MP4, HLS, Dash, etc.
+   * @param {string} streamUrl The URL of the content being played
+   * @param {string} drm The DRM being used, none if there is no DRM
+   * @param {boolean} isLive Boolean that is true if a live stream is playing. If false it is VOD.
+   * @constructor
    */
   EVENT_DATA.InitialPlayStartingData = function (playerCoreVersion, timeSinceInitialPlay,
     autoplayed, hadPreroll, position, plugin, technology, encoding, streamUrl, drm, isLive) {
@@ -1233,11 +1266,12 @@ if (!OO.Analytics.EVENT_DATA) {
 
   /**
    * @public
-   * @class Analytics.EVENT_DATA#PlaybackReadyData
-   * @classdesc Contains the information about the playback ready event
-   * @property {string} playerCoreVersion The player core version
-   * @property {number} timeSincePlayerCreated The time between player creation and playback ready state
-   * @property {array} pluginList List of plugins loaded
+   * @class Analytics.EVENT_DATA#PlaybackReadyData.
+   * @classdesc Contains the information about the playback ready event.
+   * @param {string} playerCoreVersion The player core version.
+   * @param {number} timeSincePlayerCreated The time between player creation and playback ready state.
+   * @param {array} pluginList List of plugins loaded.
+   * @constructor
    */
   EVENT_DATA.PlaybackReadyData = function (playerCoreVersion, timeSincePlayerCreated, pluginList) {
     const checkPlaybackReadyData = OO._.bind(checkDataType, this, 'PlaybackReadyData');
@@ -1254,10 +1288,11 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#ApiErrorData
    * @classdesc Contains information about the api error.
-   * @property {string} playerCoreVersion The player core version
-   * @property {number} errorCode The error code if any
-   * @property {string} errorMessage The error message
-   * @property {string} url The ad tag url post macro substitution
+   * @param {string} playerCoreVersion The player core version.
+   * @param {number} errorCode The error code if any.
+   * @param {string} errorMessage The error message.
+   * @param {string} url The ad tag url post macro substitution.
+   * @constructor
    */
   EVENT_DATA.ApiErrorData = function (playerCoreVersion, errorCode, errorMessage, url) {
     const checkApiErrorData = OO._.bind(checkDataType, this, 'ApiErrorData');
@@ -1271,7 +1306,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#BitrateInitialData
    * @classdesc Contains the information about the bitrate initial event
-   * @property {number} The bitrate at the start of playback
+   * @param {number} bitrate The bitrate at the start of playback.
+   * @constructor
    */
   EVENT_DATA.BitrateInitialData = function (bitrate) {
     const checkBitrateInitialData = OO._.bind(checkDataType, this, 'BitrateInitialData');
@@ -1282,7 +1318,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#BitrateFiveSecData
    * @classdesc  Contains the information about the bitrate five sec event
-   * @property {number} The bitrate at five seconds into the video
+   * @param {number} bitrate The bitrate at five seconds into the video.
+   * @constructor
    */
   EVENT_DATA.BitrateFiveSecData = function (bitrate) {
     const checkBitrateFiveSecData = OO._.bind(checkDataType, this, 'BitrateFiveSecData');
@@ -1293,7 +1330,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#BitrateStableData
    * @classdesc  Contains the information about the bitrate stable event
-   * @property {number} The bitrate at thirty seconds into the video
+   * @param {number} bitrate The bitrate at thirty seconds into the video.
+   * @constructor
    */
   EVENT_DATA.BitrateStableData = function (bitrate) {
     const checkBitrateStableData = OO._.bind(checkDataType, this, 'BitrateStableData');
@@ -1304,9 +1342,10 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#PlaybackStartErrorData
    * @classdesc Contains information about the playback start error.
-   * @property {object} errorCodes Object containing all error codes associated with the error
-   * @property {object} errorMessages Object containing error messages associated with the error
-   * @property {object} drm The DRM information, if relevant and available
+   * @param {object} errorCodes Object containing all error codes associated with the error.
+   * @param {object} errorMessages Object containing error messages associated with the error.
+   * @param {object} drm The DRM information, if relevant and available.
+   * @constructor
    */
   EVENT_DATA.PlaybackStartErrorData = function (errorCodes, errorMessages, drm) {
     const checkPlaybackStartErrorData = OO._.bind(checkDataType, this, 'PlaybackStartErrorData');
@@ -1319,9 +1358,10 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#PlaybackMidstreamErrorData
    * @classdesc Contains information about the playback midstream error.
-   * @property {object} errorCodes Object containing all error codes associated with the error
-   * @property {object} errorMessages Object containing error messages associated with the error
-   * @property {number} position The playhead position the error occurred at
+   * @param {object} errorCodes Object containing all error codes associated with the error.
+   * @param {object} errorMessages Object containing error messages associated with the error.
+   * @param {number} position The playhead position the error occurred at.
+   * @constructor
    */
   EVENT_DATA.PlaybackMidstreamErrorData = function (errorCodes, errorMessages, position) {
     const checkPlaybackMidstreamErrorData = OO._.bind(checkDataType, this, 'PlaybackMidstreamErrorData');
@@ -1334,10 +1374,11 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#PluginLoadedData
    * @classdesc Contains information about the plugin loaded event.
-   * @property {string} playerCoreVersion The player core version
-   * @property {string} pluginType Type of the loaded plugin - ads, playback, analytics, playlist, or skin
-   * @property {string} pluginName The name of the plugin loaded
-   * @property {number} loadTime The time it took for the plugin to reach the ready state
+   * @param {string} playerCoreVersion The player core version.
+   * @param {string} pluginType Type of the loaded plugin - ads, playback, analytics, playlist, or skin.
+   * @param {string} pluginName The name of the plugin loaded.
+   * @param {number} loadTime The time it took for the plugin to reach the ready state.
+   * @constructor
    */
   EVENT_DATA.PluginLoadedData = function (playerCoreVersion, pluginType, pluginName, loadTime) {
     const checkPluginLoadedData = OO._.bind(checkDataType, this, 'PluginLoadedData');
@@ -1351,7 +1392,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdErrorData
    * @classdesc Contains information about the ad error.
-   * @property {object|string} The error object or string
+   * @param {object|string} error The error object or string.
+   * @constructor
    */
   EVENT_DATA.AdErrorData = function (error) {
     const checkAdErrorData = OO._.bind(checkDataType, this, 'AdErrorData');
@@ -1362,8 +1404,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdRequestData
    * @classdesc Contains information about the ad request event.
-   * @property {string} adPluginName The name of the ad plugin used
-   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
+   * @param {string} adPluginName The name of the ad plugin used.
+   * @param {number} adPosition The position, in seconds, the ad is scheduled to play.
+   * @constructor
    */
   EVENT_DATA.AdRequestData = function (adPluginName, adPosition) {
     const checkAdRequestData = OO._.bind(checkDataType, this, 'AdRequestData');
@@ -1375,10 +1418,11 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdRequestSuccssData
    * @classdesc Contains information about the ad request success event.
-   * @property {string} adPluginName The name of the ad plugin used
-   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
-   * @property {number} responseTime The time in milliseconds that it took to get a response for the ad request
-   * @property {number} timeSinceInitialPlay The time in milliseconds from the initial play request time to ad request success
+   * @param {string} adPluginName The name of the ad plugin used.
+   * @param {number} adPosition The position, in seconds, the ad is scheduled to play.
+   * @param {number} responseTime The time in milliseconds that it took to get a response for the ad request.
+   * @param {number} timeSinceInitialPlay The time since the initial play request was made.
+   * @constructor
    */
   EVENT_DATA.AdRequestSuccessData = function (adPluginName, adPosition, responseTime, timeSinceInitialPlay) {
     const checkAdRequestSuccessData = OO._.bind(checkDataType, this, 'AdRequestSuccessData');
@@ -1396,11 +1440,12 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdRequestEmptyData
    * @classdesc Contains information about the ad request empty event.
-   * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
-   * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {object} errorCodes Object containing all error codes received
-   * @property {string} errorMessage The error message
+   * @param {string} adPluginName The name of the ad plugin that sent this eventю
+   * @param {number} adPosition The position, in seconds, the ad is scheduled to play.
+   * @param {string} adTagUrl The ad tag url post macro substitution.
+   * @param {object} errorCodes Object containing all error codes received.
+   * @param {string} errorMessage The error message.
+   * @constructor
    */
   EVENT_DATA.AdRequestEmptyData = function (adPluginName, adPosition, adTagUrl, errorCodes, errorMessage) {
     const checkAdRequestEmptyData = OO._.bind(checkDataType, this, 'AdRequestEmptyData');
@@ -1415,12 +1460,13 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdRequestErrorData
    * @classdesc Contains information about the ad request error event.
-   * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
-   * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {object} errorCodes Object containing all error codes received
-   * @property {string} errorMessage The error message
-   * @property {boolean} isTimeout If ad request timed out or not
+   * @param {string} adPluginName The name of the ad plugin that sent this event.
+   * @param {number} adPosition The position, in seconds, the ad is scheduled to play.
+   * @param {string} adTagUrl The ad tag url post macro substitution.
+   * @param {object} errorCodes Object containing all error codes received.
+   * @param {string} errorMessage The error message.
+   * @param {boolean} isTimeout If ad request timed out or not.
+   * @constructor
    */
   EVENT_DATA.AdRequestErrorData = function (adPluginName, adPosition, adTagUrl,
     errorCodes, errorMessage, isTimeout) {
@@ -1437,13 +1483,14 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdPlaybackErrorData
    * @classdesc Contains information about the ad playback error event.
-   * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
-   * @property {string} adTagUrl The ad tag url post macro substitution
-   * @property {object} errorCodes Object containing all error codes received
-   * @property {string} errorMessage The error message
-   * @property {array} videoPluginList Array containing names of all video plugins registered
-   * @property {string} mediaFileUrl The url used to retrieve the ad media file
+   * @param {string} adPluginName The name of the ad plugin that sent this event.
+   * @param {number} adPosition The position, in seconds, the ad is scheduled to play.
+   * @param {string} adTagUrl The ad tag url post macro substitution.
+   * @param {object} errorCodes Object containing all error codes received.
+   * @param {string} errorMessage The error message.
+   * @param {array} videoPluginList Array containing names of all video plugins registered.
+   * @param {string} mediaFileUrl The url used to retrieve the ad media file.
+   * @constructor
    */
   EVENT_DATA.AdPlaybackErrorData = function (adPluginName, adPosition, adTagUrl,
     errorCodes, errorMessage, videoPluginList, mediaFileUrl) {
@@ -1461,11 +1508,12 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdSdkImpressionData
    * @classdesc Contains information about the ad sdk impression event.
-   * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {number} adPosition The position, in seconds, the ad is scheduled to play
-   * @property {number} adLoadTime The time in milliseconds between the ad request success and started
-   * @property {string} adProtocol The ad protocol (VAST / VPAID)
-   * @property {string} adType The ad type (LinearOverlay, LinearVideo, NonLinearOverlay, NonLinearVideo)
+   * @param {string} adPluginName The name of the ad plugin that sent this event.
+   * @param {number} adPosition The position, in seconds, the ad is scheduled to play.
+   * @param {number} adLoadTime The time in milliseconds between the ad request success and started.
+   * @param {string} adProtocol The ad protocol (VAST / VPAID).
+   * @param {string} adType The ad type (LinearOverlay, LinearVideo, NonLinearOverlay, NonLinearVideo).
+   * @constructor
    */
   EVENT_DATA.AdSdkImpressionData = function (adPluginName, adPosition, adLoadTime, adProtocol, adType) {
     const checkAdSdkImpressionData = OO._.bind(checkDataType, this, 'AdSdkImpressionData');
@@ -1480,11 +1528,11 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdCompletedData
    * @classdesc Contains information about the ad completed event.
-   * @property {string} adPluginName The name of the ad plugin used
-   * @property {number} timeSinceImpression The time passed since the ad impression
-   *                                          was recorded in milliseconds
-   * @property {boolean} skipped True if ad was skipped by user.
-   * @property {string} adTagUrl The ad tag url post macro substitution
+   * @param {string} adPluginName The name of the ad plugin that sent this event.
+   * @param {number} timeSinceImpression The time passed since the ad impression was recorded in milliseconds.
+   * @param {boolean} skipped True if ad was skipped by user.
+   * @param {string} adTagUrl The ad tag url post macro substitution.
+   * @constructor
    */
   EVENT_DATA.AdCompletedData = function (adPluginName, timeSinceImpression, skipped, adTagUrl) {
     const checkAdCompletedData = OO._.bind(checkDataType, this, 'AdCompletedData');
@@ -1498,8 +1546,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadedData
    * @classdesc Contains information about the ad SDK loaded event.
-   * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {string} playerCoreVersion The player core version
+   * @param {string} adPluginName The name of the ad plugin that sent this event.
+   * @param {string} playerCoreVersion The player core version.
+   * @constructor
    */
   EVENT_DATA.LoadAdSdkData = function (adPluginName, playerCoreVersion) {
     const checkLoadAdSdkData = OO._.bind(checkDataType, this, 'LoadAdSdkData');
@@ -1511,9 +1560,10 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#AdSdkLoadFailureData
    * @classdesc Contains information about the ad SDK load failure event.
-   * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {string} playerCoreVersion The player core version
-   * @property {string} errorMessage The error message associated with the ad sdk load failure
+   * @param {string} adPluginName The name of the ad plugin that sent this event.
+   * @param {string} playerCoreVersion The player core version.
+   * @param {string} errorMessage The error message associated with the ad sdk load failure.
+   * @constructor
    */
   EVENT_DATA.LoadAdSdkFailureData = function (adPluginName, playerCoreVersion, errorMessage) {
     const checkLoadAdSdkFailureData = OO._.bind(checkDataType, this, 'LoadAdSdkFailureData');
@@ -1527,8 +1577,8 @@ if (!OO.Analytics.EVENT_DATA) {
    * @class Analytics.EVENT_DATA#ReportDiscoveryImpressionEventData
    * @classdesc Contains information about report discovery impression event. This has been marked private because
    * we do not want to expose this as a public event.
-   * @property {object} metadata An object containing details of the ad event. This may vary
-   *                               between ad plugin to ad plugin.
+   * @param {object} metadata An object containing details of the ad event. This may vary between ad plugin to ad plugin.
+   * @constructor
    */
   EVENT_DATA.ReportDiscoveryImpressionEventData = function (metadata) {
     const checkReportDiscoveryImpressionEventData = OO._.bind(
@@ -1542,10 +1592,11 @@ if (!OO.Analytics.EVENT_DATA) {
   /**
    * @private
    * @class Analytics.EVENT_DATA#ReportDiscoveryClickEventData
-   * @classdesc Contains information about report discovery click event. This has been marked private because
-   * we do not want to expose this as a public event.
-   * @property {object} metadata An object containing details of the ad event. This may vary
-   *                               between ad plugin to ad plugin.
+   * @classdesc Contains information about report discovery click event.
+   * This has been marked private because we do not want to expose this as a public event.
+   * @param {object} metadata An object containing details of the ad event.
+   * his may vary between ad plugin to ad plugin.
+   * @constructor
    */
   EVENT_DATA.ReportDiscoveryClickEventData = function (metadata) {
     const checkReportDiscoveryClickEventData = OO._.bind(
@@ -1561,10 +1612,11 @@ if (!OO.Analytics.EVENT_DATA) {
    * @class Analytics.EVENT_DATA#SdkAdEventData
    * @classdesc Contains information about SDK Ad Event. This has been marked private because
    * we do not want to expose this as a public event.
-   * @property {string} adPluginName The name of the ad plugin that sent this event
-   * @property {string} adEventName The name of this event from the ad plugin
-   * @property {object} adEventData An object containing details of the ad event. This may vary
-   *                               between ad plugin to ad plugin.
+   * @param {string} adPluginName The name of the ad plugin that sent this event.
+   * @param {string} adEventName The name of this event from the ad plugin.
+   * @param {object} adEventData An object containing details of the ad event.
+   * This may vary between ad plugin to ad plugin.
+   * @constructor
    */
   EVENT_DATA.SdkAdEventData = function (adPluginName, adEventName, adEventData) {
     const checkSdkAdEventData = OO._.bind(checkDataType, this, 'SdkAdEventData');
@@ -1577,9 +1629,10 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#FullscreenChangedData
    * @classdesc Contains information about whether the player is entering or exiting fullscreen.
-   * @property {boolean} changingToFullscreen Whether or not the player is entering fullscreen.
+   * @param {boolean} changingToFullscreen Whether or not the player is entering fullscreen.
    * true represents that the player is entering fullscreen. false represents that the player is
    * exiting fullscreen.
+   * @constructor
    */
   EVENT_DATA.FullscreenChangedData = function (changingToFullscreen) {
     const checkFullscreenChangedData = OO._.bind(checkDataType, this, 'FullscreenChangedData');
@@ -1614,8 +1667,9 @@ if (!OO.Analytics.EVENT_DATA) {
    * @public
    * @class Analytics.EVENT_DATA#VolumeChangedData
    * @classdesc Contains information about the value of the current volume.
-   * @property {number} volume  The current volume after the change; the volume is a value from 0 - 1, with 0
-   * representing a muted state and 1 representing the maximum volume.
+   * @param {number} currentVolume The current volume after the change;
+   * the volume is a value from 0 - 1, with 0
+   * @constructor
    */
   EVENT_DATA.VolumeChangedData = function (currentVolume) {
     const checkVolumeChangedData = OO._.bind(checkDataType, this, 'VolumeChangedData');

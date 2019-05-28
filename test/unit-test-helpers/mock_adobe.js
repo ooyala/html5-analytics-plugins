@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 global.ADB = {
   va: {
     plugins: {

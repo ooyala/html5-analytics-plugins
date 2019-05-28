@@ -1,4 +1,4 @@
-/* eslint-disable global-require */
+/* eslint-disable global-require,require-jsdoc */
 describe('Analytics Framework Template Unit Tests', () => {
   jest.autoMockOff();
   require(`${SRC_ROOT}framework/AnalyticsFramework.js`);
@@ -12,14 +12,18 @@ describe('Analytics Framework Template Unit Tests', () => {
   const { _ } = OO;
   let framework;
 
-  // setup for individual tests
+  /**
+   * setup for individual tests.
+   */
   const testSetup = function () {
     framework = new Analytics.Framework();
     // mute the logging because there will be lots of error messages
     OO.log = function () {};
   };
 
-  // cleanup for individual tests
+  /**
+   * Cleanup for individual tests.
+   */
   const testCleanup = function () {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];

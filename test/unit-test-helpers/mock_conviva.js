@@ -1,3 +1,4 @@
+/* eslint-disable require-jsdoc */
 global.Conviva = {
   currentPlayerStateManager: null, // unit test helper
   currentClient: null, // unit test helper

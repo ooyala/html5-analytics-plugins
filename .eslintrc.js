@@ -58,9 +58,8 @@ module.exports = {
         "props": false
       }
     ],
-
     "require-jsdoc": [
-      "warn",
+      "error",
       {
       "require": {
         "FunctionDeclaration": true,
@@ -71,7 +70,7 @@ module.exports = {
       }
     }],
     "valid-jsdoc": [
-      "warn",
+      "error",
       {
         "prefer": {
           "return": "returns"

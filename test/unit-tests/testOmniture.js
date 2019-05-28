@@ -1,4 +1,4 @@
-/* eslint-disable global-require */
+/* eslint-disable global-require,require-jsdoc */
 describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   jest.autoMockOff();
   require('../unit-test-helpers/mock_adobe.js');
@@ -16,14 +16,18 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   const playerName = 'Ooyala V4';
 
 
-  // setup for individual tests
+  /**
+   * Setup for individual tests.
+   */
   const testSetup = function () {
     framework = new Analytics.Framework();
     // mute the logging because there will be lots of error messages
     OO.log = function () {};
   };
 
-  // cleanup for individual tests
+  /**
+   * Cleanup for individual tests.
+   */
   const testCleanup = function () {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];
