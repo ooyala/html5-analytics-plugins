@@ -518,6 +518,7 @@ OO.Analytics.Framework = function () {
     if (_eventExistenceLookup[eventName]) {
       // if the params don't come in as an Array then create an empty array to pass in for everything.
       if (!_.isArray(params)) {
+        // eslint-disable-next-line
         params = [];
       }
       // record the message

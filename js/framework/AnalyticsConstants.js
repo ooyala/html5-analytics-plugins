@@ -819,6 +819,7 @@ if (!OO.Analytics.EVENT_DATA) {
   EVENT_DATA.GeoMetadata = function (userGeoData) {
     const checkUserGeoData = OO._.bind(checkDataType, this, 'GeoMetadata');
     if (userGeoData === undefined || userGeoData === null) {
+      // eslint-disable-next-line
       userGeoData = {};
     }
 

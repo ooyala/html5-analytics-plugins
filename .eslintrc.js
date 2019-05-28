@@ -74,7 +74,7 @@ module.exports = {
       }
     ],
     "no-param-reassign": [
-      "warn",
+      "error",
       {
         "props": false
       }

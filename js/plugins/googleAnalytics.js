@@ -241,6 +241,7 @@ const GAAnalyticsPlugin = function (framework) {
       return false;
     }
 
+    // eslint-disable-next-line
     [params] = params;
 
     if (params.totalStreamDuration > 0) {
@@ -415,6 +416,7 @@ const GAAnalyticsPlugin = function (framework) {
    * @method GAAnalyticsPlugin#onStreamMetadataUpdated
    */
   this.onStreamMetadataUpdated = function (metadata) {
+    // eslint-disable-next-line
     if (metadata.length) [metadata] = metadata;
     this.log('onStreamMetadataUpdated');
 

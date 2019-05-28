@@ -655,6 +655,7 @@ const IqPlugin = function (framework) {
       case OO.Analytics.EVENTS.AD_CLICKED:
       case OO.Analytics.EVENTS.SDK_AD_EVENT:
         if (!params || !params[0]) {
+          // eslint-disable-next-line
           params = [];
         }
 
