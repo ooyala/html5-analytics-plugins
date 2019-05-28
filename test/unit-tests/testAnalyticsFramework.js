@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 describe('Analytics Framework Unit Tests', () => {
   jest.autoMockOff();
   require(`${SRC_ROOT}framework/AnalyticsFramework.js`);

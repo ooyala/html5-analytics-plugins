@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   jest.autoMockOff();
   require('../unit-test-helpers/mock_conviva.js');

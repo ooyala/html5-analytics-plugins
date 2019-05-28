@@ -1,3 +1,4 @@
+/* eslint-disable global-require */
 describe('Analytics Framework GA Plugin Unit Tests', () => {
   jest.autoMockOff();
   require('../unit-test-helpers/mock_ga.js');

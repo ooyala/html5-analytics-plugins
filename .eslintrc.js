@@ -52,6 +52,12 @@ module.exports = {
         "allowForLoopAfterthoughts": true
       }
     ],
+    "no-param-reassign": [
+      "error",
+      {
+        "props": false
+      }
+    ],
 
     "require-jsdoc": [
       "warn",
@@ -73,14 +79,7 @@ module.exports = {
         "requireReturn": false
       }
     ],
-    "no-param-reassign": [
-      "error",
-      {
-        "props": false
-      }
-    ],
     "import/no-dynamic-require": "warn",
-    "global-require": "warn",
     "no-shadow": "warn",
     "no-restricted-syntax": "warn",
     "no-prototype-builtins": "warn",
