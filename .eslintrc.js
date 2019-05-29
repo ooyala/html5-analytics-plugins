@@ -78,7 +78,6 @@ module.exports = {
         "requireReturn": false
       }
     ],
-    "no-prototype-builtins": "warn",
     "no-underscore-dangle": 0,
   },
 };

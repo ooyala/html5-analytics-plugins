@@ -1691,13 +1691,13 @@ describe('Analytics Framework Unit Tests', () => {
 
       data = new OO.Analytics.EVENT_DATA.GeoMetadata(metadataIn);
       expect(data).toEqual(metadataOut);
-      expect(data.hasOwnProperty('country')).toEqual(false);
-      expect(data.hasOwnProperty('region')).toEqual(false);
-      expect(data.hasOwnProperty('state')).toEqual(false);
-      expect(data.hasOwnProperty('city')).toEqual(false);
-      expect(data.hasOwnProperty('latitude')).toEqual(false);
-      expect(data.hasOwnProperty('longitude')).toEqual(false);
-      expect(data.hasOwnProperty('dma')).toEqual(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'country')).toEqual(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'region')).toEqual(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'state')).toEqual(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'city')).toEqual(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'latitude')).toEqual(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'longitude')).toEqual(false);
+      expect(Object.prototype.hasOwnProperty.call(data, 'dma')).toEqual(false);
     });
 
     // [DEPRECATED]

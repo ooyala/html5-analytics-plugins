@@ -131,8 +131,8 @@ OO.Analytics.Framework = function () {
    * Validates that a plugin instance has all the correct functions.
    * @public
    * @method OO.Analytics.Framework#validatePlugin
-   * @param  {object} plugin Plugin instance to be validated
-   * @returns {boolean}       Return true if plugin contains all the correct functions.
+   * @param {object} plugin Plugin instance to be validated
+   * @returns {boolean} Return true if plugin contains all the correct functions.
    */
   this.validatePlugin = function (plugin) {
     let isValid = true;
@@ -151,7 +151,7 @@ OO.Analytics.Framework = function () {
       // test if all required functions are in the plugin
       for (let i = 0; i < OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS.length; i++) {
         const reqFunc = OO.Analytics.REQUIRED_PLUGIN_FUNCTIONS[i];
-        if (!plugin.hasOwnProperty(reqFunc) || typeof plugin[reqFunc] !== 'function') {
+        if (!Object.prototype.hasOwnProperty.call(plugin, reqFunc) || typeof plugin[reqFunc] !== 'function') {
           isValid = false;
           if (plugin.getName && typeof plugin.getName === 'function') {
             try {
