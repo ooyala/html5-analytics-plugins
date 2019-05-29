@@ -44,7 +44,7 @@ gulp.task('publishDependencies', () => {
   };
   listFiles(path.dependencies, function (error, files) {
     if (error) {
-      console.log(error);
+      OO.log(error);
     } else {
       const filteredList = files.filter(_.bind(checkFileExtension, this, '.js'));
       publish(filteredList);
@@ -75,7 +75,7 @@ gulp.task('browserify', () => {
 
   listFiles(path.originalJs, function (error, files) {
     if (error) {
-      console.log(error);
+      OO.log(error);
     } else {
       const filteredList = files.filter(_.bind(checkFileExtension, this, '.js'));
       bundleThis(filteredList);

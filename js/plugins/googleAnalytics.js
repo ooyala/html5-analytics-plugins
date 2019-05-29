@@ -45,6 +45,7 @@ const GAAnalyticsPlugin = function (framework) {
    */
   this.log = function (what) {
     if (!this.verboseLogging || typeof console === 'undefined') return;
+    // eslint-disable-next-line no-console
     console.log(what);
   };
 
@@ -96,6 +97,7 @@ const GAAnalyticsPlugin = function (framework) {
    */
   this.displayError = function () {
     this.gaTrackingEnabled = false;
+    // eslint-disable-next-line no-console
     console.error(`The Ooyala Google Analytics Tracking module is installed,
      but no valid Google Analytics code block is detected.`);
   };

@@ -118,6 +118,7 @@ function Html5Logging(...args) {
 
   this.consoleLog = function (message, logLevel) {
     if (typeof console === 'undefined') return;
+    /* eslint-disable no-console */
     if ((console.log && logLevel === Conviva.SystemSettings.LogLevel.DEBUG)
       || logLevel === Conviva.SystemSettings.LogLevel.INFO) {
       console.log(message);
@@ -126,6 +127,7 @@ function Html5Logging(...args) {
     } else if (console.error && logLevel === Conviva.SystemSettings.LogLevel.ERROR) {
       console.error(message);
     }
+    /* eslint-enable no-console */
   };
 
   this.release = function () {

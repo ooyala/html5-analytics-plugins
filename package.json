@@ -56,7 +56,7 @@
   "homepage": "https://github.com/ooyala/html5-analytics-plugins",
   "scripts": {
     "test": "jest",
-    "lint": "eslint . --fix --quiet",
+    "lint": "eslint .",
     "build": "echo",
     "build-prod": "echo",
     "start": "echo",

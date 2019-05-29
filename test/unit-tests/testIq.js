@@ -304,7 +304,7 @@ describe('Analytics Framework Template Unit Tests', () => {
           }
         });
     } catch (e) {
-      console.log(e);
+      OO.log(e);
       errorOccured = true;
     }
 

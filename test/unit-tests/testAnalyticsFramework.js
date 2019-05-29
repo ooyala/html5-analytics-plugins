@@ -26,6 +26,7 @@ describe('Analytics Framework Unit Tests', () => {
     OO.Analytics.FrameworkInstanceList = [];
     OO.Analytics.Framework.TEST = undefined;
     // return log back to normal
+    // eslint-disable-next-line no-console
     OO.log = console.log;
   };
 

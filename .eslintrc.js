@@ -79,5 +79,6 @@ module.exports = {
       }
     ],
     "no-underscore-dangle": 0,
+    "func-names": 0,
   },
 };
