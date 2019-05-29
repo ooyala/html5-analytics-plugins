@@ -78,9 +78,7 @@ module.exports = {
         "requireReturn": false
       }
     ],
-    "import/no-dynamic-require": "warn",
     "no-prototype-builtins": "warn",
-    "guard-for-in": "warn",
     "no-underscore-dangle": 0,
   },
 };

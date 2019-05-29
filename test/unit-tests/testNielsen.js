@@ -1,4 +1,4 @@
-/* eslint-disable global-require,require-jsdoc */
+/* eslint-disable global-require,require-jsdoc,import/no-dynamic-require */
 describe('Analytics Framework Nielsen Plugin Unit Tests', () => {
   jest.autoMockOff();
   require(`${SRC_ROOT}framework/AnalyticsFramework.js`);
