@@ -26,9 +26,11 @@ global.ga = function (...args) {
         if (args[i]) {
           if (typeof args[i] === 'object' && i === length - 1) {
             const fieldsObject = args[i];
-            for (const key in fieldsObject) {
-              MockGa.gaEventFields[key] = fieldsObject[key];
-            }
+            Object
+              .entries(fieldsObject)
+              .forEach(([, key]) => {
+                MockGa.gaEventFields[key] = fieldsObject[key];
+              });
           } else {
             const hitTypeField = eventHitTypeOrder[i - 2];
             MockGa.gaEventFields[hitTypeField] = args[i];

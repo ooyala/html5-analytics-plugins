@@ -176,11 +176,13 @@ describe('Analytics Framework Template Unit Tests', () => {
     const plugin = new TemplatePluginFactory(framework);
     let errorOccured = false;
     try {
-      for (const key in plugin) {
-        if (OO._.isFunction(plugin[key])) {
-          plugin[key].apply(plugin);
-        }
-      }
+      Object
+        .entries(plugin)
+        .forEach(([, key]) => {
+          if (OO._.isFunction(plugin[key])) {
+            plugin[key].apply(plugin);
+          }
+        });
     } catch (e) {
       errorOccured = true;
     }

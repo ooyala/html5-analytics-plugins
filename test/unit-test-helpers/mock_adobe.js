@@ -122,7 +122,7 @@ global.AppMeasurement = function () {
 };
 
 AppMeasurement.prototype.clearVars = function () {
-  for (const key in this) {
+  Object.keys(this).forEach((key) => {
     // clearVars deletes the values listed at:
     // https://marketing.adobe.com/resources/help/en_US/sc/implement/function_clearVars.html
     // In this mock, we're only going to delete the eVars and props since we do not make use of the other properties
@@ -130,7 +130,7 @@ AppMeasurement.prototype.clearVars = function () {
       && (key.indexOf('eVar') === 0 || key.indexOf('prop') === 0)) {
       delete this[key];
     }
-  }
+  });
 };
 
 global.resetGlobalInstances = function () {

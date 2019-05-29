@@ -214,11 +214,13 @@ describe('Analytics Framework Omniture Plugin Unit Tests', () => {
     const plugin = createPlugin(framework);
     let errorOccured = false;
     try {
-      for (const key in plugin) {
-        if (OO._.isFunction(plugin[key])) {
-          plugin[key].apply();
-        }
-      }
+      Object
+        .entries(plugin)
+        .forEach(([, key]) => {
+          if (OO._.isFunction(plugin[key])) {
+            plugin[key].apply();
+          }
+        });
     } catch (e) {
       errorOccured = true;
     }

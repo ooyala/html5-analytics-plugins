@@ -17,7 +17,8 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
   const testSetup = function () {
     framework = new Analytics.Framework();
     // mute the logging because there will be lots of error messages
-    OO.log = function () {};
+    OO.log = function () {
+    };
   };
 
   // cleanup for individual tests
@@ -92,9 +93,9 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     framework.registerPlugin(newFactoryWithFunctionTracing);
     const metadata = {
       conviva:
-      {
-        data: 'mydata',
-      },
+        {
+          data: 'mydata',
+        },
     };
     framework.setPluginMetadata(metadata);
     expect(metadataReceived).toEqual(metadata.conviva);
@@ -121,12 +122,14 @@ describe('Analytics Framework Conviva Plugin Unit Tests', () => {
     const plugin = createPlugin(framework);
     let errorOccured = false;
     try {
-      for (const key in plugin) {
-        if (OO._.isFunction(plugin[key])) {
-          const testFunction = _.bind(plugin[key], plugin);
-          testFunction.apply();
-        }
-      }
+      Object
+        .entries(plugin)
+        .forEach(([, key]) => {
+          if (OO._.isFunction(plugin[key])) {
+            const testFunction = _.bind(plugin[key], plugin);
+            testFunction.apply();
+          }
+        });
     } catch (e) {
       errorOccured = true;
     }

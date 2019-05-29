@@ -47,11 +47,13 @@ OO.Analytics.Framework = function () {
    */
   this.getPluginIDList = function () {
     const list = [];
+
     if (_registeredPlugins) {
-      for (const pluginID in _registeredPlugins) {
+      Object.keys(_registeredPlugins).forEach((pluginID) => {
         list.push(pluginID);
-      }
+      });
     }
+
     return list;
   };
 
@@ -60,7 +62,7 @@ OO.Analytics.Framework = function () {
    * @private
    * @method OO.Analytics.Framework#createErrorString
    * @param  {string} errorDetails The error details.
-   * @returns {string}              The new error message.
+   * @returns {string} The new error message.
    */
   const createErrorString = function (errorDetails) {
     return `ERROR Analytics Framework: ${errorDetails}`;
@@ -506,13 +508,13 @@ OO.Analytics.Framework = function () {
         recordEvent(eventName, params);
       }
       // propogate the message to all active plugins.
-      let pluginID;
-      for (pluginID in _registeredPlugins) {
+      Object.keys(_registeredPlugins).forEach((pluginID) => {
         if (this.isPluginActive(pluginID)) {
           const plugin = getPluginInstance(pluginID);
           safeFunctionCall(plugin, 'processEvent', [eventName, params]);
         }
-      }
+      });
+
       eventPublished = true;
     } else {
       OO.log(createErrorString(`Event '${eventName}' being published and it's not 
@@ -528,9 +530,11 @@ OO.Analytics.Framework = function () {
    */
   this.destroy = privateMember(function () {
     OO.Analytics.UnregisterFrameworkInstance(this);
-    for (const pluginID in _registeredPlugins) {
-      this.unregisterPlugin(pluginID);
-    }
+    Object
+      .entries(_registeredPlugins)
+      .forEach(([, pluginID]) => {
+        this.unregisterPlugin(pluginID);
+      });
     _ = null;
     _registeredPlugins = null;
     _recordedEventList = null;

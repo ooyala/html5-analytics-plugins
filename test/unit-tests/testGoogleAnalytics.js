@@ -85,12 +85,13 @@ describe('Analytics Framework GA Plugin Unit Tests', () => {
     testFields.eventCategory = EVENT_CATEGORY.OOYALA;
     testFields.eventAction = eventAction;
     testFields.eventLabel = eventLabel;
-    for (const i in eventHitTypeOrder) {
-      const key = eventHitTypeOrder[i];
-      if (eventFields[key]) {
-        expect(eventFields[key]).toBe(testFields[key]);
-      }
-    }
+    Object
+      .entries(eventHitTypeOrder)
+      .forEach(([, key]) => {
+        if (eventFields[key]) {
+          expect(eventFields[key]).toBe(testFields[key]);
+        }
+      });
   };
 
   const checkGaArgumentsForEvent = function (eventAction, eventLabel) {
