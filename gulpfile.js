@@ -1,4 +1,4 @@
-/* eslint-disable require-jsdoc */
+/* eslint-disable require-jsdoc,no-console */
 // Build automation
 // Require sudo npm install -g gulp
 // For dev, initiate watch by executing either `gulp` or `gulp watch`
@@ -44,7 +44,7 @@ gulp.task('publishDependencies', () => {
   };
   listFiles(path.dependencies, function (error, files) {
     if (error) {
-      OO.log(error);
+      console.log(error);
     } else {
       const filteredList = files.filter(_.bind(checkFileExtension, this, '.js'));
       publish(filteredList);
