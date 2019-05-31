@@ -6,12 +6,8 @@ module.exports = {
   },
   extends: 'airbnb-base',
   globals: {
-    expect: 0,
     OO: 0,
-    describe: 0,
     SRC_ROOT: 0,
-    beforeEach: 0,
-    afterEach: 0,
     COMMON_SRC_ROOT: 0,
     TEST_ROOT: 0,
     ADB: 0,
