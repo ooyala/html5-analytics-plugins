@@ -1,83 +1,84 @@
-describe('Analytics Framework Omniture Plugin Unit Tests', function()
-{
+/* eslint-disable global-require,require-jsdoc,import/no-dynamic-require */
+describe('Analytics Framework Omniture Plugin Unit Tests', () => {
   jest.autoMockOff();
-  require("../unit-test-helpers/mock_adobe.js");
-  require(SRC_ROOT + "framework/AnalyticsFramework.js");
-//  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
-  require(TEST_ROOT + "unit-test-helpers/AnalyticsFrameworkTestUtils.js");
-  require(COMMON_SRC_ROOT + "utils/InitModules/InitOOUnderscore.js");
-  var omniturePluginFactory = require(SRC_ROOT + "plugins/omniture.js");
+  require('../unit-test-helpers/mock_adobe.js');
+  require(`${SRC_ROOT}framework/AnalyticsFramework.js`);
+  //  require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
+  require(`${TEST_ROOT}unit-test-helpers/AnalyticsFrameworkTestUtils.js`);
+  require(`${COMMON_SRC_ROOT}utils/InitModules/InitOOUnderscore.js`);
+  const OmniturePluginFactory = require(`${SRC_ROOT}plugins/omniture.js`);
 
-  var Analytics = OO.Analytics;
-  var Utils = OO.Analytics.Utils;
-  var _ = OO._;
-  var framework;
+  const { Analytics } = OO;
+  const { Utils } = OO.Analytics;
+  const { _ } = OO;
+  let framework;
 
-  var playerName = "Ooyala V4";
+  const playerName = 'Ooyala V4';
 
 
-
-  //setup for individual tests
-  var testSetup = function()
-  {
+  /**
+   * Setup for individual tests.
+   */
+  const testSetup = function () {
     framework = new Analytics.Framework();
-    //mute the logging because there will be lots of error messages
-    OO.log = function(){};
+    // mute the logging because there will be lots of error messages
+    OO.log = function () {};
   };
 
-  //cleanup for individual tests
-  var testCleanup = function()
-  {
+  /**
+   * Cleanup for individual tests.
+   */
+  const testCleanup = function () {
     OO.Analytics.PluginFactoryList = [];
     OO.Analytics.FrameworkInstanceList = [];
     resetGlobalInstances();
-    //return log back to normal
-//    OO.log = console.log;
+    // return log back to normal
+    //    OO.log = console.log;
   };
 
   beforeEach(testSetup);
   afterEach(testCleanup);
 
-  //helpers
-  var createPlugin = function(framework, metadata)
-  {
-    if (!metadata){
-      metadata = {
-        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-        "reportSuiteId":"ovppooyala",
-        "pageName":"Test Page Name",
-        "visitorId":"test-vid",
-        "debug":true,
-        "channel":"Test Heartbeat Channel",//optional
-        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-        "heartbeatSSL":false,
-        "publisherId":"ooyalatester",
-        "props":{
-          "prop1":"espn",
-          "prop25":"football"
+  // helpers
+  // eslint-disable-next-line
+  const createPlugin = function (framework, metadata) {
+    let metadataNew = metadata;
+    if (!metadata) {
+      metadataNew = {
+        marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
+        visitorTrackingServer: 'ovppartners.sc.omtrdc.net',
+        appMeasurementTrackingServer: 'ovppartners.sc.omtrdc.net',
+        reportSuiteId: 'ovppooyala',
+        pageName: 'Test Page Name',
+        visitorId: 'test-vid',
+        debug: true,
+        channel: 'Test Heartbeat Channel', // optional
+        heartbeatTrackingServer: 'ovppartners.hb.omtrdc.net',
+        heartbeatSSL: false,
+        publisherId: 'ooyalatester',
+        props: {
+          prop1: 'espn',
+          prop25: 'football',
         },
-        "eVars":{
-          "eVar9":"en"
-        }
+        eVars: {
+          eVar9: 'en',
+        },
       };
     }
-    var plugin = new omniturePluginFactory(framework);
+    const plugin = new OmniturePluginFactory(framework);
     plugin.init();
-    plugin.setMetadata(metadata);
+    plugin.setMetadata(metadataNew);
     return plugin;
   };
 
-  it('Test Omniture Plugin Validity', function()
-  {
-    expect(omniturePluginFactory).not.toBeNull();
-    var plugin = new omniturePluginFactory(framework);
+  it('Test Omniture Plugin Validity', () => {
+    expect(OmniturePluginFactory).not.toBeNull();
+    const plugin = new OmniturePluginFactory(framework);
     expect(framework.validatePlugin(plugin)).toBe(true);
   });
 
-  //it('Test Auto Registering Template', function()
-  //{
+  // it('Test Auto Registering Template', function()
+  // {
   //  var templatePlugin = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   //  var pluginList = framework.getPluginIDList();
   //  expect(pluginList.length).toBe(1);
@@ -96,21 +97,20 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //
   //  expect(framework.unregisterPlugin(pluginID)).toBe(true);
   //  expect(_.contains(framework.getPluginIDList(), pluginID)).toBe(false);
-  //});
+  // });
   //
-  it('Test Omniture Plugin Validity', function()
-  {
-    var pluginID = framework.registerPlugin(omniturePluginFactory);
+  it('Test Omniture Plugin Validity', () => {
+    const pluginID = framework.registerPlugin(OmniturePluginFactory);
     expect(pluginID).toBeDefined();
-    var pluginList = framework.getPluginIDList();
+    const pluginList = framework.getPluginIDList();
     expect(_.contains(pluginList, pluginID));
     expect(framework.makePluginInactive(pluginID)).toBe(true);
     expect(framework.makePluginActive(pluginID)).toBe(true);
   });
   //
   //
-  //it('Test Template Mixed Loading Templates and Frameworks Delayed', function()
-  //{
+  // it('Test Template Mixed Loading Templates and Frameworks Delayed', function()
+  // {
   //  var framework2 = new Analytics.Framework();
   //  expect(OO.Analytics.FrameworkInstanceList).toBeDefined();
   //  expect(OO.Analytics.FrameworkInstanceList.length).toEqual(2);
@@ -130,10 +130,10 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //  expect(pluginList1.length).toEqual(1);
   //  expect(pluginList2.length).toEqual(1);
   //  expect(pluginList3.length).toEqual(1);
-  //});
+  // });
   //
-  //it('Test Template Created Before Framework', function()
-  //{
+  // it('Test Template Created Before Framework', function()
+  // {
   //  //erase the global references for the plugins and frameworks.
   //  OO.Analytics.PluginFactoryList = null;
   //  OO.Analytics.FrameworkInstanceList = null;
@@ -142,46 +142,40 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //  expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   //  expect(OO.Analytics.FrameworkInstanceList).toBeTruthy();
   //  expect(OO.Analytics.FrameworkInstanceList.length).toEqual(0);
-  //});
+  // });
   //
-  it('Test Setting Metadata and Processing An Event', function()
-  {
-    var metadataReceived = null;
-    var eventProcessed = null;
-    var paramsReceived = null;
-    var newFactoryWithFunctionTracing = function()
-    {
-      var factory = new omniturePluginFactory();
-      factory.setMetadata = function(metadata)
-      {
+  it('Test Setting Metadata and Processing An Event', () => {
+    let metadataReceived = null;
+    let eventProcessed = null;
+    let paramsReceived = null;
+    const newFactoryWithFunctionTracing = function () {
+      const factory = new OmniturePluginFactory();
+      factory.setMetadata = function (metadata) {
         metadataReceived = metadata;
       };
-      factory.processEvent = function(eventName, params)
-      {
+      factory.processEvent = function (eventName, params) {
         eventProcessed = eventName;
         paramsReceived = params;
       };
       return factory;
     };
     framework.registerPlugin(newFactoryWithFunctionTracing);
-    var metadata =
-    {
-      "omniture":
+    const metadata = {
+      omniture:
       {
-        "data": "mydata"
-      }
+        data: 'mydata',
+      },
     };
     framework.setPluginMetadata(metadata);
-    expect(metadataReceived).toEqual(metadata["omniture"]);
+    expect(metadataReceived).toEqual(metadata.omniture);
     framework.publishEvent(OO.Analytics.EVENTS.VIDEO_PAUSED, [metadata]);
     expect(eventProcessed).toEqual(OO.Analytics.EVENTS.VIDEO_PAUSED);
     expect(paramsReceived).toEqual([metadata]);
   });
 
-  it('Test Framework Destroy With Template', function()
-  {
-    OO.Analytics.RegisterPluginFactory(omniturePluginFactory);
-    var pluginList = framework.getPluginIDList();
+  it('Test Framework Destroy With Template', () => {
+    OO.Analytics.RegisterPluginFactory(OmniturePluginFactory);
+    let pluginList = framework.getPluginIDList();
     expect(pluginList.length).toEqual(1);
     expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
@@ -193,8 +187,8 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
   });
 
-  //it('Test Framework Destroy With Template And Multi Frameworks', function()
-  //{
+  // it('Test Framework Destroy With Template And Multi Frameworks', function()
+  // {
   //  var templatePluginFactory = require(SRC_ROOT + "plugins/AnalyticsPluginTemplate.js");
   //  var framework2 = new OO.Analytics.Framework();
   //  var pluginList = framework.getPluginIDList();
@@ -214,240 +208,219 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
   //  expect(pluginList2.length).toEqual(1);
   //  expect(OO.Analytics.FrameworkInstanceList.length).toEqual(1);
   //  expect(OO.Analytics.PluginFactoryList.length).toEqual(1);
-  //});
+  // });
 
-  it('Test all functions', function()
-  {
-    var plugin = createPlugin(framework);
-    var errorOccured = false;
-    try
-    {
-      for (var key in plugin)
-      {
-        if(OO._.isFunction(plugin[key]))
-        {
-          plugin[key].apply();
-        }
-      }
-    }
-    catch(e)
-    {
+  it('Test all functions', () => {
+    const plugin = createPlugin(framework);
+    let errorOccured = false;
+    try {
+      Object
+        .entries(plugin)
+        .forEach(([, key]) => {
+          if (OO._.isFunction(plugin[key])) {
+            plugin[key].apply();
+          }
+        });
+    } catch (e) {
       errorOccured = true;
     }
 
     expect(errorOccured).toBe(false);
   });
 
-  //new
-  it('Delegate can provide valid Video Info', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  // new
+  it('Delegate can provide valid Video Info', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulatePlayerLoad({
-      embedCode : "abcde",
-      title : "testTitle",
-      duration : 20000
+      embedCode: 'abcde',
+      title: 'testTitle',
+      duration: 20000,
     });
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
-    var delegate = plugin.getPlayerDelegate();
-    var videoInfo = delegate.getVideoInfo();
-    expect(videoInfo.id).toBe("abcde");
-    expect(videoInfo.name).toBe("testTitle");
+    const delegate = plugin.getPlayerDelegate();
+    const videoInfo = delegate.getVideoInfo();
+    expect(videoInfo.id).toBe('abcde');
+    expect(videoInfo.name).toBe('testTitle');
     expect(videoInfo.length).toBe(20);
     expect(videoInfo.playerName).toBe(playerName);
     expect(videoInfo.playhead).toBe(10);
   });
-  it('Delegate can provide Video Info with VOD as the default streamType', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  it('Delegate can provide Video Info with VOD as the default streamType', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulatePlayerLoad({
-      embedCode : "abcde",
-      title : "testTitle",
-      duration : 20000
+      embedCode: 'abcde',
+      title: 'testTitle',
+      duration: 20000,
     });
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
-    var delegate = plugin.getPlayerDelegate();
-    var videoInfo = delegate.getVideoInfo();
-    expect(videoInfo.id).toBe("abcde");
-    expect(videoInfo.name).toBe("testTitle");
+    const delegate = plugin.getPlayerDelegate();
+    const videoInfo = delegate.getVideoInfo();
+    expect(videoInfo.id).toBe('abcde');
+    expect(videoInfo.name).toBe('testTitle');
     expect(videoInfo.streamType).toBe(ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD);
     expect(videoInfo.length).toBe(20);
     expect(videoInfo.playerName).toBe(playerName);
     expect(videoInfo.playhead).toBe(10);
   });
-  it('Delegate can provide Video Info with VOD as the streamType', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  it('Delegate can provide Video Info with VOD as the streamType', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulatePlayerLoad({
-      embedCode : "abcde",
-      title : "testTitle",
-      streamType : OO.Analytics.STREAM_TYPE.VOD,
-      duration : 20000
+      embedCode: 'abcde',
+      title: 'testTitle',
+      streamType: OO.Analytics.STREAM_TYPE.VOD,
+      duration: 20000,
     });
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
-    var delegate = plugin.getPlayerDelegate();
-    var videoInfo = delegate.getVideoInfo();
-    expect(videoInfo.id).toBe("abcde");
-    expect(videoInfo.name).toBe("testTitle");
+    const delegate = plugin.getPlayerDelegate();
+    const videoInfo = delegate.getVideoInfo();
+    expect(videoInfo.id).toBe('abcde');
+    expect(videoInfo.name).toBe('testTitle');
     expect(videoInfo.streamType).toBe(ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_VOD);
     expect(videoInfo.length).toBe(20);
     expect(videoInfo.playerName).toBe(playerName);
     expect(videoInfo.playhead).toBe(10);
   });
 
-  it('Delegate can provide Video Info with LIVE as the streamType', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  it('Delegate can provide Video Info with LIVE as the streamType', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulatePlayerLoad({
-      embedCode : "abcde",
-      title : "testTitle",
-      streamType:OO.Analytics.STREAM_TYPE.LIVE_STREAM,
-      duration : 20000
+      embedCode: 'abcde',
+      title: 'testTitle',
+      streamType: OO.Analytics.STREAM_TYPE.LIVE_STREAM,
+      duration: 20000,
     });
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
-    var delegate = plugin.getPlayerDelegate();
-    var videoInfo = delegate.getVideoInfo();
-    expect(videoInfo.id).toBe("abcde");
-    expect(videoInfo.name).toBe("testTitle");
+    const delegate = plugin.getPlayerDelegate();
+    const videoInfo = delegate.getVideoInfo();
+    expect(videoInfo.id).toBe('abcde');
+    expect(videoInfo.name).toBe('testTitle');
     expect(videoInfo.streamType).toBe(ADB.va.plugins.videoplayer.AssetType.ASSET_TYPE_LIVE);
     expect(videoInfo.length).toBe(20);
     expect(videoInfo.playerName).toBe(playerName);
     expect(videoInfo.playhead).toBe(10);
   });
 
-  it('Delegate can provide valid Ad Break Info', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  it('Delegate can provide valid Ad Break Info', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
     simulator.simulateAdBreakStarted();
-    var delegate = plugin.getPlayerDelegate();
-    var adBreakInfo = delegate.getAdBreakInfo();
+    const delegate = plugin.getPlayerDelegate();
+    const adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
     expect(adBreakInfo.position).toBe(1);
     expect(adBreakInfo.startTime).toBe(10);
   });
 
-  it('Delegate can provide valid Ad Info', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  it('Delegate can provide valid Ad Info', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "zyxw",
-        adDuration : 15,
-        adPodPosition : 1
-      }
+        adId: 'zyxw',
+        adDuration: 15,
+        adPodPosition: 1,
+      },
     });
-    var delegate = plugin.getPlayerDelegate();
-    var adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("zyxw");
+    const delegate = plugin.getPlayerDelegate();
+    const adInfo = delegate.getAdInfo();
+    expect(adInfo.id).toBe('zyxw');
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
   });
 
-  it('Delegate does not provide ad info if not in ad playback', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  it('Delegate does not provide ad info if not in ad playback', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "zyxw",
-        adDuration : 15,
-        adPodPosition : 1
-      }
+        adId: 'zyxw',
+        adDuration: 15,
+        adPodPosition: 1,
+      },
     });
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "adId"
+      adId: 'adId',
     });
-    var delegate = plugin.getPlayerDelegate();
-    var adInfo = delegate.getAdInfo();
+    const delegate = plugin.getPlayerDelegate();
+    const adInfo = delegate.getAdInfo();
     expect(adInfo).toBe(null);
   });
 
-  it('Delegate does not provide ad break info if not in ad break', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
+  it('Delegate does not provide ad break info if not in ad break', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
     simulator.simulateAdBreakStarted();
     simulator.simulateAdBreakEnded();
-    var delegate = plugin.getPlayerDelegate();
-    var adBreakInfo = delegate.getAdBreakInfo();
+    const delegate = plugin.getPlayerDelegate();
+    const adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo).toBe(null);
   });
 
 
-  it('Omniture Video Plugin can trackSessionStart', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSessionStart = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackSessionStart', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackSessionStart = function () {
+      called += 1;
     };
     simulator.simulatePlayerStart();
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackPlay', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackPlay = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackPlay', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackPlay = function () {
+      called += 1;
     };
     simulator.simulateContentPlayback();
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackVideoLoad', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackVideoLoad', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function () {
+      called += 1;
     };
     simulator.simulatePlayerStart();
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin does not trackVideoLoad if we are resuming playback from a pause', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var videoLoadCalled = 0;
-    var playCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function()
-    {
-      videoLoadCalled++;
+  it('Omniture Video Plugin does not trackVideoLoad if we are resuming playback from a pause', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let videoLoadCalled = 0;
+    let playCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function () {
+      videoLoadCalled += 1;
     };
-    plugin.omnitureVideoPlayerPlugin.trackPlay = function()
-    {
-      playCalled++;
+    plugin.omnitureVideoPlayerPlugin.trackPlay = function () {
+      playCalled += 1;
     };
     simulator.simulatePlayerStart();
     simulator.simulateContentPlayback();
@@ -457,189 +430,163 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(playCalled).toBe(2);
   });
 
-  it('Omniture Video Plugin can trackPause', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackPause = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackPause', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackPause = function () {
+      called += 1;
     };
     simulator.simulateVideoPause();
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackSeekStart', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSeekStart = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackSeekStart', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackSeekStart = function () {
+      called += 1;
     };
     simulator.simulateContentPlayback();
     simulator.simulateVideoSeek();
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackSeekComplete', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackSeekComplete', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function () {
+      called += 1;
     };
     simulator.simulateContentPlayback();
     simulator.simulateVideoSeek();
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
     expect(called).toBe(1);
-    var delegate = plugin.getPlayerDelegate();
-    var videoInfo = delegate.getVideoInfo();
+    const delegate = plugin.getPlayerDelegate();
+    const videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(10);
   });
 
-  it('Omniture Video Plugin can trackComplete', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackComplete = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackComplete', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackComplete = function () {
+      called += 1;
     };
     simulator.simulateContentComplete({
-      streamPosition: 60
+      streamPosition: 60,
     });
     simulator.simulatePlaybackComplete();
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackVideoUnload', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackVideoUnload', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function () {
+      called += 1;
     };
     simulator.simulateContentComplete({
-      streamPosition: 60
+      streamPosition: 60,
     });
     simulator.simulatePlaybackComplete();
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackAdStart', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackAdStart = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackAdStart', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackAdStart = function () {
+      called += 1;
     };
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "zyxw",
-        adDuration : 15,
-        adPodPosition : 1
-      }
+        adId: 'zyxw',
+        adDuration: 15,
+        adPodPosition: 1,
+      },
     });
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can trackAdComplete', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var called = 0;
-    plugin.omnitureVideoPlayerPlugin.trackAdComplete = function()
-    {
-      called++;
+  it('Omniture Video Plugin can trackAdComplete', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    let called = 0;
+    plugin.omnitureVideoPlayerPlugin.trackAdComplete = function () {
+      called += 1;
     };
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "adId"
+      adId: 'adId',
     });
     expect(called).toBe(1);
   });
 
-  it('Omniture Video Plugin can track all events in a typical playback', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var delegate = plugin.getPlayerDelegate();
+  it('Omniture Video Plugin can track all events in a typical playback', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    const delegate = plugin.getPlayerDelegate();
 
-    var adStartCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackAdStart = function()
-    {
-      adStartCalled++;
+    let adStartCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackAdStart = function () {
+      adStartCalled += 1;
     };
 
-    var adCompleteCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackAdComplete = function()
-    {
-      adCompleteCalled++;
+    let adCompleteCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackAdComplete = function () {
+      adCompleteCalled += 1;
     };
 
-    var sessionStartCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSessionStart = function()
-    {
-      sessionStartCalled++;
+    let sessionStartCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackSessionStart = function () {
+      sessionStartCalled += 1;
     };
 
-    var videoLoadCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function()
-    {
-      videoLoadCalled++;
+    let videoLoadCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackVideoLoad = function () {
+      videoLoadCalled += 1;
     };
 
-    var playCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackPlay = function()
-    {
-      playCalled++;
+    let playCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackPlay = function () {
+      playCalled += 1;
     };
 
-    var pauseCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackPause = function()
-    {
-      pauseCalled++;
+    let pauseCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackPause = function () {
+      pauseCalled += 1;
     };
 
-    var seekStartCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSeekStart = function()
-    {
-      seekStartCalled++;
+    let seekStartCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackSeekStart = function () {
+      seekStartCalled += 1;
     };
 
-    var seekCompleteCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function()
-    {
-      seekCompleteCalled++;
+    let seekCompleteCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackSeekComplete = function () {
+      seekCompleteCalled += 1;
     };
 
-    var completeCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackComplete = function()
-    {
-      completeCalled++;
+    let completeCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackComplete = function () {
+      completeCalled += 1;
     };
 
-    var videoUnloadCalled = 0;
-    plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function()
-    {
-      videoUnloadCalled++;
+    let videoUnloadCalled = 0;
+    plugin.omnitureVideoPlayerPlugin.trackVideoUnload = function () {
+      videoUnloadCalled += 1;
     };
 
-    var clearCounts = function()
-    {
+    const clearCounts = function () {
       videoUnloadCalled = 0;
       completeCalled = 0;
       seekCompleteCalled = 0;
@@ -654,25 +601,26 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
 
     simulator.addPreSimulateCallback(clearCounts);
 
-    var videoInfo, adBreakInfo, adInfo;
+    let videoInfo; let adBreakInfo; let
+      adInfo;
 
-    //initialization
+    // initialization
     simulator.simulatePlayerLoad({
-      embedCode : "abcde",
-      title : "testTitle",
-      duration : 20000
+      embedCode: 'abcde',
+      title: 'testTitle',
+      duration: 20000,
     });
     videoInfo = delegate.getVideoInfo();
-    expect(videoInfo.name).toBe("testTitle");
+    expect(videoInfo.name).toBe('testTitle');
     expect(videoInfo.length).toBe(20);
-    expect(videoInfo.id).toBe("abcde");
+    expect(videoInfo.id).toBe('abcde');
 
-    //user clicks play
+    // user clicks play
     simulator.simulatePlayerStart();
     expect(videoLoadCalled).toBe(1);
     expect(sessionStartCalled).toBe(1);
 
-    //preroll
+    // preroll
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
@@ -682,28 +630,28 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "preroll",
-        adDuration : 15,
-        adPodPosition : 1
-      }
+        adId: 'preroll',
+        adDuration: 15,
+        adPodPosition: 1,
+      },
     });
-    //the preroll adds another trackPlay call
+    // the preroll adds another trackPlay call
     expect(playCalled).toBe(1);
 
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("preroll");
+    expect(adInfo.id).toBe('preroll');
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "preroll"
+      adId: 'preroll',
     });
     expect(adCompleteCalled).toBe(1);
     simulator.simulateAdBreakEnded();
 
-    //main content
+    // main content
 
     simulator.simulateContentPlayback();
     expect(playCalled).toBe(1);
@@ -719,14 +667,14 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(seekCompleteCalled).toBe(1);
 
     simulator.simulateVideoProgress({
-      playheads: [9]
+      playheads: [9],
     });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(9);
 
-    //midroll - podded of 2
+    // midroll - podded of 2
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
@@ -737,52 +685,52 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "midroll",
-        adDuration : 15,
-        adPodPosition : 1
-      }
+        adId: 'midroll',
+        adDuration: 15,
+        adPodPosition: 1,
+      },
     });
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("midroll");
+    expect(adInfo.id).toBe('midroll');
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "midroll"
+      adId: 'midroll',
     });
     expect(adCompleteCalled).toBe(1);
 
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "midroll2",
-        adDuration : 5,
-        adPodPosition : 2
-      }
+        adId: 'midroll2',
+        adDuration: 5,
+        adPodPosition: 2,
+      },
     });
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("midroll2");
+    expect(adInfo.id).toBe('midroll2');
     expect(adInfo.length).toBe(5);
     expect(adInfo.position).toBe(2);
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "midroll2"
+      adId: 'midroll2',
     });
     expect(adCompleteCalled).toBe(1);
     simulator.simulateAdBreakEnded();
 
-    //main content resumes
+    // main content resumes
     simulator.simulateContentPlayback();
     expect(playCalled).toBe(1);
 
-    //TODO: Should completed message go before postroll?
-    //postroll
+    // TODO: Should completed message go before postroll?
+    // postroll
     simulator.simulateContentComplete({
-      streamPosition: 60
+      streamPosition: 60,
     });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(60);
@@ -796,33 +744,33 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "postroll",
-        adDuration : 30,
-        adPodPosition : 1
-      }
+        adId: 'postroll',
+        adDuration: 30,
+        adPodPosition: 1,
+      },
     });
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("postroll");
+    expect(adInfo.id).toBe('postroll');
     expect(adInfo.length).toBe(30);
     expect(adInfo.position).toBe(1);
     expect(adStartCalled).toBe(1);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "postroll"
+      adId: 'postroll',
     });
     expect(adCompleteCalled).toBe(1);
     simulator.simulateAdBreakEnded();
 
-    //main video ends
+    // main video ends
     simulator.simulateContentComplete({
-      streamPosition: 60
+      streamPosition: 60,
     });
     simulator.simulatePlaybackComplete();
     expect(completeCalled).toBe(1);
     expect(videoUnloadCalled).toBe(1);
 
-    //replay
+    // replay
     simulator.simulateReplay();
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(0);
@@ -831,30 +779,30 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     expect(sessionStartCalled).toBe(1);
   });
 
-  //TODO: This only tests for function coverage of the Fake Video Plugin
-  it('Omniture Video Plugin can track all events in a typical playback without mocks', function()
-  {
-    var plugin = createPlugin(framework);
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    var delegate = plugin.getPlayerDelegate();
+  // TODO: This only tests for function coverage of the Fake Video Plugin
+  it('Omniture Video Plugin can track all events in a typical playback without mocks', () => {
+    const plugin = createPlugin(framework);
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    const delegate = plugin.getPlayerDelegate();
 
-    var videoInfo, adBreakInfo, adInfo;
+    let videoInfo; let adBreakInfo; let
+      adInfo;
 
-    //initialization
+    // initialization
     simulator.simulatePlayerLoad({
-      embedCode : "abcde",
-      title : "testTitle",
-      duration : 20000
+      embedCode: 'abcde',
+      title: 'testTitle',
+      duration: 20000,
     });
     videoInfo = delegate.getVideoInfo();
-    expect(videoInfo.name).toBe("testTitle");
+    expect(videoInfo.name).toBe('testTitle');
     expect(videoInfo.length).toBe(20);
-    expect(videoInfo.id).toBe("abcde");
+    expect(videoInfo.id).toBe('abcde');
 
-    //user clicks play
+    // user clicks play
     simulator.simulatePlayerStart();
 
-    //preroll
+    // preroll
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
     expect(adBreakInfo.playerName).toBe(playerName);
@@ -864,23 +812,23 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "preroll",
-        adDuration : 15,
-        adPodPosition : 1
-      }
+        adId: 'preroll',
+        adDuration: 15,
+        adPodPosition: 1,
+      },
     });
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("preroll");
+    expect(adInfo.id).toBe('preroll');
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "preroll"
+      adId: 'preroll',
     });
     simulator.simulateAdBreakEnded();
 
-    //main content
+    // main content
 
     simulator.simulateContentPlayback();
 
@@ -891,14 +839,14 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateVideoSeek();
 
     simulator.simulateVideoProgress({
-      playheads: [9]
+      playheads: [9],
     });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(9);
 
-    //midroll - podded of 2
+    // midroll - podded of 2
     simulator.simulateVideoProgress({
-      playheads: [10]
+      playheads: [10],
     });
     simulator.simulateAdBreakStarted();
     adBreakInfo = delegate.getAdBreakInfo();
@@ -909,47 +857,47 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "midroll",
-        adDuration : 15,
-        adPodPosition : 1
-      }
+        adId: 'midroll',
+        adDuration: 15,
+        adPodPosition: 1,
+      },
     });
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("midroll");
+    expect(adInfo.id).toBe('midroll');
     expect(adInfo.length).toBe(15);
     expect(adInfo.position).toBe(1);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "midroll"
+      adId: 'midroll',
     });
 
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "midroll2",
-        adDuration : 5,
-        adPodPosition : 2
-      }
+        adId: 'midroll2',
+        adDuration: 5,
+        adPodPosition: 2,
+      },
     });
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("midroll2");
+    expect(adInfo.id).toBe('midroll2');
     expect(adInfo.length).toBe(5);
     expect(adInfo.position).toBe(2);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "midroll2"
+      adId: 'midroll2',
     });
     simulator.simulateAdBreakEnded();
 
-    //main content resumes
+    // main content resumes
     simulator.simulateContentPlayback();
 
-    //TODO: Should completed message go before postroll?
-    //postroll
+    // TODO: Should completed message go before postroll?
+    // postroll
     simulator.simulateContentComplete({
-      streamPosition: 60
+      streamPosition: 60,
     });
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(60);
@@ -963,240 +911,240 @@ describe('Analytics Framework Omniture Plugin Unit Tests', function()
     simulator.simulateAdPlayback({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
       adMetadata: {
-        adId : "postroll",
-        adDuration : 30,
-        adPodPosition : 1
-      }
+        adId: 'postroll',
+        adDuration: 30,
+        adPodPosition: 1,
+      },
     });
     adInfo = delegate.getAdInfo();
-    expect(adInfo.id).toBe("postroll");
+    expect(adInfo.id).toBe('postroll');
     expect(adInfo.length).toBe(30);
     expect(adInfo.position).toBe(1);
 
     simulator.simulateAdComplete({
       adType: OO.Analytics.AD_TYPE.LINEAR_VIDEO,
-      adId: "postroll"
+      adId: 'postroll',
     });
     simulator.simulateAdBreakEnded();
 
-    //main video ends
+    // main video ends
     simulator.simulatePlaybackComplete();
 
-    //replay
+    // replay
     simulator.simulateReplay();
     videoInfo = delegate.getVideoInfo();
     expect(videoInfo.playhead).toBe(0);
   });
 
-  //evars and props
-  it('Omniture Video Plugin can parse eVars and props', function()
-  {
-    var plugin = createPlugin(framework,
-    {
-      "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-      "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-      "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-      "reportSuiteId":"ovppooyala",
-      "pageName":"Test Page Name",
-      "visitorId":"test-vid",
-      "debug":true,
-      "channel":"Test Heartbeat Channel",//optional
-      "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-      "publisherId":"ooyalatester",
-      "props":{
-        "prop2":"testProp2",
-        "prop15":"testProp15"
-      },
-      "eVars":{
-        "eVar10":"testEVar10",
-        "eVar20":"testEVar20"
-      }
-    });
-    expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
-    expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
-    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
-    expect(ADB.OO.AppMeasurement["eVar20"]).toBe("testEVar20");
-  });
-
-  it('Omniture can update eVars and props on video source change', function() {
-    var plugin = createPlugin(framework,
-    {
-      "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-      "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-      "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-      "reportSuiteId":"ovppooyala",
-      "pageName":"Test Page Name",
-      "visitorId":"test-vid",
-      "debug":true,
-      "channel":"Test Heartbeat Channel",//optional
-      "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-      "publisherId":"ooyalatester",
-      "props":{
-        "prop2":"testProp2",
-        "prop15":"testProp15"
-      },
-      "eVars":{
-        "eVar10":"testEVar10",
-        "eVar20":"testEVar20"
-      }
-    });
-
-    var simulator = Utils.createPlaybackSimulator(plugin);
-    simulator.simulatePlayerLoad({
-      embedCode : "abcde",
-      title : "testTitle",
-      duration : 20000
-    });
-
-    expect(ADB.OO.AppMeasurement["prop2"]).toBe("testProp2");
-    expect(ADB.OO.AppMeasurement["prop15"]).toBe("testProp15");
-    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("testEVar10");
-    expect(ADB.OO.AppMeasurement["eVar20"]).toBe("testEVar20");
-
-    simulator.simulateVideoSourceChanged('newEmbedCode', {
-      "omniture": {
-        "props":{
-          "prop2":"newTestProp2"
-        },
-        "eVars":{
-          "eVar10":"newTestEVar10"
-        }
-      }
-    });
-
-    expect(ADB.OO.AppMeasurement["prop2"]).toBe("newTestProp2");
-    expect(typeof ADB.OO.AppMeasurement["prop15"]).toBe("undefined");
-    expect(ADB.OO.AppMeasurement["eVar10"]).toBe("newTestEVar10");
-    expect(typeof ADB.OO.AppMeasurement["eVar20"]).toBe("undefined");
-  });
-
-  //Adobe Plugin Setup
-  it('Omniture Video Plugin can instantiate Adobe Plugins', function()
-  {
-    var plugin = createPlugin(framework,
+  // evars and props
+  it('Omniture Video Plugin can parse eVars and props', () => {
+    // eslint-disable-next-line no-unused-vars
+    const plugin = createPlugin(framework,
       {
-        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-        "reportSuiteId":"ovppooyala",
-        "pageName":"Test Page Name",
-        "visitorId":"test-vid",
-        "debug":false,
-        "channel":"Test Heartbeat Channel",//optional
-        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-        "heartbeatSSL":false,
-        "publisherId":"ooyalatester",
-        "props":{
-          "prop2":"testProp2",
-          "prop15":"testProp15"
+        marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
+        visitorTrackingServer: 'ovppartners.sc.omtrdc.net',
+        appMeasurementTrackingServer: 'ovppartners.sc.omtrdc.net',
+        reportSuiteId: 'ovppooyala',
+        pageName: 'Test Page Name',
+        visitorId: 'test-vid',
+        debug: true,
+        channel: 'Test Heartbeat Channel', // optional
+        heartbeatTrackingServer: 'ovppartners.hb.omtrdc.net',
+        publisherId: 'ooyalatester',
+        props: {
+          prop2: 'testProp2',
+          prop15: 'testProp15',
         },
-        "eVars":{
-          "eVar10":"testEVar10"
-        }
+        eVars: {
+          eVar10: 'testEVar10',
+          eVar20: 'testEVar20',
+        },
+      });
+    expect(ADB.OO.AppMeasurement.prop2).toBe('testProp2');
+    expect(ADB.OO.AppMeasurement.prop15).toBe('testProp15');
+    expect(ADB.OO.AppMeasurement.eVar10).toBe('testEVar10');
+    expect(ADB.OO.AppMeasurement.eVar20).toBe('testEVar20');
+  });
+
+  it('Omniture can update eVars and props on video source change', () => {
+    const plugin = createPlugin(framework,
+      {
+        marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
+        visitorTrackingServer: 'ovppartners.sc.omtrdc.net',
+        appMeasurementTrackingServer: 'ovppartners.sc.omtrdc.net',
+        reportSuiteId: 'ovppooyala',
+        pageName: 'Test Page Name',
+        visitorId: 'test-vid',
+        debug: true,
+        channel: 'Test Heartbeat Channel', // optional
+        heartbeatTrackingServer: 'ovppartners.hb.omtrdc.net',
+        publisherId: 'ooyalatester',
+        props: {
+          prop2: 'testProp2',
+          prop15: 'testProp15',
+        },
+        eVars: {
+          eVar10: 'testEVar10',
+          eVar20: 'testEVar20',
+        },
       });
 
-    expect(ADB.OO.Visitor.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+    const simulator = Utils.createPlaybackSimulator(plugin);
+    simulator.simulatePlayerLoad({
+      embedCode: 'abcde',
+      title: 'testTitle',
+      duration: 20000,
+    });
 
-    expect(ADB.OO.AppMeasurement.trackingServer).toBe("ovppartners.sc.omtrdc.net");
-    expect(ADB.OO.AppMeasurement.account).toBe("ovppooyala");
-    expect(ADB.OO.AppMeasurement.pageName).toBe("Test Page Name");
-    expect(ADB.OO.AppMeasurement.visitorID).toBe("test-vid");
+    expect(ADB.OO.AppMeasurement.prop2).toBe('testProp2');
+    expect(ADB.OO.AppMeasurement.prop15).toBe('testProp15');
+    expect(ADB.OO.AppMeasurement.eVar10).toBe('testEVar10');
+    expect(ADB.OO.AppMeasurement.eVar20).toBe('testEVar20');
+
+    simulator.simulateVideoSourceChanged('newEmbedCode', {
+      omniture: {
+        props: {
+          prop2: 'newTestProp2',
+        },
+        eVars: {
+          eVar10: 'newTestEVar10',
+        },
+      },
+    });
+
+    expect(ADB.OO.AppMeasurement.prop2).toBe('newTestProp2');
+    expect(typeof ADB.OO.AppMeasurement.prop15).toBe('undefined');
+    expect(ADB.OO.AppMeasurement.eVar10).toBe('newTestEVar10');
+    expect(typeof ADB.OO.AppMeasurement.eVar20).toBe('undefined');
+  });
+
+  // Adobe Plugin Setup
+  it('Omniture Video Plugin can instantiate Adobe Plugins', () => {
+    // eslint-disable-next-line no-unused-vars
+    const plugin = createPlugin(framework,
+      {
+        marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
+        visitorTrackingServer: 'ovppartners.sc.omtrdc.net',
+        appMeasurementTrackingServer: 'ovppartners.sc.omtrdc.net',
+        reportSuiteId: 'ovppooyala',
+        pageName: 'Test Page Name',
+        visitorId: 'test-vid',
+        debug: false,
+        channel: 'Test Heartbeat Channel', // optional
+        heartbeatTrackingServer: 'ovppartners.hb.omtrdc.net',
+        heartbeatSSL: false,
+        publisherId: 'ooyalatester',
+        props: {
+          prop2: 'testProp2',
+          prop15: 'testProp15',
+        },
+        eVars: {
+          eVar10: 'testEVar10',
+        },
+      });
+
+    expect(ADB.OO.Visitor.trackingServer).toBe('ovppartners.sc.omtrdc.net');
+
+    expect(ADB.OO.AppMeasurement.trackingServer).toBe('ovppartners.sc.omtrdc.net');
+    expect(ADB.OO.AppMeasurement.account).toBe('ovppooyala');
+    expect(ADB.OO.AppMeasurement.pageName).toBe('Test Page Name');
+    expect(ADB.OO.AppMeasurement.visitorID).toBe('test-vid');
 
     expect(ADB.OO.VideoPlayerPluginConfig.debugLogging).toBe(false);
 
-    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe("Test Heartbeat Channel");
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe('Test Heartbeat Channel');
     expect(ADB.OO.AdobeAnalyticsPluginConfig.debugLogging).toBe(false);
 
-    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe("ovppartners.hb.omtrdc.net");
-    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe("ooyalatester");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe('ovppartners.hb.omtrdc.net');
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe('ooyalatester');
     expect(ADB.OO.AdobeHeartbeatPluginConfig.debugLogging).toBe(false);
     expect(ADB.OO.AdobeHeartbeatPluginConfig.ssl).toBe(undefined);
 
     expect(ADB.OO.HeartbeatConfig.debugLogging).toBe(false);
   });
 
-  it('Omniture Video Plugin turn on debug logging', function()
-  {
-    var plugin = createPlugin(framework,
+  it('Omniture Video Plugin turn on debug logging', () => {
+    // eslint-disable-next-line no-unused-vars
+    const plugin = createPlugin(framework,
       {
-        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-        "reportSuiteId":"ovppooyala",
-        "pageName":"Test Page Name",
-        "visitorId":"test-vid",
-        "debug":true,
-        "channel":"Test Heartbeat Channel",//optional
-        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-        "heartbeatSSL":false,
-        "publisherId":"ooyalatester",
-        "props":{
-          "prop2":"testProp2",
-          "prop15":"testProp15"
+        marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
+        visitorTrackingServer: 'ovppartners.sc.omtrdc.net',
+        appMeasurementTrackingServer: 'ovppartners.sc.omtrdc.net',
+        reportSuiteId: 'ovppooyala',
+        pageName: 'Test Page Name',
+        visitorId: 'test-vid',
+        debug: true,
+        channel: 'Test Heartbeat Channel', // optional
+        heartbeatTrackingServer: 'ovppartners.hb.omtrdc.net',
+        heartbeatSSL: false,
+        publisherId: 'ooyalatester',
+        props: {
+          prop2: 'testProp2',
+          prop15: 'testProp15',
         },
-        "eVars":{
-          "eVar10":"testEVar10"
-        }
+        eVars: {
+          eVar10: 'testEVar10',
+        },
       });
 
-    expect(ADB.OO.Visitor.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+    expect(ADB.OO.Visitor.trackingServer).toBe('ovppartners.sc.omtrdc.net');
 
-    expect(ADB.OO.AppMeasurement.trackingServer).toBe("ovppartners.sc.omtrdc.net");
-    expect(ADB.OO.AppMeasurement.account).toBe("ovppooyala");
-    expect(ADB.OO.AppMeasurement.pageName).toBe("Test Page Name");
-    expect(ADB.OO.AppMeasurement.visitorID).toBe("test-vid");
+    expect(ADB.OO.AppMeasurement.trackingServer).toBe('ovppartners.sc.omtrdc.net');
+    expect(ADB.OO.AppMeasurement.account).toBe('ovppooyala');
+    expect(ADB.OO.AppMeasurement.pageName).toBe('Test Page Name');
+    expect(ADB.OO.AppMeasurement.visitorID).toBe('test-vid');
 
     expect(ADB.OO.VideoPlayerPluginConfig.debugLogging).toBe(true);
 
-    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe("Test Heartbeat Channel");
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe('Test Heartbeat Channel');
     expect(ADB.OO.AdobeAnalyticsPluginConfig.debugLogging).toBe(true);
 
-    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe("ovppartners.hb.omtrdc.net");
-    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe("ooyalatester");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe('ovppartners.hb.omtrdc.net');
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe('ooyalatester');
     expect(ADB.OO.AdobeHeartbeatPluginConfig.debugLogging).toBe(true);
     expect(ADB.OO.AdobeHeartbeatPluginConfig.ssl).toBe(undefined);
 
     expect(ADB.OO.HeartbeatConfig.debugLogging).toBe(true);
   });
 
-  it('Omniture Video Plugin can turn on SSL mode', function()
-  {
-    var plugin = createPlugin(framework,
+  it('Omniture Video Plugin can turn on SSL mode', () => {
+    // eslint-disable-next-line no-unused-vars
+    const plugin = createPlugin(framework,
       {
-        "marketingCloudOrgId":"2A5D3BC75244638C0A490D4D@AdobeOrg",
-        "visitorTrackingServer":"ovppartners.sc.omtrdc.net",
-        "appMeasurementTrackingServer":"ovppartners.sc.omtrdc.net",
-        "reportSuiteId":"ovppooyala",
-        "pageName":"Test Page Name",
-        "visitorId":"test-vid",
-        "debug":false,
-        "channel":"Test Heartbeat Channel",//optional
-        "heartbeatTrackingServer":"ovppartners.hb.omtrdc.net",
-        "heartbeatSSL":true,
-        "publisherId":"ooyalatester",
-        "props":{
-          "prop2":"testProp2",
-          "prop15":"testProp15"
+        marketingCloudOrgId: '2A5D3BC75244638C0A490D4D@AdobeOrg',
+        visitorTrackingServer: 'ovppartners.sc.omtrdc.net',
+        appMeasurementTrackingServer: 'ovppartners.sc.omtrdc.net',
+        reportSuiteId: 'ovppooyala',
+        pageName: 'Test Page Name',
+        visitorId: 'test-vid',
+        debug: false,
+        channel: 'Test Heartbeat Channel', // optional
+        heartbeatTrackingServer: 'ovppartners.hb.omtrdc.net',
+        heartbeatSSL: true,
+        publisherId: 'ooyalatester',
+        props: {
+          prop2: 'testProp2',
+          prop15: 'testProp15',
         },
-        "eVars":{
-          "eVar10":"testEVar10"
-        }
+        eVars: {
+          eVar10: 'testEVar10',
+        },
       });
 
-    expect(ADB.OO.Visitor.trackingServer).toBe("ovppartners.sc.omtrdc.net");
+    expect(ADB.OO.Visitor.trackingServer).toBe('ovppartners.sc.omtrdc.net');
 
-    expect(ADB.OO.AppMeasurement.trackingServer).toBe("ovppartners.sc.omtrdc.net");
-    expect(ADB.OO.AppMeasurement.account).toBe("ovppooyala");
-    expect(ADB.OO.AppMeasurement.pageName).toBe("Test Page Name");
-    expect(ADB.OO.AppMeasurement.visitorID).toBe("test-vid");
+    expect(ADB.OO.AppMeasurement.trackingServer).toBe('ovppartners.sc.omtrdc.net');
+    expect(ADB.OO.AppMeasurement.account).toBe('ovppooyala');
+    expect(ADB.OO.AppMeasurement.pageName).toBe('Test Page Name');
+    expect(ADB.OO.AppMeasurement.visitorID).toBe('test-vid');
 
     expect(ADB.OO.VideoPlayerPluginConfig.debugLogging).toBe(false);
 
-    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe("Test Heartbeat Channel");
+    expect(ADB.OO.AdobeAnalyticsPluginConfig.channel).toBe('Test Heartbeat Channel');
     expect(ADB.OO.AdobeAnalyticsPluginConfig.debugLogging).toBe(false);
 
-    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe("ovppartners.hb.omtrdc.net");
-    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe("ooyalatester");
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.heartbeatTrackingServer).toBe('ovppartners.hb.omtrdc.net');
+    expect(ADB.OO.AdobeHeartbeatPluginConfig.publisherId).toBe('ooyalatester');
     expect(ADB.OO.AdobeHeartbeatPluginConfig.debugLogging).toBe(false);
     expect(ADB.OO.AdobeHeartbeatPluginConfig.ssl).toBe(true);
 
