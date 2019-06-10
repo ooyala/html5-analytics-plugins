@@ -22,6 +22,7 @@
     "@babel/core": "^7.0.0-beta.51",
     "@babel/preset-env": "^7.0.0-beta.51",
     "babel-core": "^7.0.0-bridge.0",
+    "babel-loader": "^8.0.6",
     "babelify": "^9.0.0",
     "browserify": "16.2.2",
     "eslint": "^5.16.0",
@@ -43,7 +44,10 @@
     "mocha": "~5.2.0",
     "underscore": "1.9.1",
     "vinyl-buffer": "^1.0.0",
-    "vinyl-source-stream": "^2.0.0"
+    "vinyl-source-stream": "^2.0.0",
+    "webpack": "^4.33.0",
+    "webpack-cli": "^3.3.3",
+    "webpack-glob-entries": "^1.0.1"
   },
   "author": "Ooyala",
   "contributors": [
@@ -57,9 +61,9 @@
   "scripts": {
     "test": "jest",
     "lint": "eslint .",
-    "build": "echo",
-    "build-prod": "echo",
-    "start": "echo",
+    "build:dev": "webpack --mode development",
+    "build": "webpack --mode production",
+    "start": "webpack-dev-server",
     "analysis": "echo"
   },
   "jest": {
